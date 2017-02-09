@@ -13,11 +13,18 @@
   %body
     .container
       %header.header
-        %nav(role="navigation")
-          %ul.nav.nav-pills.pull-right
-            %li
-              %a(href="http://www.phoenixframework.org/docs") Get Started
-        %span.logo
+        - if Coherence.current_user(@conn) do
+          %nav(role="navigation")
+            %ul.nav.nav-pills.pull-left
+              %li
+                %a(href="/users")
+
+        %ol.breadcrumb.text-right
+          - if Coherence.current_user(@conn) do
+            - if @conn.assigns[:remembered] do
+              %li(style="color: red;") !!
+            %li= UcxChat.Coherence.ViewHelpers.invitation_link(@conn)
+          = UcxChat.Coherence.ViewHelpers.coherence_links(@conn, :layout)
 
       %p.alert.alert-info(role="alert")= get_flash(@conn, :info)
       %p.alert.alert-danger(role="alert")= get_flash(@conn, :error)
