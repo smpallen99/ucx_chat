@@ -7,14 +7,13 @@ defmodule UcxChat.User do
     field :name, :string
     field :email, :string
     field :username, :string
-    field :chat_status, :string
     field :admin, :boolean, default: false
-    field :tag_line
+    belongs_to :client, UcxChat.Client
     coherence_schema()
 
     timestamps()
   end
-  @all_params ~w(name email username chat_status admin tag_line)a
+  @all_params ~w(name email username admin client_id)a
   @required  ~w(name email username)a
 
   def changeset(model, params \\ %{}) do

@@ -6,8 +6,6 @@ defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
       add :email, :string
 
       add :username, :string
-      add :chat_status, :string
-      add :tag_line, :string
       add :admin, :boolean, default: false
 
       # unlockable_with_token
@@ -21,9 +19,11 @@ defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
       # authenticatable
       add :password_hash, :string
 
+      add :client_id, references(:chat_clients, on_delete: :delete_all)
+
       timestamps()
     end
     create unique_index(:chat_users, [:username])
-
+    create index(:chat_users, [:client_id])
   end
 end
