@@ -1,0 +1,236 @@
+#ucx-chat.menu-nav
+  .connection-status.status-line
+  .main-content.content-background-color(style="transform: translateX(0px);")
+    .room-container
+      .dropzone
+        .dropzone-overlay.background-transparent-darkest.color-content.background-color
+          .background-transparent-darkest
+            Drop to upload a file
+        .main-content-flex
+          %section.messages-container.flex-tab-main-content#chat-window-GENERAL(aria-label="Channel")
+            %header.fixed-title.content-background-color.border-component-color
+              .burger
+                %i
+                %i
+                %i
+                .unread-burger-alert.color-error-contrast.background-error-color
+                  "*"
+              %h2
+                %a.toggle-favorite
+                %span.room-title general
+                %span.room-topic
+                  Community support in
+                  %a(href="#") #support
+                  = "."
+                  &nbsp; Developers in
+            .container-bars
+            .messages-box(style="height: calc(100% - 131px);")
+              .ticks-bar
+              %button.new-message.background-primary-action-color.color-content-background-color
+                %i.icon-down-big
+                New messages
+              .jump-recent.background-component-color.not
+                %button
+                  Jump to recent messages
+                  %i.icon-level-down
+              .wrapper
+                %ul(aria-live="polite")
+                  %li.load-more
+                  %li#asdfsdf.message.background-transparent-dark-hover.system.uj.new-day(data-username="sdfsdf" data-groupable="false" data-date="February 9, 2017" data-timestamp="123")
+                    %button.thumb.user-card-message(data-username="sdfsd.sdf" tabindex="1")
+                      .avatar
+                        .avatar-image
+                    %span.info.border-component-color.color-info-font-color
+                      %span.time(title="February 9, 2017 6:53 AM")
+                      .message-cog-container
+                        %i.icon-cog.message-cog(aria-label="Actions")
+                    .body.color-primary-font-color.color-info-font-color(dir="auto")
+                      Has joined the channel
+                    %ul.actionLinks.hidden
+                    %ul.reactions.hidden
+                      %li.add-reaction
+                        %span.icon-people-plus
+            %footer.footer.border-component-color
+              %form.message-form.secondary-font-color(method="post" action="/")
+                .message-popup-results
+                .message-input.border-component-color
+                  .input-message-container.content-background-color
+                    %textarea.message-form-text.input-message.autogrow-short(dir="ltr" name="message" placeholder="Message" style="height: 35px;")
+                    .inner-left-toolbar
+                      %i.emoji-picker-icon.icon-people
+                  .message-buttons.file
+                    %i.icon-attach.file
+                  .message-buttons.location
+                    %i.icon-location.location
+                  .message-buttons
+                    .mic
+                      %i.icon-mic(aria-label="Record")
+                    .stop-mic.hidden
+                      %i.icon-stop(aria-label="Stop Recording")
+                  .message-buttons.video-button
+                    %i.icon-videocam(aria-label="Record")
+                .stream-info
+                .formatting-tips(aria-hidden="true" dir="auto")
+                  %b
+                    *
+                    bold
+                    *
+                  %i
+                    _
+                    italics
+                    _
+                  %span
+                    ~
+                    %strike strike
+                  %code.code-colors.inline
+                    `
+                    inline_code
+                    `
+                  %code.code-colors.inline
+                    %span.hidden-br
+                      %br
+                    ```
+                    %span.hidden-br
+                      %br
+                    %i.icon-level-down
+                    "line"
+                    %span.hidden-br
+                      %br
+                    %i.icon-level-down
+                    ```
+                  %span
+                    %a{href="https://github.com/Khan/KaTeX/wiki/Function-Support-in-KaTeX" target="_blank") KaTeX
+                  %q
+                    %span.hidden-br
+                      %br
+                    >
+                    quote
+                .editing-commands(aria-hidden="true" dir="auto")
+                  .editing-commands-cancel
+                    Esc to
+                    %button(type="button") Cancel
+                  .editing-commands-save
+                    Enter to
+                    %button(type="button") Save changes
+          .flex-tab-container.border-component-color
+            %section.flex-tab.content-background-color
+            .flex-tab-bar.content-background-color(role="toolbar")
+              .tab-button.hidden(title="Visitor Info")
+                %button(aria-label="Visitor Info")
+                  %i.icon-info-circled
+              .tab-button(title="Room Info")
+                %button(aria-label="Room Info")
+                  %i.icon-info-circled
+
+  %aside.side-nav.primary-background-color.color-tertiary-font-color(role="navigation")
+    %header.header
+      .account-box(role="region")
+        .info.status-online.primary-background-color
+          .thumb(data-status="online")
+            .avatar
+              .avatar-image(style="")
+          .data
+            %h4 smpallen99
+        .options.primary-background-color.animated-hidden
+          .wrapper
+            %button.status.online(data-status="online")
+              %span Online
+            %button.status.away(data-status="away")
+              %span Away
+            %button.status.busy(data-status="busy")
+              %span Busy
+            %button.status.offline(data-status="offline")
+              %span Offline
+            %button#account.account-link
+              %i.icon-sliders
+              %span My Account
+            %button#logout
+              %i.icon-logout
+              %span Logout
+    .toolbar
+      .toolbar-wrapper
+        .toolbar-search
+          %i.toolbar-search__icon.icon-search
+          %input.toolbar-search__input.background-transparent-light.color-content-background-color.border-transparent-lighter(placeholder="Search" type="text" name="toolbar-input")
+          %i.toolbar-search__icon.toolbar-search__icon--cancel.icon-cancel
+        .toolbar-search__buttons
+          %i.toolbar-search__create-channel.icon-plus
+    .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms.hidden
+    .rooms-list(role="region" area-label="Channels")
+      .wrapper
+        .unread-rooms-mode
+          %h3 Unread Rooms
+          %ul
+            %li.link-room-GENERAL.background-transparent-darker-hover.active.has-alert
+              %a.open-room(href="#" title="general")
+                %i.icon-hash.status-offline
+                %span.name general
+                %span.opt
+                  %i.icon-eye-off.hide-room(title="Hide room" aria-label="Hide room")
+                  %i.icon-logout.leave-room(title="Leave room" aria-label="Leave room")
+        %h3.add-room.active
+          Channels
+          %span.room-count-small (1)
+        %ul
+        %button.more.more-channels.background-transparent-darker-hover
+        %h3
+        %ul
+    .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms
+      More unreads
+      %i.icon-down-big
+    .flex-nav.primary-background-color.animated-hidden
+      %section
+        %header.primary-background-color
+          %div
+            %h4 Channels
+        .content.primary-background-color
+          .wrapper
+            .flex-control
+              .search
+                %form.search-form(role="form")
+                  .input-line search
+                    %select.c-select#show
+                      %option.primary-background-color(value="joined") Joined
+                      %option.primary-background-color(value="all") All
+                    %i.icon-comment.seconary-font-color
+                  .input-line search
+                    %select.c-select#sort-channels
+                      %option.primary-background-color(value="name") Name
+                      %option.primary-background-color(value="msgs") Number of Messages
+                    %select.c-select#sort-subscriptions(style="display: none")
+                      %option.primary-background-color(value="name") Name
+                      %option.primary-background-color(value="ls") Last seen
+                    %i.icon-sort-alt-up.secondary-font-color
+                  .input-line search
+                    %select.c-select#channel-type
+                      %option.primary-background-color(value="all") All
+                      %option.primary-background-color(value="public") Public
+                      %option.primary-background-color(value="private") Private
+                    %i.icon-lock.secondary-font-color
+                  .input-line search
+                    %input.search#channel-search(placeholder="Search" autocomplete="off")
+                    %i.icon-search.seconary-font-color
+
+            %h4 List of Channels
+            %ul
+              %li
+                %a.channel-link(href="#")
+                  i.icon-hash
+                  "test"
+                  %span.opt.fixed
+                %a.channel-link(href="#")
+                  i.icon-hash
+                  "another"
+                  %span.opt.fixed
+            .load-more
+              .loading-animation
+                .bounce1
+                .bounce2
+                .bounce3
+    .arrow.bottom
+    %footer.footer
+      %a.logo(href="#" target="_blank")
+        %img(src="")
+        %small
+          %i.icon-github-circled
+          "something here"

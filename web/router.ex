@@ -34,9 +34,15 @@ defmodule UcxChat.Router do
   end
 
   scope "/", UcxChat do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :browser
 
     get "/", PageController, :index
+  end
+
+  scope "/", UcxChat do
+    pipe_through :protected
+
+    resources "/channels", ChannelController
   end
 
   # Other scopes may use custom stacks.
