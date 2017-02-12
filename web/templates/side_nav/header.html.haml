@@ -1,0 +1,24 @@
+%header.header
+  .account-box(role="region")
+    .info.status-online.primary-background-color
+      .thumb(data-status="online")
+        .avatar
+          .avatar-image(style="")
+      .data
+        %h4= @user.client.nickname
+    .options.primary-background-color.animated-hidden
+      .wrapper
+        %button.status.online(data-status="online")
+          %span Online
+        %button.status.away(data-status="away")
+          %span Away
+        %button.status.busy(data-status="busy")
+          %span Busy
+        %button.status.offline(data-status="offline")
+          %span Offline
+        %button#account.account-link
+          %i.icon-sliders
+          %span My Account
+        %button#logout
+          %i.icon-logout
+          %span Logout

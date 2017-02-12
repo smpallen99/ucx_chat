@@ -1,0 +1,10 @@
+- is_active = if @item[:is_active], do: " active", else: ""
+%h3{class: "add-room#{is_active}"
+  Direct_Messages
+  %span.room-count-small= "(#{length @item[:rooms]})"
+%ul
+  - if @item[:rooms] != [] do
+    - for room <- @item[:rooms] do
+      = render "chat_room_item", item: room
+  - else
+    %p.empty No direct messages yet

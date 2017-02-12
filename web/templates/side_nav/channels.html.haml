@@ -1,0 +1,11 @@
+- is_active = if @item[:is_active], do: " active", else: ""
+%h3{class: "add-room background-transparent-darker-hover#{is_active}"}
+  Channels
+  %span.room-count-small= length @item[:rooms]
+%ul
+  - if @item[:rooms] != [] do
+    - for room <- @item[:rooms] do
+      = render "chat_room_item.html", item: room
+  - else
+    %p.empty No_channels_yet
+%button.more.more-channels.background-transparent-darker-hover More_channels...

@@ -1,0 +1,9 @@
+- if @item[:rooms] != [] do
+  - is_active = if @item[:is_active], do: " active", else: ""
+  %h3{class: is_active}
+    %i.icon-star
+    Favorites
+    %span.room-count-small "(#{length @item[:rooms]})""
+  %ul
+    - for room <- @item[:rooms] do
+      = render "chat_room_item.html", item: room

@@ -1,0 +1,117 @@
+-if @mb[:subscribed] do
+  %form.message-form.secondary-font-color"(method="post" action="/")
+    - # {{> messagePopupConfig getPopupConfig}}
+    - if @mb[:allowed_to_send] do
+      .message-input.border-component-color
+        .input-message-container.content-background-color
+          %textarea.message-form-text.input-message autogrow-short{dir: "auto", name: "msg", maxlength:@mb[:max_message_length], placeholder: "Message"}
+
+          .inner-left-toolbar
+            %i.emoji-picker-icon.icon-people
+
+        - unless @mb[:show_send] do
+          - if @mb[:show_file_upload] do
+            .message-buttons.file
+              %i.icon-attach.file
+              %input{type: "file", accept: file_upload_allowed_media_types()}
+
+          - if @mb[:show_sandstorm] do
+            .message-buttons.sandstorm-offer
+              %i.icon-plus(title="Sandstorm_Powerbox_Share")
+
+          - if @mb[:show_location] do
+            .message-buttons.location
+              %i.icon-location.location
+
+          - if @mb[:show_mic] do
+              .message-buttons
+                .mic
+                  %i.icon-mic(aria-label="Record")
+                .stop-mic.hidden
+                  %i.icon-stop(aria-label="Stop_Recording")
+
+          - if @mb[:show_v_rec] do
+            .message-buttons.video-button
+              %i.icon-videocam(aria-label="Record")
+
+        - if @mb[:show_send] do
+          .message-buttons.send-button
+            %i.icon-paper-plane(aria-label="Send")
+    - else
+      .stream-info
+        - if @mb[:is_blocked_or_blocker] do
+          Room is blocked
+        - else
+          Room is read only
+    .stream-info
+      - ut = get_users_typing(@mb)
+      {{#with usersTyping}}
+        %strong= get_users_typing(ut, :users)
+        - if get_users_typing(ut, :multi) do
+          - if get_users_typing(ut, :self_typing) do
+            are also typing
+          - else
+            are typing
+        - else
+          - if get_users_typing(ut, :self_typing) do
+            is also typing
+          - else
+            is typing
+    - if @mb[:allowed_to_send] do
+      - if @mb[:show_formatting_tips] do
+        .formatting-tips(aria-hidden="true" dir="auto")
+          - if @mb[:show_mark_down] do
+            %b *bold*
+            %i _italics_
+            %span
+              "~"
+              %strike strike
+              "~"
+          - if @mb[:show_markdown_code] do
+            %code.code-colors.inline `inline_code`
+            %code.code-colors.inline
+              %span.hidden-br
+                %br
+              ```
+              %span.hidden-br"
+                %br
+              %i.icon-level-down
+              multi
+              %span.hidden-br
+                %br
+              %i.icon-level-down
+              line
+              %span.hidden-br
+                %br
+              %i.icon-level-down
+              ```
+          - if @mb[:katex_syntax] do
+            %span
+              %a(href="https://github.com/Khan/KaTeX/wiki/Function-Support-in-KaTeX" target="_blank") KaTeX
+          - if @mb[:show_markdown] do
+            %q
+              %span.hidden-br
+                %br
+              &gt; quote
+    .editing-commands(aria-hidden="true" dir="auto")
+      .editing-commands-cancel
+        Esc to
+        %button(type="button") Cancel message input
+      .editing-commands-save
+        Enter to
+        %button(type="button) Save changes
+-else
+  - nst = get_not_subscribed_templ(@mb)
+  - if nst[:template] do
+    = render nst[:template]
+  - else
+    - if nst[:can_join] do
+      %div
+        you are in preview mode of
+        = nst[:room_name]
+        - if nst[:join_code_required] do
+          %input(type="text" name="joinCode" placeholder="Code" style="width: 100px")
+        %button.button.join
+          %span
+            %i.icon-login
+            join

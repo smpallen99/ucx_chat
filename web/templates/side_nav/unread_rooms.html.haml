@@ -1,0 +1,7 @@
+.unread-rooms-mode {{hasUnread}}">
+  %h3
+    Unread_Rooms
+    %span.room-count-small= lenght @rooms
+  %ul
+    - for room <- @rooms do
+      = render "chat_room_item.html", room: @room, conn: @conn

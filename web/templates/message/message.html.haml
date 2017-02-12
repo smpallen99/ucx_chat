@@ -1,0 +1,69 @@
+%li{get_message_wrapper_opts(@msg)}
+  - if @msg.avatar do
+    - if avatar = avatar_from_username(@msg) do
+      %button.thumb.user-card-message{"data-username": get_username(@msg), tabindex: "1"}
+        = avatar
+    - else
+      %button.thumb.user-card-message{"data-username": get_username(@msg), tabindex: "1"}
+        .avatar
+          .avatar-image{style: "background-image:url(#{get_avatar(@msg)});"}
+  - else
+    - if emoji = emoji(@msg) do
+      %button.thumb.user-card-message{"data-username": get_username(@msg), tabindex: "1"}
+        .avatar
+          = emoji
+    - else
+      %button.thumb.user-card-message{"data-username": get_username(@msg), tabindex: "1"}
+        = get_avatar(@user.username)
+  - if alias = alias(@msg) do
+    %button.user.user-card-message.color-primary-font-color{type: "button", "data-username": @user.username, tabindex: "1"}
+      = alias
+      %span.message-alias.border-component-color.color-info-font-color= "@#{@user.username}"
+  - else
+    %button.user.user-card-message.color-primary-font-color{type: "button", "data-username": @user.username, tabindex: "1"}
+      = @user.username
+  %span.info.border-component-color.color-info-font-color
+    - for role_tag <- role_tags(@user) do
+      %span.role-tag.background-info-font-color{"data-role": role_tag.description}= role_tag.description
+    - if is_bot(@msg) do
+      %span.is-bot.background-info-font-color BOT
+    %span.time{title: get_date_time(@msg)}= get_time(@msg)
+    - if edited = edited(@msg) do
+      %span.edited{title: "edited at #{edited[:edit_time]} by #{edited[:edited_by]}"}
+        %i.icon-edit(aria-label="Edited")
+        %button.thumb.thumb-small.user-card-message{"data-username": edited[:edited_by], tabindex: "1"}
+          = get_avatar(edited[:username])
+    - if private(@msg) do
+      %span.private Only you can see this message
+    %div{class: "message-cog-container #{hide_cog(@msg)}"}
+      %i.icon-cog.message-cog(aria-label="Actions")
+  - # %div{class: "body color-primary-font-color {{system true}}" dir="auto">
+  %div{class: "body color-primary-font-color" dir: "auto"}
+    = @msg.body
+    - if oembed = has_oembed(@msg) do
+      - for _url <- oembed[:urls] do
+        = # {{injectIndex . @index}} {{> oembedBaseWidget}}
+    - for _attachment <- attachments(@msg) do
+      - # {{injectIndex . @index}} {{> messageAttachment}}
+  %ul{class: "actionLinks #{hide_action_links(@msg)}"}
+    - for action_link <- action_links(@msg) do
+      %li.color-primary-action-color
+        %span.action-link{"data-actionlink": action_link.id}
+          - if action_link.icon do
+            %i{class: action_link.icon}
+          - if action_link.i18n_label do
+            = action_link.i18n_label
+          - else
+            = action_link.label
+  %ul{class: "reactions#{hide_reactions(@msg)}"}
+    - for reaction <- reactions(@msg) do
+      %li{"data-emoji": "#{reaction.emoji}"}= mark_user_reaction(reaction)
+        %span.reaction-emoji= render_emoji(reaction.emoji)
+        %span.reaction-count= length reaction
+        %ul.people
+          %span(style="font-weight: bold;")
+            = reaction.usernames
+            %span(style="color: #aaa;")
+              = reaction.reaction
+    %li.add-reaction
+      %span.icon-people-plus

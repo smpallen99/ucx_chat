@@ -122,9 +122,39 @@
                 %button(aria-label="Room Info")
                   %i.icon-info-circled
 
-  - #%aside.side-nav.primary-background-color.color-tertiary-font-color(role="navigation")
-    - #%header.header
-    - #.toolbar
+  %aside.side-nav.primary-background-color.color-tertiary-font-color(role="navigation")
+    %header.header
+      .account-box(role="region")
+        .info.status-online.primary-background-color
+          .thumb(data-status="online")
+            .avatar
+              .avatar-image(style="")
+          .data
+            %h4= @user.client.nickname
+        .options.primary-background-color.animated-hidden
+          .wrapper
+            %button.status.online(data-status="online")
+              %span Online
+            %button.status.away(data-status="away")
+              %span Away
+            %button.status.busy(data-status="busy")
+              %span Busy
+            %button.status.offline(data-status="offline")
+              %span Offline
+            %button#account.account-link
+              %i.icon-sliders
+              %span My Account
+            %button#logout
+              %i.icon-logout
+              %span Logout
+    .toolbar
+      .toolbar-wrapper
+        .toolbar-search
+          %i.toolbar-search__icon.icon-search
+          %input.toolbar-search__input.background-transparent-light.color-content-background-color.border-transparent-lighter(placeholder="Search" type="text" name="toolbar-input")
+          %i.toolbar-search__icon.toolbar-search__icon--cancel.icon-cancel
+        .toolbar-search__buttons
+          %i.toolbar-search__create-channel.icon-plus
     .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms.hidden
       More unreads
       %i.icon-up-big
@@ -233,7 +263,12 @@
                 .bounce1
                 .bounce2
                 .bounce3
-
-    - #%footer.footer
+    .arrow.bottom
+    %footer.footer
+      %a.logo(href="#" target="_blank")
+        %img(src="")
+        %small
+          %i.icon-github-circled
+          "something here"
 :javascript
   window.ucxchat = {room: '<%= @channel.name %>', channel_id: <%= @channel.id %>, nickname: '<%= @user.client.nickname %>', user_id: <%= @user.id %>, client_id: <%= @user.client.id %>};
