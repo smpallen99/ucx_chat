@@ -42,7 +42,7 @@ defmodule UcxChat.Router do
     pipe_through :protected
 
     get "/", PageController, :index
-    resources "/channels", ChannelController
+    resources "/channel", ChannelController
   end
 
   # Other scopes may use custom stacks.

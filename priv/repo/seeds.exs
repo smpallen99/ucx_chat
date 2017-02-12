@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias UcxChat.{Repo, Client, User}
+alias UcxChat.{Repo, Client, User, ChatChannel}
 
 Repo.delete_all UcxChat.User
 Repo.delete_all Client
@@ -25,4 +25,6 @@ User.changeset(%User{}, %{client_id: c2.id, name: "Steve Pallen", email: "smpall
 |> Repo.insert!
 
 ChatChannel.changeset(%ChatChannel{}, %{name: "general"})
+|> Repo.insert!
+ChatChannel.changeset(%ChatChannel{}, %{name: "support"})
 |> Repo.insert!

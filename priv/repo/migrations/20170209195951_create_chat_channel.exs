@@ -4,7 +4,9 @@ defmodule UcxChat.Repo.Migrations.CreateChatChannel do
   def change do
     create table(:channels) do
       add :name, :string
-      add :private, :boolean, default: false, null: false
+      add :description, :string, default: ""
+      add :type, :integer, default: 0, null: false
+      add :read_only, :boolean, default: false, null: false
 
       timestamps()
     end

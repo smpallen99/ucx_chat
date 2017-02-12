@@ -27,8 +27,19 @@ defmodule UcxChat.ChannelController do
   end
 
   def show(conn, %{"id" => id}) do
-    channel = Repo.get!(Channel, id)
-    render(conn, "show.html", channel: channel)
+    channel =
+      Channel
+      |> where([c], c.name == ^id)
+      |> Repo.one!
+
+    user =
+      conn
+      |> Coherence.current_user
+      |> Repo.preload([:client])
+
+    conn
+    |> put_view(UcxChat.PageView)
+    |> render("index.html", user: user, channel: channel)
   end
 
   def edit(conn, %{"id" => id}) do
