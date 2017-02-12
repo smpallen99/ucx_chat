@@ -4,7 +4,7 @@ defmodule UcxChat.Repo.Migrations.CreateMessage do
   def change do
     create table(:messages) do
       add :body, :string
-      add :client_id, references(:chat_clients, on_delete: :nothing)
+      add :client_id, references(:clients, on_delete: :nothing)
       add :channel_id, references(:channels, on_delete: :nothing)
 
       timestamps()

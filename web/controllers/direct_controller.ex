@@ -1,7 +1,7 @@
-defmodule UcxChat.ChannelController do
+defmodule UcxChat.DirectController do
   use UcxChat.Web, :controller
 
-  alias UcxChat.Channel, as: Channel
+  alias UcxChat.Channel
 
   def index(conn, _params) do
     channels = Repo.all(Channel)

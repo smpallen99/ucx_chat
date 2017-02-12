@@ -1,20 +1,20 @@
-defmodule UcxChat.Message do
+defmodule UcxChat.ChannelClient do
   use UcxChat.Web, :model
 
-  schema "messages" do
-    field :body, :string
-    belongs_to :client, UcxChat.Client
+  schema "channels_clients" do
     belongs_to :channel, UcxChat.Channel
-
+    belongs_to :client, UcxChat.Client
     timestamps()
   end
+
+  @fields ~w(channel_id client_id)a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:body, :client_id, :channel_id])
-    |> validate_required([:body, :client_id])
+    |> cast(params, @fields)
+    |> validate_required(@fields)
   end
 end

@@ -1,4 +1,4 @@
-defmodule UcxChat.Repo.Migrations.CreateChatChannel do
+defmodule UcxChat.Repo.Migrations.CreateChannel do
   use Ecto.Migration
 
   def change do

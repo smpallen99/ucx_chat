@@ -1,4 +1,4 @@
-defmodule UcxChat.ChatChannel do
+defmodule UcxChat.Channel do
   use UcxChat.Web, :model
 
   schema "channels" do
@@ -6,6 +6,8 @@ defmodule UcxChat.ChatChannel do
     field :description, :string
     field :type, :integer, default: 0
     field :read_only, :boolean, default: false
+    has_many :channels_clients, UcxChat.ChannelClient
+    has_many :clients, through: [:channels_clients, :client]
 
     timestamps()
   end

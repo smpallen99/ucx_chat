@@ -1,7 +1,7 @@
 defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
   use Ecto.Migration
   def change do
-    create table(:chat_users) do
+    create table(:users) do
       add :name, :string
       add :email, :string
 
@@ -19,11 +19,11 @@ defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
       # authenticatable
       add :password_hash, :string
 
-      add :client_id, references(:chat_clients, on_delete: :delete_all)
+      add :client_id, references(:clients, on_delete: :delete_all)
 
       timestamps()
     end
-    create unique_index(:chat_users, [:username])
-    create index(:chat_users, [:client_id])
+    create unique_index(:users, [:username])
+    create index(:users, [:client_id])
   end
 end

@@ -3,7 +3,7 @@ defmodule UcxChat.User do
   use UcxChat.Web, :model
   use Coherence.Schema
 
-  schema "chat_users" do
+  schema "users" do
     field :name, :string
     field :email, :string
     field :username, :string
