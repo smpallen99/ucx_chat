@@ -2,7 +2,7 @@ defmodule UcxChat.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", UcxChat.RoomChannel
+  channel "ucxchat:*", UcxChat.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

@@ -1,0 +1,76 @@
+@mixin gradient($startColor: #eee, $endColor: white) {
+  background: linear-gradient(to top, $startColor, $endColor);
+}
+
+@mixin input-shade($color, $bg) {
+  input,
+  select,
+  textarea {
+    color: $color;
+    background-color: transparent;
+    border-color: mix(contrast($bg), $bg, 10%);
+    border-style: solid;
+
+    &::placeholder {
+      color: mix($color, $bg, 75%);
+    }
+
+    &[disabled] {
+      background-color: mix(contrast($bg), $bg, 10%);
+    }
+  }
+
+  .disabled label,
+  [disabled] label {
+    color: mix($color, $bg, 75%);
+  }
+
+  .-autocomplete-container {
+    background-color: mix(contrast($bg), $bg, 10%);
+  }
+
+  .-autocomplete-item.selected {
+    background-color: mix(contrast($bg), $bg, 20%);
+  }
+
+  input[type="button"],
+  input[type="submit"] {
+    color: $color;
+    background: mix(contrast($bg), $bg, 10%);
+    border-color: mix(contrast($bg), $bg, 10%);
+  }
+}
+
+@mixin blink($color) {
+  animation-duration: 1000ms;
+  animation-name: blink;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+
+  @include keyframes(blink) {
+    0% {
+      color: $color;
+    }
+    100% {
+      opacity: inherit;
+    }
+  }
+}
+
+@mixin linkColors($color, $hover) {
+  color: $color;
+
+  &:hover {
+    color: $hover;
+  }
+}
+
+@mixin buttonColors($color, $bg) {
+  color: $color;
+  background-color: $bg;
+
+  &:hover {
+    color: mix($color, contrast($bg), 60%);
+    background-color: mix($bg, contrast($color), 60%);
+  }
+}

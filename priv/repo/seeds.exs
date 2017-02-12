@@ -23,3 +23,6 @@ User.changeset(%User{}, %{client_id: c1.id, name: "Admin", email: "steve.pallen@
 
 User.changeset(%User{}, %{client_id: c2.id, name: "Steve Pallen", email: "smpallen99@gmail.com", username: "spallen", password: "test123", password_confirmation: "test123"})
 |> Repo.insert!
+
+ChatChannel.changeset(%ChatChannel{}, %{name: "general"})
+|> Repo.insert!

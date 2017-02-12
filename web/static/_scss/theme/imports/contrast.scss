@@ -1,0 +1,34 @@
+@function contrast (
+   $color,
+   $dark: $primary-font-color,
+   $light: $primary-background-color
+){
+   @if $color == null {
+       @return null;
+   } @else {
+       $color-brightness: brightness($color);
+       $light-text-brightness: brightness($light);
+       $dark-text-brightness: brightness($dark);
+       @return if(abs($color-brightness - $light-text-brightness) > abs($color-brightness - $dark-text-brightness), $light, $dark); }
+}
+@function brightness($c) {
+   $rlin: de-gamma(red($c)/255);
+   $glin: de-gamma(green($c)/255);
+   $blin: de-gamma(blue($c)/255);
+   @return re-gamma(0.2126 * $rlin + 0.7152 * $glin + 0.0722 * $blin) * 100;
+}
+@function re-gamma($n) {
+   @if $n <= 0.0031308 {
+      @return $n * 12.92;
+   } @else {
+      @return (1.055 * pow($n,1 / 2.4) - 0.055);
+   }
+}
+@function de-gamma($n) {
+   @if $n <= 0.04045 {
+      @return $n / 12.92;
+   } @else {
+      @return pow((($n + 0.055) / 1.055), 2.4);
+   }
+}
+

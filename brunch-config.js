@@ -22,7 +22,8 @@ exports.config = {
     stylesheets: {
       joinTo: "css/app.css",
       order: {
-        after: ["web/static/css/livechat.scss", "web/static/css/app.css"] // concat app.css last
+        // after: ["web/static/css/theme/main.scss", "web/static/css/app.css"] // concat app.css last
+        // after: ["web/static/css/livechat.scss", "web/static/css/app.css"] // concat app.css last
       }
     },
     templates: {
@@ -55,8 +56,16 @@ exports.config = {
       // Do not use ES6 compiler in vendor code
       ignore: [/web\/static\/vendor/]
     },
+    postcss: {
+      processors: [
+        require("autoprefixer")
+      ]
+    },
     sass: {
-      mode: "native" // This is the important part!
+      mode: "native", // This is the important part!
+      options: {
+        includePaths: [ 'node_modules' ]
+      }
     }
   },
 

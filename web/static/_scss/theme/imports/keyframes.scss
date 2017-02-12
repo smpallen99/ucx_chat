@@ -1,0 +1,91 @@
+// keyframes
+
+// Mixin
+// @mixin keyframes($name) {
+//   @-moz-keyframes #{$name}    { @content; }
+//   @-webkit-keyframes #{$name} { @content; }
+//   @-o-keyframes #{$name}      { @content; }
+//   @-ms-keyframes #{$name}     { @content; }
+//   @-khtml-keyframes #{$name}  { @content; }
+//   @keyframes #{$name}         { @content; }
+// }
+
+// // Create the keyframes using the mixin
+// @include keyframes(textglow) {
+//   from { text-shadow: 0 0 9px red; color: red;}
+//     to { text-shadow: 0 0 19px pink; color: pink;}
+// }
+
+// @include keyframes(fadeIn) {
+//   from { opacity: 0; }
+// 	to { opacity: 1 }
+// }
+
+@mixin keyframes($animation-name) {
+    @-webkit-keyframes #{$animation-name} {
+        @content;
+    }
+    @-moz-keyframes #{$animation-name} {
+        @content;
+    }
+    @-ms-keyframes #{$animation-name} {
+        @content;
+    }
+    @-o-keyframes #{$animation-name} {
+        @content;
+    }
+    @keyframes #{$animation-name} {
+        @content;
+    }
+}
+
+@mixin animation($str) {
+  -webkit-animation: #{$str};
+  -moz-animation: #{$str};
+  -ms-animation: #{$str};
+  -o-animation: #{$str};
+  animation: #{$str};
+}
+
+// Usage
+// @include keyframes(slide-down) {
+//   0% { opacity: 1; }
+//   90% { opacity: 0; }
+// }
+
+@include keyframes(fadeIn) {
+	0% {opacity: 0; visibility: hidden; }
+	1% {opacity: 0; visibility: visible; }
+	100% {opacity: 1; visibility: visible; }
+}
+@include keyframes(fadeOut) {
+	0% {opacity: 1; visibility: visible; }
+	99% {opacity: 0; visibility: visible; }
+	100% {opacity: 0; visibility: hidden; }
+}
+@include keyframes(highlight) {
+	0% {background: #ffff99;}
+	100% {background: none;}
+}
+@include keyframes(modalEnter) {
+	0% {opacity: 0; visibility: hidden;}
+	1% {
+		opacity: 0;
+		visibility: visible;
+		transform: translateY(-150px);
+	}
+	100% {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+	}
+}
+@include keyframes(modalExit) {
+	0% {opacity: 1; visibility: visible;}
+	99% {
+		opacity: 0;
+		visibility: visible;
+		transform: translateY(150px);
+	}
+	100% { opacity: 0; visibility: hidden; }
+}

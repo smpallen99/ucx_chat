@@ -36,12 +36,12 @@ defmodule UcxChat.Router do
   scope "/", UcxChat do
     pipe_through :browser
 
-    get "/", PageController, :index
   end
 
   scope "/", UcxChat do
     pipe_through :protected
 
+    get "/", PageController, :index
     resources "/channels", ChannelController
   end
 

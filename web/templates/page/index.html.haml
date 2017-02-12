@@ -130,7 +130,7 @@
             .avatar
               .avatar-image(style="")
           .data
-            %h4 smpallen99
+            %h4= @user.client.nickname
         .options.primary-background-color.animated-hidden
           .wrapper
             %button.status.online(data-status="online")
@@ -156,8 +156,34 @@
         .toolbar-search__buttons
           %i.toolbar-search__create-channel.icon-plus
     .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms.hidden
+      More unreads
+      %i.icon-up-big
     .rooms-list(role="region" area-label="Channels")
       .wrapper
+        .unread-rooms-mode
+          %h3 Unread Rooms
+            %span.rooms-count-small
+              (1)
+          %ul
+            %li.link-room-GENERAL.background-transparent-darker-hover.has-alert
+              %a.open-room(href="/channel/general" title="general")
+                %i.icon-hash.status-offline
+                %span.name general
+                %span.opt
+                  %i.icon-eye-off.hide-room(title="Hide room")
+                  %i.icon-logout.leave-room(title="Leave room")
+        %h3
+          %i.icon-star
+          Favorites
+          %span.room-count-small
+            (1)
+        %ul
+          %li.link-room-adadfadfadf.background-transparent-darker-hover
+            %a.open-room(href="/direct/steve" title="steve")
+              %i.icon-at.status.online
+              %span.name steve
+              %span.opt
+                %i.icon-eye-off.hide-room(title="Hide room")
         .unread-rooms-mode
           %h3 Unread Rooms
           %ul
@@ -172,9 +198,19 @@
           Channels
           %span.room-count-small (1)
         %ul
+
         %button.more.more-channels.background-transparent-darker-hover
-        %h3
+        %h3.add-room.active
+          Direct Messages
+          %span.room-count-small
+            (1)
         %ul
+          %li.link-room-adasfdsaf.background-transparent-darker-hover.active
+            %a.open-room(href="/direct/steve" title="steve")
+              %i.icon-at.status-online(aria-label)
+              %span.name steve
+              %span.opt
+                %i.icon-eye-off.hide-room(title="Hide room" aria-label="Hide room")
     .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms
       More unreads
       %i.icon-down-big
@@ -234,3 +270,5 @@
         %small
           %i.icon-github-circled
           "something here"
+:javascript
+  window.ucxchat = {room: '<%= @channel.name %>', channel_id: <%= @channel.id %>, nickname: '<%= @user.client.nickname %>', user_id: <%= @user.id %>, client_id: <%= @user.client.id %>};
