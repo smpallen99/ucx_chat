@@ -46,7 +46,6 @@ defmodule UcxChat.MasterView do
   def get_loading, do: ""
   def has_more_next, do: false
 
-  def is_loading, do: false
   def loading, do: ""
   def get_mb, do: UcxChat.MessageView.get_mb
 

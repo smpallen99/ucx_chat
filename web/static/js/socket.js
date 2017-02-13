@@ -45,6 +45,20 @@ $(document).ready(function() {
     add_message(msg, sequential)
   })
 
+  chan.on("message:new", msg => {
+    console.log('message:new current id, msg.client_id', msg, ucxchat.client_id, msg.client_id )
+    $('.messages-box .wrapper > ul').append(msg.html)
+
+    let myPanel = $('.messages-box .wrapper')
+    myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
+
+
+    if (ucxchat.client_id == msg.client_id) {
+      console.log('adding own to', msg.id, $('#' + msg.id))
+      $('#' + msg.id).addClass("own")
+    }
+  })
+
   $('body').on('submit', '.message-form', function(e) {
     console.log('message-form submit', e)
   })
@@ -58,15 +72,6 @@ $(document).ready(function() {
       return false
     }
   })
-
-  // $("body").keypress(function(e) {
-  //   console.log('keypress', e.keyCode)
-  //   let keycode = e.keyCode
-  //   if(keycode == 13) {
-
-  //   }
-
-  // })
 })
 function send_message(chan, room, msg) {
   let user = window.ucxchat.user_id

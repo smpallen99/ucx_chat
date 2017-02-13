@@ -5,5 +5,10 @@
   .main-content.content-background-color(style="transform: translateX(0px);")
     = #{{#if modal}}main-modal{{/if}}">
     .room-container
-      = render "room.html", user: @user, channel: @channel, conn: @conn
+      = render "room.html", user: @user, channel: @channel, conn: @conn, messages: @messages
   = render UcxChat.SideNavView, "show.html", conn: @conn, side_nav: @side_nav, user: @user
+
+:javascript
+  window.ucxchat = {room: '<%= @channel.name %>', channel_id: <%= @channel.id %>, nickname: '<%= @user.client.nickname %>', user_id: <%= @user.id %>, client_id: <%= @user.client.id %>};
+  let myPanel = $('.messages-box .wrapper')
+  myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());

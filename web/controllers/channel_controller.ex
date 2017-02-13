@@ -1,8 +1,10 @@
 defmodule UcxChat.ChannelController do
   use UcxChat.Web, :controller
 
+  import Ecto.Query
+
   alias UcxChat.Channel, as: Channel
-  alias UcxChat.ChannelService
+  alias UcxChat.{MessageService, ChannelService, Message}
 
   def index(conn, _params) do
     show(conn, UcxChat.Channel |> Ecto.Query.first |> Repo.one)
@@ -14,9 +16,12 @@ defmodule UcxChat.ChannelController do
       |> Coherence.current_user
       |> Repo.preload([:client])
     side_nav = ChannelService.get_side_nav(user.client)
+    messages = MessageService.get_messages(channel.id)
+    Enum.map(messages, &({&1.client_id, &1.id, &1.channel_id})) |> Enum.reverse |> IO.inspect
+    IO.puts "count: #{length messages}"
     conn
     |> put_view(UcxChat.MasterView)
-    |> render("main.html", user: user, channel: channel, side_nav: side_nav)
+    |> render("main.html", user: user, channel: channel, side_nav: side_nav, messages: messages)
   end
 
   def show(conn, %{"id" => id}) do

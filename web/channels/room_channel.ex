@@ -3,7 +3,7 @@ defmodule UcxChat.RoomChannel do
   Handle incoming and outgoing ClientChannel messages
   """
   use Phoenix.Channel
-  alias UcxChat.{Repo, Message}
+  alias UcxChat.{Repo, Message, MessageService}
   require Logger
 
   ############
@@ -42,12 +42,26 @@ defmodule UcxChat.RoomChannel do
   #   # Logger.error "handle_in btn_press msg: #{inspect msg}"
   #   {:noreply, socket}
   # end
-  def handle_in("message", %{"nickname" => nickname, "channel_id" => cid, "message" => message, "client_id" => client_id, "room" => room} = msg, socket) do
+  # def handle_in("message", %{"nickname" => nickname, "channel_id" => cid, "message" => message, "client_id" => client_id, "room" => room} = msg, socket) do
+  #   Logger.warn "handle_in message, msg: #{inspect msg}"
+  #   message = Message.changeset(%Message{}, %{channel_id: cid, client_id: client_id, body: message})
+  #   |> Repo.insert!
+  #   msg = %{id: message.id, nickname: nickname, date: "February 11, 2017", timestamp: 111111, message: message.body, client_id: client_id}
+  #   UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "message", msg)
+  #   {:noreply, socket}
+  # end
+  def handle_in("message", %{"user_id" => user_id, "nickname" => nickname, "channel_id" => cid, "message" => message, "client_id" => client_id, "room" => room} = msg, socket) do
     Logger.warn "handle_in message, msg: #{inspect msg}"
-    message = Message.changeset(%Message{}, %{channel_id: cid, client_id: client_id, body: message})
+    sequential = client_id == MessageService.last_client_id(cid)
+    Logger.info "sequentail: #{inspect sequential}"
+    message = Message.changeset(%Message{}, %{sequential: sequential, channel_id: cid, client_id: client_id, body: message})
     |> Repo.insert!
-    msg = %{id: message.id, nickname: nickname, date: "February 11, 2017", timestamp: 111111, message: message.body, client_id: client_id}
-    UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "message", msg)
+    |> Repo.preload([:client])
+
+    message_html = UcxChat.MessageView.render("message.html", message: message, client: message.client) |> Phoenix.HTML.safe_to_string
+    # Logger.info "message_html: #{inspect message_html}"
+    # msg = %{id: message.id, nickname: nickname, date: "February 11, 2017", timestamp: 111111, message: message.body, client_id: client_id}
+    UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "message:new", %{html: message_html, id: "message-#{message.id}", client_id: message.client_id})
     {:noreply, socket}
   end
   def handle_in(topic, msg, socket) do

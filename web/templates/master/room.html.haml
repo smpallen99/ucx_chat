@@ -62,6 +62,8 @@
               - else
                 %li.start.color-info-font-color
                   Start of conversation
+            - for message <- @messages do
+              = render UcxChat.MessageView, "message.html", client: @user.client, message: message
             - #{{#each messagesHistory}}
             - #  {{#nrr nrrargs 'message' .}}{{/nrr}}
             - if has_more_next() do
@@ -71,3 +73,4 @@
       %footer.footer.border-component-color
         = render UcxChat.MessageView, "message_box.html", mb: get_mb()
     = render "flex_tab_bar.html"
+
