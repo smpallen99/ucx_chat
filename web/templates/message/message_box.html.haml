@@ -44,54 +44,8 @@
         - else
           Room is read only
     .users-typing.stream-info
-      -# - ut = get_users_typing(@mb, @client)
-      -#   %strong= get_users_typing(ut, :users)
-      -#   - if get_users_typing(ut, :multi) do
-      -#     - if get_users_typing(ut, :self_typing) do
-      -#       are also typing
-      -#     - else
-      -#       are typing
-      -#   - else
-      -#     - if get_users_typing(ut, :self_typing) do
-      -#       is also typing
-      -#     - else
-      -#       is typing
     - if @mb[:allowed_to_send] do
-      - if @mb[:show_formatting_tips] do
-        .formatting-tips(aria-hidden="true" dir="auto")
-          - if @mb[:show_mark_down] do
-            %b *bold*
-            %i _italics_
-            %span
-              "~"
-              %strike strike
-              "~"
-          - if @mb[:show_markdown_code] do
-            %code.code-colors.inline `inline_code`
-            %code.code-colors.inline
-              %span.hidden-br
-                %br
-              ```
-              %span.hidden-br"
-                %br
-              %i.icon-level-down
-              multi
-              %span.hidden-br
-                %br
-              %i.icon-level-down
-              line
-              %span.hidden-br
-                %br
-              %i.icon-level-down
-              ```
-          - if @mb[:katex_syntax] do
-            %span
-              %a(href="https://github.com/Khan/KaTeX/wiki/Function-Support-in-KaTeX" target="_blank") KaTeX
-          - if @mb[:show_markdown] do
-            %q
-              %span.hidden-br
-                %br
-              = "&gt; quote"
+      = show_formatting_tips(@mb)
     .editing-commands(aria-hidden="true" dir="auto")
       .editing-commands-cancel
         Esc to
@@ -99,7 +53,7 @@
       .editing-commands-save
         Enter to
         %button(type="button") Save changes
--else
+- else
   - nst = get_not_subscribed_templ(@mb)
   - if nst[:template] do
     = render nst[:template]

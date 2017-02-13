@@ -15,7 +15,7 @@ defmodule UcxChat.ChannelController do
       conn
       |> Coherence.current_user
       |> Repo.preload([:client])
-    side_nav = ChannelService.get_side_nav(user.client)
+    side_nav = ChannelService.get_side_nav(user.client, channel.id)
     messages = MessageService.get_messages(channel.id)
     conn
     |> put_view(UcxChat.MasterView)

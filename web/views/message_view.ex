@@ -1,5 +1,6 @@
 defmodule UcxChat.MessageView do
   use UcxChat.Web, :view
+  import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3, tag: 1, tag: 2]
 
   alias UcxChat.Message
 
@@ -87,8 +88,8 @@ defmodule UcxChat.MessageView do
   def get_custom_class(_, _), do: ""
 
   def get_mb do
-    [:subscribed, :allowed_to_send, :max_message_length, :show_send, :show_file_upload,
-     :show_sandstorm, :show_location, :show_mic, :show_v_rec, :show_send, :is_blocked_or_blocker,
+    [:subscribed, :allowed_to_send, :max_message_length, :show_file_upload, :katex_syntax,
+     :show_sandstorm, :show_location, :show_mic, :show_v_rec, :is_blocked_or_blocker,
      :allowed_to_send, :show_formatting_tips, :show_mark_down, :show_markdown_code, :show_markdown]
     |> Enum.map(&({&1, true}))
     |> Enum.into(%{})
@@ -97,6 +98,78 @@ defmodule UcxChat.MessageView do
     # - if nst[:can_join] do
     # = nst[:room_name]
     # - if nst[:join_code_required] do
+  end
+
+  def show_formatting_tips(%{show_formatting_tips: true} = mb) do
+    content_tag :div, class: "formatting-tips", "aria-hidden": "true", dir: "auto" do
+      [
+        show_markdown1(mb),
+        show_markdown_code(mb),
+        show_katax_syntax(mb),
+        show_markdown2(mb)
+      ]
+    end
+  end
+  def show_formatting_tips(_), do: ""
+
+  def show_katax_syntax(%{katex_syntax: true}) do
+    content_tag :span do
+      content_tag :a, href: "https://github.com/Khan/KaTeX/wiki/Function-Support-in-KaTeX", target: "_blank" do
+        "\[KaTex\]"
+      end
+    end
+  end
+  def show_katax_syntax(_), do: []
+
+  def show_markdown1(%{show_mark_down: true}) do
+    [
+      content_tag(:b, "*bold*"),
+      content_tag(:i, "_italics_"),
+      content_tag(:span, do: ["~", content_tag(:strike, "strike"), "~"])
+    ]
+  end
+  def show_markdown1(_), do: []
+
+  def show_markdown2(%{show_mark_down: true}) do
+    content_tag :q do
+      [ hidden_br(), ">quote" ]
+    end
+  end
+  def show_markdown2(_), do: []
+
+  def show_markdown_code(%{show_markdown_code: true}) do
+    [
+      content_tag(:code, [class: "code-colors inline"], do: "`inline_code`"),
+      show_markdown_code1()
+    ]
+  end
+  def show_markdown_code(_), do: []
+
+  def show_markdown_code1 do
+    content_tag :code, class: "code-colors inline" do
+      [
+        hidden_br(),
+        "```",
+        hidden_br(),
+        content_tag :i,  class: "icon-level-down" do
+        end,
+        "multi",
+        hidden_br(),
+        content_tag :i,  class: "icon-level-down" do
+        end,
+        "line",
+        hidden_br(),
+        content_tag :i,  class: "icon-level-down" do
+        end,
+        "```"
+      ]
+    end
+  end
+
+  defp hidden_br do
+    content_tag :span, class: "hidden-br" do
+      tag :br
+    end
   end
 
 end
