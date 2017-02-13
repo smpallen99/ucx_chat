@@ -1,6 +1,5 @@
 - if @item[:rooms] != [] do
-  - is_active = if @item[:is_active], do: " active", else: ""
-  %h3{class: is_active}
+  %h3(class="#{is_active(@item)}")
     %i.icon-star
     Favorites
     %span.room-count-small "(#{length @item[:rooms]})""

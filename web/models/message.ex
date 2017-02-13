@@ -10,10 +10,10 @@ defmodule UcxChat.Message do
     field :is_groupable, :boolean, virtual: true
     field :system, :string, virtual: true
     field :t, :string, virtual: true
-    field :own :boolean, virtual: true
-    field :is_temp :boolean, virtual: true
-    field :chat_opts :boolean, virtual: true
-    field :custom_class :string, virtual: true
+    field :own, :boolean, virtual: true
+    field :is_temp, :boolean, virtual: true
+    field :chat_opts, :boolean, virtual: true
+    field :custom_class, :string, virtual: true
     field :avatar, :string, virtual: true
 
     timestamps()

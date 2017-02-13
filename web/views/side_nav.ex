@@ -6,4 +6,7 @@ defmodule UcxChat.SideNavView do
     with acc <- if(item[:active], do: acc <> " active", else: acc),
          do: if(item[:alert], do: acc <> " has_alert", else: acc)
   end
+  def is_active(item) do
+    if item[:is_active], do: " active", else: ""
+  end
 end

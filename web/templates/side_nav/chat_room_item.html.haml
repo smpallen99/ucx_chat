@@ -1,9 +1,9 @@
-%li{class: chat_room_item_li_class(@item)}
-  %a.open-room{href: @item[:route], title: @item[:name]}
+%li(class="#{chat_room_item_li_class(@item)}")
+  %a.open-room(href="#{@item[:route]}" title="#{@item[:name]}")
     - if @item[:unread] do
       %span.unread= @item[:unread]
-    %i{class: "#{@item[:room_icon]} #{item[:user_status]}", "aria-label": ""}
-    %span{class: "name #{@item[:archived]}"}= @item[:name]
+    %i(class="#{@item[:room_icon]} #{@item[:user_status]}" aria-label="")
+    %span(class="name #{@item[:archived]}")= @item[:name]
     - if !! @item[:unread] do
       %span.opt
         %i.icon-eye-off.hide-room(title="Hide_room" aria-label="Hide_room")

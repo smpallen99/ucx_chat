@@ -13,7 +13,7 @@ defmodule UcxChat.MessageView do
     cls =
     ~w(get_sequential get_system get_t get_own get_is_temp get_chat_opts get_custom_class)a
     |> Enum.reduce("message background-transparent-dark-hover", fn fun, acc ->
-      acc <> apply(__MODULE, fun, [msg])
+      acc <> apply(__MODULE__, fun, [msg])
     end)
     [
       id: msg.id,
@@ -23,30 +23,34 @@ defmodule UcxChat.MessageView do
       "data-date": format_date(msg.updated_at),
       "data-timestamp": format_timestamp(msg.updated_at)
     ]
+    |> Enum.map(fn {k,v} -> "#{k}=\"#{v}\"" end)
+    |> Enum.join(" ")
   end
-  def format_date(dt) do
+  def format_date(_dt) do
 
   end
-  def format_timestamp(dt) do
+  # def format_date(_msg) do
+
+  # end
+  def format_timestamp(_dt) do
 
   end
-  def format_time(msg) do
+  def format_time(_msg) do
   end
-  def format_date(msg) do
+  def format_date_time(_msg) do
 
   end
-  def format_date_time(msg) do
-
-  end
-  def get_avatar(msg) do
+  def get_avatar(_msg) do
     ""
   end
-  def avatar_from_username(msg), do: false
-  def emoji(msg) do
+  def avatar_from_username(_msg), do: false
+  def emoji(_msg) do
     false
   end
-  def get_username(msg), do: @msg.client.nickname
-
+  def get_username(msg), do: msg.client.nickname
+  def get_users_typing(_msg), do: []
+  def get_users_typing(_msg, _cmd), do: []
+  def alias?(_msg), do: false
   def role_tags(_user), do: []
   def is_bot(_msg), do: false
   def get_date_time(msg), do: format_date_time(msg)
@@ -61,6 +65,7 @@ defmodule UcxChat.MessageView do
   def reactions(_msg), do: []
   def mark_user_reaction(_reaction), do: ""
   def render_emoji(_emoji), do: ""
+  def has_oembed(_msg), do: false
 
   def get_sequential(%{sequential: true}), do: " sequential"
   def get_sequential(_), do: ""

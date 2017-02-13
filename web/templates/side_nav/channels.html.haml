@@ -1,5 +1,4 @@
-- is_active = if @item[:is_active], do: " active", else: ""
-%h3{class: "add-room background-transparent-darker-hover#{is_active}"}
+%h3{class: "add-room background-transparent-darker-hover#{is_active(@item)}"}
   Channels
   %span.room-count-small= length @item[:rooms]
 %ul

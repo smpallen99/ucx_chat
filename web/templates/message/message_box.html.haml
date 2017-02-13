@@ -24,11 +24,11 @@
               %i.icon-location.location
 
           - if @mb[:show_mic] do
-              .message-buttons
-                .mic
-                  %i.icon-mic(aria-label="Record")
-                .stop-mic.hidden
-                  %i.icon-stop(aria-label="Stop_Recording")
+            .message-buttons
+              .mic
+                %i.icon-mic(aria-label="Record")
+              .stop-mic.hidden
+                %i.icon-stop(aria-label="Stop_Recording")
 
           - if @mb[:show_v_rec] do
             .message-buttons.video-button
@@ -92,14 +92,14 @@
             %q
               %span.hidden-br
                 %br
-              &gt; quote
+              = "&gt; quote"
     .editing-commands(aria-hidden="true" dir="auto")
       .editing-commands-cancel
         Esc to
         %button(type="button") Cancel message input
       .editing-commands-save
         Enter to
-        %button(type="button) Save changes
+        %button(type="button") Save changes
 -else
   - nst = get_not_subscribed_templ(@mb)
   - if nst[:template] do
