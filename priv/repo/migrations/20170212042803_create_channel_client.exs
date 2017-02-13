@@ -3,6 +3,7 @@ defmodule UcxChat.Repo.Migrations.CreateChannelClient do
 
   def change do
     create table(:channels_clients) do
+      add :last_read, :integer, default: 0
       add :channel_id, references(:channels, on_delete: :delete_all)
       add :client_id, references(:clients, on_delete: :delete_all)
 

@@ -52,6 +52,7 @@ defmodule UcxChat.Web do
       import UcxChat.Router.Helpers
       import UcxChat.ErrorHelpers
       import UcxChat.Gettext
+      import UcxChat.SharedView
     end
   end
 

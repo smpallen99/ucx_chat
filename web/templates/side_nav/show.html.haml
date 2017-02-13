@@ -1,6 +1,6 @@
 %aside.side-nav.primary-background-color.color-tertiary-font-color(role="navigation")
   %header.header
-    = render "account_box.html", [conn: @conn, user: @user]
+    = render "account_box.html", user: @user
   - if Coherence.current_user(@conn) do
     = render "toolbar.html", conn: @conn
     .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms.hidden
@@ -8,10 +8,10 @@
       %i.icon-up-big
     .rooms-list(role="region" area-label="Channels")
       .wrapper
-        = render "unread_rooms.html.haml", conn: @conn, rooms: @side_nav[:rooms]
+        = #render "unread_rooms.html.haml", conn: @conn, rooms: @side_nav[:rooms]
         - for room_type <- @side_nav[:room_types] do
           - if room_type[:can_show_room] do
-            = render room_type[:template_name], conn: @conn  # need to figure out what other args to send here
+            = render room_type[:template_name], rooms: room_type[:rooms]
         - if @side_nav[:can_view_history] do
           %h3.history-div
             - # <a href="{{pathFor 'privateHistory'}}">{{_ "History"}}</a>

@@ -4,7 +4,7 @@ defmodule UcxChat.Repo.Migrations.CreateClient do
   def change do
     create table(:clients) do
       add :nickname, :string, null: false
-      add :chat_status, :string, default: ""
+      add :chat_status, :string, default: "offline"
       add :tag_line, :string, default: ""
       add :uri, :string, default: ""
 

@@ -1,0 +1,73 @@
+.dropzone
+  .dropzone-overlay.background-transparent-darkest.color-content-background-color
+    .background-transparent-darkest
+      - # {{_ "Drop_to_upload_file"}}
+  .main-content-flex
+    %section(class="messages-container flex-tab-main-content #{get_admin_class(@user)}" id="#{get_window_id(@channel)}" aria-label="Channel")
+      - unless embedded_version() do
+        %header.fixed-title.content-background-color.border-component-color
+          = render "burger.html"
+          %h2
+            - if show_toggle_favorite() do
+              %a.toggle-favorite(href="#favorite")
+                %i(class="{{favorite}}" aria-label="{{_ favoriteLabel}}")
+            %i(class="#{get_room_icon(@channel)} #{get_user_status(@user)}")
+            %span.room-title= @channel.name
+            %span.room-topic= markdown @channel.topic
+      %div(class="container-bars #{container_bars_show(@channel)}")
+        - if unread = get_unread_data(@channel) do
+          - if unread[:since] do
+            - if unread[:count] do
+              .unread-bar.color-primary-action-color.background-component-color
+                %button.jump-to
+                  %span.jump-to-large Jump_to_first_unread
+                  %span.jump-to-small Jump
+                %span.unread-count-since
+                  - # {{_ "S_new_messages_since_s" count formatUnreadSince}}
+                %span.unread-count
+                  - # {{_ "N_new_messages" count}}
+                %button.mark-read
+                  Mark as read
+        - for upload <- get_uploading(@conn) do
+          %div(class="upload-progress color-primary-action-color background-component-color #{has_upload_error(@conn)}")
+            - if error = get_upload_error(@conn) do
+              .upload-progress-text
+                = error
+                %button close
+            - else
+              .upload-progress-progress(style="width: #{get_error_percentage(error)}%;")
+              .upload-progress-text
+                = "#{get_error_name(error)}... #{get_error_percentage(error)}%"
+                %button cancel
+      %div(class="messages-box #{message_box_selectable()} #{view_mode()}" style="height: calc(100% - 131px);")
+        .ticks-bar
+        %button.new-message.background-primary-action-color.color-content-background-color.not
+          %i.icon-down-big
+          New messages
+        %div(class="jump-recent background-component-color #{has_more_next(:not)}")
+          %button
+            Jump to recent messages
+            %i.icon-level-down
+        - unless can_preview() do
+          .content.room-not-found.error-color
+            %div
+              You must join to view messages in this channel
+        %div(class="wrapper #{has_more_next(:has_more_next)} #{hide_username()} #{hide_avatar()}")
+          %ul(aria-live="polite")
+            - if can_preview() do
+              - if has_more() do
+                %li.load-more
+                  -if is_loading() do
+                    = get_loading()
+              - else
+                %li.start.color-info-font-color
+                  Start of conversation
+            - #{{#each messagesHistory}}
+            - #  {{#nrr nrrargs 'message' .}}{{/nrr}}
+            - if has_more_next() do
+              %li.load-more
+                - if is_loading() do
+                  = loading()
+      %footer.footer.border-component-color
+        = render UcxChat.MessageView, "message_box.html", mb: get_mb()
+    = render "flex_tab_bar.html"

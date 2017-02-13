@@ -1,0 +1,7 @@
+%div(class="burger")
+  %i
+  %i
+  %i
+  - if unread() do
+    .unread-burger-alert.color-error-contrast.background-error-color
+      = unread()

@@ -1,10 +1,11 @@
-.account-box(role="region")
-  .info.status-online.primary-background-color
-    .thumb(data-status="online")
-      .avatar
-        .avatar-image(style="")
-    .data
-      %h4= @user.client.nickname
+.account-box(aria="Account" role="region")
+  %div(class="info #{get_user_status(@user)} primary-background-color")
+    - if @user.username do
+      .thumb(data-status="#{get_visual_status(@user)}")
+        .avatar
+          = get_user_avatar(@user)
+      .data
+        %h4= get_user_name(@user)
   .options.primary-background-color.animated-hidden
     .wrapper
       %button.status.online(data-status="online")
@@ -18,36 +19,14 @@
       %button#account.account-link
         %i.icon-sliders
         %span My Account
+      - for menu <- get_registered_menus(@user) do
+        %button.account-box-item
+          %i(class="#{menu[:icon]}")
+          %span= menu[:name]
+      - if show_admin_option(@user) do
+        %button#admin.account-link
+        %i.icon-wrench
+        %span Administration
       %button#logout
         %i.icon-logout
         %span Logout
-  <div class="account-box" aria-label="{{_ "Account"}}" role="region">
-    {{#with myUserInfo}}
-      <div class="info status-{{status}} primary-background-color">
-        {{#if username}}
-          <div class="thumb" data-status='{{visualStatus}}'>
-            {{> avatar username=username}}
-          </div>
-          <div class="data">
-            <h4>{{username}}</h4>
-          </div>
-        {{/if}}
-      </div>
-      <nav class="options primary-background-color animated-hidden">
-        <div class="wrapper">
-          <button data-status="online" class="status online"><span>{{_ "Online"}}</span></button>
-          <button data-status="away" class="status away"><span>{{_ "Away" context="male"}}</span></button>
-          <button data-status="busy" class="status busy"><span>{{_ "Busy" context="male"}}</span></button>
-          <button data-status="offline" class="status offline"><span>{{_ "Invisible"}}</span></button>
-          <button id="account" class='account-link'><i class="icon-sliders"></i><span>{{_ "My_Account"}}</span></button>
-          {{#each registeredMenus}}
-            <button class="account-box-item"><i class="{{icon}}"></i><span>{{name}}</span></button>
-          {{/each}}
-          {{#if showAdminOption }}
-            <button id="admin" class='account-link'><i class="icon-wrench"></i><span>{{_ "Administration"}}</span></button>
-          {{/if}}
-          <button id="logout"><i class="icon-logout"></i><span>{{_ "Logout"}}</span></button>
-        </div>
-      </nav>
-    {{/with}}
-  </div>

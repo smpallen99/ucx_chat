@@ -3,7 +3,7 @@ defmodule UcxChat.Channel do
 
   schema "channels" do
     field :name, :string
-    field :description, :string
+    field :topic, :string
     field :type, :integer, default: 0
     field :read_only, :boolean, default: false
     has_many :channels_clients, UcxChat.ChannelClient
@@ -17,7 +17,7 @@ defmodule UcxChat.Channel do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :type, :description, :read_only])
+    |> cast(params, [:name, :type, :topic, :read_only])
     |> validate_required([:name])
   end
 end

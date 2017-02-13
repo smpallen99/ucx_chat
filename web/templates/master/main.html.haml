@@ -5,5 +5,5 @@
   .main-content.content-background-color(style="transform: translateX(0px);")
     = #{{#if modal}}main-modal{{/if}}">
     .room-container
-      = render "room.html"
-  = render UcxChat.SideNav, "show.html"
+      = render "room.html", user: @user, channel: @channel, conn: @conn
+  = render UcxChat.SideNavView, "show.html", conn: @conn, side_nav: @side_nav, user: @user

@@ -1,10 +1,10 @@
 -if @mb[:subscribed] do
-  %form.message-form.secondary-font-color"(method="post" action="/")
+  %form.message-form.secondary-font-color(method="post" action="/")
     - # {{> messagePopupConfig getPopupConfig}}
     - if @mb[:allowed_to_send] do
       .message-input.border-component-color
         .input-message-container.content-background-color
-          %textarea.message-form-text.input-message autogrow-short{dir: "auto", name: "msg", maxlength:@mb[:max_message_length], placeholder: "Message"}
+          %textarea.message-form-text.input-message.autogrow-short{dir: "auto", name: "msg", maxlength:@mb[:max_message_length], placeholder: "Message"}
 
           .inner-left-toolbar
             %i.emoji-picker-icon.icon-people
@@ -45,7 +45,6 @@
           Room is read only
     .stream-info
       - ut = get_users_typing(@mb)
-      {{#with usersTyping}}
         %strong= get_users_typing(ut, :users)
         - if get_users_typing(ut, :multi) do
           - if get_users_typing(ut, :self_typing) do

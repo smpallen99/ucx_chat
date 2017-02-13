@@ -83,4 +83,19 @@ defmodule UcxChat.MessageView do
   def get_chat_opts(_), do: ""
   def get_custom_class(%{custom_class: custom_class}), do: " #{custom_class}"
   def get_custom_class(_), do: ""
+
+  def get_mb do
+    mb =
+      [:subscribed, :allowed_to_send, :max_message_length, :show_send, :show_file_upload,
+       :show_sandstorm, :show_location, :show_mic, :show_v_rec, :show_send, :is_blocked_or_blocker,
+       :allowed_to_send, :show_formatting_tips, :show_mark_down, :show_markdown_code, :show_markdown]
+      |> Enum.map(&({&1, true}))
+      |> Enum.into(%{})
+    # - if nst[:template] do
+    # = render nst[:template]
+    # - if nst[:can_join] do
+    # = nst[:room_name]
+    # - if nst[:join_code_required] do
+  end
+
 end
