@@ -3,7 +3,7 @@ defmodule UcxChat.ChannelClientTest do
 
   alias UcxChat.ChannelClient
 
-  @valid_attrs %{}
+  @valid_attrs %{client_id: 1, channel_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

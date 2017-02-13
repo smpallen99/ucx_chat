@@ -1,5 +1,6 @@
 defmodule UcxChat.MessageView do
   use UcxChat.Web, :view
+  alias UcxChat.Message
 
   def file_upload_allowed_media_types do
     ""
@@ -26,19 +27,20 @@ defmodule UcxChat.MessageView do
     |> Enum.map(fn {k,v} -> "#{k}=\"#{v}\"" end)
     |> Enum.join(" ")
   end
-  def format_date(_dt) do
-
+  def format_date(%NaiveDateTime{} = dt) do
+    Message.format_date dt
   end
-  # def format_date(_msg) do
-
-  # end
-  def format_timestamp(_dt) do
-
+  def format_date(%{updated_at: dt}) do
+    Message.format_date dt
   end
-  def format_time(_msg) do
+  def format_timestamp(%NaiveDateTime{} = dt) do
+    Message.format_timestamp dt
   end
-  def format_date_time(_msg) do
-
+  def format_time(%{updated_at: dt}) do
+    Message.format_time dt
+  end
+  def format_date_time(%{updated_at: dt}) do
+    Message.format_date_time dt
   end
   def get_avatar(_msg) do
     ""

@@ -4,4 +4,4 @@
     %span.room-count-small= length @rooms
   %ul
     - for room <- @rooms do
-      = render "chat_room_item.html", room: @room, conn: @conn
+      = render "chat_room_item.html", room: room

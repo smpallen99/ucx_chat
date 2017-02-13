@@ -1,0 +1,9 @@
+#user-card-popover
+#ucx-chat.menu-nav
+  .connection-status.status-online
+    = # connection status
+  .main-content.content-background-color(style="transform: translateX(0px);")
+    = #{{#if modal}}main-modal{{/if}}">
+    .room-container
+      = render "room.html"
+  = render UcxChat.SideNav, "show.html"
