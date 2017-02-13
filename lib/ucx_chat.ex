@@ -12,6 +12,7 @@ defmodule UcxChat do
       supervisor(UcxChat.Repo, []),
       # Start the endpoint when the application starts
       supervisor(UcxChat.Endpoint, []),
+      worker(UcxChat.TypingAgent, []),
       # Start your own worker by calling: UcxChat.Worker.start_link(arg1, arg2, arg3)
       # worker(UcxChat.Worker, [arg1, arg2, arg3]),
     ]

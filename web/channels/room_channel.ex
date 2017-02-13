@@ -3,7 +3,7 @@ defmodule UcxChat.RoomChannel do
   Handle incoming and outgoing ClientChannel messages
   """
   use Phoenix.Channel
-  alias UcxChat.{Repo, Message, MessageService}
+  alias UcxChat.{Repo, Message, MessageService, TypingAgent}
   require Logger
 
   ############
@@ -42,33 +42,67 @@ defmodule UcxChat.RoomChannel do
   #   # Logger.error "handle_in btn_press msg: #{inspect msg}"
   #   {:noreply, socket}
   # end
-  # def handle_in("message", %{"nickname" => nickname, "channel_id" => cid, "message" => message, "client_id" => client_id, "room" => room} = msg, socket) do
+  # def handle_in("message", %{"nickname" => nickname, "channel_id" => channel_id, "message" => message, "client_id" => client_id, "room" => room} = msg, socket) do
   #   Logger.warn "handle_in message, msg: #{inspect msg}"
-  #   message = Message.changeset(%Message{}, %{channel_id: cid, client_id: client_id, body: message})
+  #   message = Message.changeset(%Message{}, %{channel_id: channel_id, client_id: client_id, body: message})
   #   |> Repo.insert!
   #   msg = %{id: message.id, nickname: nickname, date: "February 11, 2017", timestamp: 111111, message: message.body, client_id: client_id}
   #   UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "message", msg)
   #   {:noreply, socket}
   # end
-  def handle_in("message", %{"user_id" => user_id, "nickname" => nickname, "channel_id" => cid, "message" => message, "client_id" => client_id, "room" => room} = msg, socket) do
-    Logger.warn "handle_in message, msg: #{inspect msg}"
-    sequential = client_id == MessageService.last_client_id(cid)
-    Logger.info "sequentail: #{inspect sequential}"
-    message = Message.changeset(%Message{}, %{sequential: sequential, channel_id: cid, client_id: client_id, body: message})
-    |> Repo.insert!
-    |> Repo.preload([:client])
+  def handle_in("message", %{"user_id" => user_id, "nickname" => nickname, "channel_id" => channel_id, "message" => message, "client_id" => client_id, "room" => room} = msg, socket) do
+    Logger.debug "handle_in message, msg: #{inspect msg}"
+    message =
+      %Message{}
+      |> Message.changeset(%{
+        sequential: client_id == MessageService.last_client_id(channel_id),
+        channel_id: channel_id,
+        client_id: client_id,
+        body: message
+      })
+      |> Repo.insert!
+      |> Repo.preload([:client])
 
-    message_html = UcxChat.MessageView.render("message.html", message: message, client: message.client) |> Phoenix.HTML.safe_to_string
-    # Logger.info "message_html: #{inspect message_html}"
-    # msg = %{id: message.id, nickname: nickname, date: "February 11, 2017", timestamp: 111111, message: message.body, client_id: client_id}
-    UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "message:new", %{html: message_html, id: "message-#{message.id}", client_id: message.client_id})
+    message_html =
+      "message.html"
+      |> UcxChat.MessageView.render(message: message, client: message.client)
+      |> Phoenix.HTML.safe_to_string
+
+    UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "message:new",
+      %{
+        html: message_html,
+        id: "message-#{message.id}",
+        client_id: message.client_id
+      })
+    TypingAgent.stop_typing(channel_id, client_id)
+    update_typing(channel_id, room)
     {:noreply, socket}
   end
+
+  def handle_in("typing:start", %{"channel_id" => channel_id,
+    "client_id" => client_id, "nickname" => nickname, "room" => room}, socket) do
+    TypingAgent.start_typing(channel_id, client_id, nickname)
+    update_typing(channel_id, room)
+    {:noreply, socket}
+  end
+
+  def handle_in("typing:stop", %{"channel_id" => channel_id, "client_id" => client_id, "room" => room}, socket) do
+    TypingAgent.stop_typing(channel_id, client_id)
+    update_typing(channel_id, room)
+
+    {:noreply, socket}
+  end
+
+  # default case
   def handle_in(topic, msg, socket) do
     Logger.warn "handle_in topic: #{topic}, msg: #{inspect msg}"
     {:noreply, socket}
   end
 
+  defp update_typing(channel_id, room) do
+    typing = TypingAgent.get_typing_names(channel_id)
+    UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "typing:update", %{typing: typing})
+  end
   # def handle_in("channels:get", message, socket) do
   #   channel_id = message["channel_id"]
   #   client_id = message["client_id"]
@@ -84,10 +118,10 @@ defmodule UcxChat.RoomChannel do
   #   {:reply, {:ok, out_message}}, socket}
   # end
   # def handle_in("message:get", message, socket) do
-  #   cid = message["channel_id"]
+  #   channel_id = message["channel_id"]
   #   messages =
   #     Message
-  #     |> where([m], m.channel_id == ^cid)
+  #     |> where([m], m.channel_id == ^channel_id)
   #     |> join(:left, [m], c in assoc(m, :client))
   #     |> select([m,c], {m.id, m.body, m.updated_at, c.id, c.nickname})
   #     |> Repo.all
@@ -98,9 +132,9 @@ defmodule UcxChat.RoomChannel do
   #   {:reply, {:ok, %{messages: messages}}, socket}
   # end
 
-  # def handle_in("message:new", %{"nickname" => nickname, "channel_id" => cid, "message" => message, "client_id" => client_id, "room" => room} = msg, socket) do
+  # def handle_in("message:new", %{"nickname" => nickname, "channel_id" => channel_id, "message" => message, "client_id" => client_id, "room" => room} = msg, socket) do
   #   Logger.warn "handle_in message:new, msg: #{inspect msg}"
-  #   message = Message.changeset(%Message{}, %{channel_id: cid, client_id: client_id, body: message})
+  #   message = Message.changeset(%Message{}, %{channel_id: channel_id, client_id: client_id, body: message})
   #   |> Repo.insert!
   #   # msg = %{ts: %{day: 1, mo: 2, yr: 3}, id: message.id, nickname: nickname, date: "February 11, 2017", timestamp: 111111, message: message.body, client_id: client_id}
   #   # UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "message:single", msg)

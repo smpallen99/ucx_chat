@@ -43,19 +43,19 @@
           Room is blocked
         - else
           Room is read only
-    .stream-info
-      - ut = get_users_typing(@mb)
-        %strong= get_users_typing(ut, :users)
-        - if get_users_typing(ut, :multi) do
-          - if get_users_typing(ut, :self_typing) do
-            are also typing
-          - else
-            are typing
-        - else
-          - if get_users_typing(ut, :self_typing) do
-            is also typing
-          - else
-            is typing
+    .users-typing.stream-info
+      -# - ut = get_users_typing(@mb, @client)
+      -#   %strong= get_users_typing(ut, :users)
+      -#   - if get_users_typing(ut, :multi) do
+      -#     - if get_users_typing(ut, :self_typing) do
+      -#       are also typing
+      -#     - else
+      -#       are typing
+      -#   - else
+      -#     - if get_users_typing(ut, :self_typing) do
+      -#       is also typing
+      -#     - else
+      -#       is typing
     - if @mb[:allowed_to_send] do
       - if @mb[:show_formatting_tips] do
         .formatting-tips(aria-hidden="true" dir="auto")

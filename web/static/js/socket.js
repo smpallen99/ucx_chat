@@ -17,6 +17,8 @@ $(document).ready(function() {
 
   // Now that you are connected, you can join channels with a topic:
   let chan = socket.channel("ucxchat:room-"+room, {})
+  ucxchat.chan = chan
+
   chan.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
     .receive("error", resp => { console.log("Unable to join", resp) })
@@ -58,97 +60,102 @@ $(document).ready(function() {
       $('#' + msg.id).addClass("own")
     }
   })
+  chan.on("typing:update", msg => {
+    console.log('typing:update', msg)
+    let typing = msg.typing
 
+    if (typing.indexOf(ucxchat.nickname) < 0) {
+      update_typing(false, typing)
+    } else {
+      remove(typing, ucxchat.nickname)
+      update_typing(true, typing)
+    }
+  })
+
+      // -# - ut = get_users_typing(@mb, @client)
+      // -#   %strong= get_users_typing(ut, :users)
+      // -#   - if get_users_typing(ut, :multi) do
+      // -#     - if get_users_typing(ut, :self_typing) do
+      // -#       are also typing
+      // -#     - else
+      // -#       are typing
+      // -#   - else
+      // -#     - if get_users_typing(ut, :self_typing) do
+      // -#       is also typing
+      // -#     - else
+      // -#       is typing
   $('body').on('submit', '.message-form', function(e) {
     console.log('message-form submit', e)
   })
   $('body').on('keypress', '.message-form-text', function(e) {
-    // console.log('message-form-text keypress', e)
+    console.log('message-form-text keypress', e)
     if(e.keyCode == 13) {
       let msg = $('.message-form-text').val()
       console.log('msg', msg)
       send_message(chan, room, msg)
       $('.message-form-text').val('')
+      ucxchat.typing = false
       return false
     }
+    if (!ucxchat.typing) {
+      ucxchat.typing = true
+      setTimeout(typing_timer_timeout, 15000, ucxchat.channel_id, ucxchat.client_id)
+      ucxchat.chan.push("typing:start", {channel_id: ucxchat.channel_id,
+        client_id: ucxchat.client_id, nickname: ucxchat.nickname, room: ucxchat.room})
+    }
+    return true
   })
 })
+
+function remove(arr, item) {
+  console.log('remove', arr, item)
+    for(var i = arr.length; i--;) {
+        if(arr[i] === item) {
+            arr.splice(i, 1);
+        }
+    }
+}
+
+function update_typing(self_typing, list) {
+  console.log('update_typing', self_typing, list)
+  let len = list.length
+  let prepend = ""
+  if (len > 1) {
+    if (self_typing)
+      prepend = " are also typing"
+    else
+      prepend = " are typing"
+  } else if (len == 0) {
+    $('form.message-form .users-typing').html('')
+    return
+  } else {
+    if (self_typing)
+      prepend = " is also typing"
+    else
+      prepend = " is typing"
+  }
+
+  $('form.message-form .users-typing').html("<strong>" + list.join(", ") + "</strong>" + prepend)
+}
+
+function typing_timer_timeout(channel_id, client_id) {
+  console.log('typing_timer_timeout')
+  if ($('.message-form-text').val() == '') {
+    if (ucxchat.typing) {
+      // assume they cleared the textedit and did not send
+      ucxchat.typing = false
+      ucxchat.chan.push("typing:stop", {channel_id: channel_id, client_id: client_id, room: ucxchat.room})
+    }
+  } else {
+    setTimeout(typing_timer_timeout, 15000, channel_id, client_id)
+  }
+}
 function send_message(chan, room, msg) {
   let user = window.ucxchat.user_id
   let ucxchat = window.ucxchat
   console.log('user', user)
   chan.push("message", {message: msg, user_id: user, room: ucxchat.room, nickname: ucxchat.nickname,
     client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
-}
-function add_message(msg, sequential) {
-  let seq = ""
-  if(sequential) seq = sequential
-  let entry =
-   `<li id="${msg.id}" class="message background-transparent-dark-hover${seq}" data-username="${msg.nickname}" data-date="${msg.date}" data-timestamp="${msg.timestamp}">
-      <button class="thumb user-card-message" data-username="${msg.nickname}" tabindex="1">
-        <div class="avatar">
-          <div class="avatar-image" style="background-image:url(https://cdn-demo.rocket.chat/avatar/steve.pallen?_dc=0);"></div>
-        </div>
-      </button>
-      <button type="button" class="user user-card-message color-primary-font-color" data-username="${msg.nickname}" tabindex="1">${msg.nickname}</button>
-      <span class="info border-component-color color-info-font-color">
-        <span class="time" title="February 10, 2017 9:49 AM">9:49 AM</span>
-        <div class="message-cog-container ">
-          <i class="icon-cog message-cog" aria-label="Actions"></i>
-        </div>
-      </span>
-      <div class="body color-primary-font-color " dir="auto">
-        ${msg.message}
-      </div>
-      <ul class="actionLinks hidden">
-      </ul>
-      <ul class="reactions hidden">
-        <li class="add-reaction"><span class="icon-people-plus"></span></li>
-      </ul>
-    </li>`
-  $('.messages-box .wrapper > ul').append(entry)
-  let myPanel = $('.messages-box .wrapper')
-  myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
-}
-function add_short_message(msg) {
-  let entry =
-    `<li id="${msg.id}" class="message background-transparent-dark-hover sequential own" data-username="${msg.nickname}" data-date="February 10, 2017" data-timestamp="1486738189297">
-
-
-        <button class="thumb user-card-message" data-username="${msg.nickname}" tabindex="1">
-          <div class="avatar">
-            <div class="avatar-image" style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);"></div>
-          </div></button>
-
-
-
-      <button type="button" class="user user-card-message color-primary-font-color" data-username="smpallen99" tabindex="1">smpallen99</button>
-
-    <span class="info border-component-color color-info-font-color">
-
-
-    <span class="time" title="February 10, 2017 9:49 AM">9:49 AM</span>
-
-
-      <div class="message-cog-container ">
-        <i class="icon-cog message-cog" aria-label="Actions"></i>
-      </div>
-    </span>
-    <div class="body color-primary-font-color " dir="auto">
-      and more
-
-
-    </div>
-    <ul class="actionLinks hidden">
-
-    </ul>
-    <ul class="reactions hidden">
-
-      <li class="add-reaction">
-        <span class="icon-people-plus"></span>
-      </li>
-    </ul>
-  </li>`
 }
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,

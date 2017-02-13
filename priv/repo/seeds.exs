@@ -17,11 +17,15 @@ Repo.delete_all Client
 
 c1 = Client.changeset(%Client{}, %{nickname: "Admin"}) |> UcxChat.Repo.insert!
 c2 = Client.changeset(%Client{}, %{nickname: "Steve"}) |> UcxChat.Repo.insert!
+c3 = Client.changeset(%Client{}, %{nickname: "Merilee"}) |> UcxChat.Repo.insert!
 
 u1 = User.changeset(%User{}, %{client_id: c1.id, name: "Admin", email: "steve.pallen@emetrotel.com", username: "admin", password: "test123", password_confirmation: "test123", admin: true})
 |> Repo.insert!
 
 u2 = User.changeset(%User{}, %{client_id: c2.id, name: "Steve Pallen", email: "smpallen99@gmail.com", username: "spallen", password: "test123", password_confirmation: "test123"})
+|> Repo.insert!
+
+u3 = User.changeset(%User{}, %{client_id: c3.id, name: "Merilee Lackey", email: "smpallen99@yahoo.com", username: "merilee", password: "test123", password_confirmation: "test123"})
 |> Repo.insert!
 
 ch1 = Channel.changeset(%Channel{}, %{name: "general"})
@@ -36,5 +40,8 @@ ch2 = Channel.changeset(%Channel{}, %{name: "support"})
   |> Repo.insert!
   %ChannelClient{}
   |> ChannelClient.changeset(%{channel_id: ch.id, client_id: c2.id})
+  |> Repo.insert!
+  %ChannelClient{}
+  |> ChannelClient.changeset(%{channel_id: ch.id, client_id: c3.id})
   |> Repo.insert!
 end)

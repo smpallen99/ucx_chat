@@ -71,6 +71,6 @@
                 - if is_loading() do
                   = loading()
       %footer.footer.border-component-color
-        = render UcxChat.MessageView, "message_box.html", mb: get_mb()
+        = render UcxChat.MessageView, "message_box.html", mb: get_mb(), client: @user.client
     = render "flex_tab_bar.html"
 
