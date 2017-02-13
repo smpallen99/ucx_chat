@@ -22,7 +22,10 @@ defmodule UcxChat.MessageService do
     |> where([m], m.channel_id == ^channel_id)
     |> last
     |> Repo.one
-    |> Map.get(:client_id)
+    |> case do
+      nil -> nil
+      message -> Map.get(message, :client_id)
+    end
   end
 
   def new_message(channel_id, message, client_id, room) do

@@ -3,7 +3,7 @@ defmodule UcxChat.RoomChannel do
   Handle incoming and outgoing ClientChannel messages
   """
   use Phoenix.Channel
-  alias UcxChat.{Repo, Message, MessageService, TypingAgent}
+  alias UcxChat.{Repo, Message, MessageService, ChannelService, TypingAgent}
 
   require Logger
 
@@ -57,6 +57,11 @@ defmodule UcxChat.RoomChannel do
     MessageService.update_typing(channel_id, room)
 
     {:noreply, socket}
+  end
+
+  def handle_in("room:open", msg, socket) do
+    reply = ChannelService.open_room(msg["client_id"], msg["room"], msg["old_room"])
+    {:reply, {:ok, reply}, socket}
   end
 
   # default case

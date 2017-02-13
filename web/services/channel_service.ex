@@ -2,8 +2,10 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{Repo, Channel, ChannelClient}
+  alias UcxChat.{Repo, Channel, ChannelClient, MessageService, Client, User}
   import Ecto.Query
+
+  require Logger
 
   @public_channel  0
   @private_channel 1
@@ -42,6 +44,34 @@ defmodule UcxChat.ChannelService do
     end)
 
     %{room_types: room_types, rooms: []}
+  end
+
+  def open_room(client_id, room, old_room) do
+    Logger.debug "open_room client_id: #{inspect client_id}, room: #{inspect room}, old_room: #{inspect old_room}"
+    client =
+      Client
+      |> where([c], c.id == ^client_id)
+      |> Repo.one!
+
+    channel =
+      Channel
+      |> where([c], c.name == ^room)
+      |> Repo.one!
+
+    # side_nav = ChannelService.get_side_nav(client, channel.id)
+    messages = MessageService.get_messages(channel.id)
+
+    html =
+      "messages_box.html"
+      |> UcxChat.MasterView.render(client: client, messages: messages)
+      |> Phoenix.HTML.safe_to_string
+
+    # UcxChat.Endpoint.broadcast("ucxchat:room-" <> old_room, "room:render",
+    %{
+      room_title: room,
+      channel_id: channel.id,
+      html: html,
+    }
   end
 
   def get_templ(@stared_room), do: "stared_rooms.html"

@@ -10,10 +10,45 @@ let socket = new Socket("/socket")
 
 $(document).ready(function() {
 
-  socket.connect()
   let ucxchat = window.ucxchat
-  let room = ucxchat.room
 
+  start_socket()
+
+  $('body').on('submit', '.message-form', function(e) {
+    console.log('message-form submit', e)
+  })
+  $('body').on('keypress', '.message-form-text', function(e) {
+    console.log('message-form-text keypress', e)
+    if(e.keyCode == 13) {
+      let msg = $('.message-form-text').val()
+      console.log('msg', msg)
+      send_message(ucxchat.chan, ucxchat.room, msg)
+      $('.message-form-text').val('')
+      ucxchat.typing = false
+      return false
+    }
+    if (!ucxchat.typing) {
+      ucxchat.typing = true
+      setTimeout(typing_timer_timeout, 15000, ucxchat.channel_id, ucxchat.client_id)
+      ucxchat.chan.push("typing:start", {channel_id: ucxchat.channel_id,
+        client_id: ucxchat.client_id, nickname: ucxchat.nickname, room: ucxchat.room})
+    }
+    return true
+  })
+
+
+  $('body').on('click', 'a.open-room', function() {
+    console.log('clicked...', $(this).attr('data-room'))
+    ucxchat.chan.push("room:open", {client_id: ucxchat.client_id, room: $(this).attr('data-room'), old_room: ucxchat.room})
+      .receive("ok", resp => { render_room(resp) })
+  })
+
+})
+
+function start_socket() {
+
+  let room = ucxchat.room
+  socket.connect()
   // Now that you are connected, you can join channels with a topic:
   let chan = socket.channel("ucxchat:room-"+room, {})
   ucxchat.chan = chan
@@ -59,6 +94,7 @@ $(document).ready(function() {
       $('#' + msg.id).addClass("own")
     }
   })
+
   chan.on("typing:update", msg => {
     console.log('typing:update', msg)
     let typing = msg.typing
@@ -71,40 +107,19 @@ $(document).ready(function() {
     }
   })
 
-      // -# - ut = get_users_typing(@mb, @client)
-      // -#   %strong= get_users_typing(ut, :users)
-      // -#   - if get_users_typing(ut, :multi) do
-      // -#     - if get_users_typing(ut, :self_typing) do
-      // -#       are also typing
-      // -#     - else
-      // -#       are typing
-      // -#   - else
-      // -#     - if get_users_typing(ut, :self_typing) do
-      // -#       is also typing
-      // -#     - else
-      // -#       is typing
-  $('body').on('submit', '.message-form', function(e) {
-    console.log('message-form submit', e)
-  })
-  $('body').on('keypress', '.message-form-text', function(e) {
-    console.log('message-form-text keypress', e)
-    if(e.keyCode == 13) {
-      let msg = $('.message-form-text').val()
-      console.log('msg', msg)
-      send_message(chan, room, msg)
-      $('.message-form-text').val('')
-      ucxchat.typing = false
-      return false
-    }
-    if (!ucxchat.typing) {
-      ucxchat.typing = true
-      setTimeout(typing_timer_timeout, 15000, ucxchat.channel_id, ucxchat.client_id)
-      ucxchat.chan.push("typing:start", {channel_id: ucxchat.channel_id,
-        client_id: ucxchat.client_id, nickname: ucxchat.nickname, room: ucxchat.room})
-    }
-    return true
-  })
-})
+}
+
+function render_room(msg) {
+  $('.link-room-' + ucxchat.room).removeClass("active")
+  console.log('room:render', msg, msg.html.length)
+  $('.messages-box').html(msg.html)
+  ucxchat.channel_id = msg.channel_id
+  ucxchat.room = msg.room_title
+  $('.room-title').html(ucxchat.room)
+  $('.link-room-' + ucxchat.room).addClass("active")
+  socket.disconnect()
+  start_socket()
+}
 
 function remove(arr, item) {
   console.log('remove', arr, item)
