@@ -60,7 +60,7 @@ defmodule UcxChat.RoomChannel do
   end
 
   def handle_in("room:open", msg, socket) do
-    reply = ChannelService.open_room(msg["client_id"], msg["room"], msg["old_room"])
+    reply = ChannelService.open_room(msg["client_id"], msg["room"], msg["old_room"], msg["display_name"])
     {:reply, {:ok, reply}, socket}
   end
 
@@ -70,6 +70,16 @@ defmodule UcxChat.RoomChannel do
     {:reply, resp, socket}
   end
 
+  def handle_in("room:add-direct", msg, socket) do
+    # {nickname: username, client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
+    Logger.warn "room:add-direct msg: #{inspect msg}"
+    resp = ChannelService.add_direct(msg["nickname"], msg["client_id"], msg["channel_id"])
+    {:reply, resp, socket}
+  end
+  def handle_in("flex_bar:click:" <> mod, msg, socket) do
+    resp = UcxChat.FlexBarService.handle_in(mod, msg)
+    {:reply, resp, socket}
+  end
   # default case
   def handle_in(topic, msg, socket) do
     Logger.warn "handle_in topic: #{topic}, msg: #{inspect msg}"

@@ -4,6 +4,6 @@
 %ul
   - if @rooms != [] do
     - for room <- @rooms do
-      = render "chat_room_item", room: room
+      = render "chat_room_item.html", room: room
   - else
     %p.empty No direct messages yet

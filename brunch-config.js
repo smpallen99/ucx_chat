@@ -20,7 +20,10 @@ exports.config = {
       // }
     },
     stylesheets: {
-      joinTo: "css/app.css",
+      joinTo: {
+        "css/app.css": /^(web\/static\/css)/,
+        "css/channel_settings.css": ["web/static/scss/channel_settings.scss"]
+      },
       order: {
         // after: ["web/static/css/theme/main.scss", "web/static/css/app.css"] // concat app.css last
         // after: ["web/static/css/livechat.scss", "web/static/css/app.css"] // concat app.css last

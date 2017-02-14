@@ -1,9 +1,9 @@
 %li(class="#{chat_room_item_li_class(@room)}")
-  %a.open-room(href="#" title="#{@room[:name]}", data-room="#{@room[:name]}")
+  %a.open-room(href="#" title="#{@room[:name]}" data-room="#{@room[:name]}" data-name="#{@room[:display_name]}")
     - if @room[:unread] do
       %span.unread= @room[:unread]
     %i(class="#{@room[:room_icon]} #{@room[:user_status]}" aria-label="")
-    %span(class="name #{@room[:archived]}")= @room[:name]
+    %span(class="name #{@room[:archived]}")= @room[:display_name]
     - if !! @room[:unread] do
       %span.opt
         %i.icon-eye-off.hide-room(title="Hide_room" aria-label="Hide_room")

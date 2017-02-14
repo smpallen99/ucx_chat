@@ -1,0 +1,65 @@
+.content
+  .list-view.animated
+    .title
+      %h2 Members List
+      .buttons-group
+      .control
+        .search-form
+          .input-line.search
+            %input#user-add-search.search.content-background-color(type="text" placeholder="Add users")
+            %i.icon-plus.secondary-font-color
+      %p
+        = "Showing: <b>1<b>, Online: 1, Total: 1 users"
+        %button.see-a Show all
+    %ul.list.clearfix.lines
+      %button(data-username="smpallen99" tabindex="0" title="smpallen99")
+        .avatar
+          .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
+        %p smpallen99
+  - Logger.warn "@client: #{inspect @client}, hidden?: #{inspect hidden_on_nil(@client)}"
+  %div(class="user-view animated #{hidden_on_nil(@client, :animated)}")
+    .about.clearfix
+      .thumb
+        .avatar
+          .avatar-image(style="background-image...")
+      .info
+        %h3(title="#{@client.nickname}")
+          %i.status-offline
+          = @client.nickname
+        %p.secondary-font-color= @client.nickname
+        %p.secondary-font-color
+        %p.secondary-font-color
+          %i.icon-clock
+          12:13 PM (UTC -5)
+
+    %nav(data-username="#{map_field(@client, :nickname)}")
+      - owner = false
+      - if owner do
+        %button.button.button-block.primary.pvt-msg
+          %span
+            %i.icon-chat
+            Conversation
+        %button.button.button-block.tertiary.set-owner
+          %span Set as owner
+        %button.button.button-block.tertiary.set-moderator
+          %span Set as moderator
+        %button.button.button-block.danger.mute-user
+          %span Mute user
+        %button.button.button-block.danger.remove-user
+          %span Remove from room
+        %button.button.back
+          %span
+            View All
+            %i.icon-angle-right
+      - else
+        .buttons-group
+        .button.button-block.primary.pvt-msg
+          %span
+            %i.icon-chat
+            Conversation
+        .button.back
+          %span
+             View All
+             %i.icon-angle-right
+
+

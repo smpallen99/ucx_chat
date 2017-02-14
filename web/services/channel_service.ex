@@ -2,10 +2,13 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{Repo, Channel, ChannelClient, MessageService, Client, User, ChatDat}
+  alias UcxChat.{Repo, Channel, ChannelClient, MessageService, Client, User, ChatDat, Direct}
+  alias UcxChat.ServiceHelpers, as: Helpers
+
   import Ecto.Query
 
   require Logger
+  require IEx
 
   @public_channel  0
   @private_channel 1
@@ -48,19 +51,26 @@ defmodule UcxChat.ChannelService do
         chan = cc.channel
         active = chan.id == channel_id
         type = get_chan_type(cc.type, chan.type)
-        # Logger.warn "get_side_nav type: #{inspect type}, cc: #{inspect cc}"
+        display_name = get_channel_display_name(type, chan, id)
+        Logger.warn "get_side_nav type: #{inspect type}, display_name: #{inspect display_name}"
+        # IEx.pry
         %{
           active: active, unread: false, alert: false, user_status: "off-line",
           unread: false, can_leave: true, archived: false, name: chan.name,
           room_icon: get_icon(type), channel_id: chan.id,
-          type: type, can_leave: true
+          type: type, can_leave: true, display_name: display_name
         }
       end)
+
+    active_room = Enum.find(rooms, &(&1[:active]))
+    Logger.warn "get_side_nav active_room: #{inspect active_room}"
 
     room_map = Enum.reduce rooms, %{}, fn room, acc ->
       put_in acc, [room[:channel_id]], room
     end
     types = Enum.group_by(rooms, &Map.get(&1, :type))
+    # Logger.warn "get_side_nav types: #{inspect types}"
+    # IEx.pry
     room_types = Enum.reduce(types, %{}, fn {type, list}, acc ->
       map = %{
         type: type,
@@ -72,6 +82,9 @@ defmodule UcxChat.ChannelService do
       # [map|acc]
     end)
 
+    # IEx.pry
+
+    # Logger.warn "get_side_nav room_types 1: #{inspect room_types}"
     room_types =
       base_types()
       |> Enum.map(fn %{type: type} = bt ->
@@ -81,8 +94,19 @@ defmodule UcxChat.ChannelService do
         end
       end)
 
-    %{room_types: room_types, room_map: room_map, rooms: []}
+    # IEx.pry
+    # Logger.warn "get_side_nav room_types 2: #{inspect room_types}"
+
+    %{room_types: room_types, room_map: room_map, rooms: [], active_room: active_room}
   end
+
+  def get_channel_display_name(type, %Channel{id: id}, client_id) when type == :direct or type == :stared do
+    Direct
+    |> where([d], d.channel_id == ^id and d.client_id == ^client_id)
+    |> Repo.one!
+    |> Map.get(:clients)
+  end
+  def get_channel_display_name(_, %Channel{name: name}, _), do: name
 
   def favorite_room?(chatd, channel_id) do
     with room_types <- chatd.rooms,
@@ -97,7 +121,7 @@ defmodule UcxChat.ChannelService do
   def get_chan_type(3, _), do: :stared
   def get_chan_type(_, type), do: room_type(type)
 
-  def open_room(client_id, room, old_room) do
+  def open_room(client_id, room, old_room, display_name) do
     Logger.debug "open_room client_id: #{inspect client_id}, room: #{inspect room}, old_room: #{inspect old_room}"
     client =
       Client
@@ -121,6 +145,7 @@ defmodule UcxChat.ChannelService do
       |> UcxChat.MasterView.render(chatd: chatd)
       |> Phoenix.HTML.safe_to_string
     %{
+      display_name: display_name,
       room_title: room,
       channel_id: channel.id,
       box_html: box_html,
@@ -129,11 +154,7 @@ defmodule UcxChat.ChannelService do
   end
 
   def toggle_favorite(client_id, channel_id) do
-    cc =
-      ChannelClient
-      |> where([c], c.client_id == ^client_id and c.channel_id == ^channel_id)
-      |> preload([:channel, :client])
-      |> Repo.one!
+    cc = Helpers.get_channel_client(channel_id, client_id, preload: [:channel, :client])
     cc_type = if cc.type == room_type(:stared) do
       # change it back
       cc.channel.type
@@ -155,6 +176,49 @@ defmodule UcxChat.ChannelService do
 
     {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
   end
+
+  def add_direct(nickname, client_id, channel_id) do
+    Logger.warn "add_direct nickname: #{inspect nickname}, client_id: #{inspect client_id}"
+    client_orig = Helpers.get(Client, client_id)
+    client_dest = Helpers.get_by(Client, :nickname, nickname)
+    Logger.warn "add_direct client_orig: #{inspect client_orig}, client_dest: #{inspect client_dest}"
+
+    # create the channel
+    name = client_orig.nickname <> ":" <> nickname
+    channel =
+      %Channel{}
+      |> Channel.changeset(%{name: name, type: room_type(:direct)})
+      |> Repo.insert!
+
+    # Create the cc's, and the directs one for each user
+    client_names = %{client_orig.id => client_dest.nickname, client_dest.id => client_orig.nickname}
+    for client <- [client_orig, client_dest] do
+      %ChannelClient{}
+      |> ChannelClient.changeset(%{channel_id: channel.id, client_id: client.id, type: room_type(:direct)})
+      |> Repo.insert!
+      Logger.warn "adding direct clients: #{inspect client_names[client.id]}, client_id: #{inspect client_id}, channel_id: #{inspect channel_id}"
+      %Direct{}
+      |> Direct.changeset(%{clients: client_names[client.id], client_id: client.id, channel_id: channel.id})
+      |> Repo.insert!
+    end
+
+    chatd = ChatDat.new client_orig, channel, []
+
+    messages_html =
+      "messages_header.html"
+      |> UcxChat.MasterView.render(chatd: chatd)
+      |> Phoenix.HTML.safe_to_string
+
+    side_nav_html =
+      "rooms_list.html"
+      |> UcxChat.SideNavView.render(chatd: chatd)
+      |> Phoenix.HTML.safe_to_string
+
+    {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
+  end
+
+  #################
+  # Helpers
 
   def get_templ(:stared), do: "stared_rooms.html"
   def get_templ(:direct), do: "direct_messages.html"

@@ -10,6 +10,6 @@
 
 :javascript
   window.ucxchat = {room: '<%= @chatd.channel.name %>', channel_id: <%= @chatd.channel.id %>,
-    nickname: '<%= @chatd.client.nickname %>',client_id: <%= @chatd.client.id %>};
+    nickname: '<%= @chatd.client.nickname %>',client_id: <%= @chatd.client.id %>, display_name: '<%= @chatd.active_room[:display_name] %>'};
   let myPanel = $('.messages-box .wrapper')
   myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());

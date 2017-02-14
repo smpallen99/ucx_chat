@@ -3,5 +3,5 @@
      - {icon, label}  = get_fav_icon_label(@chatd)
     %i(class="#{icon}" aria-label="#{label}")
 %i(class="#{get_room_icon(@chatd)} #{get_user_status(@chatd.client)}")
-%span.room-title= @chatd.channel.name
+%span.room-title= @chatd.active_room[:display_name]
 %span.room-topic= markdown @chatd.channel.topic

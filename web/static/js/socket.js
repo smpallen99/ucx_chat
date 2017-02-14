@@ -39,7 +39,7 @@ $(document).ready(function() {
 
   $('body').on('click', 'a.open-room', function() {
     console.log('clicked...', $(this).attr('data-room'))
-    ucxchat.chan.push("room:open", {client_id: ucxchat.client_id, room: $(this).attr('data-room'), old_room: ucxchat.room})
+    ucxchat.chan.push("room:open", {client_id: ucxchat.client_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
       .receive("ok", resp => { render_room(resp) })
   })
 
@@ -52,7 +52,7 @@ function start_socket() {
   // Now that you are connected, you can join channels with a topic:
   let chan = socket.channel("ucxchat:room-"+room, {})
   ucxchat.chan = chan
-
+  console.log('start socket', ucxchat)
   chan.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
     .receive("error", resp => { console.log("Unable to join", resp) })
@@ -116,7 +116,8 @@ function render_room(resp) {
   $('.messages-container .fixed-title h2').html(resp.header_html)
   ucxchat.channel_id = resp.channel_id
   ucxchat.room = resp.room_title
-  $('.room-title').html(ucxchat.room)
+  ucxchat.display_name = resp.display_name
+  $('.room-title').html(ucxchat.display_name)
   $('.link-room-' + ucxchat.room).addClass("active")
   socket.disconnect()
   start_socket()

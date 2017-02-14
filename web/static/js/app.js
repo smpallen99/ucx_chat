@@ -20,3 +20,4 @@ import "phoenix_html"
 
 import socket from "./socket"
 import main from "./main"
+import flex_bar from "./flex_bar"
