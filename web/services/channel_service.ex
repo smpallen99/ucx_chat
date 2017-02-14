@@ -28,6 +28,12 @@ defmodule UcxChat.ChannelService do
   def room_type(:direct), do: 2
   def room_type(:stared), do: 3
 
+  def base_types do
+    [:stared, :public, :direct]
+    |> Enum.map(&(%{type: &1, can_show_room: true,
+      template_name: get_templ(&1), rooms: []}))
+  end
+
   @doc """
   Get the side_nav data used in the side_nav templates
   """
@@ -50,20 +56,30 @@ defmodule UcxChat.ChannelService do
           type: type, can_leave: true
         }
       end)
+
     room_map = Enum.reduce rooms, %{}, fn room, acc ->
       put_in acc, [room[:channel_id]], room
     end
-    # Logger.warn "room_map: #{inspect room_map}"
     types = Enum.group_by(rooms, &Map.get(&1, :type))
-    room_types = Enum.reduce(types, [], fn {type, list}, acc ->
+    room_types = Enum.reduce(types, %{}, fn {type, list}, acc ->
       map = %{
         type: type,
         can_show_room: true,  # this needs to be based on permissions
         template_name: get_templ(type),
         rooms: list,
       }
-      [map|acc]
+      put_in acc, [type], map
+      # [map|acc]
     end)
+
+    room_types =
+      base_types()
+      |> Enum.map(fn %{type: type} = bt ->
+        case room_types[type] do
+          nil -> bt
+          other -> other
+        end
+      end)
 
     %{room_types: room_types, room_map: room_map, rooms: []}
   end
