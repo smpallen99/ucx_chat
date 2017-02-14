@@ -64,6 +64,12 @@ defmodule UcxChat.RoomChannel do
     {:reply, {:ok, reply}, socket}
   end
 
+  def handle_in("room:favorite", msg, socket) do
+    Logger.warn "room:favorite msg: #{inspect msg}"
+    resp = ChannelService.toggle_favorite(msg["client_id"], msg["channel_id"])
+    {:reply, resp, socket}
+  end
+
   # default case
   def handle_in(topic, msg, socket) do
     Logger.warn "handle_in topic: #{topic}, msg: #{inspect msg}"

@@ -1,0 +1,10 @@
+.wrapper
+  = #render "unread_rooms.html.haml", conn: @conn, rooms: @side_nav[:rooms]
+  - for room_type <- @chatd.room_types do
+    - #Logger.warn "room_type: #{inspect room_type}"
+    - if room_type[:can_show_room] do
+      = render room_type[:template_name], rooms: room_type[:rooms]
+  - if @chatd.room_types[:can_view_history] do
+    %h3.history-div
+      - # <a href="{{pathFor 'privateHistory'}}">{{_ "History"}}</a>
+      %a{href: "#"} History

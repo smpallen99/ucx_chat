@@ -1,27 +1,19 @@
 %aside.side-nav.primary-background-color.color-tertiary-font-color(role="navigation")
   %header.header
-    = render "account_box.html", user: @user
+    = render "account_box.html", chatd: @chatd
   - if Coherence.current_user(@conn) do
     = render "toolbar.html", conn: @conn
     .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms.hidden
       More unreads
       %i.icon-up-big
     .rooms-list(role="region" area-label="Channels")
-      .wrapper
-        = #render "unread_rooms.html.haml", conn: @conn, rooms: @side_nav[:rooms]
-        - for room_type <- @side_nav[:room_types] do
-          - if room_type[:can_show_room] do
-            = render room_type[:template_name], rooms: room_type[:rooms]
-        - if @side_nav[:can_view_history] do
-          %h3.history-div
-            - # <a href="{{pathFor 'privateHistory'}}">{{_ "History"}}</a>
-            %a{href: "#"} History
-
+      = render "rooms_list.html", chatd: @chatd
     .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms.hidden
       More_unreads
       %i.icon-down-big
     .flex-nav.primary-background-color.animated-hidden
       %section
+        = render "create_combined_flex.html"
         = #render @side_nav[:flex_template], conn: @conn, flex_data: @side_nav[:flex_data]
     .arrow.bottom
   %footer.footer

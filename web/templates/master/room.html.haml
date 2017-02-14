@@ -3,19 +3,14 @@
     .background-transparent-darkest
       - # {{_ "Drop_to_upload_file"}}
   .main-content-flex
-    %section(class="messages-container flex-tab-main-content #{get_admin_class(@user)}" id="#{get_window_id(@channel)}" aria-label="Channel")
+    %section(class="messages-container flex-tab-main-content #{get_admin_class(@chatd.client)}" id="#{get_window_id(@chatd.channel)}" aria-label="Channel")
       - unless embedded_version() do
         %header.fixed-title.content-background-color.border-component-color
           = render "burger.html"
           %h2
-            - if show_toggle_favorite() do
-              %a.toggle-favorite(href="#favorite")
-                %i(class="{{favorite}}" aria-label="{{_ favoriteLabel}}")
-            %i(class="#{get_room_icon(@channel)} #{get_user_status(@user)}")
-            %span.room-title= @channel.name
-            %span.room-topic= markdown @channel.topic
-      %div(class="container-bars #{container_bars_show(@channel)}")
-        - if unread = get_unread_data(@channel) do
+            = render "messages_header.html", chatd: @chatd
+      %div(class="container-bars #{container_bars_show(@chatd.channel)}")
+        - if unread = get_unread_data(@chatd.channel) do
           - if unread[:since] do
             - if unread[:count] do
               .unread-bar.color-primary-action-color.background-component-color
@@ -40,8 +35,8 @@
                 = "#{get_error_name(error)}... #{get_error_percentage(error)}%"
                 %button cancel
       %div(class="messages-box #{message_box_selectable()} #{view_mode()}" style="height: calc(100% - 131px);")
-        = render "messages_box.html", messages: @messages, client: @user.client
+        = render "messages_box.html", chatd: @chatd
       %footer.footer.border-component-color
-        = render UcxChat.MessageView, "message_box.html", mb: get_mb(), client: @user.client
+        = render UcxChat.MessageView, "message_box.html", chatd: @chatd, mb: get_mb()
     = render "flex_tab_bar.html"
 

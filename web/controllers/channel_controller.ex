@@ -3,8 +3,10 @@ defmodule UcxChat.ChannelController do
 
   import Ecto.Query
 
+  require Logger
+
   alias UcxChat.Channel, as: Channel
-  alias UcxChat.{MessageService, ChannelService, Message}
+  alias UcxChat.{MessageService, ChannelService, Message, ChatDat}
 
   def index(conn, _params) do
     show(conn, UcxChat.Channel |> Ecto.Query.first |> Repo.one)
@@ -15,11 +17,14 @@ defmodule UcxChat.ChannelController do
       conn
       |> Coherence.current_user
       |> Repo.preload([:client])
-    side_nav = ChannelService.get_side_nav(user.client, channel.id)
+    # side_nav = ChannelService.get_side_nav(user.client, channel.id)
+
     messages = MessageService.get_messages(channel.id)
+    chatd = ChatDat.new(user.client, channel, messages)
     conn
     |> put_view(UcxChat.MasterView)
-    |> render("main.html", user: user, channel: channel, side_nav: side_nav, messages: messages)
+    # |> render("main.html", client: user.client, channel: channel, side_nav: side_nav, messages: messages)
+    |> render("main.html", chatd: chatd)
   end
 
   def show(conn, %{"id" => id}) do

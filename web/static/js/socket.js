@@ -109,12 +109,13 @@ function start_socket() {
 
 }
 
-function render_room(msg) {
+function render_room(resp) {
   $('.link-room-' + ucxchat.room).removeClass("active")
-  console.log('room:render', msg, msg.html.length)
-  $('.messages-box').html(msg.html)
-  ucxchat.channel_id = msg.channel_id
-  ucxchat.room = msg.room_title
+  console.log('room:render', resp)
+  $('.messages-box').html(resp.box_html)
+  $('.messages-container .fixed-title h2').html(resp.header_html)
+  ucxchat.channel_id = resp.channel_id
+  ucxchat.room = resp.room_title
   $('.room-title').html(ucxchat.room)
   $('.link-room-' + ucxchat.room).addClass("active")
   socket.disconnect()

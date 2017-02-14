@@ -1,14 +1,14 @@
 defmodule UcxChat.MasterView do
   use UcxChat.Web, :view
-  alias UcxChat.{ChannelService}
+  alias UcxChat.{ChannelService, Client, Channel, ChatDat}
+  require IEx
 
   def get_admin_class(_user), do: ""
   def get_window_id(channel), do: "chat-window-#{channel.id}"
 
   def embedded_version, do: false
   def unread, do: false
-  def show_toggle_favorite, do: false
-  def get_room_icon(chan), do: ChannelService.get_icon(chan.type)
+  def show_toggle_favorite, do: true
   def get_user_status(_), do: "offline"
 
   def container_bars_show(_channel) do
@@ -69,5 +69,24 @@ defmodule UcxChat.MasterView do
     |> Enum.map(fn {title, icon, display} ->
       %{title: title, icon: icon, display: display}
     end)
+  end
+
+  def get_fav_icon(chatd) do
+    case ChatDat.get_channel_data(chatd) do
+      %{type: :stared} -> "icon-star-empty"
+      _ -> "icon-star-empty"
+    end
+  end
+  def get_fav_icon_label(chatd) do
+
+    case ChatDat.get_channel_data(chatd) do
+      %{type: :stared} ->
+        {"icon-star favorite-room pending-color", "Unfavorite"}
+      other ->
+        {"icon-star-empty", "Favorite"}
+    end
+  end
+  def favorite_room?(%Client{} = client, %Channel{} = channel) do
+    ChannelService.favorite_room?(client, channel)
   end
 end

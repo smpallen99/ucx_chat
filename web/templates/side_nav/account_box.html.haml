@@ -1,11 +1,11 @@
 .account-box(aria="Account" role="region")
-  %div(class="info #{get_user_status(@user)} primary-background-color")
-    - if @user.username do
-      .thumb(data-status="#{get_visual_status(@user)}")
+  %div(class="info #{get_user_status(@chatd.client)} primary-background-color")
+    - if @chatd.client.nickname do
+      .thumb(data-status="#{get_visual_status(@chatd.client)}")
         .avatar
-          = get_user_avatar(@user)
+          = get_user_avatar(@chatd.client)
       .data
-        %h4= get_user_name(@user)
+        %h4= get_user_name(@chatd.client)
   .options.primary-background-color.animated-hidden
     .wrapper
       %button.status.online(data-status="online")
@@ -19,11 +19,11 @@
       %button#account.account-link
         %i.icon-sliders
         %span My Account
-      - for menu <- get_registered_menus(@user) do
+      - for menu <- get_registered_menus(@chatd.client) do
         %button.account-box-item
           %i(class="#{menu[:icon]}")
           %span= menu[:name]
-      - if show_admin_option(@user) do
+      - if show_admin_option(@chatd.client) do
         %button#admin.account-link
         %i.icon-wrench
         %span Administration

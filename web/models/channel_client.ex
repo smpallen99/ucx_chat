@@ -5,6 +5,7 @@ defmodule UcxChat.ChannelClient do
     belongs_to :channel, UcxChat.Channel
     belongs_to :client, UcxChat.Client
     field :last_read, :integer
+    field :type, :integer
     timestamps()
   end
 
@@ -28,7 +29,7 @@ defmodule UcxChat.ChannelClient do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @fields ++ [:last_read])
+    |> cast(params, @fields ++ [:last_read, :type])
     |> validate_required(@fields)
   end
 end
