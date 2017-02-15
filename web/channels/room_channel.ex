@@ -12,18 +12,20 @@ defmodule UcxChat.RoomChannel do
 
   def user_join(nil), do: Logger.warn "join for nil username"
   def user_join(username, room) do
+    Logger.warn "user_join username: #{inspect username}, room: #{inspect room}"
     UcxChat.Endpoint.broadcast "ucxchat:room-#{room}", "user:join", %{username: username}
   end
 
   def user_leave(nil), do: Logger.warn "leave for nil username"
   def user_leave(username, room) do
+    Logger.warn "user_leave username: #{inspect username}, room: #{inspect room}"
     UcxChat.Endpoint.broadcast "ucxchat:room-#{room}", "user:leave", %{username: username}
   end
 
   ############
   # Socket stuff
-  def join("ucxchat:room-" <> room, _params, socket) do
-    Logger.debug "channel messaging join room-#{room}"
+  def join("ucxchat:room-" <> room, params, socket) do
+    Logger.warn "join room-#{room}, params: #{inspect params}"
 
     {:ok, socket}
   end

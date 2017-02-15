@@ -6,7 +6,7 @@
 import {Socket} from "phoenix"
 
 // let socket = new Socket("/socket", {params: {token: window.userToken}})
-let socket = new Socket("/socket")
+let socket = new Socket("/socket", {params: {nickname: ucxchat.nickname}})
 window.roomchan = false
 
 $(document).ready(function() {
@@ -60,11 +60,11 @@ function start_socket() {
     .receive("error", resp => { console.log("Unable to join", resp) })
 
   chan.on("user:join", msg => {
-    console.log("user:join", msg)
+    console.warn("user:join", msg)
 
   })
   chan.on("user:leave", msg => {
-    console.log("user:leave", msg)
+    console.warn("user:leave", msg)
 
   })
   chan.on("message", msg => {
@@ -87,9 +87,7 @@ function start_socket() {
     console.log('message:new current id, msg.client_id', msg, ucxchat.client_id, msg.client_id )
     $('.messages-box .wrapper > ul').append(msg.html)
 
-    let myPanel = $('.messages-box .wrapper')
-    myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
-
+    scroll_bottom()
 
     if (ucxchat.client_id == msg.client_id) {
       console.log('adding own to', msg.id, $('#' + msg.id))
@@ -111,6 +109,11 @@ function start_socket() {
 
 }
 
+function scroll_bottom() {
+  let mypanel = $('.messages-box .wrapper')
+  myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
+}
+
 function render_room(resp) {
   $('.room-link').removeClass("active")
   console.log('room:render', resp)
@@ -121,7 +124,8 @@ function render_room(resp) {
   ucxchat.display_name = resp.display_name
   $('.room-title').html(ucxchat.display_name)
   $('.link-room-' + ucxchat.room).addClass("active")
-  socket.disconnect()
+  scroll_bottom()
+  roomchan.leave()
   start_socket()
 }
 
