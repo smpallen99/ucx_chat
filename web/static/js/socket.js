@@ -7,6 +7,7 @@ import {Socket} from "phoenix"
 
 // let socket = new Socket("/socket", {params: {token: window.userToken}})
 let socket = new Socket("/socket")
+window.roomchan = false
 
 $(document).ready(function() {
 
@@ -22,7 +23,7 @@ $(document).ready(function() {
     if(e.keyCode == 13) {
       let msg = $('.message-form-text').val()
       console.log('msg', msg)
-      send_message(ucxchat.chan, ucxchat.room, msg)
+      send_message(roomchan, ucxchat.room, msg)
       $('.message-form-text').val('')
       ucxchat.typing = false
       return false
@@ -30,7 +31,7 @@ $(document).ready(function() {
     if (!ucxchat.typing) {
       ucxchat.typing = true
       setTimeout(typing_timer_timeout, 15000, ucxchat.channel_id, ucxchat.client_id)
-      ucxchat.chan.push("typing:start", {channel_id: ucxchat.channel_id,
+      roomchan.push("typing:start", {channel_id: ucxchat.channel_id,
         client_id: ucxchat.client_id, nickname: ucxchat.nickname, room: ucxchat.room})
     }
     return true
@@ -39,19 +40,20 @@ $(document).ready(function() {
 
   $('body').on('click', 'a.open-room', function() {
     console.log('clicked...', $(this).attr('data-room'))
-    ucxchat.chan.push("room:open", {client_id: ucxchat.client_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
+    roomchan.push("room:open", {client_id: ucxchat.client_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
       .receive("ok", resp => { render_room(resp) })
   })
 
 })
 
 function start_socket() {
-
-  let room = ucxchat.room
   socket.connect()
+  let room = ucxchat.room
   // Now that you are connected, you can join channels with a topic:
-  let chan = socket.channel("ucxchat:room-"+room, {})
-  ucxchat.chan = chan
+  roomchan = socket.channel("ucxchat:room-"+room, {})
+
+  let chan = roomchan
+
   console.log('start socket', ucxchat)
   chan.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
@@ -110,7 +112,7 @@ function start_socket() {
 }
 
 function render_room(resp) {
-  $('.link-room-' + ucxchat.room).removeClass("active")
+  $('.room-link').removeClass("active")
   console.log('room:render', resp)
   $('.messages-box').html(resp.box_html)
   $('.messages-container .fixed-title h2').html(resp.header_html)
@@ -160,7 +162,7 @@ function typing_timer_timeout(channel_id, client_id) {
     if (ucxchat.typing) {
       // assume they cleared the textedit and did not send
       ucxchat.typing = false
-      ucxchat.chan.push("typing:stop", {channel_id: channel_id, client_id: client_id, room: ucxchat.room})
+      roomchan.push("typing:stop", {channel_id: channel_id, client_id: client_id, room: ucxchat.room})
     }
   } else {
     setTimeout(typing_timer_timeout, 15000, channel_id, client_id)

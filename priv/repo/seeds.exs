@@ -33,6 +33,13 @@ ch1 = Channel.changeset(%Channel{}, %{name: "general"})
 ch2 = Channel.changeset(%Channel{}, %{name: "support"})
 |> Repo.insert!
 
+_channels =
+  ~w(Research Marketing HR Accounting Shipping Sales) ++ ["UCx Web Client", "UCx Chat"]
+  |> Enum.each(fn name ->
+    Channel.changeset(%Channel{}, %{name: name})
+    |> Repo.insert!
+  end)
+
 [ch1, ch2]
 |> Enum.each(fn ch ->
   %ChannelClient{}

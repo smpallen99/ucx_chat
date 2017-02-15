@@ -3,10 +3,25 @@ defmodule UcxChat.ServiceHelpers do
 
   import Ecto.Query
 
+  def get!(model, id, opts \\ []) do
+    preload = opts[:preload] || []
+    model
+    |> where([c], c.id == ^id)
+    |> preload(^preload)
+    |> Repo.one!
+  end
   def get(model, id, opts \\ []) do
     preload = opts[:preload] || []
     model
     |> where([c], c.id == ^id)
+    |> preload(^preload)
+    |> Repo.one
+  end
+
+  def get_by!(model, field, value, opts \\ []) do
+    preload = opts[:preload] || []
+    model
+    |> where([c], field(c, ^field) == ^value)
     |> preload(^preload)
     |> Repo.one!
   end
@@ -16,7 +31,7 @@ defmodule UcxChat.ServiceHelpers do
     model
     |> where([c], field(c, ^field) == ^value)
     |> preload(^preload)
-    |> Repo.one!
+    |> Repo.one
   end
 
   def get_channel(channel_id, preload \\ []) do

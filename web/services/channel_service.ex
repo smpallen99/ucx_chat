@@ -52,7 +52,7 @@ defmodule UcxChat.ChannelService do
         active = chan.id == channel_id
         type = get_chan_type(cc.type, chan.type)
         display_name = get_channel_display_name(type, chan, id)
-        Logger.warn "get_side_nav type: #{inspect type}, display_name: #{inspect display_name}"
+        # Logger.warn "get_side_nav type: #{inspect type}, display_name: #{inspect display_name}"
         # IEx.pry
         %{
           active: active, unread: false, alert: false, user_status: "off-line",
@@ -63,7 +63,7 @@ defmodule UcxChat.ChannelService do
       end)
 
     active_room = Enum.find(rooms, &(&1[:active]))
-    Logger.warn "get_side_nav active_room: #{inspect active_room}"
+    Logger.debug "get_side_nav active_room: #{inspect active_room}"
 
     room_map = Enum.reduce rooms, %{}, fn room, acc ->
       put_in acc, [room[:channel_id]], room
@@ -100,11 +100,14 @@ defmodule UcxChat.ChannelService do
     %{room_types: room_types, room_map: room_map, rooms: [], active_room: active_room}
   end
 
-  def get_channel_display_name(type, %Channel{id: id}, client_id) when type == :direct or type == :stared do
+  def get_channel_display_name(type, %Channel{id: id, name: name}, client_id) when type == :direct or type == :stared do
     Direct
     |> where([d], d.channel_id == ^id and d.client_id == ^client_id)
-    |> Repo.one!
-    |> Map.get(:clients)
+    |> Repo.one
+    |> case do
+      %{} = direct -> Map.get(direct, :clients)
+      _ ->  name
+    end
   end
   def get_channel_display_name(_, %Channel{name: name}, _), do: name
 
@@ -178,28 +181,15 @@ defmodule UcxChat.ChannelService do
   end
 
   def add_direct(nickname, client_id, channel_id) do
-    Logger.warn "add_direct nickname: #{inspect nickname}, client_id: #{inspect client_id}"
     client_orig = Helpers.get(Client, client_id)
     client_dest = Helpers.get_by(Client, :nickname, nickname)
-    Logger.warn "add_direct client_orig: #{inspect client_orig}, client_dest: #{inspect client_dest}"
 
-    # create the channel
-    name = client_orig.nickname <> ":" <> nickname
-    channel =
-      %Channel{}
-      |> Channel.changeset(%{name: name, type: room_type(:direct)})
-      |> Repo.insert!
-
-    # Create the cc's, and the directs one for each user
-    client_names = %{client_orig.id => client_dest.nickname, client_dest.id => client_orig.nickname}
-    for client <- [client_orig, client_dest] do
-      %ChannelClient{}
-      |> ChannelClient.changeset(%{channel_id: channel.id, client_id: client.id, type: room_type(:direct)})
-      |> Repo.insert!
-      Logger.warn "adding direct clients: #{inspect client_names[client.id]}, client_id: #{inspect client_id}, channel_id: #{inspect channel_id}"
-      %Direct{}
-      |> Direct.changeset(%{clients: client_names[client.id], client_id: client.id, channel_id: channel.id})
-      |> Repo.insert!
+    name = client_orig.nickname <> "__" <> nickname
+    channel = case Helpers.get_by(Channel, :name, name) do
+      %Channel{} = channel ->
+        channel
+      _ ->
+        do_add_direct(name, client_orig, client_dest, channel_id)
     end
 
     chatd = ChatDat.new client_orig, channel, []
@@ -215,6 +205,27 @@ defmodule UcxChat.ChannelService do
       |> Phoenix.HTML.safe_to_string
 
     {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
+  end
+
+  defp do_add_direct(name, client_orig, client_dest, channel_id) do
+    # create the channel
+    channel =
+      %Channel{}
+      |> Channel.changeset(%{name: name, type: room_type(:direct)})
+      |> Repo.insert!
+
+    # Create the cc's, and the directs one for each user
+    client_names = %{client_orig.id => client_dest.nickname, client_dest.id => client_orig.nickname}
+    for client <- [client_orig, client_dest] do
+      %ChannelClient{}
+      |> ChannelClient.changeset(%{channel_id: channel.id, client_id: client.id, type: room_type(:direct)})
+      |> Repo.insert!
+      Logger.warn "adding direct clients: #{inspect client_names[client.id]}, client.id: #{inspect client.id}, channel_id: #{inspect channel_id}"
+      %Direct{}
+      |> Direct.changeset(%{clients: client_names[client.id], client_id: client.id, channel_id: channel.id})
+      |> Repo.insert!
+    end
+    channel
   end
 
   #################

@@ -1,4 +1,4 @@
-%li(class="#{chat_room_item_li_class(@room)}")
+%li(class="room-link #{chat_room_item_li_class(@room)}")
   %a.open-room(href="#" title="#{@room[:name]}" data-room="#{@room[:name]}" data-name="#{@room[:display_name]}")
     - if @room[:unread] do
       %span.unread= @room[:unread]

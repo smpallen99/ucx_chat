@@ -9,13 +9,15 @@
             %input#user-add-search.search.content-background-color(type="text" placeholder="Add users")
             %i.icon-plus.secondary-font-color
       %p
-        = "Showing: <b>1<b>, Online: 1, Total: 1 users"
-        %button.see-a Show all
+        = get_clients_list_stats(@clients)
+        %button.see-all Show all
     %ul.list.clearfix.lines
-      %button(data-username="smpallen99" tabindex="0" title="smpallen99")
-        .avatar
-          .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
-        %p smpallen99
+      - for client <- @clients do
+        %li.user-image.user-card-room.status-online
+          %button(data-username="#{client.nickname}" tabindex="0" title="#{client.nickname}")
+            .avatar
+              .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
+            %p= client.nickname
   - Logger.warn "@client: #{inspect @client}, hidden?: #{inspect hidden_on_nil(@client)}"
   %div(class="user-view animated #{hidden_on_nil(@client, :animated)}")
     .about.clearfix
