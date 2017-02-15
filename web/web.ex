@@ -49,7 +49,9 @@ defmodule UcxChat.Web do
 
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
+      use UcxChat.Utils
 
+      import Phoenix.HTML.Tag
       import UcxChat.Router.Helpers
       import UcxChat.ErrorHelpers
       import UcxChat.Gettext

@@ -18,8 +18,9 @@
             .avatar
               .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
             %p= client.nickname
-  - Logger.warn "@client: #{inspect @client}, hidden?: #{inspect hidden_on_nil(@client)}"
-  %div(class="user-view animated #{hidden_on_nil(@client, :animated)}")
+  - hidden = hidden_on_nil(@user_mode, "animated-")
+  - # Logger.warn "@user_mode: #{inspect @user_mode}, hidden?: #{inspect hidden}"
+  %div(class="user-view animated #{hidden}")
     .about.clearfix
       .thumb
         .avatar
