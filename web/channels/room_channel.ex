@@ -49,12 +49,14 @@ defmodule UcxChat.RoomChannel do
 
   def handle_in("typing:start", %{"channel_id" => channel_id,
     "client_id" => client_id, "nickname" => nickname, "room" => room}, socket) do
+    Logger.debug "typing:start client_id: #{inspect client_id}, nickname: #{inspect nickname}"
     TypingAgent.start_typing(channel_id, client_id, nickname)
     MessageService.update_typing(channel_id, room)
     {:noreply, socket}
   end
 
   def handle_in("typing:stop", %{"channel_id" => channel_id, "client_id" => client_id, "room" => room}, socket) do
+    Logger.debug "typing:stop client_id: #{inspect client_id}"
     TypingAgent.stop_typing(channel_id, client_id)
     MessageService.update_typing(channel_id, room)
 

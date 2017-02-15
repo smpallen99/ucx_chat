@@ -5,6 +5,10 @@
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix"
 
+import Messages from "./messages"
+import Typing from "./typing"
+import RoomManager from "./room_manager"
+
 // let socket = new Socket("/socket", {params: {token: window.userToken}})
 let socket = new Socket("/socket", {params: {nickname: ucxchat.nickname}})
 window.roomchan = false
@@ -12,41 +16,56 @@ window.roomchan = false
 $(document).ready(function() {
 
   let ucxchat = window.ucxchat
+  let typing = new Typing(ucxchat.typing)
 
-  start_socket()
+  start_socket(typing)
 
-  $('body').on('submit', '.message-form', function(e) {
+  $('body').on('submit', '.message-form', e => {
     console.log('message-form submit', e)
   })
-  $('body').on('keypress', '.message-form-text', function(e) {
+  $('body').on('keypress', '.message-form-text', e => {
     console.log('message-form-text keypress', e)
     if(e.keyCode == 13) {
       let msg = $('.message-form-text').val()
       console.log('msg', msg)
-      send_message(roomchan, ucxchat.room, msg)
-      $('.message-form-text').val('')
-      ucxchat.typing = false
+      Messages.send_message(msg)
+      typing.clear()
+      // ucxchat.typing = false
       return false
     }
-    if (!ucxchat.typing) {
-      ucxchat.typing = true
-      setTimeout(typing_timer_timeout, 15000, ucxchat.channel_id, ucxchat.client_id)
-      roomchan.push("typing:start", {channel_id: ucxchat.channel_id,
-        client_id: ucxchat.client_id, nickname: ucxchat.nickname, room: ucxchat.room})
-    }
+    typing.start_typing()
     return true
   })
 
-
-  $('body').on('click', 'a.open-room', function() {
-    console.log('clicked...', $(this).attr('data-room'))
+  $('body').on('click', 'a.open-room', function(e) {
+    e.preventDefault();
+    console.log('clicked a.open-room', e, $(this), $(this).attr('data-room'))
     roomchan.push("room:open", {client_id: ucxchat.client_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
-      .receive("ok", resp => { render_room(resp) })
+      .receive("ok", resp => { RoomManager.render_room(resp) })
+  })
+  $('body').on('click', 'a.toggle-favorite', e => {
+    console.log('click a.toggle-favorite')
+    e.preventDefault();
+    RoomManager.toggle_favorite()
+  })
+  $('body').on('click', '.button.pvt-msg', function(e) {
+    console.log('click .button.pvt-msg')
+    e.preventDefault();
+    RoomManager.add_private($(this))
+  })
+
+  $('body').on('restart-socket', () => {
+    start_socket(typing)
   })
 
 })
 
-function start_socket() {
+export function restart_socket() {
+  let event = jQuery.Event( "restart-socket" );
+  $("body").trigger(event)
+}
+
+function start_socket(typing) {
   socket.connect()
   let room = ucxchat.room
   // Now that you are connected, you can join channels with a topic:
@@ -67,118 +86,51 @@ function start_socket() {
     console.warn("user:leave", msg)
 
   })
-  chan.on("message", msg => {
-    let sequential = false
-    console.log("received message", msg)
-    if(msg.client_id == ucxchat.last_client_id) {
-      if(msg.client_id == ucxchat.client_id)
-        sequential = " sequential own"
-      else
-        sequential = " sequential"
-    } else {
-      sequential = false
-    }
-    ucxchat.sequential = sequential
-    ucxchat.last_client_id = msg.client_id
-    add_message(msg, sequential)
-  })
 
   chan.on("message:new", msg => {
     console.log('message:new current id, msg.client_id', msg, ucxchat.client_id, msg.client_id )
-    $('.messages-box .wrapper > ul').append(msg.html)
-
-    scroll_bottom()
-
-    if (ucxchat.client_id == msg.client_id) {
-      console.log('adding own to', msg.id, $('#' + msg.id))
-      $('#' + msg.id).addClass("own")
-    }
+    Messages.new_message(msg)
   })
 
   chan.on("typing:update", msg => {
     console.log('typing:update', msg)
-    let typing = msg.typing
-
-    if (typing.indexOf(ucxchat.nickname) < 0) {
-      update_typing(false, typing)
-    } else {
-      remove(typing, ucxchat.nickname)
-      update_typing(true, typing)
-    }
+    typing.update_typing(msg.typing)
   })
 
 }
 
-function scroll_bottom() {
-  let mypanel = $('.messages-box .wrapper')
-  myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
-}
+// function checkVisible(elm, threshold, mode) {
+//   threshold = threshold || 0;
+//   mode = mode || 'visible';
 
-function render_room(resp) {
-  $('.room-link').removeClass("active")
-  console.log('room:render', resp)
-  $('.messages-box').html(resp.box_html)
-  $('.messages-container .fixed-title h2').html(resp.header_html)
-  ucxchat.channel_id = resp.channel_id
-  ucxchat.room = resp.room_title
-  ucxchat.display_name = resp.display_name
-  $('.room-title').html(ucxchat.display_name)
-  $('.link-room-' + ucxchat.room).addClass("active")
-  scroll_bottom()
-  roomchan.leave()
-  start_socket()
-}
+//   var rect = elm.getBoundingClientRect();
+//   var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+//   var above = rect.bottom - threshold < 0;
+//   var below = rect.top - viewHeight + threshold >= 0;
 
-function remove(arr, item) {
-  console.log('remove', arr, item)
-    for(var i = arr.length; i--;) {
-        if(arr[i] === item) {
-            arr.splice(i, 1);
-        }
-    }
-}
+//   return mode === 'above' ? above : (mode === 'below' ? below : !above && !below);
+// }
+function checkVisible(elm, threshold, mode) {
+  threshold = threshold || 0;
+  mode = mode || 'visible';
+  // elm = elm[0]
+  var rect = elm.getBoundingClientRect();
+  // var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+  var wr = $('.wrapper.has-more-next')[0].getBoundingClientRect()
+  var viewHeight = wr.top + wr.bottom
+  var above = rect.bottom - threshold < 0;
+  var below = rect.top - viewHeight + threshold >= 0;
 
-function update_typing(self_typing, list) {
-  console.log('update_typing', self_typing, list)
-  let len = list.length
-  let prepend = ""
-  if (len > 1) {
-    if (self_typing)
-      prepend = " are also typing"
-    else
-      prepend = " are typing"
-  } else if (len == 0) {
-    $('form.message-form .users-typing').html('')
-    return
-  } else {
-    if (self_typing)
-      prepend = " is also typing"
-    else
-      prepend = " is typing"
-  }
-
-  $('form.message-form .users-typing').html("<strong>" + list.join(", ") + "</strong>" + prepend)
+  return mode === 'above' ? above : (mode === 'below' ? below : !above && !below);
 }
-
-function typing_timer_timeout(channel_id, client_id) {
-  console.log('typing_timer_timeout')
-  if ($('.message-form-text').val() == '') {
-    if (ucxchat.typing) {
-      // assume they cleared the textedit and did not send
-      ucxchat.typing = false
-      roomchan.push("typing:stop", {channel_id: channel_id, client_id: client_id, room: ucxchat.room})
-    }
-  } else {
-    setTimeout(typing_timer_timeout, 15000, channel_id, client_id)
-  }
+function isOnScreen(element)
+{
+    var curPos = element.offset();
+    var curTop = curPos.top;
+    var screenHeight = $(window).height();
+    return (curTop > screenHeight) ? false : true;
 }
-function send_message(chan, room, msg) {
-  let user = window.ucxchat.user_id
-  let ucxchat = window.ucxchat
-  console.log('user', user)
-  chan.push("message", {message: msg, user_id: user, room: ucxchat.room, nickname: ucxchat.nickname,
-    client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
-}
+window.cv = checkVisible
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
 // which authenticates the session and assigns a `:current_user`.

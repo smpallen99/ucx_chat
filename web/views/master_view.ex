@@ -13,9 +13,13 @@ defmodule UcxChat.MasterView do
 
   def container_bars_show(_channel) do
     # %div(class="container-bars #{container_bars_show unreadData uploading}}">
-    ""
+    "show"
   end
-  def get_unread_data(_), do: false
+  # def get_unread_data(_), do: false
+  def get_unread_data(_) do
+    %{count: "78 new messages", since: "78 new messages since 11:08 AM"}
+  end
+
   def get_uploading(_conn), do: []
   def has_upload_error(_conn) do
     # "error-background error-border"

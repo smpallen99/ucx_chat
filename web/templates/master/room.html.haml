@@ -15,12 +15,12 @@
             - if unread[:count] do
               .unread-bar.color-primary-action-color.background-component-color
                 %button.jump-to
-                  %span.jump-to-large Jump_to_first_unread
+                  %span.jump-to-large Jump to first unread
                   %span.jump-to-small Jump
                 %span.unread-count-since
-                  - # {{_ "S_new_messages_since_s" count formatUnreadSince}}
+                  = unread[:since]
                 %span.unread-count
-                  - # {{_ "N_new_messages" count}}
+                  = unread[:count]
                 %button.mark-read
                   Mark as read
         - for upload <- get_uploading(@conn) do
