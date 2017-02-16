@@ -1,7 +1,10 @@
+import UnreadManager from "./unread_manager"
+
 class Messages {
 
   static new_message(msg) {
-    $('.messages-box .wrapper > ul').append(msg.html)
+    let html = msg.html
+    $('.messages-box .wrapper > ul').append(html)
 
     this.scroll_bottom()
 
@@ -10,6 +13,8 @@ class Messages {
       console.log('adding own to', msg.id, $('#' + msg.id))
       $('#' + msg.id).addClass("own")
     }
+
+    unread.new_message(msg.id)
   }
   static scroll_bottom() {
     let mypanel = $('.messages-box .wrapper')
@@ -19,10 +24,13 @@ class Messages {
   static send_message(msg) {
     let user = window.ucxchat.user_id
     let ucxchat = window.ucxchat
-    // console.log('user', user)
 
-    roomchan.push("message", {message: msg, user_id: user, room: ucxchat.room, nickname: ucxchat.nickname,
-      client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
+    if (!(/^\s*$/.test(msg))) {
+      roomchan.push("message", {message: msg, user_id: user, room: ucxchat.room, nickname: ucxchat.nickname,
+        client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
+
+      unread.remove_unread()
+    }
 
     $('.message-form-text').val('')
   }

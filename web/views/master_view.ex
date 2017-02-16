@@ -17,7 +17,11 @@ defmodule UcxChat.MasterView do
   end
   # def get_unread_data(_), do: false
   def get_unread_data(_) do
-    %{count: "78 new messages", since: "78 new messages since 11:08 AM"}
+    count_span = content_tag :span, class: "unread-cnt" do
+      "0"
+    end
+    %{count: " new messages", since: " new messages since 11:08 AM", count_span: count_span}
+    # %{count: "78 new messages", since: "78 new messages since 11:08 AM"}
   end
 
   def get_uploading(_conn), do: []

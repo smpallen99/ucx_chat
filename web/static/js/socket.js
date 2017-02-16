@@ -8,6 +8,7 @@ import {Socket} from "phoenix"
 import Messages from "./messages"
 import Typing from "./typing"
 import RoomManager from "./room_manager"
+import UnreadManager from "./unread_manager"
 
 // let socket = new Socket("/socket", {params: {token: window.userToken}})
 let socket = new Socket("/socket", {params: {nickname: ucxchat.nickname}})
@@ -24,18 +25,16 @@ $(document).ready(function() {
     console.log('message-form submit', e)
   })
   $('body').on('keypress', '.message-form-text', e => {
-    console.log('message-form-text keypress', e)
+    // console.log('message-form-text keypress', e)
     if(e.keyCode == 13) {
-      let msg = $('.message-form-text').val()
-      console.log('msg', msg)
-      Messages.send_message(msg)
+      Messages.send_message($('.message-form-text').val())
       typing.clear()
-      // ucxchat.typing = false
       return false
     }
     typing.start_typing()
     return true
   })
+
 
   $('body').on('click', 'a.open-room', function(e) {
     e.preventDefault();
