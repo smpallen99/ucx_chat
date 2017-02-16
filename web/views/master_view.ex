@@ -69,10 +69,12 @@ defmodule UcxChat.MasterView do
       {"Stared Messages", "star", ""},
       {"Knowledge Base", "lightbulb", " hidden"},
       {"Pinned Messages", "pin", ""},
-      {"Past Chats", "chat", ""},
+      {"Past Chats", "chat", " hidden"},
       {"OTR", "key", " hidden"},
-      {"Video Chat", "videocam", ""},
+      {"Video Chat", "videocam", " hidden"},
       {"Snippeted Messages", "code", ""},
+      {"Logout", "logout", ""},
+      {"Switch User", "login", ""},
     ]
     |> Enum.map(fn {title, icon, display} ->
       %{title: title, icon: icon, display: display}

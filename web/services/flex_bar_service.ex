@@ -1,7 +1,7 @@
 defmodule UcxChat.FlexBarService do
   import Ecto.Query
 
-  alias UcxChat.{Repo, FlexBarView, Channel, Client}
+  alias UcxChat.{Repo, FlexBarView, Channel, Client, User}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -24,6 +24,14 @@ defmodule UcxChat.FlexBarService do
     # Logger.warn "FlexBarService client: #{inspect client}, msg: #{inspect msg}"
 
     html = FlexBarView.render(msg["templ"], clients: channel.clients, client: client, user_mode: user_mode)
+    |> Phoenix.HTML.safe_to_string
+    {:ok, %{html: html}}
+  end
+  def handle_in("Switch User", msg) do
+    Logger.warn "FlexBarService.handle_in: #{inspect msg}"
+    users = Repo.all User
+
+    html = FlexBarView.render(msg["templ"], users: users)
     |> Phoenix.HTML.safe_to_string
     {:ok, %{html: html}}
   end

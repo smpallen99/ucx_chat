@@ -25,4 +25,12 @@ defmodule UcxChat.MessagePopupService do
 
     {:ok, %{html: html}}
   end
+
+  # def get_default_users(channel_id, user_id) do
+  #   messages =
+  #     Message
+  #     |> order_by([updated_at: :desc])
+  #     |> group_by()
+  #     |> limit(150)
+  # end
 end

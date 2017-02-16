@@ -43,7 +43,13 @@ defmodule UcxChat.Router do
 
     get "/", ChannelController, :index
     get "/:id", ChannelController, :show
+    get "/switch_user/:user", PageController, :switch_user
     # resources "/channel", ChannelController
+  end
+
+  scope "/", Coherence do
+    pipe_through :protected
+    get "/logout", SessionController, :delete
   end
 
   # Other scopes may use custom stacks.

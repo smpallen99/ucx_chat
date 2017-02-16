@@ -1,0 +1,21 @@
+.content
+  .list-view.animated
+    .title
+      %h2 Switch User
+      .buttons-group
+      .control
+        .search-form
+          .input-line.search
+            %input#user-add-search.search.content-background-color(type="text" placeholder="Add users")
+            %i.icon-plus.secondary-font-color
+      %p
+        =  #get_clients_list_stats(@users)
+        %button.see-all Show all
+    %ul.list.clearfix.lines
+      - for user <- @users do
+        %li.switch-user.user-image.user-card-room.status-online
+          %button(data-username="#{user.username}" tabindex="0" title="#{user.username}")
+            .avatar
+              .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
+            %p= user.username
+  %div(class="user-view animated hidden")
