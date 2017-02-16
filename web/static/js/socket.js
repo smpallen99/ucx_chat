@@ -20,22 +20,41 @@ $(document).ready(function() {
   let ucxchat = window.ucxchat
   let typing = new Typing(ucxchat.typing)
 
+  $('textarea.message-form-text').focus()
+
   start_socket(typing)
 
   $('body').on('submit', '.message-form', e => {
     console.log('message-form submit', e)
   })
+  $('body').on('keydown', '.message-form-text', e => {
+    let event = new jQuery.Event('user:input')
+    switch(e.keyCode) {
+      case 38: // up arrow
+      case 40: // down arrow
+      case 9:  // TAB
+        event.keyCode = e.keyCode
+        $("body").trigger(event)
+        return false
+      case 8:  // BS
+        event.keyCode = e.keyCode
+        $("body").trigger(event)
+      default:
+        return true
+    }
+  })
+
   $('body').on('keypress', '.message-form-text', e => {
-    // console.log('message-form-text keypress', e)
+    console.log('message-form-text keypress', e)
     if(e.keyCode == 13) {
       message_popup.handle_enter()
       Messages.send_message($('.message-form-text').val())
       typing.clear()
       return false
-    } else if (e.keyCode == 64) {
-      message_popup.open_users()
-      return true
-    }
+    } //else if (e.keyCode == 64) {
+    //   message_popup.open_users()
+    //   return true
+    // }
     let event = new jQuery.Event('user:input')
     event.keyCode = e.keyCode
     $("body").trigger(event)
