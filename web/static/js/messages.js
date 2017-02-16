@@ -1,4 +1,5 @@
 import UnreadManager from "./unread_manager"
+import * as utils from "./utils"
 
 class Messages {
 
@@ -25,7 +26,7 @@ class Messages {
     let user = window.ucxchat.user_id
     let ucxchat = window.ucxchat
 
-    if (!(/^\s*$/.test(msg))) {
+    if (!utils.empty_string(msg)) {
       roomchan.push("message", {message: msg, user_id: user, room: ucxchat.room, nickname: ucxchat.nickname,
         client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
 

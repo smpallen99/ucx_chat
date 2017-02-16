@@ -39,3 +39,7 @@ export function scroll_bottom() {
   let mypanel = $('.messages-box .wrapper')
   myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
 }
+
+export function empty_string(string) {
+  return /^\s*$/.test(string)
+}

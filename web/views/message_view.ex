@@ -172,4 +172,18 @@ defmodule UcxChat.MessageView do
     end
   end
 
+  def is_popup_open(%{open: true}), do: true
+  def is_popup_open(_), do: false
+
+  def get_popup_cls(_chatd) do
+    ""
+  end
+  def get_loading(_chatd) do
+    false
+  end
+  def get_popup_title(%{title: title}), do: title
+  def get_popup_title(_), do: false
+
+  def get_popup_data(%{data: data}), do: data
+  def get_popup_data(_), do: false
 end

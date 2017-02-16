@@ -3,7 +3,7 @@ defmodule UcxChat.RoomChannel do
   Handle incoming and outgoing ClientChannel messages
   """
   use Phoenix.Channel
-  alias UcxChat.{Repo, Message, MessageService, ChannelService, TypingAgent}
+  alias UcxChat.{Repo, Message, MessageService, ChannelService, TypingAgent, MessagePopupService}
 
   require Logger
 
@@ -83,6 +83,12 @@ defmodule UcxChat.RoomChannel do
     resp = UcxChat.FlexBarService.handle_in(mod, msg)
     {:reply, resp, socket}
   end
+
+  def handle_in("message_popup:" <> cmd, msg, socket) do
+    resp = UcxChat.MessagePopupService.handle_in(cmd, msg)
+    {:reply, resp, socket}
+  end
+
   # default case
   def handle_in(topic, msg, socket) do
     Logger.warn "handle_in topic: #{topic}, msg: #{inspect msg}"

@@ -19,6 +19,20 @@ c1 = Client.changeset(%Client{}, %{nickname: "Admin"}) |> UcxChat.Repo.insert!
 c2 = Client.changeset(%Client{}, %{nickname: "Steve"}) |> UcxChat.Repo.insert!
 c3 = Client.changeset(%Client{}, %{nickname: "Merilee"}) |> UcxChat.Repo.insert!
 
+clients =
+  ["Jamie", "Jason", "Simon", "Eric", "Lina", "Denine", "Vince", "Richard", "Sharron", "Ardavan", "Joseph", "Chris", "Osmond", "Patrick", "Tom", "Jeff"J
+  |> Enum.map(fn name ->
+    c =
+      %Client{}
+      |> Client.changeset(%{nickname: name})
+      |> UcxChat.Repo.insert!
+    lname = String.downcase name
+    %User{}
+    |> User.changeset(%{client_id: c.id, name: name, email: "#{lname}@example.com",
+        username: lname, password: "test", password_confirmation: "test", admin: false})
+    |> Repo.insert!
+    c
+  end)
 u1 = User.changeset(%User{}, %{client_id: c1.id, name: "Admin", email: "steve.pallen@emetrotel.com", username: "admin", password: "test123", password_confirmation: "test123", admin: true})
 |> Repo.insert!
 
@@ -50,5 +64,12 @@ _channels =
   |> Repo.insert!
   %ChannelClient{}
   |> ChannelClient.changeset(%{channel_id: ch.id, client_id: c3.id})
+  |> Repo.insert!
+end)
+
+clients
+|> Enum.each(fn c ->
+  %ChannelClient{}
+  |> ChannelClient.changeset(%{channel_id: ch1.id, client_id: c.id})
   |> Repo.insert!
 end)

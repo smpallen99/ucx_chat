@@ -1,0 +1,10 @@
+.message-popup-results
+  - # {{#if emojiEnabled}}
+  - #   {{> messagePopup popupEmojiConfig}}
+  - # {{/if}}
+  - # {{> messagePopup popupChannelConfig}}
+  - # {{> messagePopup popupUserConfig}}
+  - # {{> messagePopup popupSlashCommandsConfig}}
+  = render "popup_channel.html", chatd: @chatd
+  = render "popup_user.html", chatd: @chatd
+  = render "popup_slash_commands.html", chatd: @chatd

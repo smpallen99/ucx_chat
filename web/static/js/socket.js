@@ -9,6 +9,7 @@ import Messages from "./messages"
 import Typing from "./typing"
 import RoomManager from "./room_manager"
 import UnreadManager from "./unread_manager"
+import MessagePopup from "./message_popup"
 
 // let socket = new Socket("/socket", {params: {token: window.userToken}})
 let socket = new Socket("/socket", {params: {nickname: ucxchat.nickname}})
@@ -27,10 +28,18 @@ $(document).ready(function() {
   $('body').on('keypress', '.message-form-text', e => {
     // console.log('message-form-text keypress', e)
     if(e.keyCode == 13) {
+      message_popup.handle_enter()
       Messages.send_message($('.message-form-text').val())
       typing.clear()
       return false
+    } else if (e.keyCode == 64) {
+      message_popup.open_users()
+      return true
     }
+    let event = new jQuery.Event('user:input')
+    event.keyCode = e.keyCode
+    $("body").trigger(event)
+
     typing.start_typing()
     return true
   })

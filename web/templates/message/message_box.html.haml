@@ -1,5 +1,6 @@
 -if @mb[:subscribed] do
   %form.message-form.secondary-font-color(method="post" action="/")
+    .message-popup-results
     - # {{> messagePopupConfig getPopupConfig}}
     - if @mb[:allowed_to_send] do
       .message-input.border-component-color

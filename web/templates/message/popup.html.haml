@@ -1,0 +1,22 @@
+- if is_popup_open(@chatd) do
+  .message-popup-position
+    %div(class="message-popup content-background-color #{get_popup_cls(@chatd)}")
+      - if title = get_popup_title(@chatd) do
+        .message-popup-title.secondary-background-color
+          = title
+      .message-popup-items
+        - if data = get_popup_data(@chatd) do
+          - [item|tail] = data
+          %div(class="popup-item selected" data-id="#{item[:id]}" data-name="#{item[:nickname]}")
+            = render @chatd[:templ], data: item
+          - for item <- tail do
+            .popup-item(data-id="#{item[:id]}" data-name="#{item[:nickname]}")
+              = render @chatd[:templ], data: item
+        - else
+          - # {{#unless isLoading.get}}
+          - #   {{#if emptyTemplate}}
+          - #     {{> Template.dynamic template=emptyTemplate}}
+          - #   {{/if}}
+          - # {{/unless}}
+      - if loading = get_loading(@chatd) do
+        - # do loading
