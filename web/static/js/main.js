@@ -11,3 +11,11 @@
 //     RoomManager.add_private($(this))
 //   })
 // })
+
+export function run() {
+  update_mentions()
+}
+export function update_mentions() {
+  let username = ucxchat.nickname;
+  $(`.mention-link[data-username="${username}"]`).addClass('mention-link-me background-primary-action-color')
+}

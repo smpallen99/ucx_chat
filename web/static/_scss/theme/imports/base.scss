@@ -2694,6 +2694,7 @@ label.required::after {
 	position: relative;
 	line-height: 20px;
 	min-height: 40px;
+	list-style: none;
 
 	&.highlight {
 		-webkit-animation: highlight 3s;

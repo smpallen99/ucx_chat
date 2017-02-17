@@ -1,4 +1,5 @@
 import * as cc from './chat_channel'
+import * as main from './main'
 
 const debug = false;
 
@@ -21,7 +22,7 @@ const default_settings = {
    },
   "Notifications": {},
   "Files List": {},
-  "Mentions": { },
+  "Mentions": { args: {templ: "mentions.html"} },
   "Stared Messages": {},
   "Knowledge Base": {hidden: true},
   "Pinned Messages": {},
@@ -132,6 +133,7 @@ function push_topic(topic, args) {
     cc.push(full_topic, args)
       .receive("ok", resp => {
         $('section.flex-tab').html(resp.html).parent().addClass('opened')
+        main.run()
       })
   }
 }

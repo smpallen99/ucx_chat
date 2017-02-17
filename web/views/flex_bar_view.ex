@@ -15,4 +15,12 @@ defmodule UcxChat.FlexBarView do
     end
     # |> Phoenix.HTML.safe_to_string
   end
+
+  def get_li_mention_class(mention) do
+    with acc <- ~w(message background-transparent-dark-hover mentions),
+         acc <- if(mention[:own], do: ["own"|acc], else: acc),
+         acc <- if(mention[:new_day], do: ["new-day"|acc], else: acc) do
+      Enum.join(acc, " ")
+    end
+  end
 end

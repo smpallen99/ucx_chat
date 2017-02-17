@@ -10,6 +10,7 @@ import Typing from "./typing"
 import RoomManager from "./room_manager"
 import UnreadManager from "./unread_manager"
 import MessagePopup from "./message_popup"
+import * as main from "./main"
 
 const debug = false;
 
@@ -21,6 +22,8 @@ $(document).ready(function() {
 
   let ucxchat = window.ucxchat
   let typing = new Typing(ucxchat.typing)
+
+  main.run()
 
   $('textarea.message-form-text').focus()
 

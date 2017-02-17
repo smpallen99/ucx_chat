@@ -3,6 +3,7 @@ defmodule UcxChat.MessageView do
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3, tag: 1, tag: 2]
 
   alias UcxChat.Message
+  alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
 
@@ -31,19 +32,19 @@ defmodule UcxChat.MessageView do
     Phoenix.HTML.Tag.tag(:li, attrs)
   end
   def format_date(%NaiveDateTime{} = dt) do
-    Message.format_date dt
+    Helpers.format_date dt
   end
   def format_date(%{updated_at: dt}) do
-    Message.format_date dt
+    Helpers.format_date dt
   end
   def format_timestamp(%NaiveDateTime{} = dt) do
-    Message.format_timestamp dt
+    Helpers.format_timestamp dt
   end
   def format_time(%{updated_at: dt}) do
-    Message.format_time dt
+    Helpers.format_time dt
   end
   def format_date_time(%{updated_at: dt}) do
-    Message.format_date_time dt
+    Helpers.format_date_time dt
   end
   def get_avatar(_msg) do
     ""
