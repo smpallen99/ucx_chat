@@ -7,6 +7,8 @@ defmodule UcxChat.Message do
     field :sequential, :boolean, default: false
     field :timestamp, :string
 
+    has_many :stars, UcxChat.StaredMessage
+
     belongs_to :client, UcxChat.Client
     belongs_to :channel, UcxChat.Channel
 

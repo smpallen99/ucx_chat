@@ -23,7 +23,7 @@ const default_settings = {
   "Notifications": {},
   "Files List": {},
   "Mentions": { args: {templ: "mentions.html"} },
-  "Stared Messages": {},
+  "Stared Messages": { args: {templ: "stared_messages.html"}},
   "Knowledge Base": {hidden: true},
   "Pinned Messages": {},
   "Past Chats": {hidden: true},

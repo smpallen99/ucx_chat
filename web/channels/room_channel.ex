@@ -93,6 +93,10 @@ defmodule UcxChat.RoomChannel do
     resp = UcxChat.MessagePopupService.handle_in(cmd, msg)
     {:reply, resp, socket}
   end
+  def handle_in("message_cog:" <> cmd, msg, socket) do
+    resp = UcxChat.MessageCogService.handle_in(cmd, msg)
+    {:reply, resp, socket}
+  end
 
   # default case
   def handle_in(topic, msg, socket) do

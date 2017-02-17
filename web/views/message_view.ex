@@ -189,19 +189,20 @@ defmodule UcxChat.MessageView do
   def get_popup_data(_), do: false
 
   def format_message_body(message) do
-    # message.body
-    # |> :binary.split(<<0::8>>, [:global])
-    # |> Enum.map(fn
-    #   "@" <> name ->
-    #     content_tag :a, class: "mention-link", "data-username": name do
-    #       "@" <> name
-    #     end
-    #   text -> text
-    # end)
-    # |> raw
     message.body
     |> String.replace("&lt;", "<")
     |> String.replace("&gt;", ">")
     |> raw
+  end
+
+  def message_cog_action_li(name, title, icon, extra \\ "") do
+    #{}"reaction-message", "Reactions", "people-plus")
+    opts = [class: "#{name} #{extra} message-action", title: title, "data-id": name]
+    content_tag :li, opts do
+      content_tag :i, class: "icon-#{icon}", "aria-label": title do
+        ""
+      end
+    end
+
   end
 end

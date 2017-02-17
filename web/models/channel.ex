@@ -8,6 +8,7 @@ defmodule UcxChat.Channel do
     field :read_only, :boolean, default: false
     has_many :channels_clients, UcxChat.ChannelClient
     has_many :clients, through: [:channels_clients, :client]
+    has_many :stared_messages, UcxChat.StaredMessage
 
     timestamps()
   end

@@ -10,6 +10,7 @@ import Typing from "./typing"
 import RoomManager from "./room_manager"
 import UnreadManager from "./unread_manager"
 import MessagePopup from "./message_popup"
+import MessageCog from "./message_cog"
 import * as main from "./main"
 
 const debug = false;

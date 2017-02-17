@@ -1,0 +1,15 @@
+.message-dropdown.content-background-color(style="display: block")
+  %ul
+    %li.message-dropdown-close.secondary-background-color.border-component-color
+      %i.icon-angle-left(aria-label="Close")
+    = message_cog_action_li("reply-message", "Reply", "reply")
+    = message_cog_action_li("edit-message", "Edit", "pencil")
+    = message_cog_action_li("delete-message", "Delete", "trash-alt")
+    = message_cog_action_li("permalink", "Permalink", "link", "clipboard")
+    = message_cog_action_li("copy", "Copy", "paste", "clipboard")
+    = message_cog_action_li("quote-message", "Quote", "quote-left")
+    - if @opts[:stared] do
+      = message_cog_action_li("unstar-message", "Remove Star", "star")
+    -else
+      = message_cog_action_li("star-message", "Star Message", "star-empty")
+    = message_cog_action_li("reaction-message", "Reactions", "people-plus")

@@ -1,0 +1,22 @@
+.content
+  .list-view.stared-messages-list
+    .title
+      %h2 Stared Messages
+    - if @stars == [] do
+      %h2 No stared messages
+  .ul.list.clearfix
+    - for star <- @stars do
+      %li(id="#{star[:id]}" class="#{get_li_class(star, :stared)}" data-username="#{star[:nickname]}" data-date="#{star[:date]}" data-timestamp="#{star[:timestamp]}")
+        %button.thumb.user-card-message(data-username="#{star[:nickname]}" tabindex="1")
+          .avatar
+            .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
+        %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{star[:nickname]}" tabindex="1")
+          = star[:nickname]
+        %span.info.border-component-color.color-info-font-color
+          %span.time(title="#{star[:date]}")= star[:time]
+          .message-cog-container
+            %i.icon-cog.message-cog(aria-label="Actions")
+        .body.color-primary-font-color(dir="auto")
+          = UcxChat.MessageView.format_message_body(star[:message])
+        %ul.actionLinks.hidden
+        %ul.reactions.hidden
