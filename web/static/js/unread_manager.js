@@ -1,5 +1,7 @@
 import * as cc from './chat_channel'
 
+const debug = false;
+
 const new_message_unread_time = 5000;
 
 // Handle the first-unread banner and the unread-bar with the following algorithm
@@ -87,10 +89,10 @@ class UnreadManager {
       this.new_message_ref = setTimeout(this.new_message_timeout, new_message_unread_time, this, id)
     }
     if (this.unread || this.new_message_ref) {
-      console.log('new_message pushing id')
+      if (debug) { console.log('new_message pushing id') }
       this.unread_list.push(id)
     } else {
-      console.log('new_message not pushing id')
+      if (debug) { console.log('new_message not pushing id') }
     }
   }
 
@@ -113,9 +115,9 @@ class UnreadManager {
   }
 
   remove_unread() {
-    console.log('remove_unread')
+    if (debug) { console.log('remove_unread') }
     if (this.is_first_unread_visible() || !this.unread) {
-      console.log('remove_unread removeing...')
+      if (debug) { console.log('remove_unread removeing...') }
       this.remove_unread_class();
       this.unread = false;
     }
@@ -130,22 +132,22 @@ class UnreadManager {
 
   scroll(e) {
     if (!this.isloading) {
-      if ($('.messages-box .wrapper').scrollTop().valueOf() == 0) {
-        console.log('at the top...')
-        cc.push('messages:load', {timestamp: $('li.message').first().attr('data-timestamp')})
-          .receive("ok", resp => {
-            console.log('got response back from loading', resp)
-            $('.messages-box .wrapper ul').prepend(resp.html)
-            console.log('finished loading')
-            this.isloading = false
-          })
-        return
-      }
+      // if ($('.messages-box .wrapper').scrollTop().valueOf() == 0) {
+      //   if (debug) { console.log('at the top...') }
+      //   cc.push('messages:load', {timestamp: $('li.message').first().attr('data-timestamp')})
+      //     .receive("ok", resp => {
+      //       if (debug) { console.log('got response back from loading', resp) }
+      //       $('.messages-box .wrapper ul').prepend(resp.html)
+      //       if (debug) { console.log('finished loading') }
+      //       this.isloading = false
+      //     })
+      //   return
+      // }
     }
     if (this.unread) {
-       console.log('scrolling unread')
+       if (debug) { console.log('scrolling unread') }
       if (this.is_first_unread_visible()) {
-        console.log('hiding unread_bar')
+        if (debug) { console.log('hiding unread_bar') }
 
         if ($('.unread-bar').is(':visible')) {
           this.hide_unread_bar()
@@ -154,15 +156,15 @@ class UnreadManager {
         let count = this.count_unread()
         if (!$('.unread-bar').is(':visible')) {
           $('.unread-bar').show()
-          console.log('show unread bar')
+          if (debug) { console.log('show unread bar') }
         } else {
-          console.log('else dont show unread bar')
+          if (debug) { console.log('else dont show unread bar') }
         }
         $('.unread-cnt').html(count)
-        console.log('count', count)
+        if (debug) { console.log('count', count) }
       }
     } else {
-       // console.log('scrolling no unread')
+       // if (debug) { console.log('scrolling no unread') }
     }
   }
 
@@ -174,19 +176,19 @@ window.unread = unread;
 $(document).ready(function() {
   $(window).on('focus', () => {
     unread.has_focus = true;
-    console.log('focus')
+    if (debug) { console.log('focus') }
   }).on('blur', () => {
     unread.has_focus = false;
-    console.log('blur')
+    if (debug) { console.log('blur') }
   })
 
   $('.messages-box .wrapper').scroll(function(e) {
-    // console.log('scrolling....')
+    // if (debug) { console.log('scrolling....') }
     unread.scroll(e)
   })
 
   $('body').on('click', 'button.jump-to', function() {
-    console.log('jumpto', $('.first-unread').offset().top)
+    if (debug) { console.log('jumpto', $('.first-unread').offset().top) }
     unread.hide_unread_bar();
     unread.unread = false
     let msgbox = $('.messages-box .wrapper')
@@ -194,7 +196,7 @@ $(document).ready(function() {
     let first_top = $('.first-unread').offset().top
     let offtop = msgbox.offset().top
     let val = msgbox.scrollTop().valueOf() + $('.first-unread').offset().top - msgbox.offset().top
-    console.log('going to scroll to', valof, first_top, offtop, val)
+    if (debug) { console.log('going to scroll to', valof, first_top, offtop, val) }
     $('.messages-box .wrapper').animate({
       scrollTop: val
     }, 1500);

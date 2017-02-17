@@ -1,5 +1,5 @@
 defmodule UcxChat.ChatDat do
-  alias UcxChat.{Client, ChannelService, Channel}
+  alias UcxChat.{Client, Channel}
 
   defstruct room_types: [], settings: %{}, rooms: [], client: nil, channel: nil, messages: nil, room_map: %{}, active_room: %{}
 
@@ -18,7 +18,7 @@ defmodule UcxChat.ChatDat do
 
   def favorite_room?(%__MODULE__{} = chatd, channel_id) do
     with room_types <- chatd.rooms,
-         stared when not is_nil(stared) <- Enum.find(&(&1[:type] == :stared)),
+         stared when not is_nil(stared) <- Enum.find(room_types, &(&1[:type] == :stared)),
          room when not is_nil(room) <- Enum.find(stared, &(&1[:channel_id] == channel_id)) do
       true
     else

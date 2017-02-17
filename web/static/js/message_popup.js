@@ -1,6 +1,8 @@
 import * as cc from './chat_channel'
 import * as utils from './utils'
 
+const debug = false;
+
 const popup_window = '.message-popup-results';
 const item = '.popup-item';
 const selected = item + '.selected';
@@ -66,7 +68,7 @@ class MessagePopup {
     return false
   }
   handle_bs_key() {
-    console.log('BS')
+    if (debug) { console.log('BS') }
     if ($(form_text).val().slice(-1) != "@") {
       this.pattern.pop()
       cc.push('message_popup:get:users', {pattern: this.pattern})
@@ -91,7 +93,7 @@ class MessagePopup {
       for(var i = 0; i < string.length; i++) { pattern.push(string.charCodeAt(i)) }
       cc.push('message_popup:get:users', {pattern: pattern})
         .receive("ok", resp => {
-          console.log('bs not open resp', pattern, resp)
+          if (debug) { console.log('bs not open resp', pattern, resp) }
           if (!resp.close) {
             this.pattern = pattern
             this.open = "users"
@@ -153,7 +155,7 @@ class MessagePopup {
         }
       } else {
         if (msg.keyCode == 64) {
-          // console.log('found @', "'" + $(form_text).val() + "'")
+          // if (debug) { console.log('found @', "'" + $(form_text).val() + "'") }
           let prev = $(form_text).val().slice(-1);
           if (prev == "" || prev == " ") {
             this.open_users()
@@ -166,8 +168,9 @@ class MessagePopup {
   }
 
   select_item(elem) {
-    let txt = $('.message-form-text').val()
-    $('.message-form-text').val(txt + elem.attr('data-name') + ' ')
+    let text = $('.message-form-text').val()
+    let new_text = text.replace(/(.*)@(.*$)/, "$1@" + elem.attr('data-name') + ' ')
+    $('.message-form-text').val(new_text)
   }
 
 }

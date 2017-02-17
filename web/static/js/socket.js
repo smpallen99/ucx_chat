@@ -11,6 +11,8 @@ import RoomManager from "./room_manager"
 import UnreadManager from "./unread_manager"
 import MessagePopup from "./message_popup"
 
+const debug = false;
+
 // let socket = new Socket("/socket", {params: {token: window.userToken}})
 let socket = new Socket("/socket", {params: {nickname: ucxchat.nickname}})
 window.roomchan = false
@@ -25,7 +27,7 @@ $(document).ready(function() {
   start_socket(typing)
 
   $('body').on('submit', '.message-form', e => {
-    console.log('message-form submit', e)
+    if (debug) { console.log('message-form submit', e) }
   })
   $('body').on('keydown', '.message-form-text', e => {
     let event = new jQuery.Event('user:input')
@@ -45,7 +47,7 @@ $(document).ready(function() {
   })
 
   $('body').on('keypress', '.message-form-text', e => {
-    console.log('message-form-text keypress', e)
+    if (debug) { console.log('message-form-text keypress', e) }
     if(e.keyCode == 13) {
       message_popup.handle_enter()
       Messages.send_message($('.message-form-text').val())
@@ -66,17 +68,17 @@ $(document).ready(function() {
 
   $('body').on('click', 'a.open-room', function(e) {
     e.preventDefault();
-    console.log('clicked a.open-room', e, $(this), $(this).attr('data-room'))
+    if (debug) { console.log('clicked a.open-room', e, $(this), $(this).attr('data-room')) }
     roomchan.push("room:open", {client_id: ucxchat.client_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
       .receive("ok", resp => { RoomManager.render_room(resp) })
   })
   $('body').on('click', 'a.toggle-favorite', e => {
-    console.log('click a.toggle-favorite')
+    if (debug) { console.log('click a.toggle-favorite') }
     e.preventDefault();
     RoomManager.toggle_favorite()
   })
   $('body').on('click', '.button.pvt-msg', function(e) {
-    console.log('click .button.pvt-msg')
+    if (debug) { console.log('click .button.pvt-msg') }
     e.preventDefault();
     RoomManager.add_private($(this))
   })
@@ -100,7 +102,7 @@ function start_socket(typing) {
 
   let chan = roomchan
 
-  console.log('start socket', ucxchat)
+  if (debug) { console.log('start socket', ucxchat) }
   chan.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
     .receive("error", resp => { console.log("Unable to join", resp) })
@@ -115,12 +117,12 @@ function start_socket(typing) {
   })
 
   chan.on("message:new", msg => {
-    console.log('message:new current id, msg.client_id', msg, ucxchat.client_id, msg.client_id )
+    if (debug) { console.log('message:new current id, msg.client_id', msg, ucxchat.client_id, msg.client_id) }
     Messages.new_message(msg)
   })
 
   chan.on("typing:update", msg => {
-    console.log('typing:update', msg)
+    if (debug) { console.log('typing:update', msg) }
     typing.update_typing(msg.typing)
   })
 

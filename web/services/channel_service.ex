@@ -2,7 +2,7 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{Repo, Channel, ChannelClient, MessageService, Client, User, ChatDat, Direct}
+  alias UcxChat.{Repo, Channel, ChannelClient, MessageService, Client, ChatDat, Direct}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   import Ecto.Query
@@ -113,7 +113,7 @@ defmodule UcxChat.ChannelService do
 
   def favorite_room?(chatd, channel_id) do
     with room_types <- chatd.rooms,
-         stared when not is_nil(stared) <- Enum.find(&(&1[:type] == :stared)),
+         stared when not is_nil(stared) <- Enum.find(room_types, &(&1[:type] == :stared)),
          room when not is_nil(room) <- Enum.find(stared, &(&1[:channel_id] == channel_id)) do
       true
     else

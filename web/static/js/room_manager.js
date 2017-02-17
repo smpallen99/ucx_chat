@@ -1,12 +1,14 @@
 import Messages from "./messages"
 import * as socket from './socket'
 
+const debug = false;
+
 class RoomManager {
 
   static render_room(resp) {
-    console.log('render_room', resp)
+    if (debug) { console.log('render_room', resp) }
     $('.room-link').removeClass("active")
-    console.log('room:render', resp)
+    if (debug) { console.log('room:render', resp) }
     $('.messages-box').html(resp.box_html)
     $('.messages-container .fixed-title h2').html(resp.header_html)
     ucxchat.channel_id = resp.channel_id
@@ -19,7 +21,7 @@ class RoomManager {
     socket.restart_socket()
   }
   static toggle_favorite() {
-    console.log('toggle_favorite')
+    if (debug) { console.log('toggle_favorite') }
     roomchan.push("room:favorite", {client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
       .receive("ok", resp => {
         $('.messages-container .fixed-title h2').html(resp.messages_html)
@@ -28,7 +30,7 @@ class RoomManager {
   }
   static add_private(elem) {
     let nickname = elem.parent().attr('data-username')
-    console.log('pvt-msg button clicked...', nickname)
+    if (debug) { console.log('pvt-msg button clicked...', nickname) }
     roomchan.push("room:add-direct", {nickname: nickname, client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
       .receive("ok", resp => {
         $('.messages-container .fixed-title h2').html(resp.messages_html)

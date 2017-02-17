@@ -39,7 +39,8 @@
       %i.icon-cog.message-cog(aria-label="Actions")
   - # %div{class: "body color-primary-font-color {{system true}}" dir="auto">
   %div{class: "body color-primary-font-color" dir: "auto"}
-    = Map.get(@message, :body)
+    = format_message_body(@message)
+    =# @message.body
     - if oembed = has_oembed(@message) do
       - for _url <- oembed[:urls] do
         = # {{injectIndex . @index}} {{> oembedBaseWidget}}

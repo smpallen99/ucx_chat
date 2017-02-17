@@ -186,4 +186,21 @@ defmodule UcxChat.MessageView do
 
   def get_popup_data(%{data: data}), do: data
   def get_popup_data(_), do: false
+
+  def format_message_body(message) do
+    # message.body
+    # |> :binary.split(<<0::8>>, [:global])
+    # |> Enum.map(fn
+    #   "@" <> name ->
+    #     content_tag :a, class: "mention-link", "data-username": name do
+    #       "@" <> name
+    #     end
+    #   text -> text
+    # end)
+    # |> raw
+    message.body
+    |> String.replace("&lt;", "<")
+    |> String.replace("&gt;", ">")
+    |> raw
+  end
 end

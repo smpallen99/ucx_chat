@@ -46,7 +46,7 @@ defmodule UcxChat.TypingAgent do
   end
 
   def get_pid do
-    Agent.get fn _ -> self() end
+    Agent.get @name, fn _ -> self() end
   end
 
 end

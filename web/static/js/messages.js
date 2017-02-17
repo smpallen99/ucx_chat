@@ -1,6 +1,8 @@
 import UnreadManager from "./unread_manager"
 import * as utils from "./utils"
 
+const debug = false;
+
 class Messages {
 
   static new_message(msg) {
@@ -11,7 +13,7 @@ class Messages {
 
 
     if (ucxchat.client_id == msg.client_id) {
-      console.log('adding own to', msg.id, $('#' + msg.id))
+      if (debug) { console.log('adding own to', msg.id, $('#' + msg.id)) }
       $('#' + msg.id).addClass("own")
     }
 

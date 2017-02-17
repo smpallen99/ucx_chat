@@ -1,5 +1,7 @@
 import * as utils from './utils'
 
+const debug = false;
+
 class Typing {
 
   constructor(typing) {
@@ -28,7 +30,7 @@ class Typing {
     }
   }
   update_typing(typing) {
-    console.log('Typing.update_typing', typing)
+    if (debug) { console.log('Typing.update_typing', typing) }
 
     if (typing.indexOf(ucxchat.nickname) < 0) {
       this.do_update_typing(false, typing)
@@ -39,7 +41,7 @@ class Typing {
   }
 
   do_update_typing(self_typing, list) {
-    console.log('to_update_typing', self_typing, list)
+    if (debug) { console.log('to_update_typing', self_typing, list) }
     let len = list.length
     let prepend = ""
     if (len > 1) {
@@ -61,7 +63,7 @@ class Typing {
   }
 
   typing_timer_timeout(this_ref, channel_id, client_id) {
-    console.log('typing_timer_timeout', this_ref.is_typing)
+    if (debug) { console.log('typing_timer_timeout', this_ref.is_typing) }
     if ($('.message-form-text').val() == '') {
       if (this_ref.is_typing) {
         // assume they cleared the textedit and did not send
