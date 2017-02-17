@@ -1,5 +1,6 @@
-const new_message_unread_time = 5000;
 import * as cc from './chat_channel'
+
+const new_message_unread_time = 5000;
 
 // Handle the first-unread banner and the unread-bar with the following algorithm
 // When the user's browser is not in focus (blur) and a new message comes in
@@ -14,6 +15,7 @@ class UnreadManager {
     this.unread = ucxchat.unread;
     this.unread_list = [];
     this.new_message_ref = undefined;
+    this.is_loading = false
   }
 
   get bounding() { return this.rect; }
@@ -127,6 +129,19 @@ class UnreadManager {
   }
 
   scroll(e) {
+    if (!this.isloading) {
+      if ($('.messages-box .wrapper').scrollTop().valueOf() == 0) {
+        console.log('at the top...')
+        cc.push('messages:load', {timestamp: $('li.message').first().attr('data-timestamp')})
+          .receive("ok", resp => {
+            console.log('got response back from loading', resp)
+            $('.messages-box .wrapper ul').prepend(resp.html)
+            console.log('finished loading')
+            this.isloading = false
+          })
+        return
+      }
+    }
     if (this.unread) {
        console.log('scrolling unread')
       if (this.is_first_unread_visible()) {

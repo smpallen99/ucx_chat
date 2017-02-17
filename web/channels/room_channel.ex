@@ -47,6 +47,11 @@ defmodule UcxChat.RoomChannel do
     {:noreply, socket}
   end
 
+  def handle_in("messages:" <> cmd, msg, socket) do
+    res = MessageService.handle_in(cmd, msg)
+    {:reply, res, socket}
+  end
+
   def handle_in("typing:start", %{"channel_id" => channel_id,
     "client_id" => client_id, "nickname" => nickname, "room" => room}, socket) do
     Logger.debug "typing:start client_id: #{inspect client_id}, nickname: #{inspect nickname}"

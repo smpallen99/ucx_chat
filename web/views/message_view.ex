@@ -26,7 +26,7 @@ defmodule UcxChat.MessageView do
       "data-username": msg.client.nickname,
       "data-groupable": msg.is_groupable,
       "data-date": format_date(msg.updated_at),
-      "data-timestamp": format_timestamp(msg.updated_at)
+      "data-timestamp": msg.timestamp
     ]
     Phoenix.HTML.Tag.tag(:li, attrs)
   end

@@ -67,4 +67,24 @@ defmodule UcxChat.ServiceHelpers do
     |> Repo.one!
   end
 
+  def count(query) do
+    query |> select([m], count(m.id)) |> Repo.one
+  end
+
+  def last_page(query, page_size \\ 150) do
+    count = count(query)
+    offset = case count - page_size do
+      offset when offset >= 0 -> offset
+      _ -> 0
+    end
+    query |> offset(^offset) |> limit(^page_size)
+  end
+
+  def get_timestamp() do
+    ~r/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\.(\d+)/
+    |> Regex.run(DateTime.utc_now() |> to_string)
+    |> tl
+    |> to_string
+    # |> String.to_integer
+  end
 end

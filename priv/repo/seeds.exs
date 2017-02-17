@@ -20,7 +20,10 @@ c2 = Client.changeset(%Client{}, %{nickname: "Steve"}) |> UcxChat.Repo.insert!
 c3 = Client.changeset(%Client{}, %{nickname: "Merilee"}) |> UcxChat.Repo.insert!
 
 clients =
-  ["Jamie", "Jason", "Simon", "Eric", "Lina", "Denine", "Vince", "Richard", "Sharron", "Ardavan", "Joseph", "Chris", "Osmond", "Patrick", "Tom", "Jeff"J
+  [
+    "Jamie", "Jason", "Simon", "Eric", "Lina", "Denine", "Vince", "Richard", "Sharron",
+    "Ardavan", "Joseph", "Chris", "Osmond", "Patrick", "Tom", "Jeff"
+  ]
   |> Enum.map(fn name ->
     c =
       %Client{}

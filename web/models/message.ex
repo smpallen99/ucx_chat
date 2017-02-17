@@ -1,9 +1,12 @@
 defmodule UcxChat.Message do
   use UcxChat.Web, :model
+  require Logger
 
   schema "messages" do
     field :body, :string
     field :sequential, :boolean, default: false
+    field :timestamp, :string
+
     belongs_to :client, UcxChat.Client
     belongs_to :channel, UcxChat.Channel
 
@@ -24,8 +27,17 @@ defmodule UcxChat.Message do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:body, :client_id, :channel_id, :sequential])
+    |> cast(params, [:body, :client_id, :channel_id, :sequential, :timestamp])
     |> validate_required([:body, :client_id])
+    |> add_timestamp
+  end
+
+  def add_timestamp(%{data: %{timestamp: nil}} = changeset) do
+    # Logger.warn "changeset: #{inspect changeset}, timestamp: #{inspect changeset.data.timestamp}"
+    put_change(changeset, :timestamp, UcxChat.ServiceHelpers.get_timestamp())
+  end
+  def add_timestamp(changeset) do
+    changeset
   end
 
   def format_date(%NaiveDateTime{} = dt) do

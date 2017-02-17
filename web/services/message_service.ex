@@ -1,20 +1,37 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
-  alias UcxChat.{Message, Repo, TypingAgent}
+  alias UcxChat.{Message, Repo, TypingAgent, Client}
+  alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
+
+  def handle_in("load", msg) do
+    client = Helpers.get(Client, msg["client_id"])
+    Logger.warn "MessageService.handle_in load msg: #{inspect msg}, client: #{inspect client}"
+    channel_id = msg["channel_id"]
+    timestamp = msg["timestamp"]
+    Logger.warn "timestamp: #{inspect timestamp}"
+    page_size = Application.get_env :ucx_chat, :page_size, 150
+    messages =
+      Message
+      |> where([m], m.timestamp < ^timestamp and m.channel_id == ^channel_id)
+      |> Helpers.last_page(page_size)
+      |> preload([:client])
+      |> Repo.all
+      |> Enum.map(fn message ->
+        UcxChat.MessageView.render("message.html", client: client, message: message)
+        |> Phoenix.HTML.safe_to_string
+      end)
+      |> to_string
+    {:ok, %{html: messages}}
+  end
 
   def get_messages(channel_id) do
     Message
     |> where([m], m.channel_id == ^channel_id)
+    |> Helpers.last_page
     |> preload([:client])
-    # |> join(:left, [m], c in assoc(m, :client))
-    # |> select([m,c], {m, c})
-    # |> select([m,c], {m.id, m.body, m.updated_at, c.id, c.nickname})
     |> Repo.all
-    # |> Enum.map(fn {m, c} ->
-    #   struct(m, client: c)
-    # end)
   end
 
   def last_client_id(channel_id) do
