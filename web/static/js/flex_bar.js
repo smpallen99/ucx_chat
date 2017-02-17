@@ -1,102 +1,119 @@
+import * as cc from './chat_channel'
+
 const debug = false;
 
+const default_settings = {
+  "Info": { args: {templ: "channel_settings.html"} },
+  "Search": {},
+  "User Info": {},
+  "Members List": {
+    args: {templ: "clients_list.html"},
+    show: {
+      attr: "data-username",
+      args: [{key: "nickname"}], // attr is optional for override -  attr: "data-username"}],
+      triggers: [
+        {action: "click", class: "button.user.user-card-message"},
+        {action: "click", class: ".mention-link"},
+        {action: "click", class: "li.user-card-room button"},
+        {function: custom_show_switch_user}
+      ]
+    }
+   },
+  "Notifications": {},
+  "Files List": {},
+  "Mentions": { },
+  "Stared Messages": {},
+  "Knowledge Base": {hidden: true},
+  "Pinned Messages": {},
+  "Past Chats": {hidden: true},
+  "OTR": {hidden: true},
+  "Video Chat": {hidden: true},
+  "Snipped Messages": {},
+  "Logout": {function: function() { window.location.href = "/logout"} },
+  "Switch User": {args: {templ: "switch_user_list.html"}}
+}
+
+function open_tab(tab) {
+  if (debug) { console.log('open_tab', tab) }
+
+  if (Object.keys(tab).length == 0) {
+    if (debug) { console.log(tab.name + ' clicked ...') }
+  } else {
+    push_topic(tab.topic, tab.args)
+  }
+}
+
+
 $(document).ready(function() {
-  $('body').on('click', '.tab-button[title="Info"]', function() {
-    if (debug) { console.log('Info button clicked...') }
-    if ($('section.flex-tab').parent().hasClass('opened')) {
-      close_flex_tab()
-    } else {
-      roomchan.push("flex_bar:click:Info", {templ: "channel_settings.html", client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
-        .receive("ok", resp => {
-          if (debug) { console.log('info response', resp) }
-          $('section.flex-tab').html(resp.html).parent().addClass('opened')
-      })
-    }
-  })
-  $('body').on('click', '.tab-button[title="Search"]', function() {
-    if (debug) { console.log('Search button clicked...') }
-  })
-  $('body').on('click', '.tab-button[title="Members List"]', function() {
-    if (debug) { console.log('Members List button clicked...') }
-    if ($('section.flex-tab').parent().hasClass('opened')) {
-      close_flex_tab()
-    } else {
-      roomchan.push("flex_bar:click:Members List", {templ: "clients_list.html", client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
-        .receive("ok", resp => {
-          $('section.flex-tab').html(resp.html).parent().addClass('opened')
-      })
-    }
-  })
-  $('body').on('click', '.tab-button[title="User Info"]', function() {
-    if (debug) { console.log('User Info button clicked...') }
-  })
-  $('body').on('click', '.tab-button[title="Notifications"]', function() {
-    if (debug) { console.log('Notifications button clicked...') }
-  })
-  $('body').on('click', '.tab-button[title="Mentions"]', function() {
-    if (debug) { console.log('Mentions button clicked...') }
-  })
-  $('body').on('click', 'button.user.user-card-message', function() {
-    let username = $(this).attr('data-username')
-    if (debug) { console.log('user-card-message button clicked...', username) }
-    roomchan.push("flex_bar:click:Members List", {nickname: username, templ: "clients_list.html", client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
-      .receive("ok", resp => {
-        $('section.flex-tab').html(resp.html).parent().addClass('opened')
-    })
-  })
-  $('body').on('click', '.mention-link', function() {
-    let username = $(this).attr('data-username')
-    roomchan.push("flex_bar:click:Members List", {nickname: username, templ: "clients_list.html", client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
-      .receive("ok", resp => {
-        $('section.flex-tab').html(resp.html).parent().addClass('opened')
-    })
-  })
-  $('body').on('click', '.tab-button[title="Logout"]', function() {
-    if (debug) { console.log('Logout button clicked...') }
-    window.location.href = "/logout"
-  })
-  $('body').on('click', '.tab-button[title="Switch User"]', function() {
-    if (debug) { console.log('Switch User button clicked...') }
-    if ($('section.flex-tab').parent().hasClass('opened')) {
-      close_flex_tab()
-    } else {
-      if (debug) { console.log('Switch User button clicked opening') }
-      roomchan.push("flex_bar:click:Switch User", {templ: "switch_user_list.html"})
-        .receive("ok", resp => {
-          $('section.flex-tab').html(resp.html).parent().addClass('opened')
-      })
-    }
+  let settings = {};
+
+  Object.keys(default_settings).forEach(function(key) {
+    settings[key] = Object.assign({name: key}, default_settings[key])
+    settings[key] = Object.assign({topic: key}, default_settings[key])
   })
 
-  // $('body').on('click', 'li.switch_user.user-card-room button', function() {
-  //   let username = $(this).attr('data-username')
-  //   console.log('button.switch-user.user-card-message clicked...', username)
-  //   window.location.href = "/switch_user/" + username
-  // })
+  Object.keys(settings).forEach(function(key) {
+    $('body').on('click', `.tab-button[title='${key}']`, function() {
+      if (debug) { console.log(`${key} button clicked...`) }
+      if (settings[key].function) {
+        settings[key].function()
+      } else {
+        let is_same = $('section.flex-tab .title h2').html() == key
+        if ($('section.flex-tab').parent().hasClass('opened') && is_same) {
+          close_flex_tab()
+        } else {
+          open_tab(settings[key])
+        }
+      }
+    })
+
+    if (settings[key].show) {
+      let show = settings[key].show;
+      console.log('show', show)
+
+      // iterate over each of the triggers
+      show.triggers.forEach(function(trigger) {
+        if (trigger.function) {
+          console.log('using trigger function for show')
+          trigger.function()
+        } else {
+          let topic = settings[key].topic
+          if (show.topic) { topic = show.topic }
+          console.log('trigger', trigger, topic)
+          $('body').on(trigger.action, trigger.class, function() {
+            let new_args = build_show_args($(this), settings[key].args, show)
+            console.log('show, topic, new_args', show, topic, new_args)
+            push_topic(topic, new_args)
+          })
+        }
+      })
+    }
+  })
 
   $('body').on('click', '.flex-tab-container .user-view nav .button.back', function() {
     $('.flex-tab-container .user-view').addClass('animated-hidden')
   })
-  $('body').on('click', 'li.user-card-room button', function() {
-    if (debug) { console.log('li.user-card-room button clicked', $(this)) }
-    if ($(this).parent().hasClass('switch-user')) {
-      if (debug) { console.log('li.user-card-room button found switch user') }
-      let username = $(this).attr('data-username')
-      if (debug) { console.log('button.switch-user.user-card-message clicked...', username) }
-      window.location.href = "/switch_user/" + username
-    } else {
-      if (debug) { console.log('li.user-card-room button found no switch user') }
-      let nickname = $(this).attr('data-username')
-      if (debug) { console.log('view user button clicked', nickname) }
-      roomchan.push("flex_bar:click:Members List", {nickname: nickname, templ: "clients_list.html", client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
-        .receive("ok", resp => {
-          if (debug) { console.log('resp', resp) }
-          $('section.flex-tab').html(resp.html).parent()
-          open_flex_tab()
-      })
-    }
-  })
+
 })
+
+//////////////////
+// Custom Handlers
+
+function custom_show_switch_user() {
+  console.log('custom_show_switch_user')
+  $('body').on('click', 'li.user-card-room.switch-user button', function() {
+    let username = $(this).attr('data-username')
+    window.location.href = "/switch_user/" + username
+  })
+}
+
+////////////////
+// Helpers
+
+// function open_member_view(nickname) {
+//   cc.push("flex_bar:click:Members List", {nickname: nickname, templ: "clients_list.html"})
+//     .receive("ok", resp => { $('section.flex-tab').html(resp.html).parent().addClass('opened') })
+// }
 
 function close_flex_tab() {
   if ($('section.flex-tab').parent().hasClass('opened')) {
@@ -107,4 +124,25 @@ function open_flex_tab() {
   if (!$('section.flex-tab').parent().hasClass('opened')) {
     $('section.flex-tab').parent().addClass('opened')
   }
+}
+
+function push_topic(topic, args) {
+  if (topic) {
+    let full_topic = "flex_bar:click:" + topic
+    cc.push(full_topic, args)
+      .receive("ok", resp => {
+        $('section.flex-tab').html(resp.html).parent().addClass('opened')
+      })
+  }
+}
+
+function build_show_args(current, pargs, show) {
+  let new_args = {}
+  let args = show.args
+  args.forEach(function(arg) {
+    let attr = show.attr
+    if (arg.attr) { attr = arg.attr }
+    new_args[arg.key] = current.attr(attr)
+  })
+  return Object.assign(pargs, new_args);
 }

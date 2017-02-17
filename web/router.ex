@@ -38,6 +38,11 @@ defmodule UcxChat.Router do
 
   end
 
+  scope "/", Coherence do
+    pipe_through :protected
+    get "/logout", SessionController, :delete
+  end
+
   scope "/", UcxChat do
     pipe_through :protected
 
@@ -47,10 +52,6 @@ defmodule UcxChat.Router do
     # resources "/channel", ChannelController
   end
 
-  scope "/", Coherence do
-    pipe_through :protected
-    get "/logout", SessionController, :delete
-  end
 
   # Other scopes may use custom stacks.
   # scope "/api", UcxChat do
