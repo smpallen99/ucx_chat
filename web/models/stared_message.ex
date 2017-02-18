@@ -6,7 +6,7 @@ defmodule UcxChat.StaredMessage do
     belongs_to :message, UcxChat.Message
     belongs_to :channel, UcxChat.Channel
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @fields ~w(client_id message_id channel_id)a

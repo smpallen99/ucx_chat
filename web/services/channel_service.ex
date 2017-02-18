@@ -2,7 +2,7 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{Repo, Channel, ChannelClient, MessageService, Client, ChatDat, Direct}
+  alias UcxChat.{Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   import Ecto.Query
@@ -43,7 +43,7 @@ defmodule UcxChat.ChannelService do
   def get_side_nav(%Client{id: id}, channel_id), do: get_side_nav(id, channel_id)
   def get_side_nav(id, channel_id) do
     rooms =
-      ChannelClient
+      Subscription
       |> where([cc], cc.client_id == ^id)
       |> preload([:channel])
       |> Repo.all
@@ -165,7 +165,7 @@ defmodule UcxChat.ChannelService do
       # star it
       room_type(:stared)
     end
-    ChannelClient.changeset(cc, %{type: cc_type}) |> Repo.update!
+    Subscription.changeset(cc, %{type: cc_type}) |> Repo.update!
     chatd = ChatDat.new cc.client, cc.channel, []
     messages_html =
       "messages_header.html"
@@ -217,8 +217,8 @@ defmodule UcxChat.ChannelService do
     # Create the cc's, and the directs one for each user
     client_names = %{client_orig.id => client_dest.nickname, client_dest.id => client_orig.nickname}
     for client <- [client_orig, client_dest] do
-      %ChannelClient{}
-      |> ChannelClient.changeset(%{channel_id: channel.id, client_id: client.id, type: room_type(:direct)})
+      %Subscription{}
+      |> Subscription.changeset(%{channel_id: channel.id, client_id: client.id, type: room_type(:direct)})
       |> Repo.insert!
       Logger.warn "adding direct clients: #{inspect client_names[client.id]}, client.id: #{inspect client.id}, channel_id: #{inspect channel_id}"
       %Direct{}

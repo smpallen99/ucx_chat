@@ -31,13 +31,13 @@ defmodule UcxChat.MessageView do
     ]
     Phoenix.HTML.Tag.tag(:li, attrs)
   end
-  def format_date(%NaiveDateTime{} = dt) do
+  def format_date(dt) do
     Helpers.format_date dt
   end
   def format_date(%{updated_at: dt}) do
     Helpers.format_date dt
   end
-  def format_timestamp(%NaiveDateTime{} = dt) do
+  def format_timestamp(dt) do
     Helpers.format_timestamp dt
   end
   def format_time(%{updated_at: dt}) do

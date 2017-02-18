@@ -1,5 +1,5 @@
 defmodule UcxChat.ServiceHelpers do
-  alias UcxChat.{Repo, FlexBarView, Channel, Client, ChannelClient}
+  alias UcxChat.{Repo, FlexBarView, Channel, Client, Subscription}
 
   import Ecto.Query
 
@@ -52,7 +52,7 @@ defmodule UcxChat.ServiceHelpers do
   def get_channel_client(channel_id, client_id, opts \\ []) do
     preload = opts[:preload] || []
 
-    ChannelClient
+    Subscription
     |> where([c], c.client_id == ^client_id and c.channel_id == ^channel_id)
     |> preload(^preload)
     |> Repo.one!
@@ -94,6 +94,7 @@ defmodule UcxChat.ServiceHelpers do
     {{yr, mo, day}, _} = NaiveDateTime.to_erl(dt)
     month(mo) <> " " <> to_string(day) <> ", " <> to_string(yr)
   end
+  def format_date(%DateTime{} = dt), do: dt |> DateTime.to_naive |> format_date
 
   def format_time(%NaiveDateTime{} = dt) do
     {_, {hr, min, _sec}} = NaiveDateTime.to_erl(dt)
@@ -106,10 +107,12 @@ defmodule UcxChat.ServiceHelpers do
       end
     to_string(hr) <> ":" <> min <> meridan
   end
+  def format_time(%DateTime{} = dt), do: dt |> DateTime.to_naive |> format_time
 
   def format_date_time(%NaiveDateTime{} = dt) do
     format_date(dt) <> " " <> format_time(dt)
   end
+  def format_date_time(%DateTime{} = dt), do: dt |> DateTime.to_naive |> format_date_time
 
   def month(1), do: "January"
   def month(2), do: "February"

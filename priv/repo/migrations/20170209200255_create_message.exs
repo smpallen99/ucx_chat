@@ -8,7 +8,8 @@ defmodule UcxChat.Repo.Migrations.CreateMessage do
       add :client_id, references(:clients, on_delete: :nothing)
       add :channel_id, references(:channels, on_delete: :nothing)
 
-      timestamps()
+      timestamps(type: :utc_datetime)
+      # timestamps()
     end
     create index(:messages, [:client_id])
     create index(:messages, [:channel_id])

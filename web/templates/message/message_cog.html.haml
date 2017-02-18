@@ -12,4 +12,8 @@
       = message_cog_action_li("unstar-message", "Remove Star", "star")
     -else
       = message_cog_action_li("star-message", "Star Message", "star-empty")
+    - if @opts[:pinned] do
+      = message_cog_action_li("unpin-message", "Remove Pin", "pin rotate-45")
+    -else
+      = message_cog_action_li("pin-message", "Pin Message", "pin")
     = message_cog_action_li("reaction-message", "Reactions", "people-plus")

@@ -7,7 +7,8 @@ defmodule UcxChat.Repo.Migrations.CreateDirect do
       add :client_id, references(:clients, on_delete: :nothing)
       add :channel_id, references(:channels, on_delete: :nothing)
 
-      timestamps()
+      timestamps(type: :utc_datetime)
+      # timestamps()
     end
     # create index(:directs, [:users])
     create unique_index(:directs, [:client_id, :clients], name: :directs_client_id_users_index)

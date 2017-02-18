@@ -8,7 +8,8 @@ defmodule UcxChat.Repo.Migrations.CreateClient do
       add :tag_line, :string, default: ""
       add :uri, :string, default: ""
 
-      timestamps()
+      timestamps(type: :utc_datetime)
+      # timestamps()
     end
 
   end

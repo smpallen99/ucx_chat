@@ -3,10 +3,10 @@
     .title
       %h2 Stared Messages
     - if @stars == [] do
-      %h2 No stared messages
+      %h2 No started messages
   .ul.list.clearfix
     - for star <- @stars do
-      %li(id="#{star[:id]}" class="#{get_li_class(star, :stared)}" data-username="#{star[:nickname]}" data-date="#{star[:date]}" data-timestamp="#{star[:timestamp]}")
+      %li(id="#{star[:id]}" class="#{get_li_class(star, :starned)}" data-username="#{star[:nickname]}" data-date="#{star[:date]}" data-timestamp="#{star[:timestamp]}")
         %button.thumb.user-card-message(data-username="#{star[:nickname]}" tabindex="1")
           .avatar
             .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")

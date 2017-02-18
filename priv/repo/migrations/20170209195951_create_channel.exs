@@ -8,7 +8,8 @@ defmodule UcxChat.Repo.Migrations.CreateChannel do
       add :type, :integer, default: 0, null: false
       add :read_only, :boolean, default: false, null: false
 
-      timestamps()
+      timestamps(type: :utc_datetime)
+      # timestamps()
     end
 
   end

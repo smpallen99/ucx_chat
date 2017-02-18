@@ -3,6 +3,11 @@ import * as main from './main'
 
 const debug = false;
 
+const notifications = [
+  {event: "update:pinned", title: "Pinned Messages"},
+  {event: "update:stared", title: "Stared Messages"}
+]
+
 const default_settings = {
   "Info": { args: {templ: "channel_settings.html"} },
   "Search": {},
@@ -25,7 +30,7 @@ const default_settings = {
   "Mentions": { args: {templ: "mentions.html"} },
   "Stared Messages": { args: {templ: "stared_messages.html"}},
   "Knowledge Base": {hidden: true},
-  "Pinned Messages": {},
+  "Pinned Messages": {args: {templ: "pinned_messages.html"}},
   "Past Chats": {hidden: true},
   "OTR": {hidden: true},
   "Video Chat": {hidden: true},
@@ -34,13 +39,15 @@ const default_settings = {
   "Switch User": {args: {templ: "switch_user_list.html"}}
 }
 
-function open_tab(tab) {
+function open_tab(tab, elem) {
   if (debug) { console.log('open_tab', tab) }
 
   if (Object.keys(tab).length == 0) {
     if (debug) { console.log(tab.name + ' clicked ...') }
   } else {
     push_topic(tab.topic, tab.args)
+    $('.tab-button').removeClass('active')
+    $(elem).addClass('active')
   }
 }
 
@@ -49,8 +56,7 @@ $(document).ready(function() {
   let settings = {};
 
   Object.keys(default_settings).forEach(function(key) {
-    settings[key] = Object.assign({name: key}, default_settings[key])
-    settings[key] = Object.assign({topic: key}, default_settings[key])
+    set_tab_defaults(settings, key)
   })
 
   Object.keys(settings).forEach(function(key) {
@@ -61,9 +67,9 @@ $(document).ready(function() {
       } else {
         let is_same = $('section.flex-tab .title h2').html() == key
         if ($('section.flex-tab').parent().hasClass('opened') && is_same) {
-          close_flex_tab()
+          close_flex_tab($(this))
         } else {
-          open_tab(settings[key])
+          open_tab(settings[key], $(this))
         }
       }
     })
@@ -91,6 +97,21 @@ $(document).ready(function() {
     }
   })
 
+  notifications.forEach(function(notification) {
+    roomchan.on(notification.event, msg => {
+      if ($(`.tab-button[title="${notification.title}"]`).hasClass('active')) {
+        let key = notification.title
+        let settings = {}
+        set_tab_defaults(settings, key)
+        let tab = settings[key]
+        let scroll_pos = $('.flex-tab-container .content').scrollTop().valueOf()
+        push_topic(tab.topic, tab.args, function() {
+          $('.flex-tab-container .content').scrollTop(scroll_pos)
+        })
+      }
+    })
+  })
+
   $('body').on('click', '.flex-tab-container .user-view nav .button.back', function() {
     $('.flex-tab-container .user-view').addClass('animated-hidden')
   })
@@ -111,28 +132,33 @@ function custom_show_switch_user() {
 ////////////////
 // Helpers
 
-// function open_member_view(nickname) {
-//   cc.push("flex_bar:click:Members List", {nickname: nickname, templ: "clients_list.html"})
-//     .receive("ok", resp => { $('section.flex-tab').html(resp.html).parent().addClass('opened') })
-// }
+function set_tab_defaults(settings, key) {
+  settings[key] = Object.assign({name: key}, default_settings[key])
+  settings[key] = Object.assign({topic: key}, default_settings[key])
+}
 
-function close_flex_tab() {
+
+function close_flex_tab(elem) {
   if ($('section.flex-tab').parent().hasClass('opened')) {
     $('section.flex-tab').html('').parent().removeClass('opened')
+    $(elem).removeClass('active')
   }
 }
-function open_flex_tab() {
+function open_flex_tab(elem) {
   if (!$('section.flex-tab').parent().hasClass('opened')) {
     $('section.flex-tab').parent().addClass('opened')
+    $('.tab-button').removeClass('active')
+    $(elem).addClass('active')
   }
 }
 
-function push_topic(topic, args) {
+function push_topic(topic, args, callback) {
   if (topic) {
     let full_topic = "flex_bar:click:" + topic
     cc.push(full_topic, args)
       .receive("ok", resp => {
         $('section.flex-tab').html(resp.html).parent().addClass('opened')
+        if (callback) { callback() }
         main.run()
       })
   }

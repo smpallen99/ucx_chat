@@ -99,10 +99,10 @@ export function restart_socket() {
 }
 
 function start_socket(typing) {
-  socket.connect()
+  socket.connect({user: ucxchat.nickname})
   let room = ucxchat.room
   // Now that you are connected, you can join channels with a topic:
-  roomchan = socket.channel("ucxchat:room-"+room, {})
+  roomchan = socket.channel("ucxchat:room-"+room, {user: ucxchat.nickname})
 
   let chan = roomchan
 
@@ -111,10 +111,11 @@ function start_socket(typing) {
     .receive("ok", resp => { console.log("Joined successfully", resp) })
     .receive("error", resp => { console.log("Unable to join", resp) })
 
-  chan.on("user:join", msg => {
-    console.warn("user:join", msg)
+  chan.on("user:entered", msg => {
+    console.warn("user:entered", msg)
 
   })
+
   chan.on("user:leave", msg => {
     console.warn("user:leave", msg)
 

@@ -16,6 +16,9 @@ $(document).ready(function() {
         $(this).parent().append(resp.html)
       })
   })
+  $('body').on('click', '.message-dropdown-close', function(e) {
+    close_cog($(this))
+  })
   $('body').on('click', '.message-action', function(e) {
     let data_id = $(this).attr('data-id')
     let message_id = $(this).closest('li.message').attr('id')

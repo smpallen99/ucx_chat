@@ -1,12 +1,17 @@
-defmodule UcxChat.ChannelClient do
+defmodule UcxChat.Subscription do
   use UcxChat.Web, :model
 
-  schema "channels_clients" do
+  schema "subscriptions" do
     belongs_to :channel, UcxChat.Channel
     belongs_to :client, UcxChat.Client
     field :last_read, :integer
     field :type, :integer
-    timestamps()
+    field :open, :boolean, default: false
+    field :alert, :boolean, default: false
+    field :ls, :utc_datetime
+    field :f, :boolean, default: false          # favorite
+    field :unread, :integer, default: 0
+    timestamps(type: :utc_datetime)
   end
 
   # message -> room
@@ -23,13 +28,14 @@ defmodule UcxChat.ChannelClient do
   # room => name: string, room_type: String, room_id: integer
 
   @fields ~w(channel_id client_id)a
+  @all_fields @fields ++ ~w(last_read type open alert ls f unread)a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @fields ++ [:last_read, :type])
+    |> cast(params, @all_fields)
     |> validate_required(@fields)
   end
 end

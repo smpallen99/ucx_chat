@@ -1,6 +1,6 @@
 defmodule UcxChat.RoomChannel do
   @moduledoc """
-  Handle incoming and outgoing ClientChannel messages
+  Handle incoming and outgoing Subscription messages
   """
   use Phoenix.Channel
   alias UcxChat.{Repo, Message, MessageService, ChannelService, TypingAgent, MessagePopupService}
@@ -24,10 +24,15 @@ defmodule UcxChat.RoomChannel do
 
   ############
   # Socket stuff
-  def join("ucxchat:room-" <> room, params, socket) do
-    Logger.warn "join room-#{room}, params: #{inspect params}"
-
+  def join("ucxchat:room-" <> room, msg, socket) do
+    Logger.warn "join room-#{room}, msg: #{inspect msg}"
+    send self(), {:after_join, msg}
     {:ok, socket}
+  end
+  def handle_info({:after_join, msg}, socket) do
+    broadcast! socket, "user:entered", %{user: msg["user"]}
+    push socket, "join", %{status: "connected"}
+    {:noreply, socket}
   end
 
   ##########
@@ -94,7 +99,14 @@ defmodule UcxChat.RoomChannel do
     {:reply, resp, socket}
   end
   def handle_in("message_cog:" <> cmd, msg, socket) do
-    resp = UcxChat.MessageCogService.handle_in(cmd, msg)
+    resp = case UcxChat.MessageCogService.handle_in(cmd, msg) do
+      {:nil, msg} ->
+        {:ok, msg}
+      {event, msg} ->
+        Logger.warn "msg cog ret event: #{inspect event}, msg: #{inspect msg}"
+        broadcast! socket, event, %{}
+        {:ok, msg}
+    end
     {:reply, resp, socket}
   end
 

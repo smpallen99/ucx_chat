@@ -1,1 +1,1 @@
-alias UcxChat.{Repo, Client, Channel, User, Message, Mention, ChannelMessage, Direct, ChannelService, FlexBarService, MessagePopupService, MessageService, ServiceHelpers, Utils}
+alias UcxChat.{Repo, Client, Channel, User, Message, Mention, Subscription, Direct, ChannelService, FlexBarService, MessagePopupService, MessageService, ServiceHelpers, Utils, PinnedMessage, StaredMessage}

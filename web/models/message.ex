@@ -21,7 +21,7 @@ defmodule UcxChat.Message do
     field :custom_class, :string, virtual: true
     field :avatar, :string, virtual: true
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @doc """

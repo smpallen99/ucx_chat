@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias UcxChat.{Repo, Client, User, Channel, ChannelClient}
+alias UcxChat.{Repo, Client, User, Channel, Subscription, Message}
 
 Repo.delete_all User
 Repo.delete_all Client
@@ -36,13 +36,13 @@ clients =
     |> Repo.insert!
     c
   end)
-u1 = User.changeset(%User{}, %{client_id: c1.id, name: "Admin", email: "steve.pallen@emetrotel.com", username: "admin", password: "test123", password_confirmation: "test123", admin: true})
+_u1 = User.changeset(%User{}, %{client_id: c1.id, name: "Admin", email: "steve.pallen@emetrotel.com", username: "admin", password: "test123", password_confirmation: "test123", admin: true})
 |> Repo.insert!
 
-u2 = User.changeset(%User{}, %{client_id: c2.id, name: "Steve Pallen", email: "smpallen99@gmail.com", username: "spallen", password: "test123", password_confirmation: "test123"})
+_u2 = User.changeset(%User{}, %{client_id: c2.id, name: "Steve Pallen", email: "smpallen99@gmail.com", username: "spallen", password: "test123", password_confirmation: "test123"})
 |> Repo.insert!
 
-u3 = User.changeset(%User{}, %{client_id: c3.id, name: "Merilee Lackey", email: "smpallen99@yahoo.com", username: "merilee", password: "test123", password_confirmation: "test123"})
+_u3 = User.changeset(%User{}, %{client_id: c3.id, name: "Merilee Lackey", email: "smpallen99@yahoo.com", username: "merilee", password: "test123", password_confirmation: "test123"})
 |> Repo.insert!
 
 ch1 = Channel.changeset(%Channel{}, %{name: "general"})
@@ -50,29 +50,87 @@ ch1 = Channel.changeset(%Channel{}, %{name: "general"})
 ch2 = Channel.changeset(%Channel{}, %{name: "support"})
 |> Repo.insert!
 
-_channels =
+channels =
   ~w(Research Marketing HR Accounting Shipping Sales) ++ ["UCx Web Client", "UCx Chat"]
-  |> Enum.each(fn name ->
+  |> Enum.map(fn name ->
     Channel.changeset(%Channel{}, %{name: name})
     |> Repo.insert!
   end)
 
-[ch1, ch2]
+[ch1, ch2] ++ Enum.take(channels, 3)
 |> Enum.each(fn ch ->
-  %ChannelClient{}
-  |> ChannelClient.changeset(%{channel_id: ch.id, client_id: c1.id})
+  %Subscription{}
+  |> Subscription.changeset(%{channel_id: ch.id, client_id: c1.id})
   |> Repo.insert!
-  %ChannelClient{}
-  |> ChannelClient.changeset(%{channel_id: ch.id, client_id: c2.id})
+  %Subscription{}
+  |> Subscription.changeset(%{channel_id: ch.id, client_id: c2.id})
   |> Repo.insert!
-  %ChannelClient{}
-  |> ChannelClient.changeset(%{channel_id: ch.id, client_id: c3.id})
+  %Subscription{}
+  |> Subscription.changeset(%{channel_id: ch.id, client_id: c3.id})
+  |> Repo.insert!
+end)
+clients
+|> Enum.each(fn c ->
+  %Subscription{}
+  |> Subscription.changeset(%{channel_id: ch1.id, client_id: c.id})
   |> Repo.insert!
 end)
 
-clients
-|> Enum.each(fn c ->
-  %ChannelClient{}
-  |> ChannelClient.changeset(%{channel_id: ch1.id, client_id: c.id})
+messages = [
+  "hello there",
+  "what's up doc",
+  "are you there?",
+  "Did you get the join?",
+  "When will you be home?",
+  "Be right there!",
+  "Can't wait to see you!",
+  "What did you watch last night?",
+  "Is your homework done yet?",
+  "what time is it?",
+  "whats for dinner?",
+  "are you sleeping?",
+  "how did you sleep last night?",
+  "did you have a good trip?",
+  "Tell me about your day",
+  "be home by 5 please",
+  "wake me up a 9 please",
+  "ttyl",
+  "cul8r",
+  "hope it works",
+  "Let me tell you a story about a man named Jed",
+]
+
+client_ids = [c1.id, c2.id, c3.id]
+other_ch_ids = Enum.take(channels, 3) |> Enum.map(&(&1.id))
+for _ <- 0..500 do
+  for ch_id <- [ch1.id, ch2.id] ++ other_ch_ids do
+    id = Enum.random client_ids
+    %Message{}
+    |> Message.changeset(%{channel_id: ch_id, client_id: id, body: Enum.random(messages)})
+    |> Repo.insert!
+  end
+end
+
+new_channel_clients = [
+  {Enum.random(clients), Enum.random(channels)},
+  {Enum.random(clients), Enum.random(channels)},
+  {Enum.random(clients), Enum.random(channels)},
+  {Enum.random(clients), Enum.random(channels)},
+  {Enum.random(clients), Enum.random(channels)},
+  {Enum.random(clients), Enum.random(channels)},
+  {Enum.random(clients), Enum.random(channels)},
+]
+
+new_channel_clients
+|> Enum.each(fn {c, ch} ->
+  %Subscription{}
+  |> Subscription.changeset(%{channel_id: ch.id, client_id: c.id})
   |> Repo.insert!
 end)
+
+for _ <- 1..200 do
+  {c, ch} = Enum.random new_channel_clients
+  %Message{}
+  |> Message.changeset(%{channel_id: ch.id, client_id: c.id, body: Enum.random(messages)})
+  |> Repo.insert!
+end

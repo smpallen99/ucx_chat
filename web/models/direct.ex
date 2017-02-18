@@ -6,7 +6,7 @@ defmodule UcxChat.Direct do
     belongs_to :client, UcxChat.Client
     belongs_to :channel, UcxChat.Channel
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 
   @fields ~w(clients client_id channel_id)a

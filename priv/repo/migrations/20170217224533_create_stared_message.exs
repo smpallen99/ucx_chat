@@ -7,7 +7,8 @@ defmodule UcxChat.Repo.Migrations.CreateStaredMessage do
       add :message_id, references(:messages, on_delete: :delete_all)
       add :channel_id, references(:messages, on_delete: :delete_all)
 
-      timestamps()
+      timestamps(type: :utc_datetime)
+      # timestamps()
     end
     create index(:stared_messages, [:client_id])
     create index(:stared_messages, [:message_id])

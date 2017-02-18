@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias UcxChat.{Repo, Client, User, Channel, ChannelClient}
+alias UcxChat.{Repo, Client, User, Channel, Subscription}
 require Ecto.Query
 
 clients =
@@ -36,7 +36,7 @@ ch1 = Channel |> Ecto.Query.first |> Repo.one!
 
 clients
 |> Enum.each(fn c ->
-  %ChannelClient{}
-  |> ChannelClient.changeset(%{channel_id: ch1.id, client_id: c.id})
+  %Subscription{}
+  |> Subscription.changeset(%{channel_id: ch1.id, client_id: c.id})
   |> Repo.insert!
 end)
