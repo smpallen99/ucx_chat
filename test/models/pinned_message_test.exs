@@ -3,7 +3,7 @@ defmodule UcxChat.PinnedMessageTest do
 
   alias UcxChat.PinnedMessage
 
-  @valid_attrs %{}
+  @valid_attrs %{message_id: 1, channel_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

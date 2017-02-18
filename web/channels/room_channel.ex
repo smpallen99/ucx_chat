@@ -89,7 +89,13 @@ defmodule UcxChat.RoomChannel do
     resp = ChannelService.add_direct(msg["nickname"], msg["client_id"], msg["channel_id"])
     {:reply, resp, socket}
   end
+
   def handle_in("flex_bar:click:" <> mod, msg, socket) do
+    resp = UcxChat.FlexBarService.handle_click(mod, msg)
+    {:reply, resp, socket}
+  end
+
+  def handle_in("flex_bar:" <> mod, msg, socket) do
     resp = UcxChat.FlexBarService.handle_in(mod, msg)
     {:reply, resp, socket}
   end
@@ -98,6 +104,7 @@ defmodule UcxChat.RoomChannel do
     resp = UcxChat.MessagePopupService.handle_in(cmd, msg)
     {:reply, resp, socket}
   end
+
   def handle_in("message_cog:" <> cmd, msg, socket) do
     resp = case UcxChat.MessageCogService.handle_in(cmd, msg) do
       {:nil, msg} ->
@@ -112,7 +119,7 @@ defmodule UcxChat.RoomChannel do
 
   # default case
   def handle_in(topic, msg, socket) do
-    Logger.warn "handle_in topic: #{topic}, msg: #{inspect msg}"
+    Logger.warn "RoomChannel no handler for: topic: #{topic}, msg: #{inspect msg}"
     {:noreply, socket}
   end
 

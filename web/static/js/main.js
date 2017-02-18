@@ -1,5 +1,5 @@
 
-// import * as flex_bar from './flex_bar'
+import * as flexbar from './flex_bar'
 
 // $(document).ready(function() {
 //   $('body').on('click', 'a.toggle-favorite', e => {
@@ -19,3 +19,9 @@ export function update_mentions() {
   let username = ucxchat.nickname;
   $(`.mention-link[data-username="${username}"]`).addClass('mention-link-me background-primary-action-color')
 }
+
+export function update_flexbar() {
+  flexbar.update_flexbar()
+}
+
+

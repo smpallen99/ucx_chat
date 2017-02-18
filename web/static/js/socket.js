@@ -12,6 +12,7 @@ import UnreadManager from "./unread_manager"
 import MessagePopup from "./message_popup"
 import MessageCog from "./message_cog"
 import * as main from "./main"
+import * as flexbar from "./flex_bar"
 
 const debug = false;
 
@@ -23,8 +24,6 @@ $(document).ready(function() {
 
   let ucxchat = window.ucxchat
   let typing = new Typing(ucxchat.typing)
-
-  main.run()
 
   $('textarea.message-form-text').focus()
 
@@ -130,6 +129,11 @@ function start_socket(typing) {
     if (debug) { console.log('typing:update', msg) }
     typing.update_typing(msg.typing)
   })
+  if (!window.flexbar) {
+    flexbar.init_flexbar()
+  }
+  main.run()
+  main.update_flexbar()
 
 }
 

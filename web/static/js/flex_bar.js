@@ -39,21 +39,23 @@ const default_settings = {
   "Switch User": {args: {templ: "switch_user_list.html"}}
 }
 
-function open_tab(tab, elem) {
-  if (debug) { console.log('open_tab', tab) }
+// function open_tab(tab, elem) {
+//   if (debug) { console.log('open_tab', tab) }
 
-  if (Object.keys(tab).length == 0) {
-    if (debug) { console.log(tab.name + ' clicked ...') }
-  } else {
-    push_topic(tab.topic, tab.args)
-    $('.tab-button').removeClass('active')
-    $(elem).addClass('active')
-  }
-}
+//   if (Object.keys(tab).length == 0) {
+//     if (debug) { console.log(tab.name + ' clicked ...') }
+//   } else {
+//     push_topic(tab.topic, tab.args)
+//     $('.tab-button').removeClass('active')
+//     $(elem).addClass('active')
+//   }
+// }
 
 
-$(document).ready(function() {
+export function init_flexbar() {
   let settings = {};
+
+  window.flexbar = true;
 
   Object.keys(default_settings).forEach(function(key) {
     set_tab_defaults(settings, key)
@@ -65,32 +67,27 @@ $(document).ready(function() {
       if (settings[key].function) {
         settings[key].function()
       } else {
-        let is_same = $('section.flex-tab .title h2').html() == key
-        if ($('section.flex-tab').parent().hasClass('opened') && is_same) {
-          close_flex_tab($(this))
-        } else {
-          open_tab(settings[key], $(this))
-        }
+        push_click(key, settings[key].args)
       }
     })
 
     if (settings[key].show) {
       let show = settings[key].show;
-      console.log('show', show)
+      // console.log('show', show)
 
       // iterate over each of the triggers
       show.triggers.forEach(function(trigger) {
         if (trigger.function) {
-          console.log('using trigger function for show')
+          // console.log('using trigger function for show')
           trigger.function()
         } else {
           let topic = settings[key].topic
           if (show.topic) { topic = show.topic }
-          console.log('trigger', trigger, topic)
+          // console.log('trigger', trigger, topic)
           $('body').on(trigger.action, trigger.class, function() {
             let new_args = build_show_args($(this), settings[key].args, show)
-            console.log('show, topic, new_args', show, topic, new_args)
-            push_topic(topic, new_args)
+            // console.log('show, topic, new_args', show, topic, new_args)
+            push_click(topic, new_args)
           })
         }
       })
@@ -105,7 +102,7 @@ $(document).ready(function() {
         set_tab_defaults(settings, key)
         let tab = settings[key]
         let scroll_pos = $('.flex-tab-container .content').scrollTop().valueOf()
-        push_topic(tab.topic, tab.args, function() {
+        push_click(tab.topic, tab.args, function() {
           $('.flex-tab-container .content').scrollTop(scroll_pos)
         })
       }
@@ -116,7 +113,7 @@ $(document).ready(function() {
     $('.flex-tab-container .user-view').addClass('animated-hidden')
   })
 
-})
+}
 
 //////////////////
 // Custom Handlers
@@ -132,37 +129,65 @@ function custom_show_switch_user() {
 ////////////////
 // Helpers
 
+function get_tab_button(title) {
+  return $(`.tab-button[title="${title}"]`)
+}
+
+function is_tab_button_active(title) {
+  return get_tab_button().hasClass('active')
+}
+
+function set_tab_button_active(title) {
+  return get_tab_button(title).addClass('active')
+}
+
+function set_tab_buttons_inactive() {
+  $('.tab-button').removeClass('active')
+}
+
+function is_tab_bar_open() {
+  return $(`.tab-button.active`).length > 0
+}
+
 function set_tab_defaults(settings, key) {
   settings[key] = Object.assign({name: key}, default_settings[key])
   settings[key] = Object.assign({topic: key}, default_settings[key])
 }
 
-
-function close_flex_tab(elem) {
-  if ($('section.flex-tab').parent().hasClass('opened')) {
-    $('section.flex-tab').html('').parent().removeClass('opened')
-    $(elem).removeClass('active')
-  }
+function get_tab_container() {
+  return $('.flex-tab-container')
 }
-function open_flex_tab(elem) {
-  if (!$('section.flex-tab').parent().hasClass('opened')) {
-    $('section.flex-tab').parent().addClass('opened')
-    $('.tab-button').removeClass('active')
-    $(elem).addClass('active')
-  }
+function is_tab_container_open() {
+  return get_tab_container().hasClass('opened')
+}
+function open_tab_container() {
+  return get_tab_container().addClass('opened')
+}
+function close_tab_container() {
+  return get_tab_container().removeClass('opened')
 }
 
-function push_topic(topic, args, callback) {
-  if (topic) {
-    let full_topic = "flex_bar:click:" + topic
+function push_click(title, args, callback) {
+  // console.log('push_click', title, args)
+  if (title) {
+    let full_topic = "flex_bar:click:" + title
     cc.push(full_topic, args)
       .receive("ok", resp => {
-        $('section.flex-tab').html(resp.html).parent().addClass('opened')
+        // console.log('push_click resp', resp)
+        if (resp.open) {
+          $('section.flex-tab').html(resp.html).parent().addClass('opened')
+          $('.tab-button.active').removeClass('active')
+          set_tab_button_active(title)
+        } else if (resp.close) {
+          $('section.flex-tab').parent().removeClass('opened')
+          $('.tab-button.active').removeClass('active')
+        }
         if (callback) { callback() }
-        main.run()
+        // main.run()
       })
   }
 }
+
 
 function build_show_args(current, pargs, show) {
   let new_args = {}
@@ -173,4 +198,34 @@ function build_show_args(current, pargs, show) {
     new_args[arg.key] = current.attr(attr)
   })
   return Object.assign(pargs, new_args);
+}
+
+export function update_flexbar() {
+  console.log('flex_bar.update_flexbar')
+  cc.push('flex_bar:get_open')
+    .receive("ok", resp => {
+       // console.log('flex_bar.update_flexbar after resp', resp)
+      let ftab = resp.ftab
+      if (ftab) {
+        // console.log('flex_bar.update_flexbar after if', ftab)
+        // console.log('checking...', is_tab_bar_open(), is_tab_button_active(ftab.title))
+        if (!is_tab_container_open() || !is_tab_button_active(ftab.title)) {
+          set_tab_button_active(ftab.title)
+          open_tab_container();
+        } else {
+          let settings = {}
+          set_tab_defaults(settings, ftab.title)
+          // console.log('update_flexbar resp', resp)
+          // set_tab_button_active(ftab.title)
+          push_click(ftab.title, Object.assign(ftab.args, settings[ftab.title].args))
+        }
+      // } else {
+        console.log('flex_bar.update_flexbar after else', resp, is_tab_bar_open())
+        if (is_tab_bar_open()) {
+          $('section.flex-tab').parent().removeClass('opened')
+          set_tab_buttons_inactive()
+        }
+        // console.log('update_flexbar resp not open', resp)
+      }
+    })
 }

@@ -1,10 +1,13 @@
+- channel = @chatd.channel
+- open_tab = UcxChat.ClientAgent.get_ftab(@chatd.client, channel.id)
+- flex_tabs = get_flex_tabs(open_tab)
 .flex-tab-container.border-component-color
   %section.flex-tab.content-background-color
   .flex-tab-bar.content-background-color(role="toolbar")
     .tab-button.hidden(title="Visitor Info")
       %button(aria-label="Visitor Info")
         %i.icon-info-circled
-    - for tab <- get_flex_tabs do
+    - for tab <- flex_tabs do
       %div(class="tab-button#{tab[:display]}" title="#{tab[:title]}")
         %button(aria-label="#{tab[:title]}")
           %i(class="icon-#{tab[:icon]}")

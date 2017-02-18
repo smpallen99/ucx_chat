@@ -16,8 +16,4 @@ defmodule UcxChat.MessageTest do
     refute changeset.valid?
   end
 
-  test "format_date_time" do
-    dt = NaiveDateTime.from_erl! {{2017, 1, 1}, {1, 1, 0}}
-    assert Message.format_date_time(dt) == "January 1, 2017 1:01 AM"
-  end
 end

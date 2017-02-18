@@ -1,53 +1,159 @@
 defmodule UcxChat.FlexBarService do
   import Ecto.Query
 
-  alias UcxChat.{Repo, FlexBarView, Channel, Client, User, Mention, StaredMessage, PinnedMessage}
+  alias UcxChat.{Repo, FlexBarView, Channel, Client, User, Mention, StaredMessage, PinnedMessage, ClientAgent}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
 
-  def handle_in("Info", %{"channel_id" => channel_id} = msg)  do
-
-    channel = Helpers.get_channel(channel_id)
-
-    html = FlexBarView.render(msg["templ"], channel: channel)
-    |> Phoenix.HTML.safe_to_string
-    {:ok, %{html: html}}
+  def handle_in("close" = event, msg) do
+    # Logger.warn "FlexBarService.close msg: #{inspect msg}"
+    ClientAgent.close_ftab(msg["client_id"], msg["channel_id"])
+    {:ok, %{}}
   end
-  def handle_in("Members List", %{"channel_id" => channel_id} = msg)  do
+
+  def handle_in("get_open" = event, msg) do
+    Logger.debug "FlexBarService.get_open msg: #{inspect msg}"
+    ftab = ClientAgent.get_ftab(msg["client_id"], msg["channel_id"])
+    {:ok, %{ftab: ftab}}
+  end
+
+  def handle_click("Info" = event, %{"channel_id" => channel_id} = msg)  do
+    log_click event, msg
+
+    handle_open_close event, msg, fn msg ->
+      args = Helpers.get_channel(channel_id)
+
+      html = FlexBarView.render(msg["templ"], args)
+      |> Phoenix.HTML.safe_to_string
+
+      ClientAgent.open_ftab(msg["client_id"], channel_id, event, nil)
+
+      %{html: html}
+    end
+  end
+
+  def handle_click("Members List" = event, %{"channel_id" => channel_id} = msg)  do
+    log_click event, msg
+
+    handle_open_close event, msg, fn msg ->
+      args = get_render_args("Members List", msg["client_id"], channel_id, nil, msg)
+
+      html = FlexBarView.render(msg["templ"], args)
+      |> Phoenix.HTML.safe_to_string
+
+      view = if msg["nickname"], do: {"nickname", msg["nickname"]}, else: nil
+
+      ClientAgent.open_ftab(msg["client_id"], channel_id, event, view)
+
+      %{html: html}
+    end
+  end
+
+
+  def handle_click("Switch User" = event, msg) do
+    log_click event, msg
+
+    handle_open_close event, msg, fn msg ->
+      args = get_render_args("Switch User", nil, nil, nil, nil)
+
+      html = FlexBarView.render(msg["templ"], args)
+      |> Phoenix.HTML.safe_to_string
+
+      ClientAgent.open_ftab(msg["client_id"], msg["channel_id"], event, nil)
+
+      %{html: html}
+    end
+  end
+
+  def handle_click("Mentions" = event, %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
+    log_click event, msg
+    handle_open_close event, msg, fn msg ->
+
+      args = get_render_args("Mentions", client_id, channel_id, nil)
+
+      html = FlexBarView.render(msg["templ"], args)
+      |> Phoenix.HTML.safe_to_string
+
+      ClientAgent.open_ftab(msg["client_id"], msg["channel_id"], event, nil)
+
+      %{html: html}
+    end
+  end
+
+  def handle_click("Stared Messages" = event, %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
+    log_click event, msg
+
+    handle_open_close event, msg, fn msg ->
+      args = get_render_args("Stared Messages", client_id,  channel_id, msg["message_id"])
+
+      html = FlexBarView.render(msg["templ"], args)
+      |> Phoenix.HTML.safe_to_string
+
+      ClientAgent.open_ftab(msg["client_id"], msg["channel_id"], event, nil)
+
+      %{html: html}
+    end
+  end
+
+  def handle_click("Pinned Messages" = event, %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
+    log_click event, msg
+    handle_open_close event, msg, fn  msg ->
+      args = get_render_args("Pinned Messages", client_id, channel_id, msg["message_id"])
+
+      html = FlexBarView.render(msg["templ"], args)
+      |> Phoenix.HTML.safe_to_string
+
+      ClientAgent.open_ftab(msg["client_id"], msg["channel_id"], event, nil)
+
+      %{html: html}
+    end
+  end
+
+  def handle_open_close(event, msg, fun) do
+    case ClientAgent.get_ftab(msg["client_id"], msg["channel_id"]) do
+      %{title: ^event} ->
+        ClientAgent.close_ftab(msg["client_id"], msg["channel_id"])
+        {:ok, %{close: true}}
+      _ ->
+        {:ok, Map.put(fun.(msg), :open, true)}
+    end
+  end
+
+
+  def get_render_args(event, client_id, channel_id, message_id, opts \\ %{})
+
+  def get_render_args("Info", client_id, channel_id, _, _)  do
+    [channel: Helpers.get_channel(channel_id), client_id: client_id]
+  end
+
+  def get_render_args("Members List", client_id, channel_id, _message_id, opts) do
     channel = Helpers.get_channel(channel_id, [:clients])
 
-    {client, user_mode} = case msg["nickname"] do
-      nil -> {Helpers.get(Client, msg["client_id"]), false}
-      nickname -> {Helpers.get_by(Client, :nickname, nickname), true}
-    end
-    # Logger.warn "FlexBarService client: #{inspect client}, msg: #{inspect msg}"
+    {client, user_mode} =
+      case opts["nickname"] do
+        nil -> {Helpers.get(Client, client_id), false}
+        nickname -> {Helpers.get_by(Client, :nickname, nickname), true}
+      end
 
-    html = FlexBarView.render(msg["templ"], clients: channel.clients, client: client, user_mode: user_mode)
-    |> Phoenix.HTML.safe_to_string
-    {:ok, %{html: html}}
+    [clients: channel.clients, client: client, user_mode: user_mode]
   end
 
-  def handle_in("Switch User", msg) do
-    Logger.debug "FlexBarService.handle_in Switch User: #{inspect msg}"
-    users = Repo.all User
-
-    html = FlexBarView.render(msg["templ"], users: users)
-    |> Phoenix.HTML.safe_to_string
-    {:ok, %{html: html}}
+  def get_render_args("Switch User", _, _, _, _) do
+    [users: Repo.all(User)]
   end
 
-  def handle_in("Mentions", %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
-    Logger.debug "FlexBarService.handle_in Mentions: #{inspect msg}"
+  def get_render_args("Mentions", client_id, channel_id, _message_id, _) do
     mentions =
       Mention
       |> where([m], m.client_id == ^client_id and m.channel_id == ^channel_id)
       |> preload([:client, :message])
       |> Repo.all
       |> Enum.reduce({nil, []}, fn m, {last_day, acc} ->
-        day = NaiveDateTime.to_date(m.updated_at)
+        day = DateTime.to_date(m.updated_at)
         msg =
           %{
+            channel_id: channel_id,
             message: m.message,
             nickname: m.client.nickname,
             client: m.client,
@@ -63,54 +169,20 @@ defmodule UcxChat.FlexBarService do
       |> elem(1)
       |> Enum.reverse
 
-    html = FlexBarView.render(msg["templ"], mentions: mentions)
-    |> Phoenix.HTML.safe_to_string
-    {:ok, %{html: html}}
+    [mentions: mentions]
   end
-
-  def handle_in("Stared Messages", %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
-    Logger.debug "FlexBarService.handle_in Stared Messages: #{inspect msg}"
+  def get_render_args("Stared Messages", client_id,  channel_id, message_id, _) do
     stars =
       StaredMessage
-      |> where([m], m.channel_id == ^channel_id)
-      |> preload([:client, :message])
-      |> Repo.all
-      |> Enum.reduce({nil, []}, fn m, {last_day, acc} ->
-        day = NaiveDateTime.to_date(m.updated_at)
-        msg =
-          %{
-            message: m.message,
-            nickname: m.client.nickname,
-            client: m.client,
-            own: m.message.client_id == client_id,
-            id: m.id,
-            new_day: day != last_day,
-            date: Helpers.format_date(m.message.updated_at),
-            time: Helpers.format_time(m.message.updated_at),
-            timestamp: m.message.timestamp
-          }
-        {day, [msg|acc]}
-      end)
-      |> elem(1)
-      # |> Enum.reverse
-
-    html = FlexBarView.render(msg["templ"], stars: stars)
-    |> Phoenix.HTML.safe_to_string
-    {:ok, %{html: html}}
-  end
-
-  def handle_in("Pinned Messages", %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
-    Logger.debug "FlexBarService.handle_in Pinned Messages: #{inspect msg}"
-    pinned =
-      PinnedMessage
       |> where([m], m.channel_id == ^channel_id)
       |> preload([:client, :message])
       |> order_by([m], desc: m.id)
       |> Repo.all
       |> Enum.reduce({nil, []}, fn m, {last_day, acc} ->
-        day = NaiveDateTime.to_date(m.updated_at)
+        day = DateTime.to_date(m.updated_at)
         msg =
           %{
+            channel_id: channel_id,
             message: m.message,
             nickname: m.client.nickname,
             client: m.client,
@@ -125,9 +197,75 @@ defmodule UcxChat.FlexBarService do
       end)
       |> elem(1)
       |> Enum.reverse
-
-    html = FlexBarView.render(msg["templ"], pinned: pinned)
-    |> Phoenix.HTML.safe_to_string
-    {:ok, %{html: html}}
+    [stars: stars]
   end
+
+  def get_render_args("Pinned Messages", client_id, channel_id, message_id, _) do
+    pinned =
+      PinnedMessage
+      |> where([m], m.channel_id == ^channel_id)
+      |> preload([message: :client])
+      |> order_by([p], desc: p.id)
+      |> Repo.all
+      |> Enum.reduce({nil, []}, fn p, {last_day, acc} ->
+        day = DateTime.to_date(p.updated_at)
+        msg =
+          %{
+            channel_id: channel_id,
+            message: p.message,
+            nickname: p.message.client.nickname,
+            client: p.message.client,
+            own: p.message.client_id == client_id,
+            id: p.id,
+            new_day: day != last_day,
+            date: Helpers.format_date(p.message.updated_at),
+            time: Helpers.format_time(p.message.updated_at),
+            timestamp: p.message.timestamp
+          }
+        {day, [msg|acc]}
+      end)
+      |> elem(1)
+      |> Enum.reverse
+
+    [pinned: pinned]
+  end
+
+  def default_settings do
+    %{
+      "Info": %{templ: "channel_settings.html", args: %{} },
+      "Search": %{},
+      "User Info": %{},
+      "Members List": %{
+        templ: "clients_list.html",
+        args: %{},
+        show: %{
+          attr: "data-username",
+          args: [%{key: "nickname"}], # attr is optional for override -  attr: "data-username"}],
+          triggers: [
+            %{action: "click", class: "button.user.user-card-message"},
+            %{action: "click", class: ".mention-link"},
+            %{action: "click", class: "li.user-card-room button"},
+            %{function: "custom_show_switch_user"}
+          ]
+        }
+       },
+      "Notifications": %{},
+      "Files List": %{},
+      "Mentions": %{templ: "mentions.html", args: %{} },
+      "Stared Messages": %{templ: "stared_messages.html", args: %{}},
+      "Knowledge Base": %{hidden: true},
+      "Pinned Messages": %{templ: "pinned_messages.html", args: %{}},
+      "Past Chats": %{hidden: true},
+      "OTR": %{hidden: true},
+      "Video Chat": %{hidden: true},
+      "Snipped Messages": %{},
+      "Logout": %{function: "function() { window.location.href = '/logout'}" },
+      "Switch User": %{templ: "switch_user_list.html", args: %{}}
+    }
+  end
+
+  defp log_click(event, msg, level \\ :debug) do
+    Logger.log level, "FlexBarService.handle_click #{event}: #{inspect msg}"
+  end
+
 end

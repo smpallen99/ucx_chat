@@ -5,7 +5,7 @@ defmodule UcxChat.Repo.Migrations.CreateStaredMessage do
     create table(:stared_messages) do
       add :client_id, references(:clients, on_delete: :delete_all)
       add :message_id, references(:messages, on_delete: :delete_all)
-      add :channel_id, references(:messages, on_delete: :delete_all)
+      add :channel_id, references(:channels, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
       # timestamps()

@@ -57,7 +57,16 @@ defmodule UcxChat.MasterView do
   def loading, do: ""
   def get_mb, do: UcxChat.MessageView.get_mb
 
-  def get_flex_tabs() do
+  def get_open_ftab(nil, _), do: nil
+  def get_open_ftab({title, _}, flex_tabs), do: Enum.find(flex_tabs, fn tab -> tab[:open] && tab[:title] == title end)
+
+
+  def get_flex_tabs(open_tab) do
+    defn = UcxChat.FlexBarService.default_settings()
+    tab = case open_tab do
+      {title, _} -> %{title => true}
+      _ -> %{}
+    end
     [
       {"Info", "info-circled", ""},
       {"Search", "search", ""},
@@ -77,7 +86,12 @@ defmodule UcxChat.MasterView do
       {"Switch User", "login", ""},
     ]
     |> Enum.map(fn {title, icon, display} ->
-      %{title: title, icon: icon, display: display}
+      if tab[title] do
+        titlea = String.to_atom title
+        %{title: title, icon: icon, display: display, open: true, templ: defn[titlea][:templ] }
+      else
+        %{title: title, icon: icon, display: display}
+      end
     end)
   end
 

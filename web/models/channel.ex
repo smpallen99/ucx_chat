@@ -6,9 +6,10 @@ defmodule UcxChat.Channel do
     field :topic, :string
     field :type, :integer, default: 0
     field :read_only, :boolean, default: false
-    has_many :channels_clients, UcxChat.Subscription
-    has_many :clients, through: [:channels_clients, :client]
+    has_many :subscriptions, UcxChat.Subscription
+    has_many :clients, through: [:subscriptions, :client]
     has_many :stared_messages, UcxChat.StaredMessage
+    has_many :messages, UcxChat.Message
 
     timestamps(type: :utc_datetime)
   end

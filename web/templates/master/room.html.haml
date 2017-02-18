@@ -40,5 +40,5 @@
         = render "messages_box.html", chatd: @chatd
       %footer.footer.border-component-color
         = render UcxChat.MessageView, "message_box.html", chatd: @chatd, mb: get_mb()
-    = render "flex_tab_bar.html"
+    = render "flex_tab_bar.html", chatd: @chatd
 

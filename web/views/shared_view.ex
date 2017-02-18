@@ -17,4 +17,8 @@ defmodule UcxChat.SharedView do
   def map_field(map, field, default \\ "")
   def map_field(%{} = map, field, default), do: Map.get(map, field, default)
   def map_field(_, _, default), do: default
+
+  def get_ftab_open_class(nil), do: ""
+  def get_ftab_open_class(_), do: "opened"
+
 end

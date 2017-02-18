@@ -10,6 +10,16 @@ defmodule UcxChat.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      aliases: aliases(),
+     preferred_cli_env: [
+                          coveralls: :test,
+                          "coveralls.detail": :test,
+                          "coveralls.html": :test,
+                          "coveralls.post": :test,
+                          commit: :test,
+                          itest: :test,
+                          credo: :test
+                        ],
+     test_coverage: [tool: ExCoveralls],
      deps: deps()]
   end
 
@@ -19,7 +29,7 @@ defmodule UcxChat.Mixfile do
   def application do
     [mod: {UcxChat, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :mariaex, :coherence]]
+                    :phoenix_ecto, :mariaex, :coherence, :faker_elixir_octopus]]
   end
 
   # Specifies which paths to compile per environment.
@@ -39,6 +49,9 @@ defmodule UcxChat.Mixfile do
      {:gettext, "~> 0.11"},
      {:phoenix_haml, "~> 0.2"},
      {:coherence, github: "smpallen99/coherence"},
+     {:ex_machina, "~> 1.0.2", only: :test},
+     {:excoveralls, "~> 0.5.1", only: :test, app: false},
+     {:faker_elixir_octopus, "~> 0.12.0", only: [:dev, :test]},
      {:cowboy, "~> 1.0", override: true}]
   end
 
@@ -49,8 +62,11 @@ defmodule UcxChat.Mixfile do
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
-    ["ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-     "ecto.reset": ["ecto.drop", "ecto.setup"],
-     "test": ["ecto.create --quiet", "ecto.migrate", "test"]]
+    [
+      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "test": ["ecto.create --quiet", "ecto.migrate", "test"],
+      commit: ["deps.get --only #{Mix.env}", "coveralls.html", "credo --strict"]
+    ]
   end
 end

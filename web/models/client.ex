@@ -7,8 +7,9 @@ defmodule UcxChat.Client do
     field :tag_line, :string
     field :uri, :string
     has_one :user, UcxChat.User
-    has_many :channels_clients, UcxChat.Subscription
-    has_many :channels, through: [:channels_clients, :channel]
+    has_many :subscriptions, UcxChat.Subscription
+    has_many :channels, through: [:subscriptions, :channel]
+    has_many :messages, UcxChat.Message
     has_many :stared_messages, UcxChat.StaredMessage
     timestamps(type: :utc_datetime)
   end
