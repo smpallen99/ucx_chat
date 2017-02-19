@@ -236,7 +236,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  @channel_commands ~w(join leave open archive unarchive)a
+  @channel_commands ~w(join leave open archive unarchive invite_all_to invite_all_from)a
 
   def channel_command(command, name, client_id, channel_id) when command in @channel_commands and is_binary(name) do
     case Helpers.get_by(Channel, :name, name) do
@@ -312,6 +312,36 @@ defmodule UcxChat.ChannelService do
     end
   end
 
+  def channel_command(:invite_all_to, %Channel{} = channel, client_id, channel_id) do
+    to_channel = Helpers.get(Channel, channel.id).id
+    from_channel = channel_id
+
+    Subscription.get_all_for_channel(from_channel)
+    |> preload([:client])
+    |> Repo.all
+    |> Enum.each(fn subs ->
+      # TODO: check for errors here
+      invite_client(subs.client.id, to_channel)
+    end)
+
+    Helpers.response_message(channel_id, text: "The users have been added.")
+  end
+
+  def channel_command(:invite_all_from, %Channel{} = channel, client_id, channel_id) do
+    from_channel = Helpers.get(Channel, channel.id).id
+    to_channel = channel_id
+
+    Subscription.get_all_for_channel(from_channel)
+    |> preload([:client])
+    |> Repo.all
+    |> Enum.each(fn subs ->
+      # TODO: check for errors here
+      invite_client(subs.client.id, to_channel)
+    end)
+
+    Helpers.response_message(channel_id, text: "The users have been added.")
+  end
+
   ##################
   # client commands
 
@@ -327,12 +357,11 @@ defmodule UcxChat.ChannelService do
   end
 
   def client_command(:invite, %Client{} = client, client_id, channel_id) do
-    %Subscription{}
-    |> Subscription.changeset(%{client_id: client.id, channel_id: channel_id})
-    |> Repo.insert
+    client.id
+    |> invite_client(channel_id)
     |> case do
       {:ok, subs} ->
-        notify_client_action(client, client_id, channel_id, "removed")
+        notify_client_action(client, client_id, channel_id, "added")
       {:error, _} ->
         Helpers.response_message(channel_id, text: "Problem inviting ", code: client.nickname, text: " to this channel.")
     end
@@ -397,7 +426,6 @@ defmodule UcxChat.ChannelService do
     |> Repo.one
     |> case do
       nil ->
-        Logger.warn "un mute errors"
         {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> client.nickname, text: " is not muted.")}
       mute ->
         Repo.delete mute
@@ -414,16 +442,22 @@ defmodule UcxChat.ChannelService do
 
     # Create the cc's, and the directs one for each user
     client_names = %{client_orig.id => client_dest.nickname, client_dest.id => client_orig.nickname}
+
     for client <- [client_orig, client_dest] do
       %Subscription{}
       |> Subscription.changeset(%{channel_id: channel.id, client_id: client.id, type: room_type(:direct)})
       |> Repo.insert!
-      Logger.warn "adding direct clients: #{inspect client_names[client.id]}, client.id: #{inspect client.id}, channel_id: #{inspect channel_id}"
       %Direct{}
       |> Direct.changeset(%{clients: client_names[client.id], client_id: client.id, channel_id: channel.id})
       |> Repo.insert!
     end
     channel
+  end
+
+  def invite_client(client_id, channel_id) do
+    %Subscription{}
+    |> Subscription.changeset(%{client_id: client_id, channel_id: channel_id})
+    |> Repo.insert
   end
 
   #################

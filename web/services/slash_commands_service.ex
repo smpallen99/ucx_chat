@@ -54,6 +54,12 @@ defmodule UcxChat.SlashCommandsService do
   def handle_command("unarchive " <> args, client_id, channel_id),
     do: handle_channel_command(:unarchive, args, client_id, channel_id)
 
+  def handle_command("invite-all-to " <> args, client_id, channel_id),
+    do: handle_channel_command(:invite_all_to, args, client_id, channel_id)
+
+  def handle_command("invite-all-from " <> args, client_id, channel_id),
+    do: handle_channel_command(:invite_all_from, args, client_id, channel_id)
+
   def handle_command("invite " <> args, client_id, channel_id),
     do: handle_client_command(:invite, args, client_id, channel_id)
 

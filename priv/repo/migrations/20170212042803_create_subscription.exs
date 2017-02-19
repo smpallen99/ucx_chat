@@ -16,8 +16,7 @@ defmodule UcxChat.Repo.Migrations.CreateSubscription do
       timestamps(type: :utc_datetime)
       # timestamps()
     end
-    create index(:subscriptions, [:channel_id])
-    create index(:subscriptions, [:client_id])
+    create unique_index(:subscriptions, [:client_id, :channel_id], name: :subscriptions_client_id_channel_id_index)
 
   end
 end

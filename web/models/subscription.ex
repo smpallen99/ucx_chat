@@ -1,6 +1,8 @@
 defmodule UcxChat.Subscription do
   use UcxChat.Web, :model
 
+  @name __MODULE__
+
   schema "subscriptions" do
     belongs_to :channel, UcxChat.Channel
     belongs_to :client, UcxChat.Client
@@ -37,5 +39,10 @@ defmodule UcxChat.Subscription do
     struct
     |> cast(params, @all_fields)
     |> validate_required(@fields)
+    |> unique_constraint(:client_id, name: :subscriptions_client_id_channel_id_index)
+  end
+
+  def get_all_for_channel(channel_id) do
+    from c in @name, where: c.channel_id == ^channel_id
   end
 end

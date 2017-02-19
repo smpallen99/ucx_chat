@@ -142,7 +142,6 @@ require IEx
   @title "Mentions"
   test "click: #{@title} not empty", %{subs: subs} do
     message = insert(:message, %{client_id: subs.client_id, channel_id: subs.channel.id})
-    IEx.pry
     insert(:mention, %{client_id: subs.client.id, channel_id: subs.channel.id, message_id: message.id})
     msg = create_msg(subs) |> Map.put("templ", "mentions.html")
     msg = Map.delete msg, "nickname"
