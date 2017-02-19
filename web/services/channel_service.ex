@@ -5,6 +5,8 @@ defmodule UcxChat.ChannelService do
   alias UcxChat.{Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct}
   alias UcxChat.ServiceHelpers, as: Helpers
 
+  import Phoenix.HTML.Tag, only: [content_tag: 3]
+
   import Ecto.Query
 
   require Logger
@@ -206,6 +208,29 @@ defmodule UcxChat.ChannelService do
       |> Phoenix.HTML.safe_to_string
 
     {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
+  end
+
+  def create_channel(name, client_id, channel_id) do
+    if Helpers.get_by(Channel, :name, name) do
+      Helpers.response_message(channel_id, text: "The channel ", code: "#" <> name, text: " already exists.")
+    else
+      %Channel{}
+      |> Channel.changeset(%{name: name, client_id: client_id})
+      |> Repo.insert
+      |>case do
+        {:ok, channel} ->
+          %Subscription{}
+          |> Subscription.changeset(%{client_id: client_id, channel_id: channel.id})
+          |> Repo.insert!
+          tag = content_tag :span, style: "color: green;" do
+            "Channel created successfully"
+          end
+          Helpers.response_message(channel_id, tag: tag) #<span style='color: green;'>Channel created successfully.</span>")
+
+        {:error, _} ->
+          Helpers.response_message(channel_id, text: "There was a problem creating ", code: "#" <> name, text: " channel.")
+      end
+    end
   end
 
   defp do_add_direct(name, client_orig, client_dest, channel_id) do

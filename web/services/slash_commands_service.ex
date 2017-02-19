@@ -1,5 +1,7 @@
 defmodule UcxChat.SlashCommandsService do
-  alias UcxChat.{SlashCommands, Repo, Message, MessageService, Client}
+  alias UcxChat.{SlashCommands, Repo, Message, Client, Channel, Subscription}
+  alias UcxChat.{ChannelService, MessageService}
+  alias UcxChat.ServiceHelpers, as: Helpers
 
   import Ecto.Query
 
@@ -27,32 +29,31 @@ defmodule UcxChat.SlashCommandsService do
   def handle_command("shrug" <> args, client_id, channel_id),
     do: handle_command_text("shrug", args, client_id, channel_id, true)
 
-  def handle_command("create " <> args, client_id, channel_id) do
-
+  def handle_command("topic " <> args, client_id, channel_id) do
+    channel =
+      Channel
+      |> where([c], c.id == ^channel_id)
+      |> Repo.one!
+      |> Channel.changeset(%{topic: args})
+      |> Repo.update!
+    # {:broadcast, {"room:update_topic", %{room: channel.name, topic: args}}}
     {:ok, %{}}
   end
+
+  def handle_command("create " <> args, client_id, channel_id) do
+    with "#" <> name <- String.trim(args),
+         true <- String.match?(name, ~r/[a-z0-9\.\-_]/i) do
+     {:ok, ChannelService.create_channel(name, client_id, channel_id)}
+    else
+      _ ->
+        {:ok, Helpers.error_message(channel_id, text: "Invalid channel name:", code: args)}
+    end
+  end
+
+  # unknown command
   def handle_command(command, client_id, channel_id) do
     Logger.warn "SlashCommandsService unrecognized command: #{inspect command}"
-
-    body = UcxChat.MessageView.render("no_such_command_body.html", command: command)
-    |> Phoenix.HTML.safe_to_string
-
-    bot_id =
-      Client
-      # |> where([m], m.type == "b")
-      |> select([m], m.id)
-      |> limit(1)
-      |> Repo.one
-
-    message = MessageService.create_message(body, bot_id, channel_id,
-      %{
-        type: "p",
-        sequential: false,
-      })
-
-    html = MessageService.render_message(message)
-
-    {:ok, %{html: html}}
+    {:ok, Helpers.error_message(channel_id, text: "No such command: ", code: command)}
   end
 
   defp handle_command_text(command, args, client_id, channel_id, prepend \\ false) do
@@ -64,4 +65,5 @@ defmodule UcxChat.SlashCommandsService do
     message = MessageService.create_message(body, client_id, channel_id)
     {:ok, %{html: MessageService.render_message(message)}}
   end
+
 end

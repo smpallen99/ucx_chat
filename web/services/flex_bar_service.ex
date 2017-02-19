@@ -22,7 +22,8 @@ defmodule UcxChat.FlexBarService do
     log_click event, msg
 
     handle_open_close event, msg, fn msg ->
-      args = Helpers.get_channel(channel_id)
+      # args = Helpers.get_channel(channel_id)
+      args = get_render_args("Info", msg["client_id"], channel_id, nil, nil)
 
       html = FlexBarView.render(msg["templ"], args)
       |> Phoenix.HTML.safe_to_string

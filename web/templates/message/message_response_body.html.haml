@@ -1,0 +1,10 @@
+- for {type, line} <- @message do
+  - if type == :code do
+    %span.copyonly `
+    %span
+      %code.code-colors.inline= " #{line} "
+    %span.copyonly `
+  - if type == :text do
+    = line
+  - if type == :tag do
+    = line

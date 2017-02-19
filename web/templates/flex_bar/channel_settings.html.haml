@@ -6,17 +6,22 @@
     %form
       %ul.list.clearfix
         %li.text
-          %label
+          %label Name
           .setting-block
-            %span.current-setting(data-edit="false") Channel Name
+            %span.current-setting(data-edit="name")= @channel.name
+            %button.button.edit(type="button")
+              %i.icon-pencil(data-edit="name")
         %li.markdown
           %label Topic
           .setting-block
-            %span.current-setting(data-edit="false")
+            %span.current-setting(data-edit="topic")= @channel.topic
+              %button.button.edit(type="button")
+                %i.icon-pencil(data-edit="topic")
+
         %li.text
           %label Description
           .setting-block
-            %span.current-setting(data-edit="false")
+            %span.current-setting(data-edit="false")=# @channel.description
         %li.boolean
            %label Private
           .setting-block

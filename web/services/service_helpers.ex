@@ -1,5 +1,5 @@
 defmodule UcxChat.ServiceHelpers do
-  alias UcxChat.{Repo, FlexBarView, Channel, Client, Subscription}
+  alias UcxChat.{Repo, FlexBarView, Channel, Client, Subscription, MessageService}
 
   import Ecto.Query
 
@@ -126,4 +126,27 @@ defmodule UcxChat.ServiceHelpers do
   def month(10), do: "October"
   def month(11), do: "November"
   def month(12), do: "December"
+
+  def response_message(channel_id, message) do
+    body = UcxChat.MessageView.render("message_response_body.html", message: message)
+    |> Phoenix.HTML.safe_to_string
+
+    bot_id =
+      Client
+      # |> where([m], m.type == "b")
+      |> select([m], m.id)
+      |> limit(1)
+      |> Repo.one
+
+    message = MessageService.create_message(body, bot_id, channel_id,
+      %{
+        type: "p",
+        sequential: false,
+      })
+
+    html = MessageService.render_message(message)
+
+    %{html: html}
+  end
+
 end
