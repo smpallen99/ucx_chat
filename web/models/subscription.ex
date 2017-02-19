@@ -1,7 +1,7 @@
 defmodule UcxChat.Subscription do
   use UcxChat.Web, :model
 
-  @name __MODULE__
+  @module __MODULE__
 
   schema "subscriptions" do
     belongs_to :channel, UcxChat.Channel
@@ -43,6 +43,6 @@ defmodule UcxChat.Subscription do
   end
 
   def get_all_for_channel(channel_id) do
-    from c in @name, where: c.channel_id == ^channel_id
+    from c in @module, where: c.channel_id == ^channel_id
   end
 end

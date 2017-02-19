@@ -211,6 +211,27 @@ defmodule UcxChat.ChannelService do
     {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
   end
 
+  defp do_add_direct(name, client_orig, client_dest, channel_id) do
+    # create the channel
+    channel =
+      %Channel{}
+      |> Channel.changeset(%{client_id: client_orig.id, name: name, type: room_type(:direct)})
+      |> Repo.insert!
+
+    # Create the cc's, and the directs one for each user
+    client_names = %{client_orig.id => client_dest.nickname, client_dest.id => client_orig.nickname}
+
+    for client <- [client_orig, client_dest] do
+      %Subscription{}
+      |> Subscription.changeset(%{channel_id: channel.id, client_id: client.id, type: room_type(:direct)})
+      |> Repo.insert!
+      %Direct{}
+      |> Direct.changeset(%{clients: client_names[client.id], client_id: client.id, channel_id: channel.id})
+      |> Repo.insert!
+    end
+    channel
+  end
+
   ###################
   # channel commands
 
@@ -431,27 +452,6 @@ defmodule UcxChat.ChannelService do
         Repo.delete mute
         {:ok, "unmuted"}
     end
-  end
-
-  defp do_add_direct(name, client_orig, client_dest, channel_id) do
-    # create the channel
-    channel =
-      %Channel{}
-      |> Channel.changeset(%{name: name, type: room_type(:direct)})
-      |> Repo.insert!
-
-    # Create the cc's, and the directs one for each user
-    client_names = %{client_orig.id => client_dest.nickname, client_dest.id => client_orig.nickname}
-
-    for client <- [client_orig, client_dest] do
-      %Subscription{}
-      |> Subscription.changeset(%{channel_id: channel.id, client_id: client.id, type: room_type(:direct)})
-      |> Repo.insert!
-      %Direct{}
-      |> Direct.changeset(%{clients: client_names[client.id], client_id: client.id, channel_id: channel.id})
-      |> Repo.insert!
-    end
-    channel
   end
 
   def invite_client(client_id, channel_id) do

@@ -1,6 +1,8 @@
 defmodule UcxChat.Channel do
   use UcxChat.Web, :model
 
+  @module __MODULE__
+
   schema "channels" do
     field :name, :string
     field :topic, :string
@@ -24,5 +26,13 @@ defmodule UcxChat.Channel do
     struct
     |> cast(params, @fields)
     |> validate_required([:name, :client_id])
+  end
+
+  def get_all_channels do
+    from c in @module, where: c.type in [0,1]
+  end
+
+  def get_all_public_channels do
+    from c in @module, where: c.type == 0
   end
 end

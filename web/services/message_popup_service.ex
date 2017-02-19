@@ -75,7 +75,7 @@ defmodule UcxChat.MessagePopupService do
   end
 
   def get_channels_by_pattern(channel_id, client_id, pattern) do
-    Channel
+    Channel.get_all_channels
     |> where([c], like(c.name, ^pattern))
     |> order_by([c], asc: c.name)
     |> limit(5)
