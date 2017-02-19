@@ -1,6 +1,6 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
-  alias UcxChat.{Message, Repo, TypingAgent, Client, Mention}
+  alias UcxChat.{Message, Repo, TypingAgent, Client, Mention, Subscription}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -116,6 +116,15 @@ defmodule UcxChat.MessageService do
     |> Mention.changeset(%{client_id: mention, message_id: message_id, channel_id: channel_id})
     |> Repo.insert!
     |> notify_mention
+
+    subs =
+      Subscription
+      |> where([s], s.client_id == ^mention and s.channel_id == ^channel_id)
+      |> Repo.one!
+
+    subs
+    |> Subscription.changeset(%{unread: subs.unread + 1})
+    |> Repo.update!
   end
 
   defp notify_mention(_mention) do

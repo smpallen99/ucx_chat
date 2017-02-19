@@ -52,11 +52,12 @@ defmodule UcxChat.ChannelService do
         active = chan.id == channel_id
         type = get_chan_type(cc.type, chan.type)
         display_name = get_channel_display_name(type, chan, id)
+        unread = if cc.unread == 0, do: false, else: cc.unread
         # Logger.warn "get_side_nav type: #{inspect type}, display_name: #{inspect display_name}"
         # IEx.pry
         %{
-          active: active, unread: false, alert: false, user_status: "off-line",
-          unread: false, can_leave: true, archived: false, name: chan.name,
+          active: active, unread: unread, alert: cc.alert, user_status: "off-line",
+          can_leave: true, archived: false, name: chan.name,
           room_icon: get_icon(type), channel_id: chan.id,
           type: type, can_leave: true, display_name: display_name
         }

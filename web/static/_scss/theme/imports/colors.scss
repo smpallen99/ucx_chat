@@ -578,7 +578,10 @@ a:hover {
   }
 
   .has-alert .name {
-    color: $primary-background-contrast;
+    // color: $primary-background-contrast;
+    // color: $tertiary-font-color;
+    color: #fff;
+    font-weight: bold;
   }
 
   .unread {
