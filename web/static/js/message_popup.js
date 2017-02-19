@@ -8,8 +8,8 @@ const item = '.popup-item';
 const selected = item + '.selected';
 const form_text = 'textarea.message-form-text';
 
-const application_matches = {users: /(^|\s)@([^\s]*)$/, slashcommands: /^\/[^\s]*$/}
-const application_command_chars   = {users: "@", slashcommands: "/"}
+const application_matches = {users: /(^|\s)@([^\s]*)$/, slashcommands: /^\/[^\s]*$/, channels: /(^|\s)#([^\s]*)$/}
+const application_command_chars   = {users: "@", slashcommands: "/", channels: "#"}
 
 class MessagePopup {
 
@@ -106,6 +106,8 @@ class MessagePopup {
       this.set_application("users")
     } else if (match = $(form_text).val().match(application_matches.slashcommands)) {
       this.set_application("slashcommands")
+    } else if (match = $(form_text).val().match(application_matches.channels)) {
+      this.set_application("channels")
     }
 
     if (match) {
@@ -186,15 +188,19 @@ class MessagePopup {
         }
       } else {
         if (msg.keyCode == 64) {
-          // if (debug) { console.log('found @', "'" + $(form_text).val() + "'") }
           let prev = $(form_text).val().slice(-1);
           if (prev == "" || prev == " ") {
             this.open_application("users")
           }
+        } else if (msg.keyCode == 35) {
+          console.log('opening channels')
+          let prev = $(form_text).val().slice(-1);
+          if (prev == "" || prev == " ") {
+            this.open_application("channels")
+          }
         } else if (msg.keyCode == 47 && $(form_text).val() == "") {
           console.log('opening slashcommands')
           this.open_application("slashcommands")
-
         } else if (msg.keyCode == 8) { // BS
           return this.handle_bs_key_not_open()
         }

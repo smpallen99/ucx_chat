@@ -27,6 +27,25 @@ defmodule UcxChat.MessagePopupService do
     end
   end
 
+  def handle_in("get:channels" <> _mod, msg) do
+    Logger.debug "get:channels, msg: #{inspect msg}"
+    pattern = msg["pattern"] |> to_string
+    channels = get_channels_by_pattern(msg["channel_id"], msg["client_id"], "%" <> pattern <> "%")
+
+    if length(channels) > 0 do
+      chatd = %{open: true, title: "Channels", data: channels, templ: "popup_channel.html"}
+
+      html =
+        "popup.html"
+        |> UcxChat.MessageView.render(chatd: chatd)
+        |> Phoenix.HTML.safe_to_string
+
+      {:ok, %{html: html}}
+    else
+      {:ok, %{close: true}}
+    end
+  end
+
   def handle_in("get:slashcommands" <> _mod, msg) do
     Logger.debug "get:slashcommands, msg: #{inspect msg}"
     pattern = msg["pattern"] |> to_string
@@ -53,6 +72,16 @@ defmodule UcxChat.MessagePopupService do
         exclude = [client_id|Enum.map(channel_clients, &(&1[:id]))]
         channel_clients ++ get_all_clients(pattern, exclude, 5 - size)
     end
+  end
+
+  def get_channels_by_pattern(channel_id, client_id, pattern) do
+    Channel
+    |> where([c], like(c.name, ^pattern))
+    |> order_by([c], asc: c.name)
+    |> limit(5)
+    |> select([c], {c.id, c.name})
+    |> Repo.all
+    |> Enum.map(fn {id, name} -> %{id: id, name: name, nickname: name} end)
   end
 
   def get_all_clients(pattern, exclude, count) do
