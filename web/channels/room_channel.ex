@@ -3,7 +3,7 @@ defmodule UcxChat.RoomChannel do
   Handle incoming and outgoing Subscription messages
   """
   use Phoenix.Channel
-  alias UcxChat.{Repo, Message, MessageService, ChannelService, TypingAgent, MessagePopupService}
+  alias UcxChat.{Repo, Message, MessageService, ChannelService, TypingAgent, MessagePopupService, SlashCommandsService}
 
   require Logger
 
@@ -46,8 +46,12 @@ defmodule UcxChat.RoomChannel do
   ##########
   # Incoming message handlers
 
+  def handle_in("message", %{"message" => "/" <> slashcommand} = msg, socket) do
+    SlashCommandsService.handle_in(slashcommand, msg, socket)
+  end
+
   def handle_in("message", %{} = msg, socket) do
-    Logger.debug "handle_in message, msg: #{inspect msg}"
+    Logger.warn "handle_in message, msg: #{inspect msg}"
     MessageService.new_message(msg["channel_id"], msg["message"], msg["client_id"], msg["room"])
     {:noreply, socket}
   end

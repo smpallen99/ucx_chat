@@ -62,7 +62,8 @@ defmodule UcxChat.MessageView do
   def get_date_time(msg), do: format_date_time(msg)
   def get_time(msg), do: format_time(msg)
   def edited(_msg), do: false
-  def private(_msg), do: false
+  def is_private(%{type: "p"}), do: true
+  def is_private(_msg), do: false
   def hide_cog(_msg), do: ""
   def attachments(_msg), do: []
   def hide_action_links(_msg), do: " hidden"

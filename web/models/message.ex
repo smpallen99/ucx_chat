@@ -6,11 +6,14 @@ defmodule UcxChat.Message do
     field :body, :string
     field :sequential, :boolean, default: false
     field :timestamp, :string
-
-    has_many :stars, UcxChat.StaredMessage
+    field :type, :string, default: ""
+    field :expire_at, :utc_datetime
 
     belongs_to :client, UcxChat.Client
     belongs_to :channel, UcxChat.Channel
+    belongs_to :edited_by, UcxChat.Client, foreign_key: :edited_id
+
+    has_many :stars, UcxChat.StaredMessage
 
     field :is_groupable, :boolean, virtual: true
     field :system, :string, virtual: true
@@ -24,18 +27,20 @@ defmodule UcxChat.Message do
     timestamps(type: :utc_datetime)
   end
 
+  @fields [:body, :client_id, :channel_id, :sequential, :timestamp, :edited_id, :type, :expire_at, :type]
+  @required [:body, :client_id]
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:body, :client_id, :channel_id, :sequential, :timestamp])
-    |> validate_required([:body, :client_id])
+    |> cast(params, @fields)
+    |> validate_required(@required)
     |> add_timestamp
   end
 
   def add_timestamp(%{data: %{timestamp: nil}} = changeset) do
-    # Logger.warn "changeset: #{inspect changeset}, timestamp: #{inspect changeset.data.timestamp}"
     put_change(changeset, :timestamp, UcxChat.ServiceHelpers.get_timestamp())
   end
   def add_timestamp(changeset) do
@@ -48,40 +53,6 @@ defmodule UcxChat.Message do
   end
 
   def pad2(int), do: int |> to_string |> String.pad_leading(2, "0")
-
-  # def format_date(%NaiveDateTime{} = dt) do
-  #   {{yr, mo, day}, _} = NaiveDateTime.to_erl(dt)
-  #   month(mo) <> " " <> to_string(day) <> ", " <> to_string(yr)
-  # end
-
-  # def format_time(%NaiveDateTime{} = dt) do
-  #   {_, {hr, min, _sec}} = NaiveDateTime.to_erl(dt)
-  #   min = to_string(min) |> String.pad_leading(2, "0")
-  #   {hr, meridan} =
-  #     case hr do
-  #       hr when hr < 12 -> {hr, " AM"}
-  #       hr when hr == 12 -> {hr, " PM"}
-  #       hr -> {hr - 12, " PM"}
-  #     end
-  #   to_string(hr) <> ":" <> min <> meridan
-  # end
-
-  # def format_date_time(%NaiveDateTime{} = dt) do
-  #   format_date(dt) <> " " <> format_time(dt)
-  # end
-
-  # def month(1), do: "January"
-  # def month(2), do: "February"
-  # def month(3), do: "March"
-  # def month(4), do: "April"
-  # def month(5), do: "May"
-  # def month(6), do: "June"
-  # def month(7), do: "July"
-  # def month(8), do: "August"
-  # def month(9), do: "September"
-  # def month(10), do: "October"
-  # def month(11), do: "November"
-  # def month(12), do: "December"
 
 end
 

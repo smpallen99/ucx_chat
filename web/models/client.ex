@@ -11,6 +11,8 @@ defmodule UcxChat.Client do
     has_many :channels, through: [:subscriptions, :channel]
     has_many :messages, UcxChat.Message
     has_many :stared_messages, UcxChat.StaredMessage
+    has_many :owns, UcxChat.Channel, foreign_key: :client_id
+
     timestamps(type: :utc_datetime)
   end
 

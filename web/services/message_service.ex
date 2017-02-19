@@ -1,6 +1,6 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
-  alias UcxChat.{Message, Repo, TypingAgent, Client, Mention, Subscription}
+  alias UcxChat.{Message, Repo, TypingAgent, Client, Mention, Subscription, SlashCommands}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -47,23 +47,23 @@ defmodule UcxChat.MessageService do
 
   def new_message(channel_id, message, client_id, room) do
     {body, mentions} = encode_mentions(message)
-    message =
-      %Message{}
-      |> Message.changeset(%{
-        sequential: client_id == last_client_id(channel_id),
-        channel_id: channel_id,
-        client_id: client_id,
-        body: body
-      })
-      |> Repo.insert!
-      |> Repo.preload([:client])
+    message = create_message(body, client_id, channel_id)
+      # %Message{}
+      # |> Message.changeset(%{
+      #   sequential: client_id == last_client_id(channel_id),
+      #   channel_id: channel_id,
+      #   client_id: client_id,
+      #   body: body
+      # })
+      # |> Repo.insert!
+      # |> Repo.preload([:client])
 
     create_mentions(mentions, message.id, message.channel_id)
 
-    message_html =
-      "message.html"
-      |> UcxChat.MessageView.render(message: message, client: message.client)
-      |> Phoenix.HTML.safe_to_string
+    message_html = render_message(message)
+      # "message.html"
+      # |> UcxChat.MessageView.render(message: message, client: message.client)
+      # |> Phoenix.HTML.safe_to_string
 
     UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "message:new",
       %{
@@ -73,6 +73,37 @@ defmodule UcxChat.MessageService do
       })
     TypingAgent.stop_typing(channel_id, client_id)
     update_typing(channel_id, room)
+  end
+
+  def render_message(message) do
+    "message.html"
+    |> UcxChat.MessageView.render(message: message, client: message.client)
+    |> Phoenix.HTML.safe_to_string
+  end
+
+  def create_message(body, client_id, channel_id, params) do
+    %Message{}
+    |> Message.changeset(Map.merge(
+      %{
+        sequential: client_id == last_client_id(channel_id),
+        channel_id: channel_id,
+        client_id: client_id,
+        body: body
+      }, params))
+    |> Repo.insert!
+    |> Repo.preload([:client])
+  end
+
+  def create_message(body, client_id, channel_id) do
+    %Message{}
+    |> Message.changeset(%{
+      sequential: client_id == last_client_id(channel_id),
+      channel_id: channel_id,
+      client_id: client_id,
+      body: body
+    })
+    |> Repo.insert!
+    |> Repo.preload([:client])
   end
 
   def update_typing(channel_id, room) do

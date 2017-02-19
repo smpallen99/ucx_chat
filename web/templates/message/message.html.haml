@@ -33,7 +33,7 @@
         %i.icon-edit(aria-label="Edited")
         %button.thumb.thumb-small.user-card-message(data-username="#{edited[:edited_by]}" tabindex="1")
           = get_avatar(edited[:username])
-    - if private(@message) do
+    - if is_private(@message) do
       %span.private Only you can see this message
     %div(class="message-cog-container #{hide_cog(@message)}")
       %i.icon-cog.message-cog(aria-label="Actions")

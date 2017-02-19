@@ -10,6 +10,7 @@ defmodule UcxChat.Channel do
     has_many :clients, through: [:subscriptions, :client]
     has_many :stared_messages, UcxChat.StaredMessage
     has_many :messages, UcxChat.Message
+    belongs_to :owner, UcxChat.Client, foreign_key: :client_id
 
     timestamps(type: :utc_datetime)
   end
@@ -19,7 +20,7 @@ defmodule UcxChat.Channel do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :type, :topic, :read_only])
-    |> validate_required([:name])
+    |> cast(params, [:name, :type, :topic, :read_only, :client_id])
+    |> validate_required([:name, :client_id])
   end
 end

@@ -1,4 +1,5 @@
 import UnreadManager from "./unread_manager"
+import * as cc from "./chat_channel"
 import * as utils from "./utils"
 
 const debug = false;
@@ -29,8 +30,16 @@ class Messages {
     let ucxchat = window.ucxchat
 
     if (!utils.empty_string(msg)) {
-      roomchan.push("message", {message: msg, user_id: user, room: ucxchat.room, nickname: ucxchat.nickname,
-        client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
+      // roomchan.push("message", {message: msg, user_id: user, room: ucxchat.room, nickname: ucxchat.nickname,
+      //   client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
+      cc.push("message", {message: msg, user_id: user})
+        .receive("ok", resp => {
+          if (resp.html) {
+            $('.messages-box .wrapper > ul').append(resp.html)
+            Messages.scroll_bottom()
+          }
+        })
+
 
       unread.remove_unread()
     }

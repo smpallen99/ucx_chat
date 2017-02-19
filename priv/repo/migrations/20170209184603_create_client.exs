@@ -7,6 +7,7 @@ defmodule UcxChat.Repo.Migrations.CreateClient do
       add :chat_status, :string, default: "offline"
       add :tag_line, :string, default: ""
       add :uri, :string, default: ""
+      add :type, :string, size: 1, default: ""
 
       timestamps(type: :utc_datetime)
       # timestamps()

@@ -1,6 +1,6 @@
 defmodule UcxChat.MessagePopupService do
   require Logger
-  alias UcxChat.{Repo, Client, Channel, Message}
+  alias UcxChat.{Repo, Client, Channel, Message, SlashCommands}
   alias UcxChat.ServiceHelpers, as: Helpers
   import Ecto.Query
 
@@ -18,6 +18,24 @@ defmodule UcxChat.MessagePopupService do
 
       html =
         "popup.html"
+        |> UcxChat.MessageView.render(chatd: chatd)
+        |> Phoenix.HTML.safe_to_string
+
+      {:ok, %{html: html}}
+    else
+      {:ok, %{close: true}}
+    end
+  end
+
+  def handle_in("get:slashcommands" <> _mod, msg) do
+    Logger.debug "get:slashcommands, msg: #{inspect msg}"
+    pattern = msg["pattern"] |> to_string
+
+    if commands = SlashCommands.commands(pattern) do
+      chatd = %{open: true, data: commands}
+
+      html =
+        "popup_slash_commands.html"
         |> UcxChat.MessageView.render(chatd: chatd)
         |> Phoenix.HTML.safe_to_string
 
