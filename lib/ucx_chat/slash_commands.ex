@@ -7,10 +7,6 @@ defmodule UcxChat.SlashCommands do
     "join", "archive", "kick", "lennyface", "leave", "gimme", "create", "invite",
     "invite-all-to", "invite-all-from", "msg", "part", "unarchive", "tableflip",
     "topic", "mute", "me", "open", "unflip", "shrug", "unmute" ]
-  # commands = [
-  #   "join", "archive", "kick", "lennyface", "leave", "gimme", "create", "invite",
-  #   "invite-all-to", "invite-all-from", "msg", "part", "unarchive", "tableflip",
-  #   "topic", "mute", "me", "open", "unflip", "shrug", "unmute" ]
 
   @special_text %{
     "gimme" => "༼ つ ◕_◕ ༽つ",

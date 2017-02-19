@@ -2,10 +2,10 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct}
+  alias UcxChat.{Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct, Mute}
   alias UcxChat.ServiceHelpers, as: Helpers
 
-  import Phoenix.HTML.Tag, only: [content_tag: 3]
+  import Phoenix.HTML.Tag, only: [content_tag: 3, content_tag: 2]
 
   import Ecto.Query
 
@@ -49,6 +49,7 @@ defmodule UcxChat.ChannelService do
       |> where([cc], cc.client_id == ^id)
       |> preload([:channel])
       |> Repo.all
+      # |> Enum.reject(&(&1.channel.archived))
       |> Enum.map(fn cc ->
         chan = cc.channel
         active = chan.id == channel_id
@@ -210,7 +211,10 @@ defmodule UcxChat.ChannelService do
     {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
   end
 
-  def create_channel(name, client_id, channel_id) do
+  ###################
+  # channel commands
+
+  def channel_command(:create, name, client_id, channel_id) do
     if Helpers.get_by(Channel, :name, name) do
       Helpers.response_message(channel_id, text: "The channel ", code: "#" <> name, text: " already exists.")
     else
@@ -219,17 +223,185 @@ defmodule UcxChat.ChannelService do
       |> Repo.insert
       |>case do
         {:ok, channel} ->
-          %Subscription{}
-          |> Subscription.changeset(%{client_id: client_id, channel_id: channel.id})
-          |> Repo.insert!
+          channel_command(:join, channel, client_id, channel_id)
+
           tag = content_tag :span, style: "color: green;" do
             "Channel created successfully"
           end
-          Helpers.response_message(channel_id, tag: tag) #<span style='color: green;'>Channel created successfully.</span>")
+          Helpers.response_message(channel_id, tag: tag)
 
         {:error, _} ->
           Helpers.response_message(channel_id, text: "There was a problem creating ", code: "#" <> name, text: " channel.")
       end
+    end
+  end
+
+  @channel_commands ~w(join leave open archive unarchive)a
+
+  def channel_command(command, name, client_id, channel_id) when command in @channel_commands and is_binary(name) do
+    case Helpers.get_by(Channel, :name, name) do
+      nil ->
+        Helpers.response_message(channel_id, text: "The channel ", code: "#" <> name, text: " does not exists")
+      channel ->
+        channel_command(command, channel, client_id, channel_id)
+    end
+  end
+
+  def channel_command(:join, %Channel{} = channel, client_id, channel_id) do
+    %Subscription{}
+    |> Subscription.changeset(%{client_id: client_id, channel_id: channel.id})
+    |> Repo.insert
+    |> case do
+      {:ok, subs} ->
+        Helpers.response_message(channel_id, text: "You have joined the", code: channel.name, text: " channel.")
+      {:error, _} ->
+        Helpers.response_message(channel_id, text: "Problem joining ", code: channel.name, text: " channel.")
+    end
+  end
+
+  def channel_command(:leave, %Channel{} = channel, client_id, channel_id) do
+    ch_id = channel.id
+    Subscription
+    |> where([s], s.channel_id == ^ch_id and s.client_id == ^client_id)
+    |> Repo.one
+    |> case do
+      nil ->
+        Helpers.response_message(channel_id, text: "Your not subscribed to the ", code: channel.name, text: " channel.")
+      subs ->
+        Repo.delete! subs
+        Helpers.response_message(channel_id, text: "You have left to the ", code: channel.name, text: " channel.")
+    end
+  end
+
+  def channel_command(:open, %Channel{} = channel, client_id, channel_id) do
+    # send open channel to the user
+    %{}
+  end
+
+  def channel_command(:archive, %Channel{archived: true} = channel, client_id, channel_id) do
+    Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is already archived.")
+  end
+
+  def channel_command(:archive, %Channel{} = channel, client_id, channel_id) do
+    channel
+    |> Channel.changeset(%{archived: true})
+    |> Repo.update
+    |> case do
+      {:ok, _} ->
+        Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " has been archived successfully.")
+      {:error, cs} ->
+        Logger.warn "error archiving channel #{inspect cs.errors}"
+        Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " was not archived.")
+    end
+  end
+
+  def channel_command(:unarchive, %Channel{archived: false} = channel, client_id, channel_id) do
+    Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is not archived.")
+  end
+
+  def channel_command(:unarchive, %Channel{} = channel, client_id, channel_id) do
+    channel
+    |> Channel.changeset(%{archived: false})
+    |> Repo.update
+    |> case do
+      {:ok, _} ->
+        Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " has been unarchived successfully.")
+      {:error, cs} ->
+        Logger.warn "error unarchiving channel #{inspect cs.errors}"
+        Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " was not unarchived.")
+    end
+  end
+
+  ##################
+  # client commands
+
+  @client_commands ~w(invite kick mute unmute)a
+
+  def client_command(command, name, client_id, channel_id) when command in @client_commands and is_binary(name) do
+    case Helpers.get_by(Client, :nickname, name) do
+      nil ->
+        Helpers.response_message(channel_id, text: "The user ", code: "@" <> name, text: " does not exists")
+      client ->
+        client_command(command, client, client_id, channel_id)
+    end
+  end
+
+  def client_command(:invite, %Client{} = client, client_id, channel_id) do
+    %Subscription{}
+    |> Subscription.changeset(%{client_id: client.id, channel_id: channel_id})
+    |> Repo.insert
+    |> case do
+      {:ok, subs} ->
+        notify_client_action(client, client_id, channel_id, "removed")
+      {:error, _} ->
+        Helpers.response_message(channel_id, text: "Problem inviting ", code: client.nickname, text: " to this channel.")
+    end
+  end
+
+  def client_command(:kick, %Client{} = client, client_id, channel_id) do
+    c_id = client.id
+    Subscription
+    |> where([s], s.channel_id == ^channel_id and s.client_id == ^c_id)
+    |> Repo.one
+    |> case do
+      nil ->
+        Helpers.response_message(channel_id, text: "User ", code: client.nickname, text: " is not subscribed to this channel.")
+      subs ->
+        Repo.delete! subs
+        notify_client_action(client, client_id, channel_id, "removed")
+    end
+  end
+
+  def client_command(:mute, %Client{} = client, client_id, channel_id) do
+    case mute_client(client, client_id, channel_id) do
+      {:error, response_message} -> response_message
+      {:ok, _} -> notify_client_action(client, client_id, channel_id, "muted")
+    end
+  end
+
+  def client_command(:unmute, %Client{} = client, client_id, channel_id) do
+    case mute_client(client, client_id, channel_id) do
+      {:error, response_message} -> response_message
+      {:ok, _} -> notify_client_action(client, client_id, channel_id, "unmuted")
+    end
+  end
+
+  # TODO: This needs to be broadcast to the channel
+  defp notify_client_action(client, client_id, channel_id, action) do
+    owner = Helpers.get(Client, client_id)
+    t1 = content_tag :em do
+     client.nickname
+    end
+    t2 = content_tag :em do
+     owner.nickname
+    end
+    Helpers.response_message(channel_id, text: "User ", tag: t1, text: " #{action} by ", tag: t2, text: ".")
+  end
+
+  def mute_client(%{id: id} = client, client_id, channel_id) do
+    %Mute{}
+    |> Mute.changeset(%{client_id: id, channel_id: channel_id})
+    |> Repo.insert
+    |> case do
+      {:error, cs} ->
+        Logger.warn "mute cs errors, #{inspect cs.errors}"
+        {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> client.nickname, text: " already muted.")}
+      mute ->
+        {:ok, mute}
+    end
+  end
+
+  def unmute_client(%{id: id} = client, client_id, channel_id) do
+    Mute
+    |> where([m], m.client_id == ^id and m.channel_id == ^channel_id)
+    |> Repo.one
+    |> case do
+      nil ->
+        Logger.warn "un mute errors"
+        {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> client.nickname, text: " is not muted.")}
+      mute ->
+        Repo.delete mute
+        {:ok, "unmuted"}
     end
   end
 

@@ -20,14 +20,51 @@ defmodule UcxChat.SlashCommandsService do
 
   def handle_command("gimme" <> args, client_id, channel_id),
     do: handle_command_text("gimme", args, client_id, channel_id)
+
   def handle_command("lennyface" <> args, client_id, channel_id),
     do: handle_command_text("lennyface", args, client_id, channel_id, true)
+
   def handle_command("tableflip" <> args, client_id, channel_id),
     do: handle_command_text("tableflip", args, client_id, channel_id, true)
+
   def handle_command("unflip" <> args, client_id, channel_id),
     do: handle_command_text("unflip", args, client_id, channel_id, true)
+
   def handle_command("shrug" <> args, client_id, channel_id),
     do: handle_command_text("shrug", args, client_id, channel_id, true)
+
+  def handle_command("create " <> args, client_id, channel_id),
+    do: handle_channel_command(:create, args, client_id, channel_id)
+
+  def handle_command("join " <> args, client_id, channel_id),
+    do: handle_channel_command(:join, args, client_id, channel_id)
+
+  def handle_command("leave " <> args, client_id, channel_id),
+    do: handle_channel_command(:leave, args, client_id, channel_id)
+
+  def handle_command("part " <> args, client_id, channel_id),
+    do: handle_channel_command(:leave, args, client_id, channel_id)
+
+  def handle_command("open " <> args, client_id, channel_id),
+    do: handle_channel_command(:open, args, client_id, channel_id)
+
+  def handle_command("archive " <> args, client_id, channel_id),
+    do: handle_channel_command(:archive, args, client_id, channel_id)
+
+  def handle_command("unarchive " <> args, client_id, channel_id),
+    do: handle_channel_command(:unarchive, args, client_id, channel_id)
+
+  def handle_command("invite " <> args, client_id, channel_id),
+    do: handle_client_command(:invite, args, client_id, channel_id)
+
+  def handle_command("kick " <> args, client_id, channel_id),
+    do: handle_client_command(:kick, args, client_id, channel_id)
+
+  def handle_command("mute " <> args, client_id, channel_id),
+    do: handle_client_command(:mute, args, client_id, channel_id)
+
+  def handle_command("unmute " <> args, client_id, channel_id),
+    do: handle_client_command(:unmute, args, client_id, channel_id)
 
   def handle_command("topic " <> args, client_id, channel_id) do
     channel =
@@ -40,20 +77,11 @@ defmodule UcxChat.SlashCommandsService do
     {:ok, %{}}
   end
 
-  def handle_command("create " <> args, client_id, channel_id) do
-    with "#" <> name <- String.trim(args),
-         true <- String.match?(name, ~r/[a-z0-9\.\-_]/i) do
-     {:ok, ChannelService.create_channel(name, client_id, channel_id)}
-    else
-      _ ->
-        {:ok, Helpers.error_message(channel_id, text: "Invalid channel name:", code: args)}
-    end
-  end
 
   # unknown command
   def handle_command(command, client_id, channel_id) do
     Logger.warn "SlashCommandsService unrecognized command: #{inspect command}"
-    {:ok, Helpers.error_message(channel_id, text: "No such command: ", code: command)}
+    {:ok, Helpers.response_message(channel_id, text: "No such command: ", code: command)}
   end
 
   defp handle_command_text(command, args, client_id, channel_id, prepend \\ false) do
@@ -66,4 +94,23 @@ defmodule UcxChat.SlashCommandsService do
     {:ok, %{html: MessageService.render_message(message)}}
   end
 
+  def handle_channel_command(command, args, client_id, channel_id) do
+    with "#" <> name <- String.trim(args),
+         true <- String.match?(name, ~r/[a-z0-9\.\-_]/i) do
+     {:ok, ChannelService.channel_command(command, name, client_id, channel_id)}
+    else
+      _ ->
+        {:ok, Helpers.response_message(channel_id, text: "Invalid channel name:", code: args)}
+    end
+  end
+
+  def handle_client_command(command, args, client_id, channel_id) do
+    with "@" <> name <- String.trim(args),
+         true <- String.match?(name, ~r/[a-z0-9\.\-_]/i) do
+     {:ok, ChannelService.client_command(command, name, client_id, channel_id)}
+    else
+      _ ->
+        {:ok, Helpers.response_message(channel_id, text: "Invalid username:", code: args)}
+    end
+  end
 end
