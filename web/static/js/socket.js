@@ -17,7 +17,8 @@ import * as flexbar from "./flex_bar"
 const debug = false;
 
 // let socket = new Socket("/socket", {params: {token: window.userToken}})
-let socket = new Socket("/socket", {params: {nickname: ucxchat.nickname}})
+// let socket = new Socket("/socket", {params: {nickname: ucxchat.nickname}})
+let socket = new Socket("/socket")
 window.roomchan = false
 
 $(document).ready(function() {
@@ -98,10 +99,11 @@ export function restart_socket() {
 }
 
 function start_socket(typing) {
-  socket.connect({user: ucxchat.nickname})
+  socket.connect()
+  // socket.connect({user: ucxchat.nickname})
   let room = ucxchat.room
   // Now that you are connected, you can join channels with a topic:
-  roomchan = socket.channel("ucxchat:room-"+room, {user: ucxchat.nickname})
+  roomchan = socket.channel("ucxchat:room-"+room, {user: ucxchat.nickname, user_id: ucxchat.client_id})
 
   let chan = roomchan
 
@@ -122,6 +124,7 @@ function start_socket(typing) {
 
   chan.on("message:new", msg => {
     if (debug) { console.log('message:new current id, msg.client_id', msg, ucxchat.client_id, msg.client_id) }
+      // console.log('message:new', chan.params.user)
     Messages.new_message(msg)
   })
 

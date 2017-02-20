@@ -5,6 +5,7 @@ defmodule UcxChat.FlexBarService do
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
+  require IEx
 
   def handle_in("close" = event, msg) do
     # Logger.warn "FlexBarService.close msg: #{inspect msg}"
@@ -16,6 +17,49 @@ defmodule UcxChat.FlexBarService do
     Logger.debug "FlexBarService.get_open msg: #{inspect msg}"
     ftab = ClientAgent.get_ftab(msg["client_id"], msg["channel_id"])
     {:ok, %{ftab: ftab}}
+  end
+
+  def handle_in("form:click", msg) do
+    channel = Helpers.get(Channel, msg["channel_id"])
+    field_name = String.to_atom(msg["field_name"])
+    value = Map.get channel, field_name
+    html = FlexBarView.render("channel_form_text_input.html", field: %{name: field_name, value: value})
+    |> Phoenix.HTML.safe_to_string
+    {:ok, %{html: html}}
+  end
+
+  def handle_in("form:cancel", msg) do
+    channel = Helpers.get(Channel, msg["channel_id"])
+    field = get_setting_form_field(msg["field_name"], channel, msg["client_id"])
+    html = FlexBarView.flex_form_input(field[:type], field)
+    |> Enum.map(&Phoenix.HTML.safe_to_string/1)
+    |> Enum.join
+    {:ok, %{html: html}}
+  end
+
+  def handle_in("form:save", msg) do
+    Channel
+    |> Helpers.get(msg["channel_id"])
+    |> Channel.changeset_settings([{msg["field_name"], msg["value"]}])
+    |> Repo.update
+    |> case do
+      {:ok, channel} ->
+        field = get_setting_form_field(msg["field_name"], channel, msg["client_id"])
+        html = FlexBarView.flex_form_input(field[:type], field)
+        |> case do
+          list when is_list(list) ->
+            list
+            |> Enum.map(&Phoenix.HTML.safe_to_string/1)
+            |> Enum.join
+          tuple ->
+            Phoenix.HTML.safe_to_string(tuple)
+        end
+        {:ok, %{html: html}}
+      {:error, cs} ->
+        Logger.warn "error: #{inspect cs.errors}"
+        {field, {error, _}} = cs.errors |> hd
+        {:error, %{error: "#{field} #{error}"}}
+    end
   end
 
   def handle_click("Info" = event, %{"channel_id" => channel_id} = msg)  do
@@ -121,11 +165,29 @@ defmodule UcxChat.FlexBarService do
     end
   end
 
+  def settings_form_fields(channel, client_id) do
+    disabled = channel.client_id != client_id
+    [
+      %{name: "name", label: "Name", type: :text, value: channel.name, read_only: disabled},
+      %{name: "topic", label: "Topic", type: :text, value: channel.topic, read_only: disabled},
+      %{name: "description", label: "Description", type: :text, value: channel.description, read_only: disabled},
+      %{name: "private", label: "Private", type: :boolean, value: channel.type == 1, read_only: disabled},
+      %{name: "read_only", label: "Read only", type: :boolean, value: channel.read_only, read_only: disabled},
+      %{name: "archived", label: "Archived", type: :boolean, value: channel.archived, read_only: disabled},
+      %{name: "password", label: "Password", type: :text, value: "", read_only: true},
+    ]
+  end
+
+  def get_setting_form_field(name, channel, client_id) do
+    settings_form_fields(channel, client_id)
+    |> Enum.find(&(&1[:name] == name))
+  end
 
   def get_render_args(event, client_id, channel_id, message_id, opts \\ %{})
 
   def get_render_args("Info", client_id, channel_id, _, _)  do
-    [channel: Helpers.get_channel(channel_id), client_id: client_id]
+    channel = Helpers.get_channel(channel_id)
+    [channel: settings_form_fields(channel, client_id)]
   end
 
   def get_render_args("Members List", client_id, channel_id, _message_id, opts) do

@@ -22,6 +22,8 @@
     "bourbon": "~4.3.2",
     "normalize.css": "^4.1.1",
     "postcss-brunch": "^0.5.0",
-    "mathsass": "~0.9.5"
+    "mathsass": "~0.9.5",
+    "toastr": "^2.1.2",
+    "jquery": "~2.2.0"
   }
 }

@@ -1,42 +1,8 @@
-- channel = @channel
 .content
   .list-view.channel-settings
     .title
       %h2 Room Info
     %form
       %ul.list.clearfix
-        %li.text
-          %label Name
-          .setting-block
-            %span.current-setting(data-edit="name")= @channel.name
-            %button.button.edit(type="button")
-              %i.icon-pencil(data-edit="name")
-        %li.markdown
-          %label Topic
-          .setting-block
-            %span.current-setting(data-edit="topic")= @channel.topic
-              %button.button.edit(type="button")
-                %i.icon-pencil(data-edit="topic")
-
-        %li.text
-          %label Description
-          .setting-block
-            %span.current-setting(data-edit="false")=# @channel.description
-        %li.boolean
-           %label Private
-          .setting-block
-            .input.checkbox.toggle
-              %input#t(type="checkbox" name="t" disabled="true")
-              %label(for="t")
-        %li.boolean
-          %label Read Only
-          .setting-block
-            .input.checkbox.toggle
-              %input#to(type="checkbox" name="to" disabled="true")
-              %label(for="to")
-        %li.boolean
-          %label Archived
-          .setting-block
-            .input.checkbox.toggle
-              %input#archived(type="checkbox" name="archived" disabled="true")
-              %label(for="archived")
+        - for field <- @channel do
+          = flex_form_line(field)

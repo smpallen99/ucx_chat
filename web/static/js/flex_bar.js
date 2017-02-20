@@ -1,5 +1,6 @@
 import * as cc from './chat_channel'
 import * as main from './main'
+import * as fbar_form from './flex_bar_form'
 
 const debug = false;
 
@@ -113,6 +114,7 @@ export function init_flexbar() {
     $('.flex-tab-container .user-view').addClass('animated-hidden')
   })
 
+  // fbar_form.init()
 }
 
 //////////////////

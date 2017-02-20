@@ -232,6 +232,9 @@ defmodule UcxChat.ChannelService do
     channel
   end
 
+  # def change_type(channel_id, type) do
+
+  # end
   ###################
   # channel commands
 

@@ -22,7 +22,8 @@ exports.config = {
     stylesheets: {
       joinTo: {
         "css/app.css": /^(web\/static\/css)/,
-        "css/channel_settings.css": ["web/static/scss/channel_settings.scss"]
+        "css/channel_settings.css": ["web/static/scss/channel_settings.scss"],
+        // "css/toastr.css": ["web/static/scss/toastr.scss"]
       },
       order: {
         // after: ["web/static/css/theme/main.scss", "web/static/css/app.css"] // concat app.css last
@@ -79,6 +80,12 @@ exports.config = {
   },
 
   npm: {
-    enabled: true
+    enabled: true,
+    whitelist: ["toastr"],
+    styles: {toastr: ["toastr.css"]},
+    globals: {
+      $: 'jquery',
+      JQuery: 'jquery'
+    }
   }
 };

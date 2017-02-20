@@ -32,6 +32,7 @@ defmodule UcxChat.RoomChannel do
   def handle_info({:after_join, msg}, socket) do
     broadcast! socket, "user:entered", %{user: msg["user"]}
     push socket, "join", %{status: "connected"}
+    socket = Phoenix.Socket.assign(socket, :user_id, msg["user_id"])
     {:noreply, socket}
   end
 
@@ -51,7 +52,8 @@ defmodule UcxChat.RoomChannel do
   end
 
   def handle_in("message", %{} = msg, socket) do
-    Logger.warn "handle_in message, msg: #{inspect msg}"
+    # Logger.warn "handle_in message, msg: #{inspect msg}"
+    Logger.warn "handle_in message, socket: #{inspect socket}"
     MessageService.new_message(msg["channel_id"], msg["message"], msg["client_id"], msg["room"])
     {:noreply, socket}
   end
@@ -100,6 +102,7 @@ defmodule UcxChat.RoomChannel do
   end
 
   def handle_in("flex_bar:" <> mod, msg, socket) do
+    Logger.warn "flex-bar mod: #{inspect mod}, msg: #{inspect msg}"
     resp = UcxChat.FlexBarService.handle_in(mod, msg)
     {:reply, resp, socket}
   end
