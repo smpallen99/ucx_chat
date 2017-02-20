@@ -1,4 +1,5 @@
 import * as utils from './utils'
+import * as cc from "./chat_channel"
 
 const debug = false;
 
@@ -25,8 +26,8 @@ class Typing {
     if (!this.is_typing) {
       this.is_typing = true
       this.timer_ref = setTimeout(this.typing_timer_timeout, 15000, this, ucxchat.channel_id, ucxchat.client_id)
-      roomchan.push("typing:start", {channel_id: ucxchat.channel_id,
-        client_id: ucxchat.client_id, nickname: ucxchat.nickname, room: ucxchat.room})
+      console.log("roomchan", roomchan)
+      cc.post("/typing")
     }
   }
   update_typing(typing) {
@@ -69,7 +70,7 @@ class Typing {
         // assume they cleared the textedit and did not send
         this_ref.is_typing = false
         this_ref.timer_ref = undefined
-        roomchan.push("typing:stop", {channel_id: channel_id, client_id: client_id, room: ucxchat.room})
+        roomchan.push("/typing/stop", {ucxchat: {method: "delete"}, channel_id: channel_id, client_id: client_id, room: ucxchat.room})
       }
     } else {
       this_ref.timer_ref = setTimeout(this.typing_timer_timeout, 15000, this_ref, channel_id, client_id)

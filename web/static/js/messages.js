@@ -28,8 +28,20 @@ class Messages {
   static send_message(msg) {
     let user = window.ucxchat.user_id
     let ucxchat = window.ucxchat
+    if (msg.startsWith('/')) {
+      let match = msg.match(/^\/([^\s]+)(.*)/)
+      let route = "/slashcommand/" + match[1]
+      cc.put(route, {args: match[2].trim()})
+        .receive("ok", resp => {
+          if (resp.html) {
+            $('.messages-box .wrapper > ul').append(resp.html)
+            Messages.scroll_bottom()
+          }
+        })
 
-    if (!utils.empty_string(msg)) {
+      unread.remove_unread()
+
+    } else if (!utils.empty_string(msg)) {
       // roomchan.push("message", {message: msg, user_id: user, room: ucxchat.room, nickname: ucxchat.nickname,
       //   client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
       cc.push("message", {message: msg, user_id: user})
@@ -39,7 +51,6 @@ class Messages {
             Messages.scroll_bottom()
           }
         })
-
 
       unread.remove_unread()
     }

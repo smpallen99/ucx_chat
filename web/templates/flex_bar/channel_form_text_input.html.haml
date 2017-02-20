@@ -1,0 +1,7 @@
+- field = @field
+%input.content-background-color.editing(type="text", name="#{field[:name]}" value="#{field[:value]}")
+.buttons.secondary-background-color
+  %button.button.cancel(type="button")
+    %i.icon-cancel
+  %button.button.primary.save(type="button")
+    %i.icon-ok.success-color
