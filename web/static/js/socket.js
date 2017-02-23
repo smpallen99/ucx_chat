@@ -13,12 +13,13 @@ import MessagePopup from "./message_popup"
 import MessageCog from "./message_cog"
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
+import * as cc from "./chat_channel"
 
-const debug = false;
+const debug = true;
 
-// let socket = new Socket("/socket", {params: {token: window.userToken}})
-// let socket = new Socket("/socket", {params: {nickname: ucxchat.nickname}})
-let socket = new Socket("/socket")
+let socket = new Socket("/socket", {params: {token: window.user_token}})
+
+window.clientchan = false
 window.roomchan = false
 
 $(document).ready(function() {
@@ -26,9 +27,13 @@ $(document).ready(function() {
   let ucxchat = window.ucxchat
   let typing = new Typing(ucxchat.typing)
 
+  socket.connect()
+
   $('textarea.message-form-text').focus()
 
-  start_socket(typing)
+  console.log('socket...', socket)
+  start_client_channel()
+  start_room_channel(typing)
 
   $('body').on('submit', '.message-form', e => {
     if (debug) { console.log('message-form submit', e) }
@@ -73,7 +78,9 @@ $(document).ready(function() {
   $('body').on('click', 'a.open-room', function(e) {
     e.preventDefault();
     if (debug) { console.log('clicked a.open-room', e, $(this), $(this).attr('data-room')) }
-    roomchan.push("room:open", {client_id: ucxchat.client_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
+    // roomchan.push("room:open", {client_id: ucxchat.client_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
+    //   .receive("ok", resp => { RoomManager.render_room(resp) })
+    cc.get("/room/" + $(this).attr('data-room'), {display_name: $(this).attr('data-name'), room: ucxchat.room})
       .receive("ok", resp => { RoomManager.render_room(resp) })
   })
   $('body').on('click', 'a.toggle-favorite', e => {
@@ -88,18 +95,40 @@ $(document).ready(function() {
   })
 
   $('body').on('restart-socket', () => {
-    start_socket(typing)
+    start_room_channel(typing)
   })
 
 })
+
+function start_client_channel() {
+  clientchan = socket.channel("client:" + ucxchat.client_id, {user: ucxchat.nickname})
+  let chan = clientchan
+
+  chan.join()
+    .receive("ok", resp => { console.log('Joined client successfully', resp)})
+    .receive("error", resp => { console.log('Unable to client lobby', resp)})
+
+  chan.on('room:update:name', resp => {
+    if (debug) { console.log('room:update', resp) }
+    $('li.link-room-' + resp.old_name)
+      .removeClass('.room-link-' + resp.old_name)
+      .addClass('.room-link-' + resp.new_name)
+      .children(':first-child')
+      .attr('title', resp.new_name).attr('data-room', resp.new_name)
+      .attr('data-name', resp.new_name)
+      .children(':first-child').attr('class', 'icon-' + resp.icon + ' off-line')
+      .next('span').html(resp.new_name)
+  })
+
+  chan.push('subscribe', {})
+}
 
 export function restart_socket() {
   let event = jQuery.Event( "restart-socket" );
   $("body").trigger(event)
 }
 
-function start_socket(typing) {
-  socket.connect()
+function start_room_channel(typing) {
   // socket.connect({user: ucxchat.nickname})
   let room = ucxchat.room
   // Now that you are connected, you can join channels with a topic:
@@ -132,6 +161,11 @@ function start_socket(typing) {
     if (debug) { console.log('typing:update', msg) }
     typing.update_typing(msg.typing)
   })
+
+  chan.on("room:update", msg => {
+    RoomManager.update(msg)
+  })
+
   if (!window.flexbar) {
     flexbar.init_flexbar()
   }

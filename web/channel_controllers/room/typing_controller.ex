@@ -1,4 +1,6 @@
 defmodule UcxChat.TypingChannelController do
+  use UcxChat.Web, :channel_controller
+
   import UcxChat.ChannelController
   alias UcxChat.{TypingAgent, MessageService}
 

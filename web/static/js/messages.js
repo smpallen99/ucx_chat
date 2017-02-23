@@ -44,7 +44,8 @@ class Messages {
     } else if (!utils.empty_string(msg)) {
       // roomchan.push("message", {message: msg, user_id: user, room: ucxchat.room, nickname: ucxchat.nickname,
       //   client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
-      cc.push("message", {message: msg, user_id: user})
+      // cc.push("message", {message: msg, user_id: user})
+      cc.post("/messages", {message: msg, user_id: user})
         .receive("ok", resp => {
           if (resp.html) {
             $('.messages-box .wrapper > ul').append(resp.html)

@@ -7,7 +7,7 @@ defmodule ChannelRouter do
 
       def route(socket, pattern, params, ucxchat) do
         Logger.info " route: ucxchat: #{inspect ucxchat}"
-        verb = "route_" <> ucxchat["verb"] |> String.to_atom
+        verb = ucxchat["verb"] |> String.to_atom
 
         assigns =
           ucxchat["assigns"]
@@ -15,34 +15,35 @@ defmodule ChannelRouter do
           |> Enum.into(%{})
           |> Map.merge(socket.assigns)
 
+        matches = String.split(pattern, "/", trim: true)
+
         socket = struct(socket, assigns: assigns)
-        apply(__MODULE__, verb, [socket, pattern, params])
+        apply(__MODULE__, :match, [verb, socket, matches, params])
       end
 
     end
   end
 
-  defmacro post(pattern, module, action) do
-
+  defmacro get(path, ctrl, action) do
+    compile(:get, path, ctrl, action)
   end
 
-  # defmacro create_route(verb, pattern, module, action) do
-  #   pattern = "/" <> route_name(module) <> pattern
-  #   quote do
-  #     def unquote(verb)(var!(socket), unquote(pattern), )
-  #   end
-  # end
+  defmacro post(path, ctrl, action) do
+    compile(:post, path, ctrl, action)
+  end
 
-  # defmacro route(pattern, module, action) do
+  defmacro put(path, ctrl, action) do
+    compile(:put, path, ctrl, action)
+  end
 
-  # end
+  defmacro delete(path, ctrl, action) do
+    compile(:delete, path, ctrl, action)
+  end
 
-  # def route_name(mod) do
-  #   mod
-  #   |> inspect
-  #   |> String.replace(~r/ChannelController$/, "")
-  #   |> String.downcase
-  # end
+
+  def compile(method, expr, ctrl, action) do
+
+  end
 
 end
   # MessageCogService

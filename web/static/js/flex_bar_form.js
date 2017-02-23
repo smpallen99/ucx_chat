@@ -14,7 +14,7 @@ $(document).ready(function() {
 
   $('body').on('click', 'li.text .setting-block span.current-setting', function(e) {
     if ($(this).data('edit')) {
-      cc.push('flex_bar:form:click', {model: "settings", field_name: $(this).attr('data-edit')})
+      cc.get('/room_settings/' + $(this).attr('data-edit'), {model: "settings"})
         .receive("ok", resp => {
           console.log('got response', resp)
           $(this).parent().html(resp.html)
@@ -25,7 +25,7 @@ $(document).ready(function() {
   $('body').on('click', '.setting-block button.cancel', function(e) {
     let name = $(this).parent().prev().attr('name')
     let value = $(this).parent().prev().val()
-    cc.push('flex_bar:form:cancel', {model: "settings", field_name: name})
+    cc.get('/room_settings/' + name + '/cancel', {model: "settings"})
       .receive("ok", resp => {
         console.log('got response', resp)
         $(this).parent().parent().html(resp.html)
@@ -34,7 +34,7 @@ $(document).ready(function() {
   $('body').on('click', '.setting-block button.save', function(e) {
     let name = $(this).parent().prev().attr('name')
     let value = $(this).parent().prev().val()
-    cc.push('flex_bar:form:save', {model: "settings", field_name: name, value: value})
+    cc.put('/room_settings/' + name, {model: "settings", value: value})
       .receive("ok", resp => {
         console.log('got response', resp)
         $(this).parent().parent().html(resp.html)
@@ -53,7 +53,7 @@ $(document).ready(function() {
     // if (value == 'on') { value = true } else { value = false }
     start_loading_animation($(this))
     // setTimeout(stop_loading_animation, 2000, $(this))
-    cc.push('flex_bar:form:save', {model: "settings", field_name: name, value: value})
+    cc.put('/room_settings/' + name, {model: "settings", value: value})
     .receive("ok", resp => {
       stop_loading_animation()
         toastr.success('Room ' + name + ' updated successfully.')

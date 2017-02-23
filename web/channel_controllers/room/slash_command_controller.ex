@@ -1,4 +1,6 @@
 defmodule UcxChat.SlashCommandChannelController do
+  use UcxChat.Web, :channel_controller
+
   alias UcxChat.{SlashCommands, Repo, Message, Client, Channel, Subscription}
   alias UcxChat.{ChannelService, MessageService}
   alias UcxChat.ServiceHelpers, as: Helpers
@@ -13,7 +15,7 @@ defmodule UcxChat.SlashCommandChannelController do
     "topic", "mute", "me", "open", "unflip", "shrug", "unmute" ]
 
   def execute(socket, %{"command" => command, "args" => args} = params) do
-    Logger.warn "SlashCommandsService.execute params: #{inspect params}"
+    # Logger.warn "SlashCommandsService.execute params: #{inspect params}"
     client_id = socket.assigns[:client_id]
     channel_id = socket.assigns[:channel_id]
     command = String.replace(command, "-", "_") |> String.to_atom

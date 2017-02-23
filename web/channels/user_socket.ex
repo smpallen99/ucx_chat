@@ -1,8 +1,11 @@
 defmodule UcxChat.UserSocket do
   use Phoenix.Socket
+  alias UcxChat.{User, Repo}
+  require Logger
 
   ## Channels
   channel "ucxchat:*", UcxChat.RoomChannel
+  channel "client:*", UcxChat.ClientChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -19,8 +22,15 @@ defmodule UcxChat.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
-    {:ok, socket}
+
+  def connect(%{"token" => token} = params, socket) do
+    # Logger.warn "socket connect params: #{inspect params}, socket: #{inspect socket}"
+    case Coherence.verify_user_token(socket, token, &assign/3) do
+      {:error, _} -> :error
+      {:ok, %{assigns: %{user_id: user_id}} = socket} ->
+        client_id = Repo.get!(User, user_id) |> Map.get(:client_id)
+        {:ok, assign(socket, :client_id, client_id)}
+    end
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
@@ -33,5 +43,5 @@ defmodule UcxChat.UserSocket do
   #     UcxChat.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(socket), do: "users_socket:#{socket.assigns.user_id}"
 end

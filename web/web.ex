@@ -26,6 +26,14 @@ defmodule UcxChat.Web do
     end
   end
 
+  def channel_controller do
+    quote do
+      alias UcxChat.Repo
+      import Ecto
+      import Ecto.Query
+
+    end
+  end
   def controller do
     quote do
       use Phoenix.Controller
