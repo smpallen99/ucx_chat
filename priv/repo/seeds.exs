@@ -53,7 +53,7 @@ ch2 = Channel.changeset(%Channel{}, %{name: "support", client_id: c1.id})
 |> Repo.insert!
 
 channels =
-  ~w(Research Marketing HR Accounting Shipping Sales) ++ ["UCx Web Client", "UCx Chat"]
+  ~w(Research Marketing HR Accounting Shipping Sales) ++ ["UCxWebClient", "UCxChat"]
   |> Enum.map(fn name ->
     Channel.changeset(%Channel{}, %{name: name, client_id: c1.id})
     |> Repo.insert!

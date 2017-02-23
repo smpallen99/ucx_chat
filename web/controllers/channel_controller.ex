@@ -1,15 +1,33 @@
 defmodule UcxChat.ChannelController do
   use UcxChat.Web, :controller
 
+  alias UcxChat.{Channel, Client}
+
   import Ecto.Query
 
   require Logger
 
   alias UcxChat.Channel, as: Channel
-  alias UcxChat.{MessageService, ChannelService, Message, ChatDat}
+  alias UcxChat.{MessageService, ChannelService, Message, ChatDat, Client}
 
   def index(conn, _params) do
-    show(conn, UcxChat.Channel |> Ecto.Query.first |> Repo.one)
+Logger.info "current_user: #{inspect Coherence.current_user(conn)}"
+    client = Repo.get!(Client, Coherence.current_user(conn).client_id)
+    channel = if client.open_id do
+      Repo.get!(Channel, client.open_id)
+    else
+      channel =
+        UcxChat.Channel
+        |> Ecto.Query.first
+        |> Repo.one
+
+      client
+      |> Client.changeset(%{open_id: channel.id})
+      |> Repo.update!
+      channel
+    end
+
+    show(conn, channel)
   end
 
   def show(conn, %Channel{} = channel) do

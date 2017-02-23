@@ -119,6 +119,12 @@ function start_client_channel() {
       .children(':first-child').attr('class', 'icon-' + resp.icon + ' off-line')
       .next('span').html(resp.new_name)
   })
+  chan.on('room:join', resp => {
+    console.log('room:join', resp)
+  })
+  chan.on('room:leave', resp => {
+    console.log('room:leave', resp)
+  })
 
   chan.push('subscribe', {})
 }

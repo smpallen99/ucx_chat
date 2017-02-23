@@ -5,7 +5,10 @@
         .avatar
           = get_user_avatar(@chatd.client)
       .data
-        %h4= get_user_name(@chatd.client)
+        %h4
+          - id = @chatd.client.id
+          = get_user_name(@chatd.client)
+          = " (#{id})"
   .options.primary-background-color.animated-hidden
     .wrapper
       %button.status.online(data-status="online")

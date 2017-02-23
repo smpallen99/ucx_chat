@@ -6,6 +6,7 @@ defmodule UcxChat.Client do
     field :chat_status, :string
     field :tag_line, :string
     field :uri, :string
+    belongs_to :open, UcxChat.Channel, foreign_key: :open_id
     has_one :user, UcxChat.User
     has_many :subscriptions, UcxChat.Subscription
     has_many :channels, through: [:subscriptions, :channel]
@@ -21,7 +22,7 @@ defmodule UcxChat.Client do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:nickname, :chat_status, :tag_line, :uri])
+    |> cast(params, [:nickname, :chat_status, :tag_line, :uri, :open_id])
     |> validate_required([:nickname])
   end
 end

@@ -2,7 +2,7 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct, Mute}
+  alias UcxChat.{Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct, Mute, ClientChannel}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   import Phoenix.HTML.Tag, only: [content_tag: 3, content_tag: 2]
@@ -129,7 +129,7 @@ defmodule UcxChat.ChannelService do
   def get_chan_type(_, type), do: room_type(type)
 
   def open_room(client_id, room, old_room, display_name) do
-    Logger.debug "open_room client_id: #{inspect client_id}, room: #{inspect room}, old_room: #{inspect old_room}"
+    # Logger.debug "open_room client_id: #{inspect client_id}, room: #{inspect room}, old_room: #{inspect old_room}"
     client =
       Client
       |> where([c], c.id == ^client_id)
@@ -139,6 +139,10 @@ defmodule UcxChat.ChannelService do
       Channel
       |> where([c], c.name == ^room)
       |> Repo.one!
+
+    client
+    |> Client.changeset(%{open_id: channel.id})
+    |> Repo.update!
 
     messages = MessageService.get_messages(channel.id)
     chatd = ChatDat.new client, channel, messages
@@ -277,6 +281,7 @@ defmodule UcxChat.ChannelService do
     |> Repo.insert
     |> case do
       {:ok, subs} ->
+        ClientChannel.join_room(client_id, channel.name)
         Helpers.response_message(channel_id, text: "You have joined the", code: channel.name, text: " channel.")
       {:error, _} ->
         Helpers.response_message(channel_id, text: "Problem joining ", code: channel.name, text: " channel.")
@@ -293,6 +298,7 @@ defmodule UcxChat.ChannelService do
         Helpers.response_message(channel_id, text: "Your not subscribed to the ", code: channel.name, text: " channel.")
       subs ->
         Repo.delete! subs
+        ClientChannel.leave_room(client_id, channel.name)
         Helpers.response_message(channel_id, text: "You have left to the ", code: channel.name, text: " channel.")
     end
   end

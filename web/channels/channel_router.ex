@@ -6,7 +6,7 @@ defmodule ChannelRouter do
       require Logger
 
       def route(socket, pattern, params, ucxchat) do
-        Logger.info " route: ucxchat: #{inspect ucxchat}"
+        # Logger.info " route: ucxchat: #{inspect ucxchat}"
         verb = ucxchat["verb"] |> String.to_atom
 
         assigns =

@@ -5,7 +5,8 @@
         .avatar
           .avatar-image(style="")
       .data
-        %h4= @client.nickname
+        %h4
+          - id = @client.id
     .options.primary-background-color.animated-hidden
       .wrapper
         %button.status.online(data-status="online")
