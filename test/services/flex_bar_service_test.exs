@@ -19,7 +19,7 @@ require IEx
 
   setup do
     # {:ok, subs: insert(:subscription)}
-    {:ok, subs: insert(:basic_setup)}
+    {:ok, subs: insert(:basic_setup)
   end
 
   test "setup", %{subs: subs} do
