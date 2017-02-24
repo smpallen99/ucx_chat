@@ -2,8 +2,9 @@ defmodule UcxChat.MessageChannelController do
   use UcxChat.Web, :channel_controller
 
   alias UcxChat.{TypingAgent}
+  alias UcxChat.ServiceHelpers, as: Helpers
   import UcxChat.MessageService
-  use Phoenix.Channel
+  import Phoenix.Channel
 
   require Logger
 
@@ -35,7 +36,7 @@ defmodule UcxChat.MessageChannelController do
     {:noreply, socket}
   end
 
-  def index(%{assigns: assigns} = socket, params) do
+  def index(%{assigns: assigns}, params) do
     client = Helpers.get(Client, assigns[:client_id])
     # Logger.warn "MessageService.handle_in load msg: #{inspect msg}, client: #{inspect client}"
     channel_id = assigns[:channel_id]

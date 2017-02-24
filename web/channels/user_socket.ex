@@ -23,7 +23,7 @@ defmodule UcxChat.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
 
-  def connect(%{"token" => token} = params, socket) do
+  def connect(%{"token" => token}, socket) do
     # Logger.warn "socket connect params: #{inspect params}, socket: #{inspect socket}"
     case Coherence.verify_user_token(socket, token, &assign/3) do
       {:error, _} -> :error

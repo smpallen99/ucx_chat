@@ -128,7 +128,7 @@ defmodule UcxChat.ChannelService do
   def get_chan_type(3, _), do: :stared
   def get_chan_type(_, type), do: room_type(type)
 
-  def open_room(client_id, room, old_room, display_name) do
+  def open_room(client_id, room, _old_room, display_name) do
     # Logger.debug "open_room client_id: #{inspect client_id}, room: #{inspect room}, old_room: #{inspect old_room}"
     client =
       Client
@@ -215,7 +215,7 @@ defmodule UcxChat.ChannelService do
     {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
   end
 
-  defp do_add_direct(name, client_orig, client_dest, channel_id) do
+  defp do_add_direct(name, client_orig, client_dest, _channel_id) do
     # create the channel
     channel =
       %Channel{}
@@ -280,7 +280,7 @@ defmodule UcxChat.ChannelService do
     |> Subscription.changeset(%{client_id: client_id, channel_id: channel.id})
     |> Repo.insert
     |> case do
-      {:ok, subs} ->
+      {:ok, _subs} ->
         ClientChannel.join_room(client_id, channel.name)
         Helpers.response_message(channel_id, text: "You have joined the", code: channel.name, text: " channel.")
       {:error, _} ->
@@ -303,16 +303,16 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(:open, %Channel{} = channel, client_id, channel_id) do
+  def channel_command(:open, %Channel{} = _channel, _client_id, _channel_id) do
     # send open channel to the user
     %{}
   end
 
-  def channel_command(:archive, %Channel{archived: true} = channel, client_id, channel_id) do
+  def channel_command(:archive, %Channel{archived: true} = channel, _client_id, channel_id) do
     Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is already archived.")
   end
 
-  def channel_command(:archive, %Channel{} = channel, client_id, channel_id) do
+  def channel_command(:archive, %Channel{} = channel, _client_id, channel_id) do
     channel
     |> Channel.changeset(%{archived: true})
     |> Repo.update
@@ -325,11 +325,11 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(:unarchive, %Channel{archived: false} = channel, client_id, channel_id) do
+  def channel_command(:unarchive, %Channel{archived: false} = channel, _client_id, channel_id) do
     Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is not archived.")
   end
 
-  def channel_command(:unarchive, %Channel{} = channel, client_id, channel_id) do
+  def channel_command(:unarchive, %Channel{} = channel, _client_id, channel_id) do
     channel
     |> Channel.changeset(%{archived: false})
     |> Repo.update
@@ -342,7 +342,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(:invite_all_to, %Channel{} = channel, client_id, channel_id) do
+  def channel_command(:invite_all_to, %Channel{} = channel, _client_id, channel_id) do
     to_channel = Helpers.get(Channel, channel.id).id
     from_channel = channel_id
 
@@ -357,7 +357,7 @@ defmodule UcxChat.ChannelService do
     Helpers.response_message(channel_id, text: "The users have been added.")
   end
 
-  def channel_command(:invite_all_from, %Channel{} = channel, client_id, channel_id) do
+  def channel_command(:invite_all_from, %Channel{} = channel, _client_id, channel_id) do
     from_channel = Helpers.get(Channel, channel.id).id
     to_channel = channel_id
 
@@ -390,7 +390,7 @@ defmodule UcxChat.ChannelService do
     client.id
     |> invite_client(channel_id)
     |> case do
-      {:ok, subs} ->
+      {:ok, _subs} ->
         notify_client_action(client, client_id, channel_id, "added")
       {:error, _} ->
         Helpers.response_message(channel_id, text: "Problem inviting ", code: client.nickname, text: " to this channel.")
@@ -437,7 +437,7 @@ defmodule UcxChat.ChannelService do
     Helpers.response_message(channel_id, text: "User ", tag: t1, text: " #{action} by ", tag: t2, text: ".")
   end
 
-  def mute_client(%{id: id} = client, client_id, channel_id) do
+  def mute_client(%{id: id} = client, _client_id, channel_id) do
     %Mute{}
     |> Mute.changeset(%{client_id: id, channel_id: channel_id})
     |> Repo.insert
@@ -450,7 +450,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def unmute_client(%{id: id} = client, client_id, channel_id) do
+  def unmute_client(%{id: id} = client, _client_id, channel_id) do
     Mute
     |> where([m], m.client_id == ^id and m.channel_id == ^channel_id)
     |> Repo.one

@@ -1,6 +1,6 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
-  alias UcxChat.{Message, Repo, TypingAgent, Client, Mention, Subscription, SlashCommands}
+  alias UcxChat.{Message, Repo, TypingAgent, Client, Mention, Subscription}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger

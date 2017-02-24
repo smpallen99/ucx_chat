@@ -25,7 +25,7 @@
                   = unread[:count]
                 %button.mark-read
                   Mark as read
-        - for upload <- get_uploading(@conn) do
+        - for _upload <- get_uploading(@conn) do
           %div(class="upload-progress color-primary-action-color background-component-color #{has_upload_error(@conn)}")
             - if error = get_upload_error(@conn) do
               .upload-progress-text

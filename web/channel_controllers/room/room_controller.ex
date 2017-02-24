@@ -1,7 +1,7 @@
 defmodule UcxChat.RoomChannelController do
   use UcxChat.Web, :channel_controller
 
-  alias UcxChat.{ChannelService, Client}
+  alias UcxChat.{ChannelService}
   require Logger
 
   def show(%{assigns: assigns} = socket, params) do
@@ -10,7 +10,7 @@ defmodule UcxChat.RoomChannelController do
     {:reply, {:ok, reply}, socket}
   end
 
-  def favorite(socket, param) do
+  def favorite(socket, _param) do
     assigns = socket.assigns
     resp = ChannelService.toggle_favorite(assigns[:client_id], assigns[:channel_id])
     {:reply, resp, socket}

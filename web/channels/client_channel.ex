@@ -1,14 +1,14 @@
 defmodule UcxChat.ClientChannel do
   use Phoenix.Channel
   alias Phoenix.Socket.Broadcast
-  alias UcxChat.{Subscription, Repo, Channel, Flex, FlexBarService}
+  alias UcxChat.{Subscription, Repo, Flex, FlexBarService}
   use UcxChat.ChannelApi
 
   import Ecto.Query
 
   require Logger
 
-  def join_room(client_id, room) do
+  def join_room(client_id, _room) do
     Logger.warn ("...join_room client_id: #{inspect client_id}")
   end
 
@@ -116,7 +116,7 @@ defmodule UcxChat.ClientChannel do
     push socket, "flex:open", Enum.into([title: tab], resp)
     {:noreply, socket}
   end
-  def handle_info({:flex, :close, ch, tab, _, params} = msg, socket) do
+  def handle_info({:flex, :close, _ch, _tab, _, _params} = msg, socket) do
     debug inspect(msg), ""
     push socket, "flex:close", %{}
     {:noreply, socket}

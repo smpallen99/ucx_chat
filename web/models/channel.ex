@@ -38,7 +38,7 @@ defmodule UcxChat.Channel do
     type = if value == "true", do: 1, else: 0
     changeset(struct, %{type: type})
   end
-  def changeset_settings(struct, [{field, value}] = params) do
+  def changeset_settings(struct, [{field, value}]) do
     value = case value do
       "true" -> true
       "false" -> false

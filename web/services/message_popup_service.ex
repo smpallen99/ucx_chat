@@ -1,7 +1,7 @@
 defmodule UcxChat.MessagePopupService do
   require Logger
   alias UcxChat.{Repo, Client, Channel, Message, SlashCommands}
-  alias UcxChat.ServiceHelpers, as: Helpers
+  # alias UcxChat.ServiceHelpers, as: Helpers
   import Ecto.Query
 
   def handle_in("get:users" <> _mod, msg) do
@@ -74,7 +74,7 @@ defmodule UcxChat.MessagePopupService do
     end
   end
 
-  def get_channels_by_pattern(channel_id, client_id, pattern) do
+  def get_channels_by_pattern(_channel_id, _client_id, pattern) do
     Channel.get_all_channels
     |> where([c], like(c.name, ^pattern))
     |> order_by([c], asc: c.name)

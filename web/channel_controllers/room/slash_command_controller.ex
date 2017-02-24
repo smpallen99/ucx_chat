@@ -1,7 +1,7 @@
 defmodule UcxChat.SlashCommandChannelController do
   use UcxChat.Web, :channel_controller
 
-  alias UcxChat.{SlashCommands, Repo, Message, Client, Channel, Subscription}
+  alias UcxChat.{SlashCommands, Repo, Channel}
   alias UcxChat.{ChannelService, MessageService}
   alias UcxChat.ServiceHelpers, as: Helpers
 
@@ -14,7 +14,7 @@ defmodule UcxChat.SlashCommandChannelController do
     "invite-all-to", "invite-all-from", "msg", "part", "unarchive", "tableflip",
     "topic", "mute", "me", "open", "unflip", "shrug", "unmute" ]
 
-  def execute(socket, %{"command" => command, "args" => args} = params) do
+  def execute(socket, %{"command" => command, "args" => args}) do
     # Logger.warn "SlashCommandsService.execute params: #{inspect params}"
     client_id = socket.assigns[:client_id]
     channel_id = socket.assigns[:channel_id]
@@ -43,8 +43,8 @@ defmodule UcxChat.SlashCommandChannelController do
   def handle_command(command, args, client_id, channel_id) when command in @client_commands,
     do: handle_client_command(command, args, client_id, channel_id)
 
-  def handle_command(:topic, args, client_id, channel_id) do
-    channel =
+  def handle_command(:topic, args, _client_id, channel_id) do
+    _channel =
       Channel
       |> where([c], c.id == ^channel_id)
       |> Repo.one!
@@ -56,7 +56,7 @@ defmodule UcxChat.SlashCommandChannelController do
 
 
   # unknown command
-  def handle_command(command, args, client_id, channel_id) do
+  def handle_command(command, args, _client_id, channel_id) do
     command = to_string(command) <> " " <> args
     Logger.warn "SlashCommandsService unrecognized command: #{inspect command}"
     {:ok, Helpers.response_message(channel_id, text: "No such command: ", code: command)}

@@ -106,7 +106,7 @@ defmodule UcxChat.MasterView do
     case ChatDat.get_channel_data(chatd) do
       %{type: :stared} ->
         {"icon-star favorite-room pending-color", "Unfavorite"}
-      other ->
+      _other ->
         {"icon-star-empty", "Favorite"}
     end
   end

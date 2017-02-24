@@ -41,7 +41,7 @@ defmodule ChannelRouter do
   end
 
 
-  def compile(method, expr, ctrl, action) do
+  def compile(_method, _expr, _ctrl, _action) do
 
   end
 

@@ -17,7 +17,7 @@ defmodule UcxChat.FlexBarIntegrationTest do
     {:ok, subs: subs, user: user}
   end
 
-  test "finds buttons", %{user: user} do
+  test "finds buttons", %{user: _user} do
     for name <- FlexBarService.visible_tab_names() do
       assert find_element(:xpath, ~s|//div[contains(@class, 'tab-button') and contains(@title, '#{name}')]|)
     end

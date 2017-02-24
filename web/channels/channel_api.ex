@@ -16,11 +16,14 @@ defmodule UcxChat.ChannelApi do
 
   defmacro debug(event, params, msg \\ "") do
     name = __CALLER__.function |> elem(0) |> to_string
-    quote do
-      msg = unquote(msg)
-      msg = if msg == "", do: msg, else: msg <> ", "
+    quote location: :keep do
+      msg1 = case unquote(msg) do
+        "" -> ""
+        mg -> mg <> ", "
+      end
+
       if debug() do
-        Logger.debug "%% " <> inspect(__MODULE__) <> ".#{unquote(name)} #{unquote(event)}: #{msg}params: #{inspect unquote(params)}"
+        Logger.debug "%% " <> inspect(__MODULE__) <> ".#{unquote(name)} #{unquote(event)}: #{msg1}params: #{inspect unquote(params)}"
       end
     end
   end

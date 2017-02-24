@@ -6,8 +6,7 @@ defmodule UcxChat.RoomChannel do
 
   import Ecto.Query
 
-  alias UcxChat.{Subscription, Repo, Message, TypingAgent, Channel}
-  alias UcxChat.{MessageService, ChannelService, MessagePopupService, SlashCommandsService}
+  alias UcxChat.{Subscription, Repo, Channel}
   alias UcxChat.{ServiceHelpers}
 
   require Logger

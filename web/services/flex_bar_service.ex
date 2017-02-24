@@ -1,25 +1,25 @@
 defmodule UcxChat.FlexBarService do
   import Ecto.Query
 
-  alias UcxChat.{Repo, FlexBarView, Channel, Client, User, Mention, StaredMessage, PinnedMessage, ClientAgent}
+  alias UcxChat.{Repo, FlexBarView, Client, User, Mention, StaredMessage, PinnedMessage, ClientAgent}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
   require IEx
 
-  def handle_in("close" = event, msg) do
+  def handle_in("close" = _event, msg) do
     # Logger.warn "FlexBarService.close msg: #{inspect msg}"
     ClientAgent.close_ftab(msg["client_id"], msg["channel_id"])
     {:ok, %{}}
   end
 
-  def handle_in("get_open" = event, msg) do
+  def handle_in("get_open" = _event, msg) do
     Logger.debug "FlexBarService.get_open msg: #{inspect msg}"
     ftab = ClientAgent.get_ftab(msg["client_id"], msg["channel_id"])
     {:ok, %{ftab: ftab}}
   end
 
-  def handle_flex_callback(:open, ch, tab, nil, socket, params) do
+  def handle_flex_callback(:open, _ch, tab, nil, socket, _params) do
     client_id = socket.assigns[:client_id]
     channel_id = socket.assigns[:channel_id]
     case default_settings[String.to_atom(tab)][:templ] do
@@ -32,7 +32,7 @@ defmodule UcxChat.FlexBarService do
         %{html: html}
     end
   end
-  def handle_flex_callback(:open, ch, tab, args, socket, params) do
+  def handle_flex_callback(:open, _ch, tab, args, socket, _params) do
     # require IEx
     # IEx.pry
     client_id = socket.assigns[:client_id]
@@ -223,7 +223,7 @@ defmodule UcxChat.FlexBarService do
 
     [mentions: mentions]
   end
-  def get_render_args("Stared Messages", client_id,  channel_id, message_id, _) do
+  def get_render_args("Stared Messages", client_id,  channel_id, _message_id, _) do
     stars =
       StaredMessage
       |> where([m], m.channel_id == ^channel_id)
@@ -252,7 +252,7 @@ defmodule UcxChat.FlexBarService do
     [stars: stars]
   end
 
-  def get_render_args("Pinned Messages", client_id, channel_id, message_id, _) do
+  def get_render_args("Pinned Messages", client_id, channel_id, _message_id, _) do
     pinned =
       PinnedMessage
       |> where([m], m.channel_id == ^channel_id)

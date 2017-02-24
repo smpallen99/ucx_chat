@@ -1,7 +1,7 @@
 defmodule UcxChat.MessageCogService do
   require Logger
-  alias UcxChat.{Repo, Client, Channel, Message, MessageView, StaredMessage, PinnedMessage}
-  alias UcxChat.ServiceHelpers, as: Helpers
+  alias UcxChat.{Repo, Message, MessageView, StaredMessage, PinnedMessage}
+  # alias UcxChat.ServiceHelpers, as: Helpers
   import Ecto.Query
 
   def handle_in("open", %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
@@ -46,7 +46,7 @@ defmodule UcxChat.MessageCogService do
     {"update:stared", %{}}
   end
 
-  def handle_in("pin-message", %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
+  def handle_in("pin-message", %{"client_id" => _client_id, "channel_id" => channel_id} = msg) do
     "message-" <> id = msg["message_id"]
     id = String.to_integer(id)
     message = Repo.get Message, id
@@ -58,7 +58,7 @@ defmodule UcxChat.MessageCogService do
     {"update:pinned", %{}}
   end
 
-  def handle_in("unpin-message", %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
+  def handle_in("unpin-message", %{"client_id" => _client_id, "channel_id" => _channel_id} = msg) do
     "message-" <> id = msg["message_id"]
     id = String.to_integer(id)
     PinnedMessage

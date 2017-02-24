@@ -8,7 +8,7 @@ defmodule UcxChat.ChannelController do
   require Logger
 
   alias UcxChat.Channel, as: Channel
-  alias UcxChat.{MessageService, ChannelService, Message, ChatDat, Client}
+  alias UcxChat.{MessageService, ChatDat, Client}
 
   def index(conn, _params) do
 Logger.info "current_user: #{inspect Coherence.current_user(conn)}"

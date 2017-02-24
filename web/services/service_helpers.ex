@@ -1,5 +1,5 @@
 defmodule UcxChat.ServiceHelpers do
-  alias UcxChat.{Repo, FlexBarView, Channel, Client, Subscription, MessageService}
+  alias UcxChat.{Repo, Channel, Client, Subscription, MessageService}
 
   import Ecto.Query
 

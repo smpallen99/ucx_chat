@@ -1,7 +1,7 @@
 defmodule UcxChat.TypingChannelController do
   use UcxChat.Web, :channel_controller
 
-  import UcxChat.ChannelController
+  # import UcxChat.ChannelController
   alias UcxChat.{TypingAgent, MessageService}
 
   require Logger
@@ -16,7 +16,7 @@ defmodule UcxChat.TypingChannelController do
     {:noreply, socket}
   end
 
-  def delete(socket, params) do
+  def delete(socket, _params) do
 
     # TypingAgent.stop_typing(channel_id, client_id)
     # MessageService.update_typing(channel_id, room)

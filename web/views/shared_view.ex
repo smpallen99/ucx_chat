@@ -10,7 +10,7 @@ defmodule UcxChat.SharedView do
   def get_room_icon(chatd), do: chatd.room_map[chatd.channel.id][:room_icon]
 
   def hidden_on_nil(test, prefix \\ "")
-  def hidden_on_nil(test, ""), do: " hidden"
+  def hidden_on_nil(_test, ""), do: " hidden"
   def hidden_on_nil(test, prefix) when is_falsy(test), do: " #{prefix}hidden"
   def hidden_on_nil(_, _), do: ""
 

@@ -2,5 +2,5 @@
   .message-popup-position
     %div(class="message-popup content-background-color #{get_popup_cls(@chatd)}")
       = @chatd[:data]
-      - if loading = get_loading(@chatd) do
+      - if _loading = get_loading(@chatd) do
         - # do loading
