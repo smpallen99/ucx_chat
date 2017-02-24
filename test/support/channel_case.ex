@@ -24,6 +24,7 @@ defmodule UcxChat.ChannelCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+      import UcxChat.TestHelpers
 
 
       # The default endpoint for testing

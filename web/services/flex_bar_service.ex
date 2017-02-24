@@ -310,10 +310,15 @@ defmodule UcxChat.FlexBarService do
       "Past Chats": %{hidden: true},
       "OTR": %{hidden: true},
       "Video Chat": %{hidden: true},
-      "Snipped Messages": %{},
+      "Snippeted Messages": %{},
       "Logout": %{function: "function() { window.location.href = '/logout'}" },
       "Switch User": %{templ: "switch_user_list.html", args: %{}}
     }
+  end
+
+  def visible_tab_names do
+    default_settings
+    |> Enum.filter_map(&(elem(&1, 1)[:hidden] != true), &(to_string elem(&1, 0)))
   end
 
   defp log_click(event, msg, level \\ :debug) do

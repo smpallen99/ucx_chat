@@ -27,6 +27,7 @@ defmodule UcxChat.ConnCase do
 
       import UcxChat.Router.Helpers
       import UcxChat.Factory
+      import UcxChat.TestHelpers
 
       # The default endpoint for testing
       @endpoint UcxChat.Endpoint

@@ -23,6 +23,7 @@ defmodule UcxChat.ModelCase do
       import Ecto.Query
       import UcxChat.ModelCase
       import UcxChat.Factory
+      import UcxChat.TestHelpers
     end
   end
 

@@ -1,0 +1,26 @@
+defmodule UcxChat.FlexBarIntegrationTest do
+  # use UcxChat.AcceptanceCase
+  use UcxChat.ConnCase
+  use Hound.Helpers
+
+  alias UcxChat.{FlexBarService}
+  require Logger
+
+
+  hound_session()
+
+  setup do
+    subs = insert(:basic_setup)
+    user = insert_user(subs.client.id)
+    current_window_handle() |> maximize_window
+    login_user(user)
+    {:ok, subs: subs, user: user}
+  end
+
+  test "finds buttons", %{user: user} do
+    for name <- FlexBarService.visible_tab_names() do
+      assert find_element(:xpath, ~s|//div[contains(@class, 'tab-button') and contains(@title, '#{name}')]|)
+    end
+  end
+
+end
