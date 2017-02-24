@@ -3,8 +3,12 @@ defmodule UcxChat.RoomChannel do
   Handle incoming and outgoing Subscription messages
   """
   use Phoenix.Channel
-  alias UcxChat.{Subscription, Repo, Message, MessageService, ChannelService, TypingAgent, MessagePopupService, SlashCommandsService}
+
   import Ecto.Query
+
+  alias UcxChat.{Subscription, Repo, Message, TypingAgent, Channel}
+  alias UcxChat.{MessageService, ChannelService, MessagePopupService, SlashCommandsService}
+  alias UcxChat.{ServiceHelpers}
 
   require Logger
 
@@ -34,12 +38,13 @@ defmodule UcxChat.RoomChannel do
 
   def join("ucxchat:room-" <> room, msg, socket) do
     Logger.warn "join room-#{room}, msg: #{inspect msg}, socket: #{inspect socket}"
-    send self(), {:after_join, msg}
+    send self(), {:after_join, room, msg}
     {:ok, socket}
   end
 
-  def handle_info({:after_join, msg}, socket) do
-    broadcast! socket, "user:entered", %{user: msg["user"]}
+  def handle_info({:after_join, room, msg}, socket) do
+    channel = ServiceHelpers.get_by!(Channel, :name, room)
+    broadcast! socket, "user:entered", %{user: msg["user"], channel_id: channel.id}
     push socket, "join", %{status: "connected"}
     # socket = Phoenix.Socket.assign(socket, :user_id, msg["user_id"])
     {:noreply, socket}

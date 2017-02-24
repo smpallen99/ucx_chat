@@ -101,7 +101,7 @@ $(document).ready(function() {
 })
 
 function start_client_channel() {
-  clientchan = socket.channel("client:" + ucxchat.client_id, {user: ucxchat.nickname})
+  clientchan = socket.channel("client:" + ucxchat.client_id, {user: ucxchat.nickname, channel_id: ucxchat.channel_id})
   let chan = clientchan
 
   chan.join()

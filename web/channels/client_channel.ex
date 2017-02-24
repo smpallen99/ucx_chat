@@ -1,7 +1,8 @@
 defmodule UcxChat.ClientChannel do
   use Phoenix.Channel
   alias Phoenix.Socket.Broadcast
-  alias UcxChat.{Subscription, Repo, Channel}
+  alias UcxChat.{Subscription, Repo, Channel, Flex, FlexBarService}
+  use UcxChat.ChannelApi
 
   import Ecto.Query
 
@@ -9,63 +10,130 @@ defmodule UcxChat.ClientChannel do
 
   def join_room(client_id, room) do
     Logger.warn ("...join_room client_id: #{inspect client_id}")
-    UcxChat.Endpoint.broadcast("client:#{client_id}", "room:join", %{room: room, client_id: client_id})
   end
 
   def leave_room(client_id, room) do
-    res = UcxChat.Endpoint.broadcast!("client:#{client_id}", "room:leave", %{room: room, client_id: client_id})
-    Logger.warn ("...leave_room client_id: #{inspect client_id}, res: #{inspect res}")
-    res
+    UcxChat.Endpoint.broadcast!("client:#{client_id}", "room:leave", %{room: room, client_id: client_id})
   end
 
   # intercept ~w(room:join room:leave)
   intercept ["room:join", "room:leave"]
 
   def join("client:" <> client_id, params, socket) do
-    Logger.warn "......... client channel join client_id: #{inspect client_id}"
-    # subs = Repo.all(from s in Subscription, where: s.client_id == ^client_id, preload: [:channel, :client])
-    # Logger.info "... client: #{inspect subs |> hd |> Map.get(:client) |> Map.get(:nickname)}"
+    debug("client:" <> client_id, params)
+    new_assigns = params |> Enum.map(fn {k,v} -> {String.to_atom(k), v} end) |> Enum.into(%{})
     socket =
-      assign(socket, :subscribed, socket.assigns[:subscribed] || [])
+      socket
+      |> struct(assigns: Map.merge(new_assigns, socket.assigns))
+      |> assign(:subscribed, socket.assigns[:subscribed] || [])
+      |> assign(:flex, Flex.new())
+    socket =
       Repo.all(from s in Subscription, where: s.client_id == ^client_id, preload: [:channel, :client])
       |> Enum.map(&(&1.channel.name))
       |> subscribe(socket)
     {:ok, socket}
   end
 
-  def handle_out("room:join", msg, socket) do
+  ###############
+  # Outgoing Incoming Messages
+
+  def handle_out("room:join" = ev, msg, socket) do
     %{room: room} = msg
-    Logger.warn  "----handle_out room:join:" <> room
+    debug ev, msg
     {:noreply, subscribe([room], socket)}
   end
-  def handle_out("room:leave", msg, socket) do
+  def handle_out("room:leave" = ev, msg, socket) do
     %{room: room} = msg
-    Logger.warn "--- handle_out room:leave:" <> room
+    debug ev, msg
     socket.endpoint.unsubscribe("ucxchat:room-" <> room)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
   end
 
-  def handle_in("subscribe", params, socket) do
-    Logger.warn "........... client channel subscribe: #{inspect params}"
-    # socket.endpoint.subscribe("ucxchat:*")
+  ###############
+  # Incoming Messages
+
+  def handle_in("subscribe" = ev, params, socket) do
+    debug ev, params
     {:noreply, socket}
   end
 
+  def handle_in("flex:open:" <> tab = ev, params, socket) do
+    debug ev, params, "assigns: #{inspect socket.assigns}"
+    {:noreply, toggle_flex(socket, tab, params)}
+  end
+  def handle_in("flex:item:open:" <> tab = ev, params, socket) do
+    debug ev, params, "assigns: #{inspect socket.assigns}"
+    {:noreply, open_flex_item(socket, tab, params)}
+  end
+
+  def handle_in("flex:close" = ev, params, socket) do
+    debug ev, params
+    {:noreply, socket}
+  end
+
+  def handle_in("flex:view_all:" <> tab = ev, params, %{assigns: assigns} = socket) do
+    debug ev, params
+    fl = assigns[:flex] |> Flex.view_all(assigns[:channel_id], tab)
+    {:noreply, assign(socket, :flex, fl)}
+  end
+
+  ###############
+  # Info messages
 
   def handle_info(%Broadcast{topic: _, event: "room:update:name" = event, payload: payload}, socket) do
-    Logger.warn "...........broadcast, payload: #{inspect payload}, socket: #{inspect socket}"
+    debug event, payload
     push socket, event, payload
     socket.endpoint.unsubscribe("ucxchat:room-" <> payload[:old_name])
     {:noreply, assign(socket, :subscribed, [payload[:new_name] | List.delete(socket.assigns[:subscribed], payload[:old_name])])}
   end
 
+  def handle_info(%Broadcast{topic: _, event: "user:entered" = event, payload: payload}, %{assigns: assigns} = socket) do
+    debug event, payload
+    old_channel_id = assigns[:channel_id]
+    channel_id = payload[:channel_id]
+    socket = %{assigns: assigns} = assign(socket, :channel_id, channel_id)
+    fl = assigns[:flex]
+    cond do
+      Flex.open?(fl, channel_id) ->
+        Flex.show(fl, channel_id)
+      old_channel_id && Flex.open?(fl, old_channel_id) ->
+        push socket, "flex:close", %{}
+      true ->
+        nil
+    end
+    {:noreply, socket}
+  end
+
+  def handle_info({:flex, :open, ch, tab, nil, params} = msg, socket) do
+    debug inspect(msg), ""
+    resp = FlexBarService.handle_flex_callback(:open, ch, tab, nil, socket, params)
+    push socket, "flex:open", Enum.into([title: tab], resp)
+    {:noreply, socket}
+  end
+  def handle_info({:flex, :open, ch, tab, args, params} = msg, socket) do
+    debug inspect(msg), ""
+    resp = FlexBarService.handle_flex_callback(:open, ch, tab, args[tab], socket, params)
+    push socket, "flex:open", Enum.into([title: tab], resp)
+    {:noreply, socket}
+  end
+  def handle_info({:flex, :close, ch, tab, _, params} = msg, socket) do
+    debug inspect(msg), ""
+    push socket, "flex:close", %{}
+    {:noreply, socket}
+  end
+
+  # Default case to ignore messages we are not interested in
   def handle_info(%Broadcast{}, socket) do
     {:noreply, socket}
   end
 
+  ###############
+  # Helpers
+
   defp subscribe(channels, socket) do
+    # debug inspect(channels), ""
     Enum.reduce channels, socket, fn channel, acc ->
-      subscribed = socket.assigns[:subscribed]
+      subscribed = acc.assigns[:subscribed]
       if channel in subscribed do
         acc
       else
@@ -74,4 +142,16 @@ defmodule UcxChat.ClientChannel do
       end
     end
   end
+
+  # assigns[:flex] %{open: %{channel_id => "Info"} }
+
+  defp toggle_flex(%{assigns: %{flex: fl} = assigns} = socket, tab, params) do
+    assign socket, :flex, Flex.toggle(fl, assigns[:channel_id], tab, params)
+  end
+
+  defp open_flex_item(%{assigns: %{flex: fl} = assigns} = socket, tab, params) do
+    debug inspect(fl), tab, inspect(params)
+    assign socket, :flex, Flex.open(fl, assigns[:channel_id], tab, params["args"], params)
+  end
+
 end

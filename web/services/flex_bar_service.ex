@@ -19,6 +19,38 @@ defmodule UcxChat.FlexBarService do
     {:ok, %{ftab: ftab}}
   end
 
+  def handle_flex_callback(:open, ch, tab, nil, socket, params) do
+    client_id = socket.assigns[:client_id]
+    channel_id = socket.assigns[:channel_id]
+    case default_settings[String.to_atom(tab)][:templ] do
+      nil -> %{}
+      templ ->
+        html =
+          templ
+          |> FlexBarView.render(get_render_args(tab, client_id, channel_id, nil))
+          |> Phoenix.HTML.safe_to_string
+        %{html: html}
+    end
+  end
+  def handle_flex_callback(:open, ch, tab, args, socket, params) do
+    # require IEx
+    # IEx.pry
+    client_id = socket.assigns[:client_id]
+    channel_id = socket.assigns[:channel_id]
+    case default_settings[String.to_atom(tab)][:templ] do
+      nil -> %{}
+      templ ->
+        html =
+          templ
+          |> FlexBarView.render(get_render_args(tab, client_id, channel_id, nil, args))
+          |> Phoenix.HTML.safe_to_string
+        %{html: html}
+    end
+  end
+
+  # def handle_flex_callback(:close, ch, tab, params, _) do
+  # end
+
 
   def handle_click("Info" = event, %{"channel_id" => channel_id} = msg)  do
     log_click event, msg
@@ -98,7 +130,6 @@ defmodule UcxChat.FlexBarService do
       %{html: html}
     end
   end
-
   def handle_click("Pinned Messages" = event, %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
     log_click event, msg
     handle_open_close event, msg, fn  msg ->

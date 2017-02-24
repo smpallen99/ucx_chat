@@ -68,7 +68,8 @@ export function init_flexbar() {
       if (settings[key].function) {
         settings[key].function()
       } else {
-        push_click(key, settings[key].args)
+        // push_click(key, settings[key].args)
+        clientchan.push("flex:open:" + key, settings[key].args)
       }
     })
 
@@ -87,8 +88,9 @@ export function init_flexbar() {
           // console.log('trigger', trigger, topic)
           $('body').on(trigger.action, trigger.class, function() {
             let new_args = build_show_args($(this), settings[key].args, show)
-            // console.log('show, topic, new_args', show, topic, new_args)
-            push_click(topic, new_args)
+            console.log('show, topic, new_args', show, topic, new_args)
+            // push_click(topic, new_args)
+            clientchan.push("flex:item:open:" + topic, {args: new_args})
           })
         }
       })
@@ -112,11 +114,42 @@ export function init_flexbar() {
 
   $('body').on('click', '.flex-tab-container .user-view nav .button.back', function() {
     $('.flex-tab-container .user-view').addClass('animated-hidden')
+    clientchan.push('flex:view_all:' + $('.tab-button.active').attr('title'))
+  })
+
+  clientchan.on('flex:open', msg => {
+    $('section.flex-tab').html(msg.html).parent().addClass('opened')
+    $('.tab-button.active').removeClass('active')
+    set_tab_button_active(msg.title)
+  })
+  clientchan.on('flex:close', msg => {
+    $('section.flex-tab').parent().removeClass('opened')
+    $('.tab-button.active').removeClass('active')
   })
 
   // fbar_form.init()
 }
 
+function push_click(title, args, callback) {
+  // console.log('push_click', title, args)
+  if (title) {
+    let full_topic = "flex_bar:click:" + title
+    cc.push(full_topic, args)
+      .receive("ok", resp => {
+        // console.log('push_click resp', resp)
+        if (resp.open) {
+          $('section.flex-tab').html(resp.html).parent().addClass('opened')
+          $('.tab-button.active').removeClass('active')
+          set_tab_button_active(title)
+        } else if (resp.close) {
+          $('section.flex-tab').parent().removeClass('opened')
+          $('.tab-button.active').removeClass('active')
+        }
+        if (callback) { callback() }
+        // main.run()
+      })
+  }
+}
 //////////////////
 // Custom Handlers
 
@@ -169,26 +202,6 @@ function close_tab_container() {
   return get_tab_container().removeClass('opened')
 }
 
-function push_click(title, args, callback) {
-  // console.log('push_click', title, args)
-  if (title) {
-    let full_topic = "flex_bar:click:" + title
-    cc.push(full_topic, args)
-      .receive("ok", resp => {
-        // console.log('push_click resp', resp)
-        if (resp.open) {
-          $('section.flex-tab').html(resp.html).parent().addClass('opened')
-          $('.tab-button.active').removeClass('active')
-          set_tab_button_active(title)
-        } else if (resp.close) {
-          $('section.flex-tab').parent().removeClass('opened')
-          $('.tab-button.active').removeClass('active')
-        }
-        if (callback) { callback() }
-        // main.run()
-      })
-  }
-}
 
 
 function build_show_args(current, pargs, show) {
