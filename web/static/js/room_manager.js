@@ -5,6 +5,19 @@ import * as cc from "./chat_channel"
 const debug = false;
 
 class RoomManager {
+  constructor() {
+    this.account_menu = false
+
+    $('aside.side-nav > span.arrow').on('click', function() {
+      if ($(this).hasClass('top')) {
+        $(this).removeClass('top').addClass('bottom')
+        RoomManager.hide_account_box_menu()
+      } else {
+        $(this).addClass('top').removeClass('bottom')
+        RoomManager.show_account_box_menu()
+      }
+    })
+  }
 
   static render_room(resp) {
     if (debug) { console.log('render_room', resp) }
@@ -55,7 +68,16 @@ class RoomManager {
     $('.current-setting[data-edit="' + msg.field_name + '"]').html(msg.value)
     console.warn('RoomManager.update', msg)
   }
-
+  static show_account_box_menu() {
+    console.log('show_account_box_menu')
+    $('.account-box').addClass('active')
+    $('.account-box nav.options').removeClass('animated-hidden')
+  }
+  static hide_account_box_menu() {
+    console.log('hide_account_box_menu')
+    $('.account-box').removeClass('active')
+    $('.account-box nav.options').addClass('animated-hidden')
+  }
 }
 
 export default RoomManager;

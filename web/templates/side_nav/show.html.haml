@@ -15,6 +15,6 @@
       %section
         = render "create_combined_flex.html"
         = #render @side_nav[:flex_template], conn: @conn, flex_data: @side_nav[:flex_data]
-    .arrow.bottom
+    %span.arrow.bottom
   %footer.footer
     = render "footer.html"

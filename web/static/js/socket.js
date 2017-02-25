@@ -27,6 +27,8 @@ $(document).ready(function() {
   let ucxchat = window.ucxchat
   let typing = new Typing(ucxchat.typing)
 
+  new RoomManager()
+
   socket.connect()
 
   $('textarea.message-form-text').focus()

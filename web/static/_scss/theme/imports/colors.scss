@@ -25,6 +25,7 @@ $error-border: lighten($error-color, 30%);
 $error-contrast: contrast($error-color);
 $pending-background: lighten($pending-color, 45%);
 $pending-border: lighten($pending-color, 30%);
+$account-hover: #022840;
 
 /** ----------------------------------------------------------------------------
  * Transparency variables
@@ -595,6 +596,12 @@ a:hover {
 
   .options button {
     @include buttonColors($tertiary-font-color, $primary-background-color);
+  }
+  .options button:hover {
+    background-color: $primary-background-color-hover;
+    span {
+      color: rgba(255,255,255,0.7);
+    }
   }
 }
 

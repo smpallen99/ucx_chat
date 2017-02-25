@@ -571,17 +571,11 @@
 
 		&.top {
 			&::before {
-				transform: rotate(45deg) translateX(-2px) translateY(2px);
-				// transform: rotate(45deg);
-				// transform: translateX(-2px);
-				// transform: translateY(2px);
+				transform: rotate(45deg) translateX(2px) translateY(-2px);
 			}
 
 			&::after {
-				transform: rotate(-45deg)  translateX(2px) translateY(2px);
-				// transform: rotate(-45deg);
-				// transform: translateX(2px);
-				// transform: translateY(2px);
+				transform: rotate(45deg) translateX(-2px) translateY(-2px);
 			}
 		}
 
@@ -592,9 +586,6 @@
 
 			&::after {
 				transform: rotate(45deg) translateX(2px)  translateY(-2px);
-				// transform: rotate(45deg);
-				// transform: translateX(2px);
-				// transform: translateY(-2px);
 			}
 		}
 
