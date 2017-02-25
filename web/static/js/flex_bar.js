@@ -127,6 +127,9 @@ export function init_flexbar() {
     $('.tab-button.active').removeClass('active')
   })
 
+  clientchan.on('update:rooms', msg => {
+    $('aside .rooms-list').html(msg.html)
+  })
   // fbar_form.init()
 }
 

@@ -38,7 +38,8 @@
     %div(class="message-cog-container #{hide_cog(@message)}")
       %i.icon-cog.message-cog(aria-label="Actions")
   - # %div{class: "body color-primary-font-color {{system true}}" dir="auto">
-  %div{class: "body color-primary-font-color" dir: "auto"}
+  - info = get_info_class(@message)
+  %div{class: "body color-primary-font-color #{info}" dir: "auto"}
     = format_message_body(@message)
     =# @message.body
     - if oembed = has_oembed(@message) do

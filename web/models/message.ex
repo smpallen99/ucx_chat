@@ -8,6 +8,7 @@ defmodule UcxChat.Message do
     field :timestamp, :string
     field :type, :string, default: ""
     field :expire_at, :utc_datetime
+    field :system, :boolean, default: false
 
     belongs_to :client, UcxChat.Client
     belongs_to :channel, UcxChat.Channel
@@ -16,7 +17,6 @@ defmodule UcxChat.Message do
     has_many :stars, UcxChat.StaredMessage
 
     field :is_groupable, :boolean, virtual: true
-    field :system, :string, virtual: true
     field :t, :string, virtual: true
     field :own, :boolean, virtual: true
     field :is_temp, :boolean, virtual: true
@@ -27,7 +27,7 @@ defmodule UcxChat.Message do
     timestamps(type: :utc_datetime)
   end
 
-  @fields [:body, :client_id, :channel_id, :sequential, :timestamp, :edited_id, :type, :expire_at, :type]
+  @fields [:body, :client_id, :channel_id, :sequential, :timestamp, :edited_id, :type, :expire_at, :type, :system]
   @required [:body, :client_id]
 
   @doc """

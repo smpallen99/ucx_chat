@@ -17,10 +17,10 @@ defmodule UcxChat.MessageView do
 
   def get_message_wrapper_opts(msg, client) do
     cls =
-    ~w(get_sequential get_system get_t get_own get_is_temp get_chat_opts get_custom_class)a
-    |> Enum.reduce("message background-transparent-dark-hover", fn fun, acc ->
-      acc <> apply(__MODULE__, fun, [msg, client])
-    end)
+      ~w(get_sequential get_system get_t get_own get_is_temp get_chat_opts get_custom_class)a
+      |> Enum.reduce("message background-transparent-dark-hover", fn fun, acc ->
+        acc <> apply(__MODULE__, fun, [msg, client])
+      end)
     attrs = [
       id: "message-#{msg.id}",
       class: cls,
@@ -76,10 +76,11 @@ defmodule UcxChat.MessageView do
 
   def get_sequential(%{sequential: true}, _), do: " sequential"
   def get_sequential(_, _), do: ""
-  def get_system(%{system: system}, _), do: "#{system}"
+  def get_system(%{system: true}, _), do: " system"
   def get_system(_, _), do: ""
   def get_t(%{t: t}, _), do: "#{t}"
   def get_t(_, _), do: ""
+  def get_own(%{system: true}, _), do: ""
   def get_own(%{client_id: id}, %{id: id}), do: " own"
   def get_own(_, _), do: ""
   def get_is_temp(%{is_temp: is_temp}, _), do: "#{is_temp}"
@@ -88,6 +89,9 @@ defmodule UcxChat.MessageView do
   def get_chat_opts(_, _), do: ""
   def get_custom_class(%{custom_class: custom_class}, _), do: "#{custom_class}"
   def get_custom_class(_, _), do: ""
+
+  def get_info_class(%{system: _}), do: "color-info-font-color"
+  def get_info_class(_), do: ""
 
   def get_mb do
     [:subscribed, :allowed_to_send, :max_message_length, :show_file_upload, :katex_syntax,

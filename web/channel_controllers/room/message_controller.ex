@@ -8,7 +8,6 @@ defmodule UcxChat.MessageChannelController do
 
   require Logger
 
-  # def new_message(channel_id, message, client_id, room) do
   def create(%{assigns: assigns} = socket, params) do
     Logger.warn "++++ socket: #{inspect socket}"
     message = params["message"]
@@ -19,18 +18,10 @@ defmodule UcxChat.MessageChannelController do
     {body, mentions} = encode_mentions(message)
 
     message = create_message(body, client_id, channel_id)
-
     create_mentions(mentions, message.id, message.channel_id)
-
     message_html = render_message(message)
+    broadcast_message(socket, message.id, message.client.id, message_html)
 
-    #UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "message:new",
-    broadcast!(socket, "message:new",
-      %{
-        html: message_html,
-        id: "message-#{message.id}",
-        client_id: message.client_id
-      })
     TypingAgent.stop_typing(channel_id, client_id)
     update_typing(channel_id, room)
     {:noreply, socket}

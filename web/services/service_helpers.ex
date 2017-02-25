@@ -137,7 +137,6 @@ defmodule UcxChat.ServiceHelpers do
       |> select([m], m.id)
       |> limit(1)
       |> Repo.one
-
     message = MessageService.create_message(body, bot_id, channel_id,
       %{
         type: "p",
@@ -148,5 +147,25 @@ defmodule UcxChat.ServiceHelpers do
 
     %{html: html}
   end
+
+  # def render_message(channel_id, message, opts \\ []) do
+  #   body = UcxChat.MessageView.render("message_response_body.html", message: message)
+  #   |> Phoenix.HTML.safe_to_string
+
+  #   bot_id =
+  #     Client
+  #     # |> where([m], m.type == "b")
+  #     |> select([m], m.id)
+  #     |> limit(1)
+  #     |> Repo.one
+  #   type = if opts[:private] do, do: "p", else: nil
+  #   message = MessageService.create_message(body, bot_id, channel_id,
+  #     %{
+  #       type: type,
+  #       sequential: false,
+  #     })
+
+  #   {message, MessageService.render_message(message)}
+  # end
 
 end

@@ -1,15 +1,16 @@
 defmodule UcxChat.ClientChannel do
   use Phoenix.Channel
   alias Phoenix.Socket.Broadcast
-  alias UcxChat.{Subscription, Repo, Flex, FlexBarService}
+  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService}
   use UcxChat.ChannelApi
 
   import Ecto.Query
 
   require Logger
 
-  def join_room(client_id, _room) do
+  def join_room(client_id, room) do
     Logger.warn ("...join_room client_id: #{inspect client_id}")
+    UcxChat.Endpoint.broadcast!("client:#{client_id}", "room:join", %{room: room, client_id: client_id})
   end
 
   def leave_room(client_id, room) do
@@ -40,12 +41,14 @@ defmodule UcxChat.ClientChannel do
   def handle_out("room:join" = ev, msg, socket) do
     %{room: room} = msg
     debug ev, msg
+    update_rooms_list(socket)
     {:noreply, subscribe([room], socket)}
   end
   def handle_out("room:leave" = ev, msg, socket) do
     %{room: room} = msg
     debug ev, msg
     socket.endpoint.unsubscribe("ucxchat:room-" <> room)
+    update_rooms_list(socket)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
   end
 
@@ -152,6 +155,12 @@ defmodule UcxChat.ClientChannel do
   defp open_flex_item(%{assigns: %{flex: fl} = assigns} = socket, tab, params) do
     debug inspect(fl), tab, inspect(params)
     assign socket, :flex, Flex.open(fl, assigns[:channel_id], tab, params["args"], params)
+  end
+
+  defp update_rooms_list(%{assigns: assigns} = socket) do
+    html = ChannelService.render_rooms(assigns[:channel_id], assigns[:client_id])
+    push socket, "update:rooms", %{html: html}
+    socket
   end
 
 end

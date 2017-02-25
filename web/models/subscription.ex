@@ -45,4 +45,8 @@ defmodule UcxChat.Subscription do
   def get_all_for_channel(channel_id) do
     from c in @module, where: c.channel_id == ^channel_id
   end
+
+  def get(channel_id, client_id) do
+    from c in @module, where: c.channel_id == ^channel_id and c.client_id == ^client_id
+  end
 end
