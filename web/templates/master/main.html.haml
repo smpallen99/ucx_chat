@@ -6,6 +6,8 @@
     = #{{#if modal}}main-modal{{/if}}">
     .room-container
       = render "room.html", chatd: @chatd, conn: @conn
+
+  %div.main-content-cache.hidden
   = render UcxChat.SideNavView, "show.html", conn: @conn, chatd: @chatd
 
 :javascript

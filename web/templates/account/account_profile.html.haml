@@ -1,0 +1,52 @@
+%section.page-container.page-home.page-static
+  %header.fixed-title.border-component-color
+    - #{{> burger}}
+    %h2
+      %span.room-title Profile
+  .content
+    .rocket-form
+      %fieldset
+        .input-line
+          %label(for="realname") Name
+          %div
+            %input(type="text" name="realname" id="realname" value="{{realname}}")
+        .input-line
+          %label(for="username") Username
+          %div
+          -if allow_username_change() do
+            %input(type="text" name="username" id="username" value="{{username}}")
+          - else
+            %input(type="text" name="username" id="username" value="{{username}}" readonly="readonly" title="username Change Disabled")
+        .input-line
+          %label(for="email") Email
+          %div
+          -if email_verified() do
+            .right
+              %i.icon-ok.success-color(title="Email verified")
+          -if allow_email_change() do
+            %input(type="email" name="email" id="email" value="{{email}}")
+          - else
+            %input(type="email" name="email" id="email" value="{{email}}" readonly="readonly" title="emailChangeDisabled")
+          - unless email_verified() do
+            .text-right
+              %button.button#resend-verification-email  Resend verification email
+        .input-line
+          %label(for="password") New password
+          %div
+            -if allow_password_change() do
+              %input(type="password" name="password" id="password")
+            - else
+              %input(type="password" name="password" id="password" disabled readonly="readonly" title="passwordChangeDisabled" placeholder="passwordChangeDisabled")
+      %fieldset
+        - #{{> customFieldsForm hideFromForm=false formData=customFields}}
+      .submit
+        %button.button.primary.send
+          %i.icon-send
+          %span Save changes
+      .logoutOthers
+        %button.button.logout Logout Others
+      - if allow_delete_own_account() do
+        .delete-account.text-right
+          %button.button.danger.delete
+            %i.icon-trash
+            %span Delete my account

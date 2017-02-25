@@ -148,6 +148,12 @@ defmodule UcxChat.ServiceHelpers do
     %{html: html}
   end
 
+  def render(view, templ, opts \\ []) do
+    templ
+    |> view.render(opts)
+    |> Phoenix.HTML.safe_to_string
+  end
+
   # def render_message(channel_id, message, opts \\ []) do
   #   body = UcxChat.MessageView.render("message_response_body.html", message: message)
   #   |> Phoenix.HTML.safe_to_string

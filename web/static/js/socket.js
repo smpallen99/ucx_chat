@@ -11,6 +11,7 @@ import RoomManager from "./room_manager"
 import UnreadManager from "./unread_manager"
 import MessagePopup from "./message_popup"
 import MessageCog from "./message_cog"
+import SideNav from "./side_nav"
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
@@ -28,6 +29,7 @@ $(document).ready(function() {
   let typing = new Typing(ucxchat.typing)
 
   new RoomManager()
+  new SideNav()
 
   socket.connect()
 
@@ -126,6 +128,10 @@ function start_client_channel() {
   })
   chan.on('room:leave', resp => {
     console.log('room:leave', resp)
+  })
+  chan.on('code:update', resp => {
+    console.log('code:update', resp)
+    $(resp.selector)[resp.action](resp.html)
   })
 
   chan.push('subscribe', {})

@@ -1,10 +1,13 @@
 defmodule UcxChat.ClientChannel do
   use Phoenix.Channel
-  alias Phoenix.Socket.Broadcast
-  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService}
   use UcxChat.ChannelApi
 
   import Ecto.Query
+
+  alias Phoenix.Socket.Broadcast
+  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService}
+  alias UcxChat.{AccountView}
+  alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
 
@@ -78,6 +81,37 @@ defmodule UcxChat.ClientChannel do
     debug ev, params
     fl = assigns[:flex] |> Flex.view_all(assigns[:channel_id], tab)
     {:noreply, assign(socket, :flex, fl)}
+  end
+
+  def handle_in("side_nav:open" = ev, params, socket) do
+    debug ev, params
+
+    #  $('.main-content').html(resp.html)
+    html = Helpers.render(AccountView, "account_preferences.html")
+    push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
+
+    html = Helpers.render(AccountView, "account_flex.html")
+    {:reply, {:ok, %{html: html}}, socket}
+  end
+
+  def handle_in("side_nav:close" = ev, params, socket) do
+    debug ev, params
+
+    {:noreply, socket}
+  end
+
+  @links ~w(preferences profile)
+  def handle_in(ev = "account_link:click:" <> link, params, socket) when link in @links do
+    debug ev, params
+    html = Helpers.render(AccountView, "account_#{link}.html")
+    push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
+    {:noreply, socket}
+  end
+
+  # default unknown handler
+  def handle_in(event, params, socket) do
+    Logger.warn "ClientChannel.handle_in unknown event: #{inspect event}, params: #{inspect params}"
+    {:noreply, socket}
   end
 
   ###############

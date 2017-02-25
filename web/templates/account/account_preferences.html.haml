@@ -1,0 +1,192 @@
+%section.page-container.page-home.page-static
+  %header.fixed-title.border-component-color
+    = render UcxChat.MasterView, "burger.html"
+    %h2
+      %span.room-title Preferences
+  .content
+    .rocket-form
+      %fieldset
+        .section
+          %h1 Localization
+          .section-content.border-component-color
+            .input-line
+              %label(for="language") Language
+              %div
+                %select#language.required
+                  -# {{#each languages}}
+                  -#   <option value="{{key}}" selected="{{userLanguage key}}" dir="auto">{{name}}</option>
+        .section
+          %h1 Messages
+          .section-content.border-component-color
+            .input-line.double-col
+              %label Desktop Notifications
+              %div
+                -if desktop_notification_enabled() do
+                  %label Desktop Notifications Enabled
+                  %label
+                    %button.button.test-notifications
+                      %i.icon-comment-empty.secondary-font-color
+                      %span Test Desktop Notifications
+                -else
+                  -if desktop_notification_disabled() do
+                    %label Desktop Notifications Disabled
+                  - else
+                    %label
+                      %button.button.enable-notifications
+                        %i.icon-comment-empty.secondary-font-color
+                        %span Enable Desktop Notifications
+            .input-line.double-col
+              %label Notification Duration
+              %div
+                -if desktop_notification_duration() do
+                  %input(type="number" name="desktopNotificationDuration" min="0" value="{{desktopNotificationDuration}}")
+                - else
+                  %input(type="number" name="desktopNotificationDuration" min="0" value="" placeholder="Use Global Settings")
+            .input-line.double-col#unreadAlert
+              %label Unread Alert
+              %div
+                %label
+                  %input(type="radio" name="unreadAlert" value="1" checked="{{checked 'unreadAlert' true true}}")
+                  On
+                %label
+                  %input(type="radio" name="unreadAlert" value="0" checked="{{checked 'unreadAlert' false}}")
+                  Off
+            .input-line.double-col
+              %label Use Emojis
+              %div
+                %label
+                  %input(type="radio" name="useEmojis" value="1" checked="{{checked 'useEmojis' true true}}")
+                  True
+                %label
+                  %input(type="radio" name="useEmojis" value="0" checked="{{checked 'useEmojis' false}}")
+                  False
+            .input-line.double-col#convertAsciiEmoji
+              %label Convert Ascii Emojis
+              %div
+                %label
+                  %input(type="radio" name="convertAsciiEmoji" value="1" checked="{{checked 'convertAsciiEmoji' true true}}")
+                  True
+                %label
+                  %input(type="radio" name="convertAsciiEmoji" value="0" checked="{{checked 'convertAsciiEmoji' false}}")
+                  False
+            .input-line.double-col#autoImageLoad
+              %label Auto Load Images
+              %div
+                %label
+                  %input(type="radio" name="autoImageLoad" value="1" checked="{{checked 'autoImageLoad' true true}}")
+                  True
+                %label
+                  %input(type="radio" name="autoImageLoad" value="0" checked="{{checked 'autoImageLoad' false}}")
+                  False
+            .input-line.double-col#saveMobileBandwidth
+              %label Save Mobile Bandwidth
+              %div
+                %label
+                  %input(type="radio" name="saveMobileBandwidth" value="1" checked="{{checked 'saveMobileBandwidth' true true}}")
+                  True
+                %label
+                  %input(type="radio" name="saveMobileBandwidth" value="0" checked="{{checked 'saveMobileBandwidth' false}}")
+                  False
+            .input-line.double-col#collapseMediaByDefault
+              %label Collapse Embedded Media By Default
+              %div
+                %label
+                  %input(type="radio" name="collapseMediaByDefault" value="1" checked="{{checked 'collapseMediaByDefault' true}}")
+                  True
+                %label
+                  %input(type="radio" name="collapseMediaByDefault" value="0" checked="{{checked 'collapseMediaByDefault' false true}}")
+                  False
+            .input-line.double-col#unreadRoomsMode
+              %label Unread Rooms Mode
+              %div
+                %label
+                  %input(type="radio" name="unreadRoomsMode" value="1" checked="{{checked 'unreadRoomsMode' true}}")
+                  True
+                %label
+                  %input(type="radio" name="unreadRoomsMode" value="0" checked="{{checked 'unreadRoomsMode' false true}}")
+                  False
+            .input-line.double-col#hideUsernames
+              %label Hide usernames
+              %div
+                %label
+                  %input(type="radio" name="hideUsernames" value="1" checked="{{checked 'hideUsernames' true}}")
+                  True
+                %label
+                  %input(type="radio" name="hideUsernames" value="0" checked="{{checked 'hideUsernames' false true}}")
+                  False
+            .input-line.double-col#hideFlexTab
+              %label Hide flextab
+              %div
+                %label
+                  %input(type="radio" name="hideFlexTab" value="1" checked="{{checked 'hideFlexTab' true}}")
+                  True
+                %label
+                  %input(type="radio" name="hideFlexTab" value="0" checked="{{checked 'hideFlexTab' false true}}")
+                  False
+            .input-line.double-col#hideAvatars
+              %label Hide Avatars
+              %div
+                %label
+                  %input(type="radio" name="hideAvatars" value="1" checked="{{checked 'hideAvatars' true}}")
+                  True
+                %label
+                  %input(type="radio" name="hideAvatars" value="0" checked="{{checked 'hideAvatars' false true}}")
+                  False
+            .input-line.double-col#mergeChannels
+              %label UI Merge Channels Groups
+              %div
+                %label
+                  %input(type="radio" name="mergeChannels" value="1" checked="{{checked 'mergeChannels' true}}")
+                  True
+                %label
+                  %input(type="radio" name="mergeChannels" value="0" checked="{{checked 'mergeChannels' false}}")
+                  False
+                %label
+                  %input(type="radio" name="mergeChannels" value="-1" checked="{{checked 'mergeChannels' undefined true}}")
+                  Default
+            .input-line.double-col#viewMode
+              %label View mode
+              %div
+                %select.input-monitor(name="viewMode")
+                  %option(value="0" selected="{{selected 'viewMode' 0 true}}") Normal
+                  %option(value="1" selected="{{selected 'viewMode' 1 false}}") Cozy
+                  %option(value="2" selected="{{selected 'viewMode' 2 false}}") Compact
+                .info View mode info
+            .input-line.double-col#emailNotificationMode
+              %label Email Notification Mode
+              %div
+                %select.nput-monitor(name="emailNotificationMode")
+                  %option(value="disabled" selected="{{selected 'emailNotificationMode' 'disabled' false}}") Email Notification Mode Disabled
+                  %option value="all" selected="{{selected 'emailNotificationMode' 'all' true}}") Email Notification Mode All
+              .info You need to verify your email address to get notifications
+        .section
+          %h1 Highlights
+          .section-content.border-component-color
+            .input-line.double-col
+              %label Highlights List
+              %div
+                %label Highlights How To
+                %textarea(name="highlights" id="highlights" cols="30" rows="10") highlights
+        .section
+          %h1 Sound
+          .section-content.border-component-color
+            .input-line.double-col
+              %label New Room Notification
+              %div
+                %select(name="newRoomNotification" class="audio")
+                  %option(value="none" selected="{{$eq newRoomNotification 'none'}}") None
+                  %option(value="door" selected="{{$eq newRoomNotification 'door'}}") Door (Default)
+                  - #{{#each audioAssets}}
+                  - #  <option value="{{_id}}" selected="{{$eq newRoomNotification _id}}">{{name}}</option>
+            .input-line.double-col
+              %label New Message Notification
+              %div
+                %select(name="newMessageNotification" class="audio")
+                  %option(value="none" selected="{{$eq newMessageNotification 'none'}}") None
+                  %option(value="chime" selected="{{$eq newMessageNotification 'chime'}}") Chime (Default)
+                  - # {{#each audioAssets}}
+                  - #  <option value="{{_id}}" selected="{{$eq newMessageNotification _id}}">{{name}}</option>
+      .submit
+        %button.button.primary.save
+          %i.icon-send
+          %span Save changes

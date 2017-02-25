@@ -1,0 +1,14 @@
+%header
+  %div
+    %h4 My Account
+.content
+  .wrapper
+    %ul
+      %li
+        %a.account-link(data-link="preferences") Preferences
+      %li
+        - #{{#if allowUserProfileChange}}
+        %a.account-link(data-link="profile") Profile
+      %li
+        - #{{#if allowUserAvatarChange}}
+        %a.account-link(data-link="avatar") Avatar
