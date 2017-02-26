@@ -104,6 +104,7 @@ defmodule UcxChat.MasterView do
   defp check_im_mode_display("Rooms Mode", _, _), do: ""
   defp check_im_mode_display("Members List", true, _), do: " hidden"
   defp check_im_mode_display("Pinned Messages", true, _), do: " hidden"
+  defp check_im_mode_display("Info", true, _), do: " hidden"
   defp check_im_mode_display(_, _, display), do: display
 
   def get_fav_icon(chatd) do
