@@ -10,10 +10,26 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias UcxChat.{Repo, Client, User, Channel, Subscription, Message}
+alias UcxChat.{Repo, Client, User, Channel, Subscription, Message, Account, Mention, Direct, PinnedMessage, StaredMessage}
 
 Repo.delete_all User
 Repo.delete_all Client
+Repo.delete_all Account
+Repo.delete_all Channel
+Repo.delete_all Subscription
+Repo.delete_all Mention
+Repo.delete_all Direct
+Repo.delete_all Message
+Repo.delete_all PinnedMessage
+Repo.delete_all StaredMessage
+
+create_user = fn c_id, name, email, username, password, admin ->
+  account = %Account{} |> Account.changeset(%{}) |> Repo.insert!
+  %User{}
+  |> User.changeset(%{account_id: account.id, client_id: c_id, name: name, email: email,
+      username: username, password: password, password_confirmation: password, admin: admin})
+  |> Repo.insert!
+end
 
 c0 = Client.changeset(%Client{}, %{nickname: "UCxBot", type: "b"}) |> UcxChat.Repo.insert!
 
@@ -32,20 +48,23 @@ clients =
       |> Client.changeset(%{nickname: name})
       |> UcxChat.Repo.insert!
     lname = String.downcase name
-    %User{}
-    |> User.changeset(%{client_id: c.id, name: name, email: "#{lname}@example.com",
-        username: lname, password: "test", password_confirmation: "test", admin: false})
-    |> Repo.insert!
+    create_user.(c.id, name, "#{lname}@example.com", lname, "test", false)
+    # %User{}
+    # |> User.changeset(%{client_id: c.id, name: name, email: "#{lname}@example.com",
+    #     username: lname, password: "test", password_confirmation: "test", admin: false})
+    # |> Repo.insert!
     c
   end)
-_u1 = User.changeset(%User{}, %{client_id: c1.id, name: "Admin", email: "steve.pallen@emetrotel.com", username: "admin", password: "test123", password_confirmation: "test123", admin: true})
-|> Repo.insert!
+_u1 = create_user.(c1.id, "Admin", "steve.pallen@emetrotel.com", "admin", "test", true)
+_u2 = create_user.(c2.id, "Steve Pallen", "smpallen99@gmail.com", "spallen", "test", false)
+_u3 = create_user.(c3.id, "Merilee Lackey", "smpallen99@yahoo.com", "merilee", "test", false)
 
-_u2 = User.changeset(%User{}, %{client_id: c2.id, name: "Steve Pallen", email: "smpallen99@gmail.com", username: "spallen", password: "test123", password_confirmation: "test123"})
-|> Repo.insert!
-
-_u3 = User.changeset(%User{}, %{client_id: c3.id, name: "Merilee Lackey", email: "smpallen99@yahoo.com", username: "merilee", password: "test123", password_confirmation: "test123"})
-|> Repo.insert!
+# _u1 = User.changeset(%User{}, %{client_id: c1.id, name: "Admin", email: "steve.pallen@emetrotel.com", username: "admin", password: "test123", password_confirmation: "test123", admin: true})
+# |> Repo.insert!
+# _u2 = User.changeset(%User{}, %{client_id: c2.id, name: "Steve Pallen", email: "smpallen99@gmail.com", username: "spallen", password: "test123", password_confirmation: "test123"})
+# |> Repo.insert!
+# _u3 = User.changeset(%User{}, %{client_id: c3.id, name: "Merilee Lackey", email: "smpallen99@yahoo.com", username: "merilee", password: "test123", password_confirmation: "test123"})
+# |> Repo.insert!
 
 ch1 = Channel.changeset(%Channel{}, %{name: "general", client_id: c0.id})
 |> Repo.insert!

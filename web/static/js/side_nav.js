@@ -1,3 +1,4 @@
+import toastr from 'toastr'
 
 class SideNav {
   constructor() {
@@ -59,6 +60,18 @@ class SideNav {
         // .receive("ok", resp => {
         //   $('.main-content').html(resp.html)
         // })
+    })
+    $('body').on('submit', '#account-preferences-form', function(e) {
+      e.preventDefault()
+      // console.log('submitted form', $(this).serializeArray())
+      clientchan.push('account:preferences:save', $(this).serializeArray())
+        .receive("ok", resp => {
+          if (resp.success) {
+            toastr.success(resp.success)
+          } else if (resp.error) {
+            toastr.error(resp.error)
+          }
+        })
     })
   }
   static show_account_box_menu() {

@@ -4,12 +4,17 @@ import * as fbar_form from './flex_bar_form'
 
 const debug = false;
 
+const im_mode = "IM Mode"
+const rooms_mode = "Rooms Mode"
+
 const notifications = [
   {event: "update:pinned", title: "Pinned Messages"},
   {event: "update:stared", title: "Stared Messages"}
 ]
 
 const default_settings = {
+  "IM Mode": {},
+  "Rooms Mode": {},
   "Info": { args: {templ: "channel_settings.html"} },
   "Search": {},
   "User Info": {},
@@ -65,7 +70,19 @@ export function init_flexbar() {
   Object.keys(settings).forEach(function(key) {
     $('body').on('click', `.tab-button[title='${key}']`, function() {
       if (debug) { console.log(`${key} button clicked...`) }
-      if (settings[key].function) {
+      if (key == im_mode) {
+        clientchan.push("mode:set:im")
+          .receive("ok", resp => {
+            $(`.tab-button[title='${key}']`).addClass('hidden')
+            $(`.tab-button[title='${rooms_mode}']`).removeClass('hidden')
+          })
+      } else if (key == rooms_mode) {
+        clientchan.push("mode:set:rooms")
+          .receive("ok", resp => {
+            $(`.tab-button[title='${key}']`).addClass('hidden')
+            $(`.tab-button[title='${im_mode}']`).removeClass('hidden')
+          })
+      } else if (settings[key].function) {
         settings[key].function()
       } else {
         // push_click(key, settings[key].args)

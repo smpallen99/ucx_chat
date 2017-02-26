@@ -9,12 +9,13 @@ defmodule UcxChat.User do
     field :username, :string
     field :admin, :boolean, default: false
     belongs_to :client, UcxChat.Client
+    belongs_to :account, UcxChat.Account
     coherence_schema()
 
     timestamps()
   end
-  @all_params ~w(name email username admin client_id)a
-  @required  ~w(name email username)a
+  @all_params ~w(name email username admin client_id account_id)a
+  @required  ~w(name email username account_id)a
 
   def changeset(model, params \\ %{}) do
     model

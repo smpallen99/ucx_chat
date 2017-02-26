@@ -5,8 +5,8 @@ defmodule UcxChat.ClientChannel do
   import Ecto.Query
 
   alias Phoenix.Socket.Broadcast
-  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService}
-  alias UcxChat.{AccountView}
+  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, User, Channel, ChatDat}
+  alias UcxChat.{AccountView, Account}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -86,8 +86,10 @@ defmodule UcxChat.ClientChannel do
   def handle_in("side_nav:open" = ev, params, socket) do
     debug ev, params
 
+    user = Helpers.get!(User, socket.assigns[:user_id], preload: [:account])
+    account_cs = Account.changeset(user.account, %{})
     #  $('.main-content').html(resp.html)
-    html = Helpers.render(AccountView, "account_preferences.html")
+    html = Helpers.render(AccountView, "account_preferences.html", user: user, account_changeset: account_cs)
     push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
 
     html = Helpers.render(AccountView, "account_flex.html")
@@ -100,12 +102,59 @@ defmodule UcxChat.ClientChannel do
     {:noreply, socket}
   end
 
+  def handle_in("account:preferences:save" = ev, params, socket) do
+    debug ev, params
+    params =
+      params
+      |> Helpers.normalize_form_params
+      |> Map.get("account")
+    resp =
+      User
+      |> Helpers.get!(socket.assigns[:user_id], preload: [:account])
+      |> Map.get(:account)
+      |> Account.changeset(params)
+      |> Repo.update
+      |> case do
+        {:ok, account} ->
+          {:ok, %{success: "Account updated successfully"}}
+        {:error, cs} ->
+          {:ok, %{error: "There a problem updating your account."}}
+      end
+    {:reply, resp, socket}
+  end
+
   @links ~w(preferences profile)
   def handle_in(ev = "account_link:click:" <> link, params, socket) when link in @links do
     debug ev, params
     html = Helpers.render(AccountView, "account_#{link}.html")
     push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
     {:noreply, socket}
+  end
+
+  def handle_in(ev = "mode:set:" <> mode, params, socket) do
+    debug ev, params
+    mode = if mode == "im", do: true, else: false
+    user = Helpers.get!(User, socket.assigns[:user_id], preload: [:client, :account])
+
+    resp =
+      user
+      |> Map.get(:account)
+      |> Account.changeset(%{chat_mode: mode})
+      |> Repo.update
+      |> case do
+        {:ok, _} ->
+          # channel = Helpers.get!(Channel, socket.assigns[:channel_id])
+          # chatd = ChatDat.new user, channel, []
+          # html =
+          #   "rooms_list.html"
+          #   |> UcxChat.SideNavView.render(chatd: chatd)
+          #   |> Phoenix.HTML.safe_to_string
+          push socket, "window:reload", %{}
+          {:ok, %{}}
+        {:error, _} ->
+          {:error, %{error: "There was a problem switching modes"}}
+      end
+    {:reply, resp, socket}
   end
 
   # default unknown handler

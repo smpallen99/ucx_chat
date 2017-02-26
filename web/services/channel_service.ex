@@ -2,7 +2,7 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct, Mute, ClientChannel}
+  alias UcxChat.{User, Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct, Mute, ClientChannel}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   import Phoenix.HTML.Tag, only: [content_tag: 3, content_tag: 2]
@@ -39,17 +39,28 @@ defmodule UcxChat.ChannelService do
       template_name: get_templ(&1), rooms: []}))
   end
 
+  def side_nav_where(%User{account: %{chat_mode: true}} = user, client_id) do
+    Subscription
+    |> where([cc], cc.client_id == ^client_id and cc.type in [2, 3])
+  end
+
+  def side_nav_where(_user, client_id) do
+    Subscription
+    |> where([cc], cc.client_id == ^client_id)
+  end
+
   @doc """
   Get the side_nav data used in the side_nav templates
   """
-  def get_side_nav(%Client{id: id}, channel_id), do: get_side_nav(id, channel_id)
-  def get_side_nav(id, channel_id) do
+  # def get_side_nav(%Client{id: id}, channel_id), do: get_side_nav(id, channel_id)
+  def get_side_nav(%User{} = user, channel_id) do
+    id = user.client.id
+    chat_mode = user.account.chat_mode
     rooms =
-      Subscription
-      |> where([cc], cc.client_id == ^id)
+      user
+      |> side_nav_where(id)
       |> preload([:channel])
       |> Repo.all
-      # |> Enum.reject(&(&1.channel.archived))
       |> Enum.map(fn cc ->
         chan = cc.channel
         active = chan.id == channel_id
@@ -61,11 +72,11 @@ defmodule UcxChat.ChannelService do
         %{
           active: active, unread: unread, alert: cc.alert, user_status: "off-line",
           can_leave: true, archived: false, name: chan.name,
-          room_icon: get_icon(type), channel_id: chan.id,
+          room_icon: get_icon(chan.type), channel_id: chan.id, channel_type: chan.type,
           type: type, can_leave: true, display_name: display_name
         }
       end)
-
+    rooms = Enum.reject rooms, fn %{channel_type: chan_type} -> chat_mode && (chan_type in [0,1]) end
     active_room = Enum.find(rooms, &(&1[:active]))
     Logger.debug "get_side_nav active_room: #{inspect active_room}"
 
@@ -91,6 +102,7 @@ defmodule UcxChat.ChannelService do
     # Logger.warn "get_side_nav room_types 1: #{inspect room_types}"
     room_types =
       base_types()
+      |> Enum.reject(fn %{type: type} -> type == :public && chat_mode end)
       |> Enum.map(fn %{type: type} = bt ->
         case room_types[type] do
           nil -> bt
@@ -100,6 +112,7 @@ defmodule UcxChat.ChannelService do
 
     # IEx.pry
     # Logger.warn "get_side_nav room_types 2: #{inspect room_types}"
+    # Logger.warn "get_side_nav room_map 2: #{inspect room_map}"
 
     %{room_types: room_types, room_map: room_map, rooms: [], active_room: active_room}
   end
@@ -133,8 +146,10 @@ defmodule UcxChat.ChannelService do
     client =
       Client
       |> where([c], c.id == ^client_id)
+      |> preload([:user])
       |> Repo.one!
 
+    user = Repo.preload(client.user, [:client, :account])
     channel =
       Channel
       |> where([c], c.name == ^room)
@@ -145,7 +160,7 @@ defmodule UcxChat.ChannelService do
     |> Repo.update!
 
     messages = MessageService.get_messages(channel.id)
-    chatd = ChatDat.new client, channel, messages
+    chatd = ChatDat.new user, channel, messages
     box_html =
       "messages_box.html"
       |> UcxChat.MasterView.render(chatd: chatd)
@@ -173,8 +188,9 @@ defmodule UcxChat.ChannelService do
       # star it
       room_type(:stared)
     end
+    user = Repo.one!(from u in User, where: u.client_id == ^client_id, preload: [:client, :account])
     Subscription.changeset(cc, %{type: cc_type}) |> Repo.update!
-    chatd = ChatDat.new cc.client, cc.channel, []
+    chatd = ChatDat.new user, cc.channel, []
     messages_html =
       "messages_header.html"
       |> UcxChat.MasterView.render(chatd: chatd)
@@ -200,7 +216,9 @@ defmodule UcxChat.ChannelService do
         do_add_direct(name, client_orig, client_dest, channel_id)
     end
 
-    chatd = ChatDat.new client_orig, channel, []
+    user = Repo.one!(from u in User, where: u.client_id == ^client_id, preload: [:client, :account])
+
+    chatd = ChatDat.new user, channel, []
 
     messages_html =
       "messages_header.html"
@@ -239,7 +257,8 @@ defmodule UcxChat.ChannelService do
   def render_rooms(channel_id, client_id) do
     client = Helpers.get!(Client, client_id)
     channel = Helpers.get!(Channel, channel_id)
-    chatd = ChatDat.new client, channel, []
+    user = Repo.one!(from u in User, where: u.client_id == ^client_id, preload: [:client, :account])
+    chatd = ChatDat.new user, channel, []
 
     # side_nav_html =
     "rooms_list.html"
@@ -311,7 +330,7 @@ defmodule UcxChat.ChannelService do
     |> case do
       nil ->
         Helpers.response_message(channel_id, text: "Your not subscribed to the ", code: channel.name, text: " channel.")
-      subs ->
+      _subs ->
         # Repo.delete! subs
         # ClientChannel.leave_room(client_id, channel.name)
         # broadcast_message("Has left the channel.", channel.name, client_id, channel_id, system: true, sequential: false)
@@ -456,7 +475,7 @@ defmodule UcxChat.ChannelService do
     |> Mute.changeset(%{client_id: id, channel_id: channel_id})
     |> Repo.insert
     |> case do
-      {:error, cs} ->
+      {:error, _cs} ->
         {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> client.nickname, text: " already muted.")}
       mute ->
         {:ok, mute}
@@ -488,10 +507,14 @@ defmodule UcxChat.ChannelService do
   def get_templ(:direct), do: "direct_messages.html"
   def get_templ(_), do: "channels.html"
 
-  def get_icon(:public), do: "icon-hash"
-  def get_icon(:private), do: "icon-hash"
-  def get_icon(:stared), do: "icon-hash"
-  def get_icon(:direct), do: "icon-at"
+  def get_icon(0), do: "icon-hash"
+  def get_icon(1), do: "icon-hash"
+  def get_icon(2), do: "icon-at"
+  def get_icon(3), do: "icon-at"
+  # def get_icon(:public), do: "icon-hash"
+  # def get_icon(:private), do: "icon-hash"
+  # def get_icon(:stared), do: "icon-hash"
+  # def get_icon(:direct), do: "icon-at"
 
   def broadcast_message(body, room, client_id, channel_id, opts \\ []) do
     {message, html} = MessageService.create_and_render(body, client_id, channel_id, opts)

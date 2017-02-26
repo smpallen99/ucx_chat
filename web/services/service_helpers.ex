@@ -154,6 +154,37 @@ defmodule UcxChat.ServiceHelpers do
     |> Phoenix.HTML.safe_to_string
   end
 
+  @doc """
+  Convert form submission params form channel into params for changesets.
+
+  ## Examples
+
+        iex> params =  [%{"name" => "_utf8", "value" => "✓"},
+        ...> %{"name" => "account[language]", "value" => "en"},
+        ...> %{"name" => "account[desktop]", "value" => ""},
+        ...> %{"name" => "account[alert]", "value" => "1"}]
+        iex> UcxChat.ServiceHelpers.normalize_form_params(params)
+        %{"_utf8" => "✓", "account" => %{"language" => "en", "alert" => "1"}}
+  """
+  def normalize_form_params(params) do
+    Enum.reduce params, %{}, fn
+      %{"name" => _field, "value" => ""}, acc ->
+        acc
+      %{"name" => field, "value" => value}, acc ->
+        case Regex.run ~r/^([^\[]+)\[([^\]]+)\]/, field  do
+          nil ->
+            Map.put acc, field, value
+          [_, model, field] ->
+            update_in acc, [model], fn
+              nil ->
+                %{field => value}
+              map ->
+                Map.put(map, field, value)
+            end
+        end
+    end
+  end
+
   # def render_message(channel_id, message, opts \\ []) do
   #   body = UcxChat.MessageView.render("message_response_body.html", message: message)
   #   |> Phoenix.HTML.safe_to_string

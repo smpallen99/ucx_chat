@@ -4,7 +4,7 @@ defmodule UcxChat.MessageChannelController do
   alias UcxChat.{TypingAgent}
   alias UcxChat.ServiceHelpers, as: Helpers
   import UcxChat.MessageService
-  import Phoenix.Channel
+  # import Phoenix.Channel
 
   require Logger
 

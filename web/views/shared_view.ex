@@ -21,4 +21,12 @@ defmodule UcxChat.SharedView do
   def get_ftab_open_class(nil), do: ""
   def get_ftab_open_class(_), do: "opened"
 
+  def get_room_notification_sounds do
+    [None: "one", "Door (Default)": "door", Beep: "beep", Chelle: "chelle", Ding: "ding",
+     Droplet: "droplet", Highbell: "highbell", Seasons: "seasons"]
+  end
+  def get_message_notification_sounds do
+    [None: "one", "Chime (Default)": "chime", Beep: "beep", Chelle: "chelle", Ding: "ding",
+     Droplet: "droplet", Highbell: "highbell", Seasons: "seasons"]
+  end
 end

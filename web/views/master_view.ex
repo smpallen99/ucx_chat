@@ -61,19 +61,21 @@ defmodule UcxChat.MasterView do
   def get_open_ftab({title, _}, flex_tabs), do: Enum.find(flex_tabs, fn tab -> tab[:open] && tab[:title] == title end)
 
 
-  def get_flex_tabs(open_tab) do
+  def get_flex_tabs(user, open_tab) do
     defn = UcxChat.FlexBarService.default_settings()
     tab = case open_tab do
       {title, _} -> %{title => true}
       _ -> %{}
     end
     [
+      {"IM Mode", "chat", ""},
+      {"Rooms Mode", "hash", " hidden"},
       {"Info", "info-circled", ""},
       {"Search", "search", ""},
-      {"User Info", "user", ""},
+      {"User Info", "user", " hidden"},
       {"Members List", "users", ""},
-      {"Notifications", "bell-alt", ""},
-      {"Files List", "attach", ""},
+      {"Notifications", "bell-alt", " hidden"},
+      {"Files List", "attach", " hidden"},
       {"Mentions", "at", ""},
       {"Stared Messages", "star", ""},
       {"Knowledge Base", "lightbulb", " hidden"},
@@ -81,19 +83,28 @@ defmodule UcxChat.MasterView do
       {"Past Chats", "chat", " hidden"},
       {"OTR", "key", " hidden"},
       {"Video Chat", "videocam", " hidden"},
-      {"Snippeted Messages", "code", ""},
-      {"Logout", "logout", ""},
+      {"Snippeted Messages", "code", " hidden"},
       {"Switch User", "login", ""},
+      {"Logout", "logout", " hidden"},
     ]
     |> Enum.map(fn {title, icon, display} ->
       if tab[title] do
         titlea = String.to_atom title
         %{title: title, icon: icon, display: display, open: true, templ: defn[titlea][:templ] }
       else
+        display = check_im_mode_display(title, user.account.chat_mode, display)
         %{title: title, icon: icon, display: display}
       end
     end)
   end
+
+  defp check_im_mode_display("IM Mode", true, _), do: " hidden"
+  defp check_im_mode_display("IM Mode", _, _), do: ""
+  defp check_im_mode_display("Rooms Mode", false, _), do: " hidden"
+  defp check_im_mode_display("Rooms Mode", _, _), do: ""
+  defp check_im_mode_display("Members List", true, _), do: " hidden"
+  defp check_im_mode_display("Pinned Messages", true, _), do: " hidden"
+  defp check_im_mode_display(_, _, display), do: display
 
   def get_fav_icon(chatd) do
     case ChatDat.get_channel_data(chatd) do

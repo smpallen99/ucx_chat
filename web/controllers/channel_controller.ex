@@ -11,8 +11,8 @@ defmodule UcxChat.ChannelController do
   alias UcxChat.{MessageService, ChatDat, Client}
 
   def index(conn, _params) do
-Logger.info "current_user: #{inspect Coherence.current_user(conn)}"
-    client = Repo.get!(Client, Coherence.current_user(conn).client_id)
+    user = Coherence.current_user(conn) |> Repo.preload([:client])
+    client = user.client
     channel = if client.open_id do
       Repo.get!(Channel, client.open_id)
     else
@@ -34,10 +34,10 @@ Logger.info "current_user: #{inspect Coherence.current_user(conn)}"
     user =
       conn
       |> Coherence.current_user
-      |> Repo.preload([:client])
+      |> Repo.preload([:account, :client])
 
     messages = MessageService.get_messages(channel.id)
-    chatd = ChatDat.new(user.client, channel, messages)
+    chatd = ChatDat.new(user, channel, messages)
     conn
     |> put_view(UcxChat.MasterView)
     |> render("main.html", chatd: chatd)

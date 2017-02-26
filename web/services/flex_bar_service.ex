@@ -284,6 +284,8 @@ defmodule UcxChat.FlexBarService do
 
   def default_settings do
     %{
+      "IM Mode": %{},
+      "Rooms Mode": %{},
       "Info": %{templ: "channel_settings.html", args: %{} },
       "Search": %{},
       "User Info": %{},

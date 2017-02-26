@@ -1,5 +1,8 @@
 %h3(class="add-room#{is_active(@rooms)}")
-  Direct_Messages
+  - if @account.chat_mode do
+    Recent
+  - else
+    Direct_Messages
   %span.room-count-small= "(#{length @rooms})"
 %ul
   - if @rooms != [] do

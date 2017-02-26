@@ -10,4 +10,7 @@ defmodule UcxChat.AccountView do
   def desktop_notification_duration, do: true
   def desktop_notification_disabled, do: false
   def desktop_notification_enabled, do: true
+  def get_languages do
+    [English: "en"]
+  end
 end

@@ -133,6 +133,9 @@ function start_client_channel() {
     console.log('code:update', resp)
     $(resp.selector)[resp.action](resp.html)
   })
+  chan.on('window:reload', resp => {
+    window.location.reload()
+  })
 
   chan.push('subscribe', {})
 }

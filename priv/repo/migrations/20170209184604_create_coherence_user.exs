@@ -21,9 +21,12 @@ defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
 
       add :client_id, references(:clients, on_delete: :delete_all)
 
+      add :account_id, references(:accounts, on_delete: :delete_all)
+
       timestamps()
     end
     create unique_index(:users, [:username])
     create index(:users, [:client_id])
+    create index(:users, [:account_id])
   end
 end
