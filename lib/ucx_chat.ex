@@ -17,7 +17,7 @@ defmodule UcxChat do
       # Start your own worker by calling: UcxChat.Worker.start_link(arg1, arg2, arg3)
       # worker(UcxChat.Worker, [arg1, arg2, arg3]),
     ]
-
+    # Ucx.Dets.open_file
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: UcxChat.Supervisor]

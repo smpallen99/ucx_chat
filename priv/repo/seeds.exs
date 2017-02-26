@@ -10,7 +10,10 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias UcxChat.{Repo, Client, User, Channel, Subscription, Message, Account, Mention, Direct, PinnedMessage, StaredMessage}
+alias UcxChat.{
+  Repo, Client, User, Channel, Subscription, Message, Account, Mention,
+  Direct, PinnedMessage, StaredMessage, Config
+}
 
 Repo.delete_all User
 Repo.delete_all Client
@@ -22,6 +25,9 @@ Repo.delete_all Direct
 Repo.delete_all Message
 Repo.delete_all PinnedMessage
 Repo.delete_all StaredMessage
+Repo.delete_all Config
+
+Repo.insert! Config.new_changeset
 
 create_user = fn c_id, name, email, username, password, admin ->
   account = %Account{} |> Account.changeset(%{}) |> Repo.insert!
