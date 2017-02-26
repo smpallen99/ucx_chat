@@ -1,0 +1,26 @@
+<header>
+  <div>
+    <h4>Administration</h4>
+  </div>
+</header>
+<div class="content">
+  <div class="wrapper">
+    <ul>
+      <li>
+        <a href="#" class="admin-link"><%= ~g"Info" %></a>
+      </li>
+
+      <%= if has_permission @user, "run-general" do %>
+        <li>
+          <a href="#" class="admin-general"><%= ~g"General" %></a>
+        </li>
+      <% end %>
+
+      <%= if  has_permission @user, "view-message-administration" do %>
+        <li>
+          <a href="#" class="admin-message-administration"><%= ~g"Message" %></a>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>

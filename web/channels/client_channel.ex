@@ -83,7 +83,7 @@ defmodule UcxChat.ClientChannel do
     {:noreply, assign(socket, :flex, fl)}
   end
 
-  def handle_in("side_nav:open" = ev, params, socket) do
+  def handle_in("side_nav:open" = ev, %{"page" => "account"} = params, socket) do
     debug ev, params
 
     user = Helpers.get!(User, socket.assigns[:user_id], preload: [:account])
@@ -93,6 +93,18 @@ defmodule UcxChat.ClientChannel do
     push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
 
     html = Helpers.render(AccountView, "account_flex.html")
+    {:reply, {:ok, %{html: html}}, socket}
+  end
+  def handle_in("side_nav:open" = ev, %{"page" => "admin"} = params, socket) do
+    debug ev, params
+
+    user = Helpers.get!(User, socket.assigns[:user_id], preload: [:account])
+    # account_cs = Config.changeset(user.account, %{})
+    #  $('.main-content').html(resp.html)
+    # html = Helpers.render(AccountView, "account_preferences.html", user: user, account_changeset: account_cs)
+    # push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
+
+    html = Helpers.render(UcxChat.AdminView, "admin_flex.html", user: user)
     {:reply, {:ok, %{html: html}}, socket}
   end
 

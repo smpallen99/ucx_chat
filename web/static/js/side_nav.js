@@ -30,16 +30,27 @@ class SideNav {
       e.preventDefault()
       window.location.href = "/logout"
     })
-    $('button#account').on('click', function(e) {
+    $('button.account-link').on('click', function(e) {
       e.preventDefault()
       $('.main-content-cache').html($('.main-content').html())
-      clientchan.push('side_nav:open', {})
+      clientchan.push('side_nav:open', {page: $(this).attr('id')})
         .receive("ok", resp => {
           $('.flex-nav section').html(resp.html)
         })
       $('div.flex-nav').removeClass('animated-hidden')
       $('aside.side-nav span.arrow').removeClass('top').addClass('close')
     })
+    // $('button#admin').on('click', function(e) {
+    //   console.log('clicked admin....')
+    //   e.preventDefault()
+    //   $('.main-content-cache').html($('.main-content').html())
+    //   clientchan.push('side_nav:open', {page: "admin"})
+    //     .receive("ok", resp => {
+    //       $('.flex-nav section').html(resp.html)
+    //     })
+    //   $('div.flex-nav').removeClass('animated-hidden')
+    //   $('aside.side-nav span.arrow').removeClass('top').addClass('close')
+    // })
     $('nav.options button.status').on('click', function(e) {
       e.preventDefault()
       clientchan.push('status:set:' + $(this).data('status'), {})

@@ -27,6 +27,6 @@ defmodule UcxChat.SideNavView do
   end
 
   def get_user_name(%Client{} = client), do: client.nickname
-  def show_admin_option(%Client{}), do: false
+  def show_admin_option(%Client{}), do: true
 end
 
