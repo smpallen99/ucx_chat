@@ -12,7 +12,7 @@
 
 alias UcxChat.{
   Repo, Client, User, Channel, Subscription, Message, Account, Mention,
-  Direct, PinnedMessage, StaredMessage, Config
+  Direct, PinnedMessage, StaredMessage, Config, Role
 }
 
 Repo.delete_all User
@@ -26,8 +26,17 @@ Repo.delete_all Message
 Repo.delete_all PinnedMessage
 Repo.delete_all StaredMessage
 Repo.delete_all Config
+Repo.delete_all Role
 
 Repo.insert! Config.new_changeset
+
+roles =
+  [admin: :global, moderator: :rooms, owner: :rooms, user: :global, bot: :global, guest: :global]
+  |> Enum.map(fn {role, scope} ->
+    %Role{}
+    |> Role.changeset(%{name: to_string(role), scope: to_string(scope)})
+    |> Repo.insert!
+  end)
 
 create_user = fn c_id, name, email, username, password, admin ->
   account = %Account{} |> Account.changeset(%{}) |> Repo.insert!

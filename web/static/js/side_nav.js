@@ -72,6 +72,10 @@ class SideNav {
         //   $('.main-content').html(resp.html)
         // })
     })
+    $('body').on('click', '.admin-link', function(e) {
+      e.preventDefault()
+      clientchan.push('admin_link:click:' + $(this).data('link'), {})
+    })
     $('body').on('submit', '#account-preferences-form', function(e) {
       e.preventDefault()
       // console.log('submitted form', $(this).serializeArray())

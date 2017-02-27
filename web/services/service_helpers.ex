@@ -1,7 +1,15 @@
 defmodule UcxChat.ServiceHelpers do
-  alias UcxChat.{Repo, Channel, Client, Subscription, MessageService}
+  alias UcxChat.{Repo, Channel, Client, Subscription, MessageService, User}
 
   import Ecto.Query
+
+  def get_user!(%Phoenix.Socket{assigns: assigns}) do
+    get_user!(assigns[:user_id])
+  end
+
+  def get_user!(id) do
+    Repo.one!(from u in User, where: u.id == ^id, preload: [:client, :account, :roles])
+  end
 
   def get!(model, id, opts \\ []) do
     preload = opts[:preload] || []
@@ -10,6 +18,7 @@ defmodule UcxChat.ServiceHelpers do
     |> preload(^preload)
     |> Repo.one!
   end
+
   def get(model, id, opts \\ []) do
     preload = opts[:preload] || []
     model

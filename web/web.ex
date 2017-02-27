@@ -16,6 +16,14 @@ defmodule UcxChat.Web do
   below.
   """
 
+  def service do
+    quote do
+      import Ecto.Query
+      alias UcxChat.{Repo, RoomChannel, ClientChannel}
+      alias UcxChat.ServiceHelpers, as: Helpers
+    end
+  end
+
   def model do
     quote do
       use Ecto.Schema

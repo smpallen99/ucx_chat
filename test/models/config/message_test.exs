@@ -10,9 +10,9 @@ defmodule UcxChat.ConfigMessageTest do
     assert changeset.valid?
   end
 
-  test "invalid attributes" do
-    changeset = Message.changeset(%Message{}, @invalid_attrs)
-    refute changeset.valid?
-  end
+  # test "invalid attributes" do
+  #   changeset = Message.changeset(%Message{}, @invalid_attrs)
+  #   refute changeset.valid?
+  # end
 
 end

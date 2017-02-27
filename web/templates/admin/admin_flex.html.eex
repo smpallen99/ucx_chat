@@ -7,20 +7,26 @@
   <div class="wrapper">
     <ul>
       <li>
-        <a href="#" class="admin-link"><%= ~g"Info" %></a>
+        <a href="#" class="admin-link" data-link="info"><%= ~g"Info" %></a>
       </li>
 
       <%= if has_permission @user, "run-general" do %>
         <li>
-          <a href="#" class="admin-general"><%= ~g"General" %></a>
+          <a href="#" class="admin-link" data-link="general"><%= ~g"General" %></a>
         </li>
       <% end %>
 
       <%= if  has_permission @user, "view-message-administration" do %>
         <li>
-          <a href="#" class="admin-message-administration"><%= ~g"Message" %></a>
+          <a href="#" class="admin-link" data-link="message"><%= ~g"Message" %></a>
         </li>
       <% end %>
+      <%= if  has_permission @user, "access-permissions" do %>
+        <li>
+          <a href="#" class="admin-link" data-link="permissions"><%= ~g"Permissions" %></a>
+        </li>
+      <% end %>
+
     </ul>
   </div>
 </div>

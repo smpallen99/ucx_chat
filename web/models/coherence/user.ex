@@ -8,6 +8,9 @@ defmodule UcxChat.User do
     field :email, :string
     field :username, :string
     field :admin, :boolean, default: false
+
+    has_many :roles, UcxChat.UserRole
+
     belongs_to :client, UcxChat.Client
     belongs_to :account, UcxChat.Account
     coherence_schema()
@@ -24,5 +27,6 @@ defmodule UcxChat.User do
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:username)
     |> validate_coherence(params)
+    |> cast_assoc(:roles)
   end
 end

@@ -1,0 +1,45 @@
+<section class="page-container page-home page-static page-static page-list">
+  <header class="fixed-title border-component-color">
+    <%= render UcxChat.MasterView, "burger.html" %>
+    <h2>
+      <span class="room-title">Permissions</span>
+    </h2>
+  </header>
+  <div class="content">
+    <div class="permissions-manager">
+      <%= if has_permission @user, "access-permissions" do %>
+        <a href="#admin-permissions-new" class="button primary new-role"><%= ~g"New_role" %></a>
+        <table border="1" class="permission-grid secondary-background-color">
+          <thead class="content-background-color">
+            <tr>
+              <th class="border-component-color">&nbsp;</th>
+              <%= for role <- @roles do %>
+                <th class="border-component-color" title="<%= role.description %>">
+                  <a href="#admin-permissions-edit" name="<%= role.name %>">
+                    <%= role.name %>
+                    <i class="icon-edit"></i>
+                  </a>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for {perm, roles} <- @permissions do %>
+              <tr class="admin-table-row">
+                <td class="border-component-color"><%= perm %></td>
+                <%= for role <- @roles do %>
+                  <td class="border-component-color">
+                    <% checked = if role.name in roles, do: "checked=checked", else: "" %>
+                    <input type="checkbox" name="perm[<%= role.name %>][<%= perm %>]" class="role-permission" value="1" <%= checked %> data-role="<%= role.name %>" data-permission="<%= perm %>">
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <%= ~g"Not_authorized" %>
+      <% end %>
+    </div>
+  </div>
+</section>

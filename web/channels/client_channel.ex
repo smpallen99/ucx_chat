@@ -6,7 +6,7 @@ defmodule UcxChat.ClientChannel do
 
   alias Phoenix.Socket.Broadcast
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, User, Channel, ChatDat}
-  alias UcxChat.{AccountView, Account}
+  alias UcxChat.{AccountView, Account, AdminService}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -86,7 +86,7 @@ defmodule UcxChat.ClientChannel do
   def handle_in("side_nav:open" = ev, %{"page" => "account"} = params, socket) do
     debug ev, params
 
-    user = Helpers.get!(User, socket.assigns[:user_id], preload: [:account])
+    user = Helpers.get_user!(socket)
     account_cs = Account.changeset(user.account, %{})
     #  $('.main-content').html(resp.html)
     html = Helpers.render(AccountView, "account_preferences.html", user: user, account_changeset: account_cs)
@@ -98,7 +98,7 @@ defmodule UcxChat.ClientChannel do
   def handle_in("side_nav:open" = ev, %{"page" => "admin"} = params, socket) do
     debug ev, params
 
-    user = Helpers.get!(User, socket.assigns[:user_id], preload: [:account])
+    user = Helpers.get_user!(socket)
     # account_cs = Config.changeset(user.account, %{})
     #  $('.main-content').html(resp.html)
     # html = Helpers.render(AccountView, "account_preferences.html", user: user, account_changeset: account_cs)
@@ -121,8 +121,8 @@ defmodule UcxChat.ClientChannel do
       |> Helpers.normalize_form_params
       |> Map.get("account")
     resp =
-      User
-      |> Helpers.get!(socket.assigns[:user_id], preload: [:account])
+      socket
+      |> Helpers.get_user!
       |> Map.get(:account)
       |> Account.changeset(params)
       |> Repo.update
@@ -146,7 +146,7 @@ defmodule UcxChat.ClientChannel do
   def handle_in(ev = "mode:set:" <> mode, params, socket) do
     debug ev, params
     mode = if mode == "im", do: true, else: false
-    user = Helpers.get!(User, socket.assigns[:user_id], preload: [:client, :account])
+    user = Helpers.get_user!(socket)
 
     resp =
       user
@@ -168,6 +168,16 @@ defmodule UcxChat.ClientChannel do
       end
     {:reply, resp, socket}
   end
+
+  @links ~w(info general message permissions)
+  def handle_in(ev = "admin_link:click:" <> link, params, socket) when link in @links do
+    debug ev, params
+    user = Helpers.get_user! socket
+    html = AdminService.render user, link, "#{link}.html"
+    push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
+    {:noreply, socket}
+  end
+
 
   # default unknown handler
   def handle_in(event, params, socket) do
