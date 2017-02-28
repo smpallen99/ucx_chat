@@ -24,9 +24,10 @@ exports.config = {
         "css/app.css": [
           /^(web\/static\/css)/,
           "node_modules/highlight.js/styles/default.css",
-          "node_modules/emojionearea/dist/emojionearea.min.css"
+          "node_modules/emojionearea/dist/emojionearea.min.css",
         ],
         "css/channel_settings.css": ["web/static/scss/channel_settings.scss"],
+        "css/toastr.css": ["web/static/css/toastr.css"]
         // "css/toastr.css": ["web/static/scss/toastr.scss"]
       },
       order: {
