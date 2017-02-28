@@ -3,7 +3,7 @@
 
 // To use Phoenix channels, the first step is to import Socket
 // and connect at the socket path in "lib/my_app/endpoint.ex":
-import {Socket} from "phoenix"
+import {Socket, Presence} from "phoenix"
 
 import Messages from "./messages"
 import Typing from "./typing"
@@ -17,12 +17,45 @@ import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
 
+const chan_user = "client:"
+const chan_room = "room:"
+
 const debug = true;
 
 let socket = new Socket("/socket", {params: {token: window.user_token}})
 
 window.clientchan = false
 window.roomchan = false
+window.systemchan = false
+
+// new presence stuff
+let presences = {}
+
+let formatTimestamp = (timestamp) => {
+  let date = new Date(timestamp)
+  return date.toLocaleTimeString()
+}
+
+let listBy = (user, {metas: metas}) => {
+  return {
+    user: user,
+    onlineAt: formatTimestamp(metas[0].online_at)
+  }
+}
+
+let userList = document.getElementById("UserList")
+let render = (presences) => {
+  userList.innerHTML = Presence.list(presences, listBy)
+    .map(presence => `
+      <li>
+        ${presence.user}
+        </br>
+        <small>online since ${presence.onlineAt}</small>
+      </li>
+    `)
+    .join("")
+}
+// end of presence stuff
 
 $(document).ready(function() {
 
@@ -38,6 +71,7 @@ $(document).ready(function() {
   $('textarea.message-form-text').focus()
 
   console.log('socket...', socket)
+  start_system_channel()
   start_client_channel()
   start_room_channel(typing)
 
@@ -106,13 +140,29 @@ $(document).ready(function() {
 
 })
 
-function start_client_channel() {
-  clientchan = socket.channel("client:" + ucxchat.client_id, {user: ucxchat.nickname, channel_id: ucxchat.channel_id})
-  let chan = clientchan
+function start_system_channel() {
+  systemchan = socket.channel(chan_user + ucxchat.client_id, {user: ucxchat.nickname, channel_id: ucxchat.channel_id})
+  let chan = systemchan
+
+  chan.on('presence_state', state => {
+    console.log('presence_state', state)
+    presences = Presence.syncState(presences, state)
+    render(presences)
+  })
+  chan.on('presence_diff', diff => {
+    console.log('presence_diff', diff)
+    presences = Presence.syncDiff(presences, diff)
+    render(presences)
+  })
 
   chan.join()
-    .receive("ok", resp => { console.log('Joined client successfully', resp)})
-    .receive("error", resp => { console.log('Unable to client lobby', resp)})
+    .receive("ok", resp => { console.log('Joined system channel successfully', resp)})
+    .receive("error", resp => { console.error('Unable to join system channel', resp)})
+}
+
+function start_client_channel() {
+  clientchan = socket.channel(chan_user + ucxchat.client_id, {user: ucxchat.nickname, channel_id: ucxchat.channel_id})
+  let chan = clientchan
 
   chan.on('room:update:name', resp => {
     if (debug) { console.log('room:update', resp) }
@@ -139,6 +189,10 @@ function start_client_channel() {
     window.location.reload()
   })
 
+  chan.join()
+    .receive("ok", resp => { console.log('Joined client successfully', resp)})
+    .receive("error", resp => { console.log('Unable to client lobby', resp)})
+
   chan.push('subscribe', {})
 }
 
@@ -151,7 +205,7 @@ function start_room_channel(typing) {
   // socket.connect({user: ucxchat.nickname})
   let room = ucxchat.room
   // Now that you are connected, you can join channels with a topic:
-  roomchan = socket.channel("ucxchat:room-"+room, {user: ucxchat.nickname, user_id: ucxchat.client_id})
+  roomchan = socket.channel(chan_room + "room-"+room, {user: ucxchat.nickname, user_id: ucxchat.client_id})
 
   let chan = roomchan
 

@@ -1,6 +1,7 @@
 defmodule UcxChat.ClientChannel do
   use Phoenix.Channel
   use UcxChat.ChannelApi
+  alias UcxChat.Presence
 
   import Ecto.Query
 
@@ -8,23 +9,25 @@ defmodule UcxChat.ClientChannel do
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService}
   alias UcxChat.{AccountView, Account, AdminService}
   alias UcxChat.ServiceHelpers, as: Helpers
+  require UcxChat.ChatConstants, as: CC
 
   require Logger
 
   def join_room(client_id, room) do
     Logger.warn ("...join_room client_id: #{inspect client_id}")
-    UcxChat.Endpoint.broadcast!("client:#{client_id}", "room:join", %{room: room, client_id: client_id})
+    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{client_id}", "room:join", %{room: room, client_id: client_id})
   end
 
   def leave_room(client_id, room) do
-    UcxChat.Endpoint.broadcast!("client:#{client_id}", "room:leave", %{room: room, client_id: client_id})
+    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{client_id}", "room:leave", %{room: room, client_id: client_id})
   end
 
   # intercept ~w(room:join room:leave)
   intercept ["room:join", "room:leave"]
 
-  def join("client:" <> client_id, params, socket) do
-    debug("client:" <> client_id, params)
+  def join(CC.chan_user() <>  client_id, params, socket) do
+    debug(CC.chan_user() <> client_id, params)
+    send(self(), :after_join)
     new_assigns = params |> Enum.map(fn {k,v} -> {String.to_atom(k), v} end) |> Enum.into(%{})
     socket =
       socket
@@ -35,6 +38,7 @@ defmodule UcxChat.ClientChannel do
       Repo.all(from s in Subscription, where: s.client_id == ^client_id, preload: [:channel, :client])
       |> Enum.map(&(&1.channel.name))
       |> subscribe(socket)
+
     {:ok, socket}
   end
 
@@ -50,7 +54,7 @@ defmodule UcxChat.ClientChannel do
   def handle_out("room:leave" = ev, msg, socket) do
     %{room: room} = msg
     debug ev, msg
-    socket.endpoint.unsubscribe("ucxchat:room-" <> room)
+    socket.endpoint.unsubscribe(CC.chan_room <> "room-" <> room)
     update_rooms_list(socket)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
   end
@@ -193,10 +197,20 @@ defmodule UcxChat.ClientChannel do
   ###############
   # Info messages
 
+  def handle_info(:after_join, socket) do
+    # list = Presence.list(socket)
+    # Logger.warn "after join presence list: #{inspect list}"
+    # push socket, "presence_state", list
+    # {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
+    #   online_at: inspect(System.system_time(:seconds))
+    # })
+    {:noreply, socket}
+  end
+
   def handle_info(%Broadcast{topic: _, event: "room:update:name" = event, payload: payload}, socket) do
     debug event, payload
     push socket, event, payload
-    socket.endpoint.unsubscribe("ucxchat:room-" <> payload[:old_name])
+    socket.endpoint.unsubscribe(CC.chan_room <> "room-" <> payload[:old_name])
     {:noreply, assign(socket, :subscribed, [payload[:new_name] | List.delete(socket.assigns[:subscribed], payload[:old_name])])}
   end
 
@@ -250,7 +264,7 @@ defmodule UcxChat.ClientChannel do
       if channel in subscribed do
         acc
       else
-        socket.endpoint.subscribe("ucxchat:room-" <> channel)
+        socket.endpoint.subscribe(CC.chan_room <> "room-" <> channel)
         assign(acc, :subscribed, [channel | subscribed])
       end
     end

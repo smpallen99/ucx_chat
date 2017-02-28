@@ -9,6 +9,7 @@ defmodule UcxChat.RoomChannel do
   alias UcxChat.{Subscription, Repo, Channel}
   alias UcxChat.{ServiceHelpers}
 
+  require UcxChat.ChatConstants, as: CC
   require Logger
 
   ############
@@ -18,24 +19,24 @@ defmodule UcxChat.RoomChannel do
   def user_join(nil), do: Logger.warn "join for nil username"
   def user_join(username, room) do
     Logger.warn "user_join username: #{inspect username}, room: #{inspect room}"
-    UcxChat.Endpoint.broadcast "ucxchat:room-#{room}", "user:join", %{username: username}
+    UcxChat.Endpoint.broadcast CC.chan_room <> "room-#{room}", "user:join", %{username: username}
   end
 
   def user_leave(nil), do: Logger.warn "leave for nil username"
   def user_leave(username, room) do
     Logger.warn "user_leave username: #{inspect username}, room: #{inspect room}"
-    UcxChat.Endpoint.broadcast "ucxchat:room-#{room}", "user:leave", %{username: username}
+    UcxChat.Endpoint.broadcast CC.chan_room <> "room-#{room}", "user:leave", %{username: username}
   end
 
   ############
   # Socket stuff
 
-  def join("ucxchat:lobby", msg, socket) do
+  def join(CC.chan_room <> "lobby", msg, socket) do
     Logger.info "user joined lobby msg: #{inspect msg}, socket: #{inspect socket}"
     {:ok, socket}
   end
 
-  def join("ucxchat:room-" <> room, msg, socket) do
+  def join(CC.chan_room <> "room-" <> room, msg, socket) do
     Logger.warn "join room-#{room}, msg: #{inspect msg}, socket: #{inspect socket}"
     send self(), {:after_join, room, msg}
     {:ok, socket}
@@ -58,7 +59,7 @@ defmodule UcxChat.RoomChannel do
     channel_id = msg[:channel_id]
 
     if Repo.one(from s in Subscription, where: s.client_id == ^client_id and s.channel_id == ^channel_id) do
-      UcxChat.Endpoint.broadcast "ucxchat:lobby", event, msg
+      UcxChat.Endpoint.broadcast CC.chan_room <> "lobby", event, msg
     end
 
     # push socket, event, msg

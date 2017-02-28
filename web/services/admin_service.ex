@@ -86,7 +86,7 @@ defmodule UcxChat.AdminService do
     Helpers.render(AdminView, templ, get_args(link, user))
   end
 
-  def render_info(user) do
+  def render_info(_user) do
     render(AdminView, "info", "info.html")
   end
 

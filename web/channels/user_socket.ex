@@ -1,11 +1,14 @@
 defmodule UcxChat.UserSocket do
   use Phoenix.Socket
   alias UcxChat.{User, Repo}
+  require UcxChat.ChatConstants, as: CC
+
   require Logger
 
   ## Channels
-  channel "ucxchat:*", UcxChat.RoomChannel
-  channel "client:*", UcxChat.ClientChannel
+  channel CC.chan_room <> "*", UcxChat.RoomChannel    # "ucxchat:"
+  channel CC.chan_user <> "*", UcxChat.ClientChannel  # "client:"
+  channel CC.chan_system <> "*", UcxChat.SystemChannel  # "system:"
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
