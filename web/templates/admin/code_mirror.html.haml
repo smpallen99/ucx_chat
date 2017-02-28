@@ -1,0 +1,22 @@
+.code-mirror-box(data-editor-id="Layout_Sidenav_Footer")
+  .title ..
+  %textarea
+  .CodeMirror.cm-s-default
+    %div(style="overflow: hidden; position: relative; width 3x; hight: 0px top: 3.99px; left: 219.375px;")
+      %textarea
+    .CodeMirror-vsscrollbar(cm-not-content="true")
+      %div(style="min-width: 1px; height: 0px;")
+    .CodeMirror-hsscrollbar(cm-not-content="true")
+      %div(style="min-height: 1px; height: 100%; width: 0px;")
+    .CodeMirror-scrollbar-filler(cm-not-content="true")
+    .CodeMirror-gutter-filler(cm-not-content="true")
+    .CodeMirror-scroll(tabindex="-1")
+      .CodeMirror-sizer(style="margin-left: 38px; min-width: 184.378px; margin-bottom: -8px; border-right-width: 22px; min-height: 24px; padding-right: 0px; padding-bottom: 0px;")
+        %div(style="position: relative; top: 0px;")
+          %div.CodeMirror-lines
+            %div(style="position: relative; outline: none;")
+
+  .buttons
+   %button.button.primary.button-fullscreen= ~g"Full Screen"
+   %button.button.primary.button-restore= ~g"Exit Full Screen"
+

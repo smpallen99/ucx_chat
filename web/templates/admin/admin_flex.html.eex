@@ -26,6 +26,9 @@
           <a href="#" class="admin-link" data-link="permissions"><%= ~g"Permissions" %></a>
         </li>
       <% end %>
+        <li>
+          <a href="#" class="admin-link" data-link="layout"><%= ~g"Layout" %></a>
+        </li>
 
     </ul>
   </div>

@@ -49,6 +49,27 @@ defmodule UcxChat.AdminService do
     {:reply, resp, socket}
   end
 
+  def handle_in("save:layout", params, socket) do
+    params =
+      params
+      |> Helpers.normalize_form_params
+      |> Map.get("layout")
+
+    resp =
+      Config
+      |> Repo.one
+      |> Config.changeset(%{layout: params})
+      |> Repo.update
+      |> case do
+        {:ok, _} ->
+          {:ok, %{success: "Layout settings updated successfully"}}
+        {:error, cs} ->
+          Logger.error "problem updating Layout settings: #{inspect cs}"
+          {:ok, %{error: "There a problem updating your settings."}}
+      end
+    {:reply, resp, socket}
+  end
+
   def do_slash_commands_params(params, which) do
     slash_commands =
       params
@@ -75,22 +96,24 @@ defmodule UcxChat.AdminService do
 
     [user: user, roles: roles, permissions: permissions]
   end
-  defp get_args("general", user) do
+  defp get_args(view, user) when view in ~w(general message layout) do
+    view_a = String.to_atom view
+    mod = Module.concat Config, String.capitalize(view)
     cs =
       Config
       |> Repo.one
-      |> Map.get(:general)
-      |> Config.General.changeset(%{})
+      |> Map.get(view_a)
+      |> mod.changeset(%{})
     [user: user, changeset: cs]
   end
-  defp get_args("message", user) do
-    cs =
-      Config
-      |> Repo.one
-      |> Map.get(:message)
-      |> Config.Message.changeset(%{})
-    [user: user, changeset: cs]
-  end
+  # defp get_args("message", user) do
+  #   cs =
+  #     Config
+  #     |> Repo.one
+  #     |> Map.get(:message)
+  #     |> Config.Message.changeset(%{})
+  #   [user: user, changeset: cs]
+  # end
   defp get_args("info", user) do
     total = User.total_count() |> Repo.one
     online = Agent.get(Coherence.CredentialStore.Agent, &(&1)) |> Map.keys |> length

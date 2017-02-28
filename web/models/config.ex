@@ -1,11 +1,13 @@
 defmodule UcxChat.Config do
   use UcxChat.Web, :model
+  alias UcxChat.Repo
 
   @mod __MODULE__
 
   schema "config" do
     embeds_one :general, UcxChat.Config.General
     embeds_one :message, UcxChat.Config.Message
+    embeds_one :layout, UcxChat.Config.Layout
 
     timestamps()
   end
@@ -18,7 +20,8 @@ defmodule UcxChat.Config do
     |> cast(params, [])
     |> cast_embed(:general)
     |> cast_embed(:message)
-    |> validate_required([:general, :message])
+    |> cast_embed(:layout)
+    |> validate_required([:general, :message, :layout])
   end
 
   def new_changeset do
@@ -32,18 +35,8 @@ defmodule UcxChat.Config do
     changeset(@mod.__struct__, params)
   end
 
-  Enum.map UcxChat.Config.General.__schema__(:fields) -- [:id], fn name ->
-    def unquote(name)() do
-      UcxChat.Repo.one(UcxChat.Config)
-      |> Map.get(:general)
-      |> Map.get(unquote(name))
-    end
-  end
-  Enum.map UcxChat.Config.Message.__schema__(:fields) -- [:id], fn name ->
-    def unquote(name)() do
-      UcxChat.Repo.one(UcxChat.Config)
-      |> Map.get(:message)
-      |> Map.get(unquote(name))
-    end
+  def update! do
+    @mod |> Repo.one |> Repo.delete()
+    Repo.insert new_changeset()
   end
 end
