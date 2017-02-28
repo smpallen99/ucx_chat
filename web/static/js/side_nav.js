@@ -68,9 +68,6 @@ class SideNav {
     $('body').on('click', '.account-link', function(e) {
       e.preventDefault()
       clientchan.push('account_link:click:' + $(this).data('link'), {})
-        // .receive("ok", resp => {
-        //   $('.main-content').html(resp.html)
-        // })
     })
     $('body').on('click', '.admin-link', function(e) {
       e.preventDefault()
@@ -78,7 +75,6 @@ class SideNav {
     })
     $('body').on('submit', '#account-preferences-form', function(e) {
       e.preventDefault()
-      // console.log('submitted form', $(this).serializeArray())
       clientchan.push('account:preferences:save', $(this).serializeArray())
         .receive("ok", resp => {
           if (resp.success) {

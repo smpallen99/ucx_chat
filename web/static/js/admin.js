@@ -56,6 +56,10 @@ class Admin {
           }
       })
     })
+    $('body').on('click', 'button.refresh', function(e) {
+      let page = $(this).closest('section').data('page')
+      $('a.admin-link[data-link="' + page + '"]').click()
+    })
 
 
   }

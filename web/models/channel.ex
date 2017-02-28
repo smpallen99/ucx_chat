@@ -47,6 +47,25 @@ defmodule UcxChat.Channel do
     changeset(struct, %{field => value})
   end
 
+  def total_rooms do
+    from c in @module, select: count(c.id)
+  end
+
+  def total_rooms(type) do
+    from c in @module, where: c.type == ^type, select: count(c.id)
+  end
+
+  def total_channels do
+    total_rooms 0
+  end
+
+  def total_private do
+    total_rooms 1
+  end
+
+  def total_direct do
+    total_rooms 2
+  end
 
   def get_all_channels do
     from c in @module, where: c.type in [0,1]

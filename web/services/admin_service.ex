@@ -1,6 +1,6 @@
 defmodule UcxChat.AdminService do
   use UcxChat.Web, :service
-
+  alias UcxChat.{Message, Channel, User}
   require Logger
 
   alias UcxChat.{Permission, Role, AdminView, Config}
@@ -65,6 +65,10 @@ defmodule UcxChat.AdminService do
     Helpers.render(AdminView, templ, get_args(link, user))
   end
 
+  def render_info(user) do
+    render(AdminView, "info", "info.html")
+  end
+
   defp get_args("permissions", user) do
     roles = Repo.all Role
     permissions = Permission.all
@@ -86,5 +90,27 @@ defmodule UcxChat.AdminService do
       |> Map.get(:message)
       |> Config.Message.changeset(%{})
     [user: user, changeset: cs]
+  end
+  defp get_args("info", user) do
+    total = User.total_count() |> Repo.one
+    online = Agent.get(Coherence.CredentialStore.Agent, &(&1)) |> Map.keys |> length
+
+    usage = [
+      %{title: ~g"Total Users", value: total},
+      %{title: ~g"Online Users", value: online},
+      %{title: ~g"Offline Users", value: total - online},
+      %{title: ~g"Total Rooms", value: Channel.total_rooms() |> Repo.one},
+      %{title: ~g"Total Channels", value: Channel.total_channels() |> Repo.one},
+      %{title: ~g"Total Private Groups", value: Channel.total_private() |> Repo.one},
+      %{title: ~g"Total Direct Message Rooms", value: Channel.total_direct() |> Repo.one},
+      %{title: ~g"Total Messages", value: Message.total_count() |> Repo.one},
+      %{title: ~g"Total Messages in Channels", value: Message.total_channels() |> Repo.one},
+      %{title: ~g"Total in Private Groups", value: Message.total_private() |> Repo.one},
+      %{title: ~g"Total in Direct Messages", value: Message.total_direct() |> Repo.one},
+    ]
+
+    info = [usage: usage]
+
+    [user: user, info: info]
   end
 end

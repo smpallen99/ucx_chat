@@ -99,10 +99,9 @@ defmodule UcxChat.ClientChannel do
     debug ev, params
 
     user = Helpers.get_user!(socket)
-    # account_cs = Config.changeset(user.account, %{})
-    #  $('.main-content').html(resp.html)
-    # html = Helpers.render(AccountView, "account_preferences.html", user: user, account_changeset: account_cs)
-    # push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
+
+    html = UcxChat.AdminService.render_info(user)
+    push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
 
     html = Helpers.render(UcxChat.AdminView, "admin_flex.html", user: user)
     {:reply, {:ok, %{html: html}}, socket}

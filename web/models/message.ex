@@ -1,6 +1,9 @@
 defmodule UcxChat.Message do
   use UcxChat.Web, :model
+  use UcxChat.Utils
   require Logger
+
+  @mod __MODULE__
 
   schema "messages" do
     field :body, :string
@@ -53,6 +56,25 @@ defmodule UcxChat.Message do
   end
 
   def pad2(int), do: int |> to_string |> String.pad_leading(2, "0")
+
+  def total_count do
+    from m in @mod, select: count(m.id)
+  end
+
+  def total_channels(type \\ 0) do
+    from m in @mod,
+      join: c in UcxChat.Channel, on: m.channel_id == c.id,
+      where: c.type == ^type,
+      select: count(m.id)
+  end
+
+  def total_private do
+    total_channels 1
+  end
+
+  def total_direct do
+    total_channels 2
+  end
 
 end
 

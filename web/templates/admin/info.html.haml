@@ -1,0 +1,16 @@
+%section.page-container.page-list(data-page="info")
+  %header.fixed-title.border-component-color
+    = render UcxChat.MasterView, "burger.html"
+    %h2
+      %span.room-title= ~g"Info"
+  .content
+    %h3= ~g"UCx Chat"
+    %br
+
+    %table.statistics-table.secondary-background-color
+      - for item <- @info[:usage] do
+        %tr.admin-table-row
+          %th.content-background-color.border-component-color= item[:title]
+          %td.border-component-color= item[:value]
+
+    %button.button.primary.refresh= ~g"Refresh"

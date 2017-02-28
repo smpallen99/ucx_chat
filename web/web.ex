@@ -21,6 +21,9 @@ defmodule UcxChat.Web do
       import Ecto.Query
       alias UcxChat.{Repo, RoomChannel, ClientChannel, Settings}
       alias UcxChat.ServiceHelpers, as: Helpers
+      require UcxChat.SharedView
+      import UcxChat.SharedView, only: [sigil_g: 2]
+      import UcxChat.Gettext
     end
   end
 
@@ -41,12 +44,14 @@ defmodule UcxChat.Web do
       import Ecto
       import Ecto.Query
       alias UcxChat.Settings
+      use UcxChat.Utils
 
     end
   end
   def controller do
     quote do
       use Phoenix.Controller
+      use UcxChat.Utils
 
       alias UcxChat.Repo
       import Ecto
