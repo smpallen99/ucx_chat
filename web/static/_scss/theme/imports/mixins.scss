@@ -70,7 +70,8 @@
   background-color: $bg;
 
   &:hover {
-    color: mix($color, contrast($bg), 60%);
-    background-color: mix($bg, contrast($color), 60%);
+    color: $color;
+    // color: mix($color, contrast($bg), 60%);
+    background-color: mix($bg, contrast($color), 5%);
   }
 }

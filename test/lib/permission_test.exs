@@ -3,8 +3,8 @@ defmodule UcxChat.PermissionTest do
   import UcxChat.Permission
 
   setup do
-    user1 = %{roles: [%{n: "admin", v: 0}, %{n: "moderator", v: 1}, %{n: "owner", v: 2}]}
-    user2 = %{roles: [%{n: "user", v: 0}, %{n: "moderator", v: 2}, %{n: "owner", v: 4}]}
+    user1 = %{roles: [%{role: "admin", scope: 0}, %{role: "moderator", scope: 1}, %{role: "owner", scope: 2}]}
+    user2 = %{roles: [%{role: "user", scope: 0}, %{role: "moderator", scope: 2}, %{role: "owner", scope: 4}]}
     {:ok, u1: user1, u2: user2}
   end
 

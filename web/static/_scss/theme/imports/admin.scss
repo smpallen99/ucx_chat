@@ -1,0 +1,18 @@
+.page-settings .section-content .input-line.checkbox-group {
+  border: none;
+  padding: 0;
+}
+.input-line {
+  .setting-field {
+    line-height: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    label {
+      line-height: 20px !important;
+    }
+  }
+}
+// .main-content section.page-container.admin-settings button:hover {
+//   color: #fff !important;
+// }

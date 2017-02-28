@@ -30,6 +30,7 @@ defmodule UcxChat.SharedView do
      Droplet: "droplet", Highbell: "highbell", Seasons: "seasons"]
   end
 
+
   defmacro gt(text, opts \\ []) do
     quote do
       gettext(unquote(text), unquote(opts))

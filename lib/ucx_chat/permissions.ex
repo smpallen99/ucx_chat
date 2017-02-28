@@ -1,5 +1,4 @@
 defmodule UcxChat.Permission do
-  alias UcxChat.{User}
 
   @default_permissions  [
     %{name: "access-permissions",            roles: ["admin"] },

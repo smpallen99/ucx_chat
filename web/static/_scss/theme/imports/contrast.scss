@@ -1,3 +1,17 @@
+// $contrasted-default-dark:   #000;
+// $contrasted-default-light:  #fff;
+
+// @function contrast($bg, $dark:$contrasted-default-dark, $light:$contrasted-default-light){
+//   @return get_contrast_yiq($bg, $dark, $light);
+// }
+// @function get_contrast_yip($color, $dark, $light) {
+//   $yip: ((red($color) * 299) + (green($color) * 587) + (blue($color) * 114)) / 1000;
+//   @if $yip >= 128 {
+//     @return $dark;
+//   } @else {
+//     @return $light;
+//   }
+// }
 @function contrast (
    $color,
    $dark: $primary-font-color,

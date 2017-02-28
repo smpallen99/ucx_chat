@@ -12,6 +12,7 @@ import UnreadManager from "./unread_manager"
 import MessagePopup from "./message_popup"
 import MessageCog from "./message_cog"
 import SideNav from "./side_nav"
+import Admin from "./admin"
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
@@ -30,6 +31,7 @@ $(document).ready(function() {
 
   new RoomManager()
   new SideNav()
+  new Admin()
 
   socket.connect()
 

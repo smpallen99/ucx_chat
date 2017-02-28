@@ -180,19 +180,20 @@ defmodule UcxChat.ServiceHelpers do
       %{"name" => _field, "value" => ""}, acc ->
         acc
       %{"name" => field, "value" => value}, acc ->
-        case Regex.run ~r/^([^\[]+)\[([^\]]+)\]/, field  do
-          nil ->
-            Map.put acc, field, value
-          [_, model, field] ->
-            update_in acc, [model], fn
-              nil ->
-                %{field => value}
-              map ->
-                Map.put(map, field, value)
-            end
-        end
+        parse_name(field)
+        |> Enum.reduce(value, fn key, acc -> Map.put(%{}, key, acc) end)
+        |> UcxChat.Utils.deep_merge(acc)
     end
   end
+
+  defp parse_name(string), do: parse_name(string, "", [])
+
+  defp parse_name("", "", acc), do: acc
+  defp parse_name("", buff, acc), do: [buff|acc]
+  defp parse_name("[" <> tail, "", acc), do: parse_name(tail, "", acc)
+  defp parse_name("[" <> tail, buff, acc), do: parse_name(tail, "", [buff|acc])
+  defp parse_name("]" <> tail, buff, acc), do: parse_name(tail, "", [buff|acc])
+  defp parse_name(<<ch::8>> <> tail, buff, acc), do: parse_name(tail, buff <> <<ch::8>>, acc)
 
   # def render_message(channel_id, message, opts \\ []) do
   #   body = UcxChat.MessageView.render("message_response_body.html", message: message)

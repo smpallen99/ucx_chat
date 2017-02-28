@@ -23,12 +23,12 @@ defmodule UcxChat.Config.General do
   #   schema "embedded Item" do
   #
   embedded_schema do
-    field :enable_favorate_rooms, :boolean, default: true
+    field :enable_favorite_rooms, :boolean, default: true
     field :rooms_slash_commands, {:array, :string}, default: @rooms_slash_commands
     field :chat_slash_commands, {:array, :string}, default: @chat_slash_commands
   end
 
-  @fields [:enable_favorate_rooms, :rooms_slash_commands, :chat_slash_commands]
+  @fields [:enable_favorite_rooms, :rooms_slash_commands, :chat_slash_commands]
 
   def changeset(struct, params \\ %{}) do
     struct

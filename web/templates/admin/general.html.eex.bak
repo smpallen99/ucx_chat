@@ -1,0 +1,25 @@
+<section class="page-container page-home page-static page-static page-list">
+  <header class="fixed-title border-component-color">
+    <%= render UcxChat.MasterView, "burger.html" %>
+    <h2>
+      <span class="room-title">General</span>
+    </h2>
+    <div class="submit">
+      <button class="button primary save" disabled="true">
+        <i class="icon-send"></i>
+        <span><%= ~g"Save changes" %></span>
+      </button>
+    </div>
+  </header>
+  <div class="content background-transparent-dark">
+    <%= form_for @account_changeset, "#", [id: "account-preferences-form"], fn f -> %>
+      <div class="rocket-form">
+        <section class="section">
+          <div class="section-content  border-component-color">
+
+          </div>
+        </section>
+      </div>
+    <% end %>
+  </div>
+</section>

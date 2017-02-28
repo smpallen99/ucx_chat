@@ -1,5 +1,5 @@
 defmodule UcxChat.ChatDat do
-  alias UcxChat.{Client, Channel, User}
+  alias UcxChat.{Channel, User}
 
   defstruct user: nil, room_types: [], settings: %{}, rooms: [], client: nil,
             channel: nil, messages: nil, room_map: %{}, active_room: %{}

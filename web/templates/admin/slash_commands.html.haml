@@ -1,0 +1,16 @@
+.section.section-collapsed
+  .section-title
+    .section-title-text= @title
+    .section-title-right
+      %button.button.primary.expand
+        %span= ~g"Expand"
+  .section-content.border-component-color
+    - for cmd <- UcxChat.SlashCommands.all_commands() do
+      .input-line.double-col.checkbox-group
+        %label.setting-label= cmd
+        .setting-field
+          %label
+            - field = @field
+            - opts = [type: "checkbox", name: "general[#{field}][#{cmd}]", id: "general_#{field}_#{cmd}", class: "input-monitor"]
+            <% opts = if cmd in Map.get(@item, field), do: [{:checked, "checked"}|opts], else: opts %>
+            = Phoenix.HTML.Tag.tag(:input, opts)

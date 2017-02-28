@@ -42,6 +42,8 @@ defmodule UcxChat.SlashCommands do
 
   @command_map @command_data |> Enum.reduce(%{}, fn %{command: command} = map, acc -> Map.put(acc, command, map) end)
 
+  def all_commands, do: @commands |> Enum.sort
+
   def commands(pattern, count \\ @default_count) do
     pattern
     |> find(count)

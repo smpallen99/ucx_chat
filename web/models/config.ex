@@ -1,6 +1,5 @@
 defmodule UcxChat.Config do
   use UcxChat.Web, :model
-  alias UcxChat.{Config.General, Config.Message}
 
   @mod __MODULE__
 

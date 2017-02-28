@@ -39,7 +39,7 @@ defmodule UcxChat.ChannelService do
       template_name: get_templ(&1), rooms: []}))
   end
 
-  def side_nav_where(%User{account: %{chat_mode: true}} = user, client_id) do
+  def side_nav_where(%User{account: %{chat_mode: true}}, client_id) do
     Subscription
     |> where([cc], cc.client_id == ^client_id and cc.type in [2, 3])
   end
@@ -255,7 +255,6 @@ defmodule UcxChat.ChannelService do
   end
 
   def render_rooms(channel_id, client_id) do
-    client = Helpers.get!(Client, client_id)
     channel = Helpers.get!(Channel, channel_id)
     user = Repo.one!(from u in User, where: u.client_id == ^client_id, preload: [:client, :account])
     chatd = ChatDat.new user, channel, []

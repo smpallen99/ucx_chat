@@ -5,7 +5,7 @@ defmodule UcxChat.ClientChannel do
   import Ecto.Query
 
   alias Phoenix.Socket.Broadcast
-  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, User, Channel, ChatDat}
+  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService}
   alias UcxChat.{AccountView, Account, AdminService}
   alias UcxChat.ServiceHelpers, as: Helpers
 
@@ -127,9 +127,9 @@ defmodule UcxChat.ClientChannel do
       |> Account.changeset(params)
       |> Repo.update
       |> case do
-        {:ok, account} ->
+        {:ok, _account} ->
           {:ok, %{success: "Account updated successfully"}}
-        {:error, cs} ->
+        {:error, _cs} ->
           {:ok, %{error: "There a problem updating your account."}}
       end
     {:reply, resp, socket}
@@ -176,6 +176,12 @@ defmodule UcxChat.ClientChannel do
     html = AdminService.render user, link, "#{link}.html"
     push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
     {:noreply, socket}
+  end
+
+  def handle_in(ev = "admin:" <> link, params, socket) do
+    debug ev, params
+    # user = Helpers.get_user! socket
+    AdminService.handle_in(link, params, socket)
   end
 
 

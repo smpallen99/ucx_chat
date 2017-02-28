@@ -45,7 +45,7 @@ $(document).ready(function() {
         toastr.error(resp.error)
       })
   })
-  $('body').on('change', '[type="checkbox"]', function(e, t) {
+  $('body').on('change', '.channel-settings [type="checkbox"]', function(e, t) {
     console.log('checkbox change t', $(this))
     let name = $(this).attr('name')
     let value = $(this).attr('value')
