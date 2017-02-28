@@ -31,4 +31,19 @@ defmodule UcxChat.Config do
       end)
     changeset(@mod.__struct__, params)
   end
+
+  Enum.map UcxChat.Config.General.__schema__(:fields) -- [:id], fn name ->
+    def unquote(name)() do
+      UcxChat.Repo.one(UcxChat.Config)
+      |> Map.get(:general)
+      |> Map.get(unquote(name))
+    end
+  end
+  Enum.map UcxChat.Config.Message.__schema__(:fields) -- [:id], fn name ->
+    def unquote(name)() do
+      UcxChat.Repo.one(UcxChat.Config)
+      |> Map.get(:message)
+      |> Map.get(unquote(name))
+    end
+  end
 end

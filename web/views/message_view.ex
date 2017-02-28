@@ -94,11 +94,16 @@ defmodule UcxChat.MessageView do
   def get_info_class(_), do: ""
 
   def get_mb do
-    [:subscribed, :allowed_to_send, :max_message_length, :show_file_upload, :katex_syntax,
+    config = UcxChat.Repo.one(UcxChat.Config)
+    settings = %{
+      max_message_length: Settings.max_allowed_message_size(config),
+      show_formatting_tips: Settings.show_formatting_tips(config)
+    }
+    [:subscribed, :allowed_to_send, :show_file_upload, :katex_syntax,
      :show_sandstorm, :show_location, :show_mic, :show_v_rec, :is_blocked_or_blocker,
-     :allowed_to_send, :show_formatting_tips, :show_mark_down, :show_markdown_code, :show_markdown]
+     :allowed_to_send, :show_mark_down, :show_markdown_code, :show_markdown]
     |> Enum.map(&({&1, true}))
-    |> Enum.into(%{})
+    |> Enum.into(settings)
     # - if nst[:template] do
     # = render nst[:template]
     # - if nst[:can_join] do

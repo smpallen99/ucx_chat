@@ -60,8 +60,15 @@ defmodule UcxChat.MasterView do
   def get_open_ftab(nil, _), do: nil
   def get_open_ftab({title, _}, flex_tabs), do: Enum.find(flex_tabs, fn tab -> tab[:open] && tab[:title] == title end)
 
-
+  def cc(config, item) do
+    if apply UcxChat.Settings, item, [config] do
+      ""
+    else
+      " hidden"
+    end
+  end
   def get_flex_tabs(user, open_tab) do
+    config = Settings.config
     defn = UcxChat.FlexBarService.default_settings()
     tab = case open_tab do
       {title, _} -> %{title => true}
@@ -77,13 +84,13 @@ defmodule UcxChat.MasterView do
       {"Notifications", "bell-alt", " hidden"},
       {"Files List", "attach", " hidden"},
       {"Mentions", "at", ""},
-      {"Stared Messages", "star", ""},
+      {"Stared Messages", "star", cc(config, :allow_message_staring)},
       {"Knowledge Base", "lightbulb", " hidden"},
-      {"Pinned Messages", "pin", ""},
+      {"Pinned Messages", "pin", cc(config, :allow_message_pinning)},
       {"Past Chats", "chat", " hidden"},
       {"OTR", "key", " hidden"},
       {"Video Chat", "videocam", " hidden"},
-      {"Snippeted Messages", "code", " hidden"},
+      {"Snippeted Messages", "code", cc(config, :allow_message_snippeting)},
       {"Switch User", "login", ""},
       {"Logout", "logout", " hidden"},
     ]

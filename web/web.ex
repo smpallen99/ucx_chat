@@ -19,7 +19,7 @@ defmodule UcxChat.Web do
   def service do
     quote do
       import Ecto.Query
-      alias UcxChat.{Repo, RoomChannel, ClientChannel}
+      alias UcxChat.{Repo, RoomChannel, ClientChannel, Settings}
       alias UcxChat.ServiceHelpers, as: Helpers
     end
   end
@@ -31,6 +31,7 @@ defmodule UcxChat.Web do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+      alias UcxChat.Settings
     end
   end
 
@@ -39,6 +40,7 @@ defmodule UcxChat.Web do
       alias UcxChat.Repo
       import Ecto
       import Ecto.Query
+      alias UcxChat.Settings
 
     end
   end
@@ -52,6 +54,7 @@ defmodule UcxChat.Web do
 
       import UcxChat.Router.Helpers
       import UcxChat.Gettext
+      alias UcxChat.Settings
     end
   end
 
@@ -67,6 +70,7 @@ defmodule UcxChat.Web do
       use Phoenix.HTML
       use UcxChat.Utils
 
+      alias UcxChat.Settings
       import Phoenix.HTML.Tag
       import UcxChat.Router.Helpers
       import UcxChat.ErrorHelpers
@@ -86,7 +90,7 @@ defmodule UcxChat.Web do
     quote do
       use Phoenix.Channel
 
-      alias UcxChat.Repo
+      alias UcxChat.{Repo, Settings}
       import Ecto
       import Ecto.Query
       import UcxChat.Gettext

@@ -2,7 +2,7 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{User, Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct, Mute, ClientChannel}
+  alias UcxChat.{Settings, User, Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct, Mute, ClientChannel}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   import Phoenix.HTML.Tag, only: [content_tag: 3, content_tag: 2]
@@ -530,7 +530,9 @@ defmodule UcxChat.ChannelService do
       subs ->
         Repo.delete! subs
         ClientChannel.leave_room(client_id, channel.name)
-        broadcast_message("Has left the channel.", channel.name, client_id, channel.id, system: true, sequential: false)
+        unless Settings.hide_user_leave() do
+          broadcast_message("Has left the channel.", channel.name, client_id, channel.id, system: true, sequential: false)
+        end
     end
   end
 
@@ -541,7 +543,9 @@ defmodule UcxChat.ChannelService do
     |> case do
       {:ok, _subs} = result ->
         ClientChannel.join_room(client_id, channel.name)
-        broadcast_message("Has joined the channel.", channel.name, client_id, channel.id, system: true, sequential: false)
+        unless Settings.hide_user_join() do
+          broadcast_message("Has joined the channel.", channel.name, client_id, channel.id, system: true, sequential: false)
+        end
         result
       result -> result
     end
