@@ -47,7 +47,7 @@
             = reset_section_settings()
         - collapsable_section ~g"AutoLinker", fn _ ->
           - opts = [description: "Short display. e.g. https://emetrotel.com => emetrotel.com"]
-          = radio_button_line f, item, :autolinker_strip_prefix, ~g'AutoLinker Strip Prefix'
+          = radio_button_line f, item, :autolinker_strip_prefix, ~g'AutoLinker Strip Prefix', opts
           = radio_button_line f, item, :autolinker_scheme_urls, ~g'AutoLinker Scheme:// URLs'
           = radio_button_line f, item, :autolinker_www_urls, ~g"AutoLinker 'www' URLs"
           = radio_button_line f, item, :autolinker_tld_urls, ~g'AutoLinker TLD URLs'

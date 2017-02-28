@@ -1,6 +1,5 @@
 defmodule UcxChat.AdminView do
   use UcxChat.Web, :view
-  alias Phoenix.HTML.Tag
 
   def has_permission(_user, _permission), do: true
 
@@ -43,7 +42,7 @@ defmodule UcxChat.AdminView do
     end
   end
 
-  def text_input_line(f, item, field, title, opts \\ []) do
+  def text_input_line(f, _item, field, title, opts \\ []) do
     type = opts[:type] || :text
     description = opts[:description]
 
