@@ -54,7 +54,7 @@ defmodule UcxChat.ClientChannel do
   def handle_out("room:leave" = ev, msg, socket) do
     %{room: room} = msg
     debug ev, msg
-    socket.endpoint.unsubscribe(CC.chan_room <> "room-" <> room)
+    socket.endpoint.unsubscribe(CC.chan_room <> room)
     update_rooms_list(socket)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
   end
@@ -210,7 +210,7 @@ defmodule UcxChat.ClientChannel do
   def handle_info(%Broadcast{topic: _, event: "room:update:name" = event, payload: payload}, socket) do
     debug event, payload
     push socket, event, payload
-    socket.endpoint.unsubscribe(CC.chan_room <> "room-" <> payload[:old_name])
+    socket.endpoint.unsubscribe(CC.chan_room <> payload[:old_name])
     {:noreply, assign(socket, :subscribed, [payload[:new_name] | List.delete(socket.assigns[:subscribed], payload[:old_name])])}
   end
 
@@ -264,7 +264,7 @@ defmodule UcxChat.ClientChannel do
       if channel in subscribed do
         acc
       else
-        socket.endpoint.subscribe(CC.chan_room <> "room-" <> channel)
+        socket.endpoint.subscribe(CC.chan_room <> channel)
         assign(acc, :subscribed, [channel | subscribed])
       end
     end

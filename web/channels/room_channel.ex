@@ -19,13 +19,13 @@ defmodule UcxChat.RoomChannel do
   def user_join(nil), do: Logger.warn "join for nil username"
   def user_join(username, room) do
     Logger.warn "user_join username: #{inspect username}, room: #{inspect room}"
-    UcxChat.Endpoint.broadcast CC.chan_room <> "room-#{room}", "user:join", %{username: username}
+    UcxChat.Endpoint.broadcast CC.chan_room <> room, "user:join", %{username: username}
   end
 
   def user_leave(nil), do: Logger.warn "leave for nil username"
   def user_leave(username, room) do
     Logger.warn "user_leave username: #{inspect username}, room: #{inspect room}"
-    UcxChat.Endpoint.broadcast CC.chan_room <> "room-#{room}", "user:leave", %{username: username}
+    UcxChat.Endpoint.broadcast CC.chan_room <> room, "user:leave", %{username: username}
   end
 
   ############
@@ -36,8 +36,8 @@ defmodule UcxChat.RoomChannel do
     {:ok, socket}
   end
 
-  def join(CC.chan_room <> "room-" <> room, msg, socket) do
-    Logger.warn "join room-#{room}, msg: #{inspect msg}, socket: #{inspect socket}"
+  def join(CC.chan_room <> room, msg, socket) do
+    Logger.warn "join #{room}, msg: #{inspect msg}, socket: #{inspect socket}"
     send self(), {:after_join, room, msg}
     {:ok, socket}
   end

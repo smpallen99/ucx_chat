@@ -2,6 +2,7 @@ defmodule UcxChat.MessageService do
   import Ecto.Query
   alias UcxChat.{Message, Repo, TypingAgent, Client, Mention, Subscription}
   alias UcxChat.ServiceHelpers, as: Helpers
+  require UcxChat.ChatConstants, as: CC
 
   require Logger
 
@@ -9,7 +10,7 @@ defmodule UcxChat.MessageService do
   #   channel = Helpers.get
   # end
   def broadcast_message(id, room, client_id, html) when is_binary(room) do
-    UcxChat.Endpoint.broadcast! "ucxchat:room-" <> room, "message:new", create_broadcast_message(id, client_id, html)
+    UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:new", create_broadcast_message(id, client_id, html)
   end
 
   def broadcast_message(socket, id, client_id, html) do
@@ -82,7 +83,7 @@ defmodule UcxChat.MessageService do
 
   def update_typing(channel_id, room) do
     typing = TypingAgent.get_typing_names(channel_id)
-    UcxChat.Endpoint.broadcast("ucxchat:room-" <> room, "typing:update", %{typing: typing})
+    UcxChat.Endpoint.broadcast(CC.chan_room <> room, "typing:update", %{typing: typing})
   end
 
   def encode_mentions(body) do

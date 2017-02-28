@@ -205,7 +205,7 @@ function start_room_channel(typing) {
   // socket.connect({user: ucxchat.nickname})
   let room = ucxchat.room
   // Now that you are connected, you can join channels with a topic:
-  roomchan = socket.channel(chan_room + "room-"+room, {user: ucxchat.nickname, user_id: ucxchat.client_id})
+  roomchan = socket.channel(chan_room + room, {user: ucxchat.nickname, user_id: ucxchat.client_id})
 
   let chan = roomchan
 
