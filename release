@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./node_modules/brunch/bin/brunch build -p
+MIX_ENV=prod /usr/local/bin/mix do clean, compile, phoenix.digest, release --env=prod
