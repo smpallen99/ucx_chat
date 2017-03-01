@@ -2,7 +2,7 @@ defmodule UcxChat.SlashCommandChannelController do
   use UcxChat.Web, :channel_controller
 
   alias UcxChat.{SlashCommands, Repo, Channel}
-  alias UcxChat.{ChannelService, MessageService}
+  alias UcxChat.{ChannelService}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   import Ecto.Query
@@ -19,8 +19,10 @@ defmodule UcxChat.SlashCommandChannelController do
     client_id = socket.assigns[:client_id]
     channel_id = socket.assigns[:channel_id]
     command = String.replace(command, "-", "_") |> String.to_atom
-    res = handle_command(command, args, client_id, channel_id)
-    {:reply, res, socket}
+    case handle_command(command, args, client_id, channel_id) do
+      {:ok, _} = res -> {:reply, res, socket}
+      :noreply -> {:noreply, socket}
+    end
   end
 
   def handle_command(:part, args, client_id, channel_id),
@@ -70,8 +72,10 @@ defmodule UcxChat.SlashCommandChannelController do
     else
       SlashCommands.special_text(command) <> " " <> args
     end
-    message = MessageService.create_message(body, client_id, channel_id)
-    {:ok, %{html: MessageService.render_message(message)}}
+    Helpers.broadcast_message(body, client_id, channel_id)
+    :noreply
+    # message = MessageService.create_message(body, client_id, channel_id)
+    # {:ok, %{html: MessageService.render_message(message)}}
   end
 
   def handle_channel_command(command, args, client_id, channel_id) do

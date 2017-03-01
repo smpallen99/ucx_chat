@@ -195,24 +195,16 @@ defmodule UcxChat.ServiceHelpers do
   defp parse_name("]" <> tail, buff, acc), do: parse_name(tail, "", [buff|acc])
   defp parse_name(<<ch::8>> <> tail, buff, acc), do: parse_name(tail, buff <> <<ch::8>>, acc)
 
-  # def render_message(channel_id, message, opts \\ []) do
-  #   body = UcxChat.MessageView.render("message_response_body.html", message: message)
-  #   |> Phoenix.HTML.safe_to_string
+  def broadcast_message(body, client_id, channel_id) do
+    channel = get! Channel, channel_id
+    broadcast_message(body, channel.name, client_id, channel_id)
+  end
 
-  #   bot_id =
-  #     Client
-  #     # |> where([m], m.type == "b")
-  #     |> select([m], m.id)
-  #     |> limit(1)
-  #     |> Repo.one
-  #   type = if opts[:private] do, do: "p", else: nil
-  #   message = MessageService.create_message(body, bot_id, channel_id,
-  #     %{
-  #       type: type,
-  #       sequential: false,
-  #     })
-
-  #   {message, MessageService.render_message(message)}
-  # end
+  def broadcast_message(body, room, client_id, channel_id, opts \\ []) do
+    UcxChat.TypingAgent.stop_typing(channel_id, client_id)
+    MessageService.update_typing(channel_id, room)
+    {message, html} = MessageService.create_and_render(body, client_id, channel_id, opts)
+    MessageService.broadcast_message(message.id, room, client_id, html)
+  end
 
 end

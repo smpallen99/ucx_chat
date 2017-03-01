@@ -46,7 +46,7 @@ defmodule UcxChat.ChannelMonitor do
       nil ->
         {:noreply, state}
       {mod, func, args} ->
-        Task.start_link(fn -> apply(mod, func, args) end)
+        Task.start_link(fn -> apply(mod, func, [pid|args]) end)
         {:noreply, drop_channel(state, pid)}
     end
   end

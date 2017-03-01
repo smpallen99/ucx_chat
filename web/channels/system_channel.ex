@@ -29,8 +29,9 @@ defmodule UcxChat.SystemChannel do
     {:ok, socket}
   end
 
-  def leave(user_id) do
+  def leave(pid, user_id) do
     Logger.warn "user_id: #{inspect user_id} left the channel"
+    UcxChat.Presence.untrack(pid, CC.chan_system(), user_id)
     UcxChat.PresenceAgent.unload(user_id)
   end
 
