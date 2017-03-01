@@ -36,6 +36,58 @@ defmodule UcxChat.SharedView do
      Droplet: "droplet", Highbell: "highbell", Seasons: "seasons"]
   end
 
+  @regex1 ~r/^(.*?)(`(.*?)`)(.*?)$/
+  @regex2 ~r/\A(```(.*)```)\z/Ums
+
+  def format_quoted_code(string, true) do
+    do_format_multi_line_quoted_code(string)
+  end
+  def format_quoted_code(string, _) do
+    do_format_quoted_code(string, "")
+  end
+
+  def do_format_quoted_code(string, acc \\ "")
+  def do_format_quoted_code("", acc), do: acc
+  def do_format_quoted_code(nil, acc), do: acc
+  def do_format_quoted_code(string, acc) do
+    case Regex.run(@regex1, string) do
+      nil -> acc <> string
+      [_, head, _, quoted, tail] ->
+        acc = acc <> head <> " " <> single_quote_code(quoted)
+        do_format_quoted_code(tail, acc)
+    end
+  end
+
+  def do_format_multi_line_quoted_code(string) do
+    case Regex.run(@regex2, string) do
+      nil -> string
+      [_, _, quoted] ->
+        multi_quote_code quoted
+    end
+  end
+
+  # def multi_quote_code(quoted) do
+  #   """
+  #   <pre>
+  #     <code class='code-colors'>
+  #       #{quoted}
+  #     </code>
+  #   </pre>
+  #   """
+  # end
+  def multi_quote_code(quoted) do
+    "<pre><code class='code-colors'>#{quoted}</code></pre>"
+  end
+
+  def single_quote_code(quoted) do
+    """
+    <span class="copyonly">`</span>
+    <span>
+      <code class="code-colors inline">#{quoted}</code>
+    </span>
+    <span class="copyonly">`</span>
+    """
+  end
 
   defmacro gt(text, opts \\ []) do
     quote do

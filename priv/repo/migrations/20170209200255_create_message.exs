@@ -3,7 +3,7 @@ defmodule UcxChat.Repo.Migrations.CreateMessage do
 
   def change do
     create table(:messages) do
-      add :body, :string
+      add :body, :text
       add :type, :string, size: 2, default: ""
       add :edited_id, references(:clients, on_delete: :nothing)
       add :sequential, :boolean, default: false, null: false

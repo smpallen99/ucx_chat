@@ -16,6 +16,7 @@ import Admin from "./admin"
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
+import hljs from "highlight.js"
 
 const chan_user = "client:"
 const chan_room = "room:"
@@ -28,6 +29,8 @@ let socket = new Socket("/socket", {params: {token: window.user_token}})
 window.clientchan = false
 window.roomchan = false
 window.systemchan = false
+
+hljs.initHighlightingOnLoad();
 
 // new presence stuff
 let presences = {}
@@ -110,6 +113,9 @@ $(document).ready(function() {
 
   $('body').on('keypress', '.message-form-text', e => {
     if (debug) { console.log('message-form-text keypress', e) }
+    if (e.keyCode == 13 && e.shiftKey) {
+      return true
+    }
     if(e.keyCode == 13) {
       message_popup.handle_enter()
       Messages.send_message($('.message-form-text').val())

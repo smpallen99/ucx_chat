@@ -7,7 +7,10 @@
   },
   "dependencies": {
     "phoenix": "file:deps/phoenix",
-    "phoenix_html": "file:deps/phoenix_html"
+    "phoenix_html": "file:deps/phoenix_html",
+    "toastr": "^2.1.2",
+    "jquery": "~2.2.0",
+    "highlight.js": "~9.9.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
@@ -22,8 +25,6 @@
     "bourbon": "~4.3.2",
     "normalize.css": "^4.1.1",
     "postcss-brunch": "^0.5.0",
-    "mathsass": "~0.9.5",
-    "toastr": "^2.1.2",
-    "jquery": "~2.2.0"
+    "mathsass": "~0.9.5"
   }
 }

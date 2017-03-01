@@ -21,7 +21,7 @@ exports.config = {
     },
     stylesheets: {
       joinTo: {
-        "css/app.css": /^(web\/static\/css)/,
+        "css/app.css": [/^(web\/static\/css)/, "node_modules/highlight.js/styles/default.css"],
         "css/channel_settings.css": ["web/static/scss/channel_settings.scss"],
         // "css/toastr.css": ["web/static/scss/toastr.scss"]
       },
@@ -81,8 +81,11 @@ exports.config = {
 
   npm: {
     enabled: true,
-    whitelist: ["toastr"],
-    styles: {toastr: ["toastr.css"]},
+    whitelist: ["toastr", "highlight.js"],
+    styles: {
+      toastr: ["toastr.css"],
+      "highlight.js": ['styles/default.css']
+    },
     globals: {
       $: 'jquery',
       JQuery: 'jquery'

@@ -14,6 +14,7 @@ defmodule UcxChat.Coherence.Web do
       import UcxChat.ErrorHelpers
       import UcxChat.Gettext
       import UcxChat.Coherence.ViewHelpers
+      import UcxChat.SharedView
 
     end
   end

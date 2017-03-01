@@ -1,5 +1,6 @@
 import UnreadManager from "./unread_manager"
 import * as cc from "./chat_channel"
+import hljs from "highlight.js"
 import * as utils from "./utils"
 
 const debug = false;
@@ -11,7 +12,9 @@ class Messages {
     $('.messages-box .wrapper > ul').append(html)
 
     this.scroll_bottom()
-
+    $('.messages-box').children('.wrapper').children('ul').children(':last-child').find('pre').each(function(i, block) {
+      hljs.highlightBlock(block)
+    })
 
     if (ucxchat.client_id == msg.client_id) {
       if (debug) { console.log('adding own to', msg.id, $('#' + msg.id)) }
@@ -49,6 +52,9 @@ class Messages {
         .receive("ok", resp => {
           if (resp.html) {
             $('.messages-box .wrapper > ul').append(resp.html)
+            $('.messages-box').children('.wrapper').children('ul').children(':last-child').find('pre').each(function(i, block) {
+              hljs.highlightBlock(block)
+            })
             Messages.scroll_bottom()
           }
         })

@@ -199,11 +199,17 @@ defmodule UcxChat.MessageView do
   def get_popup_data(_), do: false
 
   def format_message_body(message) do
+    quoted? = String.contains?(message.body, "```")
     message.body
     |> String.replace("&lt;", "<")
     |> String.replace("&gt;", ">")
+    |> format_newlines(quoted?)
+    |> UcxChat.SharedView.format_quoted_code(quoted?)
     |> raw
   end
+
+  defp format_newlines(string, true), do: string
+  defp format_newlines(string, false), do: String.replace(string, "\n", "\n<br />\n")
 
   def message_cog_action_li(name, title, icon, extra \\ "") do
     #{}"reaction-message", "Reactions", "people-plus")
