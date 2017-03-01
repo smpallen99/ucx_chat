@@ -13,7 +13,7 @@
         %button.see-all Show all
     %ul.list.clearfix.lines
       - for client <- @clients do
-        %li.user-image.user-card-room.status-online
+        %li.user-image.user-card-room(class="status-#{client.status}" data-status-name="#{client.nickname}")
           %button(data-username="#{client.nickname}" tabindex="0" title="#{client.nickname}")
             .avatar
               .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")

@@ -1,6 +1,7 @@
 defmodule UcxChat.SharedView do
   use UcxChat.Utils
   alias UcxChat.{Client, Repo}
+  require Logger
 
   def markdown(text), do: text
 
@@ -8,6 +9,11 @@ defmodule UcxChat.SharedView do
     Repo.all Client
   end
   def get_room_icon(chatd), do: chatd.room_map[chatd.channel.id][:room_icon]
+  def get_room_status(chatd) do
+    # Logger.error "get room status room_map: #{inspect chatd.room_map[chatd.channel.id]}"
+    chatd.room_map[chatd.channel.id][:user_status]
+  end
+  def get_room_display_name(chatd), do: chatd.room_map[chatd.channel.id][:display_name]
 
   def hidden_on_nil(test, prefix \\ "")
   def hidden_on_nil(_test, ""), do: " hidden"

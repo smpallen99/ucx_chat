@@ -1,7 +1,7 @@
 .account-box(aria="Account" role="region")
-  %div(class="info #{get_user_status(@chatd.client)} primary-background-color")
+  %div(class="info status-#{@chatd.status} primary-background-color" data-status-name="#{get_user_name @chatd.client}")
     - if @chatd.client.nickname do
-      .thumb(data-status="#{get_visual_status(@chatd.client)}")
+      .thumb(data-status="#{@chatd.status}")
         .avatar
           = get_user_avatar(@chatd.client)
       .data

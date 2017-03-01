@@ -53,7 +53,7 @@ class SideNav {
     // })
     $('nav.options button.status').on('click', function(e) {
       e.preventDefault()
-      clientchan.push('status:set:' + $(this).data('status'), {})
+      systemchan.push('status:set:' + $(this).data('status'), {})
     })
     $('body').on('click', '.flex-nav header', function(e) {
       e.preventDefault()
@@ -84,6 +84,9 @@ class SideNav {
           }
         })
     })
+    // $('button.status').on('click', function(e) {
+    //   console.log('clicked status change', $(this).data('status'))
+    // })
   }
   static show_account_box_menu() {
     console.log('show_account_box_menu')

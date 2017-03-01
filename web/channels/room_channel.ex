@@ -3,6 +3,7 @@ defmodule UcxChat.RoomChannel do
   Handle incoming and outgoing Subscription messages
   """
   use Phoenix.Channel
+  use UcxChat.ChannelApi
 
   import Ecto.Query
 
@@ -18,7 +19,7 @@ defmodule UcxChat.RoomChannel do
 
   def user_join(nil), do: Logger.warn "join for nil username"
   def user_join(username, room) do
-    Logger.warn "user_join username: #{inspect username}, room: #{inspect room}"
+    # Logger.warn "user_join username: #{inspect username}, room: #{inspect room}"
     UcxChat.Endpoint.broadcast CC.chan_room <> room, "user:join", %{username: username}
   end
 
@@ -36,8 +37,8 @@ defmodule UcxChat.RoomChannel do
     {:ok, socket}
   end
 
-  def join(CC.chan_room <> room, msg, socket) do
-    Logger.warn "join #{room}, msg: #{inspect msg}, socket: #{inspect socket}"
+  def join(ev = CC.chan_room <> room, msg, socket) do
+    debug ev, msg
     send self(), {:after_join, room, msg}
     {:ok, socket}
   end
@@ -53,8 +54,8 @@ defmodule UcxChat.RoomChannel do
   ##########
   # Outgoing message handlers
 
-  def handle_out("lobby:" <> event, msg, socket) do
-    Logger.debug "handle_out topic: #{event}, msg: #{inspect msg}, socket: #{inspect socket}"
+  def handle_out(ev = "lobby:" <> event, msg, socket) do
+    debug ev, msg
     client_id = socket.assigns[:user_id]
     channel_id = msg[:channel_id]
 
@@ -69,28 +70,33 @@ defmodule UcxChat.RoomChannel do
   ##########
   # Incoming message handlers
 
-  def handle_in(pattern, %{"params" => params, "ucxchat" =>  ucxchat}, socket) do
-    Logger.warn "new handle_in params: #{inspect params}, ucxchat: #{inspect ucxchat}"
+  def handle_in(pattern, %{"params" => params, "ucxchat" =>  ucxchat} = msg, socket) do
+    debug pattern, msg
+    # Logger.debug "new handle_in params: #{inspect params}, ucxchat: #{inspect ucxchat}"
     UcxChat.ChannelRouter.route(socket, pattern, params, ucxchat)
   end
 
-  def handle_in("flex_bar:click:" <> mod, msg, socket) do
+  def handle_in(ev = "flex_bar:click:" <> mod, msg, socket) do
+    debug ev, msg
     resp = UcxChat.FlexBarService.handle_click(mod, msg)
     {:reply, resp, socket}
   end
 
-  def handle_in("flex_bar:" <> mod, msg, socket) do
-    Logger.warn "flex-bar mod: #{inspect mod}, msg: #{inspect msg}"
+  def handle_in(ev = "flex_bar:" <> mod, msg, socket) do
+    debug ev, msg
+    # Logger.debug "flex-bar mod: #{inspect mod}, msg: #{inspect msg}"
     resp = UcxChat.FlexBarService.handle_in(mod, msg)
     {:reply, resp, socket}
   end
 
-  def handle_in("message_popup:" <> cmd, msg, socket) do
+  def handle_in(ev = "message_popup:" <> cmd, msg, socket) do
+    debug ev, msg
     resp = UcxChat.MessagePopupService.handle_in(cmd, msg)
     {:reply, resp, socket}
   end
 
-  def handle_in("message_cog:" <> cmd, msg, socket) do
+  def handle_in(ev = "message_cog:" <> cmd, msg, socket) do
+    debug ev, msg
     resp = case UcxChat.MessageCogService.handle_in(cmd, msg) do
       {:nil, msg} ->
         {:ok, msg}
@@ -103,8 +109,8 @@ defmodule UcxChat.RoomChannel do
   end
 
   # default case
-  def handle_in(topic, msg, socket) do
-    Logger.warn "RoomChannel no handler for: topic: #{topic}, msg: #{inspect msg}"
+  def handle_in(event, msg, socket) do
+    Logger.warn "RoomChannel no handler for: event: #{event}, msg: #{inspect msg}"
     {:noreply, socket}
   end
 

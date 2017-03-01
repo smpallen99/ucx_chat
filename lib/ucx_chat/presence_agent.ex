@@ -99,6 +99,19 @@ defmodule UcxChat.PresenceAgent do
     end
   end
 
+  def get_and_update_presence(user_id, status) when is_integer(user_id),
+    do: user_id |> to_string |> get_and_update_presence(status)
+
+  def get_and_update_presence(user, status) do
+    Agent.get_and_update @name, fn state ->
+      get_and_update_in state, [user], fn
+        {:override, val} = override -> {val, override}   # don't change the override
+        _ -> {status, status}                            # new status
+      end
+    end
+  end
+  # Agent.get_and_update name, &(get_and_update_in(&1, ["18"], fn state -> {"busy", "busy"} end))
+
   @doc """
   Change user status.
 

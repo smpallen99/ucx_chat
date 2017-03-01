@@ -65,12 +65,12 @@ defmodule UcxChat.ChannelService do
         chan = cc.channel
         active = chan.id == channel_id
         type = get_chan_type(cc.type, chan.type)
-        display_name = get_channel_display_name(type, chan, id)
+        {display_name, user_status} = get_channel_display_name(type, chan, id)
         unread = if cc.unread == 0, do: false, else: cc.unread
         # Logger.warn "get_side_nav type: #{inspect type}, display_name: #{inspect display_name}"
         # IEx.pry
         %{
-          active: active, unread: unread, alert: cc.alert, user_status: "off-line",
+          active: active, unread: unread, alert: cc.alert, user_status: user_status,
           can_leave: true, archived: false, name: chan.name,
           room_icon: get_icon(chan.type), channel_id: chan.id, channel_type: chan.type,
           type: type, can_leave: true, display_name: display_name
@@ -122,11 +122,14 @@ defmodule UcxChat.ChannelService do
     |> where([d], d.channel_id == ^id and d.client_id == ^client_id)
     |> Repo.one
     |> case do
-      %{} = direct -> Map.get(direct, :clients)
-      _ ->  name
+      %{} = direct ->
+        nickname = Map.get(direct, :clients)
+        user = Repo.one! User.user_from_nickname(nickname)
+        {nickname, UcxChat.PresenceAgent.get(user.id)}
+      _ ->  {name, "offline"}
     end
   end
-  def get_channel_display_name(_, %Channel{name: name}, _), do: name
+  def get_channel_display_name(_, %Channel{name: name}, _), do: {name, "offline"}
 
   def favorite_room?(chatd, channel_id) do
     with room_types <- chatd.rooms,

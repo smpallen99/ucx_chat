@@ -15,8 +15,8 @@ defmodule UcxChat do
       supervisor(UcxChat.Presence, []),
       worker(UcxChat.TypingAgent, []),
       worker(UcxChat.ClientAgent, []),
-      # Start your own worker by calling: UcxChat.Worker.start_link(arg1, arg2, arg3)
-      # worker(UcxChat.Worker, [arg1, arg2, arg3]),
+      worker(UcxChat.PresenceAgent, []),
+      worker(UcxChat.ChannelMonitor, [:chan_system]),
     ]
     UcxChat.Permission.startup
     UcxChat.Permission.init

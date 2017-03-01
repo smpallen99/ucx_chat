@@ -2,7 +2,7 @@
   %a.open-room(href="#" title="#{@room[:name]}" data-room="#{@room[:name]}" data-name="#{@room[:display_name]}")
     - if @room[:unread] do
       %span.unread= @room[:unread]
-    %i(class="#{@room[:room_icon]} #{@room[:user_status]}" aria-label="")
+    %i(class="#{@room[:room_icon]} status-#{@room[:user_status]}" aria-label="" data-status-name="#{@room[:display_name]}")
     %span(class="name #{@room[:archived]}")= @room[:display_name]
     - if !! @room[:unread] do
       %span.opt

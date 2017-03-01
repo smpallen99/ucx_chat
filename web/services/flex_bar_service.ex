@@ -180,15 +180,20 @@ defmodule UcxChat.FlexBarService do
   end
 
   def get_render_args("Members List", client_id, channel_id, _message_id, opts) do
-    channel = Helpers.get_channel(channel_id, [:clients])
+    channel = Helpers.get_channel(channel_id, [clients: :user])
 
     {client, user_mode} =
       case opts["nickname"] do
         nil -> {Helpers.get(Client, client_id), false}
         nickname -> {Helpers.get_by(Client, :nickname, nickname), true}
       end
+    clients =
+      channel.clients
+      |> Enum.map(fn cl ->
+        struct(cl, status: UcxChat.PresenceAgent.get(cl.user.id))
+      end)
 
-    [clients: channel.clients, client: client, user_mode: user_mode]
+    [clients: clients, client: client, user_mode: user_mode]
   end
 
   def get_render_args("Switch User", _, _, _, _) do

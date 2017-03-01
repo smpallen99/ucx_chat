@@ -2,6 +2,9 @@
   %a.toggle-favorite(href="#favorite")
      - {icon, label}  = get_fav_icon_label(@chatd)
     %i(class="#{icon}" aria-label="#{label}")
-%i(class="#{get_room_icon(@chatd)} #{get_user_status(@chatd.client)}")
+- if get_room_icon(@chatd) == "icon-at" do
+  %i(class="#{get_room_icon(@chatd)} status-#{get_room_status(@chatd)}" data-status-name="#{@chatd.active_room[:display_name]}")
+- else
+  %i(class="#{get_room_icon(@chatd)} status-offline")
 %span.room-title= @chatd.active_room[:display_name]
 %span.room-topic= markdown @chatd.channel.topic

@@ -36,6 +36,8 @@ defmodule UcxChat.ChannelController do
       |> Coherence.current_user
       |> Repo.preload([:account, :client])
 
+    UcxChat.PresenceAgent.load user.id
+
     messages = MessageService.get_messages(channel.id)
     chatd = ChatDat.new(user, channel, messages)
     conn

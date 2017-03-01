@@ -5,7 +5,7 @@ defmodule UcxChat.RoomChannelController do
   require Logger
 
   def show(%{assigns: assigns} = socket, params) do
-    Logger.warn "room channel_controller params: #{inspect params}, socket.assigns: #{inspect socket.assigns}"
+    # Logger.warn "room channel_controller params: #{inspect params}, socket.assigns: #{inspect socket.assigns}"
     reply = ChannelService.open_room(assigns[:client_id], params["room_id"], assigns[:room], params["display_name"])
     {:reply, {:ok, reply}, socket}
   end

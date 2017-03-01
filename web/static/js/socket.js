@@ -19,6 +19,7 @@ import * as cc from "./chat_channel"
 
 const chan_user = "client:"
 const chan_room = "room:"
+const chan_system = "system:"
 
 const debug = true;
 
@@ -36,24 +37,36 @@ let formatTimestamp = (timestamp) => {
   return date.toLocaleTimeString()
 }
 
-let listBy = (user, {metas: metas}) => {
+let listBy = (user, {metas: metas, nickname: nickname}) => {
+  console.log('listBy user', user, 'metas', metas)
   return {
     user: user,
-    onlineAt: formatTimestamp(metas[0].online_at)
+    // onlineAt: formatTimestamp(metas[0].online_at),
+    nickname: metas[0].nickname,
+    status: metas[0].status
   }
 }
 
 let userList = document.getElementById("UserList")
+
+function update_presence(elem, status) {
+  if (typeof elem === "object" &&  elem.length > 0) {
+    elem.attr('class', elem.attr('class').replace(/ status-(.*)$/, ' status-' + status))
+  }
+}
+
 let render = (presences) => {
-  userList.innerHTML = Presence.list(presences, listBy)
-    .map(presence => `
-      <li>
-        ${presence.user}
-        </br>
-        <small>online since ${presence.onlineAt}</small>
-      </li>
-    `)
-    .join("")
+  Presence.list(presences, listBy)
+    .map(presence => {
+      let status = presence.status
+      let elem = $(`.info[data-status-name="${presence.nickname}"]`)
+      if (typeof elem === "object" &&  elem.length > 0) {
+        update_presence(elem, status)
+        elem.children(':first-child').data('status', status)
+      }
+      update_presence($(`a[data-room] i[data-status-name="${presence.nickname}"]`), status)
+      update_presence($(`li.user-card-room[data-status-name="${presence.nickname}"]`), status)
+    })
 }
 // end of presence stuff
 
@@ -141,7 +154,7 @@ $(document).ready(function() {
 })
 
 function start_system_channel() {
-  systemchan = socket.channel(chan_user + ucxchat.client_id, {user: ucxchat.nickname, channel_id: ucxchat.channel_id})
+  systemchan = socket.channel(chan_system, {user: ucxchat.nickname, channel_id: ucxchat.channel_id})
   let chan = systemchan
 
   chan.on('presence_state', state => {

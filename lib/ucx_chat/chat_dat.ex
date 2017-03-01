@@ -2,19 +2,39 @@ defmodule UcxChat.ChatDat do
   alias UcxChat.{Channel, User}
 
   defstruct user: nil, room_types: [], settings: %{}, rooms: [], client: nil,
-            channel: nil, messages: nil, room_map: %{}, active_room: %{}
+            channel: nil, messages: nil, room_map: %{}, active_room: %{}, status: "offline"
 
   def new(user, channel, messages \\ [])
   def new(%User{} = user, %Channel{} = channel, messages) do
     %{room_types: room_types, rooms: rooms, room_map: room_map, active_room: ar} =
       UcxChat.ChannelService.get_side_nav(user, channel.id)
-    %__MODULE__{user: user, room_types: room_types, rooms: rooms, room_map: room_map,  channel: channel, messages: messages, client: user.client, active_room: ar}
+    status = UcxChat.PresenceAgent.get user.id
+    %__MODULE__{
+      status: status,
+      user: user,
+      room_types: room_types,
+      rooms: rooms,
+      room_map: room_map,
+      channel: channel,
+      messages: messages,
+      client: user.client,
+      active_room: ar
+    }
   end
 
   def new(%User{} = user, channel_id, messages) do
     %{room_types: room_types, rooms: rooms, room_map: room_map, active_room: ar} =
       UcxChat.ChannelService.get_side_nav(user, channel_id)
-    %__MODULE__{user: user, room_types: room_types, rooms: rooms, room_map: room_map, messages: messages, active_room: ar}
+    status = UcxChat.PresenceAgent.get user.id
+    %__MODULE__{
+      status: status,
+      user: user,
+      room_types: room_types,
+      rooms: rooms,
+      room_map: room_map,
+      messages: messages,
+      active_room: ar
+    }
   end
 
   def favorite_room?(%__MODULE__{} = chatd, channel_id) do

@@ -6,6 +6,7 @@ defmodule UcxChat.Client do
     field :chat_status, :string
     field :tag_line, :string
     field :uri, :string
+    field :status, :string, default: "offline", virtual: true
     belongs_to :open, UcxChat.Channel, foreign_key: :open_id
     has_one :user, UcxChat.User
     has_many :subscriptions, UcxChat.Subscription

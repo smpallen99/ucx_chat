@@ -9,7 +9,7 @@ defmodule UcxChat.MessageChannelController do
   require Logger
 
   def create(%{assigns: assigns} = socket, params) do
-    Logger.warn "++++ socket: #{inspect socket}"
+    # Logger.warn "++++ socket: #{inspect socket}"
     message = params["message"]
     client_id = assigns[:client_id]
     channel_id = assigns[:channel_id]

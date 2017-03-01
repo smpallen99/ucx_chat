@@ -2,6 +2,7 @@ defmodule UcxChat.User do
   @moduledoc false
   use UcxChat.Web, :model
   use Coherence.Schema
+  alias UcxChat.Client
 
   @mod __MODULE__
 
@@ -36,4 +37,18 @@ defmodule UcxChat.User do
     from u in @mod, select: count(u.id)
   end
 
+  def client_id_and_nickname(user_id) do
+    from u in @mod,
+      where: u.id == ^user_id,
+      join: c in Client, on: u.client_id == c.id,
+      select: {c.id, c.nickname}
+  end
+  def user_from_nickname(nickname) do
+    from u in @mod,
+      join: c in Client, on: c.id == u.client_id,
+      where: c.nickname == ^nickname
+  end
+  def all do
+    from u in @mod
+  end
 end

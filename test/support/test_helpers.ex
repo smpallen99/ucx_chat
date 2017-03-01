@@ -1,9 +1,29 @@
 defmodule UcxChat.TestHelpers do
-  alias UcxChat.{Repo, User, Account}
+  alias UcxChat.{Repo, User, Account, Client}
   alias FakerElixir, as: Faker
   use Hound.Helpers
 
-  def insert_user(client_id, attrs \\ %{}) do
+  def insert_client_user(attrs \\ %{}) do
+    attrs
+    |> insert_client
+    |> insert_user
+    |> Repo.preload([:client, :account])
+  end
+
+  def insert_client(attrs \\ %{}) do
+    changes = Map.merge(%{
+      nickname: Faker.Internet.user_name,
+      }, to_map(attrs))
+    Client.changeset(%Client{}, changes)
+    |> Repo.insert!()
+  end
+
+  def insert_user(client, attrs \\ %{})
+  def insert_user(%Client{id: id}, attrs) do
+    insert_user(id, attrs)
+  end
+
+  def insert_user(client_id, attrs) do
     account = Account.changeset(%Account{}, %{}) |> Repo.insert!
     changes = Map.merge(%{
       name: Faker.Name.name,

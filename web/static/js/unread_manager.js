@@ -176,9 +176,11 @@ window.unread = unread;
 $(document).ready(function() {
   $(window).on('focus', () => {
     unread.has_focus = true;
+    systemchan.push('state:focus')
     if (debug) { console.log('focus') }
   }).on('blur', () => {
     unread.has_focus = false;
+    systemchan.push('state:blur')
     if (debug) { console.log('blur') }
   })
 

@@ -31,8 +31,9 @@ defmodule UcxChat.UserSocket do
     case Coherence.verify_user_token(socket, token, &assign/3) do
       {:error, _} -> :error
       {:ok, %{assigns: %{user_id: user_id}} = socket} ->
-        client_id = Repo.get!(User, user_id) |> Map.get(:client_id)
-        {:ok, assign(socket, :client_id, client_id)}
+        {client_id, nickname} = User.client_id_and_nickname(user_id) |> Repo.one
+        # client_id = Repo.get!(User, user_id) |> Map.get(:client_id)
+        {:ok, assign(socket, :client_id, client_id) |> assign(:nickname, nickname)}
     end
   end
 
