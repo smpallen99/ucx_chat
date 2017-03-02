@@ -33,7 +33,7 @@ defmodule UcxChat.Channel do
     |> validate_length(:name, min: 2, max: 25)
   end
 
-  def changeset_settings(struct, [{"private", value}] = params) do
+  def changeset_settings(struct, [{"private", value}]) do
     type = if value == true, do: 1, else: 0
     changeset(struct, %{type: type})
   end

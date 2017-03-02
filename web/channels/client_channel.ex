@@ -1,7 +1,7 @@
 defmodule UcxChat.ClientChannel do
   use Phoenix.Channel
   use UcxChat.ChannelApi
-  alias UcxChat.Presence
+  # alias UcxChat.Presence
 
   import Ecto.Query
 

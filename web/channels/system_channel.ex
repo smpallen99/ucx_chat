@@ -4,10 +4,10 @@ defmodule UcxChat.SystemChannel do
   alias UcxChat.Presence
   alias UcxChat.ServiceHelpers, as: Helpers
 
-  import Ecto.Query
+  # import Ecto.Query
 
-  # @blur_timer 5 * 60 * 1000
-  @blur_timer 10 * 1000
+  @blur_timer 5 * 60 * 1000
+  # @blur_timer 10 * 1000
 
   # import Ecto.Query
 
