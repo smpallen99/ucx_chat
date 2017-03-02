@@ -92,17 +92,17 @@ defmodule UcxChat.SharedView do
   def get_avatar_img(username) do
     # Logger.warn "get_avatar #{inspect msg}"
     # ""
-    Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{username}.png?size=40x40"
+    Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{username}.png?set=any&bgset=any&size=40x40"
   end
   def get_avatar(msg) do
     # Logger.warn "get_avatar #{inspect msg}"
     # ""
     # Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{msg}.png?size=40x40"
-    "https://robohash.org/#{msg}.png?size=40x40"
+    "https://robohash.org/#{msg}.png?set=any&bgset=any&size=40x40"
   end
   def get_large_avatar(username) do
     # Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{username}.png?size=350x310"
-    "https://robohash.org/#{username}.png?size=350x310"
+    "https://robohash.org/#{username}.png?set=any&bgset=any&size=350x310"
   end
 
   defmacro gt(text, opts \\ []) do
