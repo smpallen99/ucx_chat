@@ -19,12 +19,12 @@ defmodule UcxChat.MessageView do
     cls =
       ~w(get_sequential get_system get_t get_own get_is_temp get_chat_opts get_custom_class)a
       |> Enum.reduce("message background-transparent-dark-hover", fn fun, acc ->
-        acc <> apply(__MODULE__, fun, [msg, user.client])
+        acc <> apply(__MODULE__, fun, [msg, user])
       end)
     attrs = [
       id: "message-#{msg.id}",
       class: cls,
-      "data-username": msg.client.nickname,
+      "data-username": msg.user.username,
       "data-groupable": msg.is_groupable,
       "data-date": format_date(msg.updated_at, user),
       "data-timestamp": msg.timestamp
@@ -66,14 +66,11 @@ defmodule UcxChat.MessageView do
     Timex.shift(dt, hours: user.tz_offset || 0)
   end
 
-  def get_avatar(_msg) do
-    ""
-  end
   def avatar_from_username(_msg), do: false
   def emoji(_msg) do
     false
   end
-  def get_username(msg), do: msg.client.nickname
+  def get_username(msg), do: msg.user.username
   def get_users_typing(_msg), do: []
   def get_users_typing(_msg, _cmd), do: []
   def alias?(_msg), do: false
@@ -101,7 +98,7 @@ defmodule UcxChat.MessageView do
   def get_t(%{t: t}, _), do: "#{t}"
   def get_t(_, _), do: ""
   def get_own(%{system: true}, _), do: ""
-  def get_own(%{client_id: id}, %{id: id}), do: " own"
+  def get_own(%{user_id: id}, %{id: id}), do: " own"
   def get_own(_, _), do: ""
   def get_is_temp(%{is_temp: is_temp}, _), do: "#{is_temp}"
   def get_is_temp(_, _), do: ""

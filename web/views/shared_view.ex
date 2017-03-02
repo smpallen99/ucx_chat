@@ -1,12 +1,12 @@
 defmodule UcxChat.SharedView do
   use UcxChat.Utils
-  alias UcxChat.{Client, Repo}
+  alias UcxChat.{User, Repo}
   require Logger
 
   def markdown(text), do: text
 
-  def get_all_clients do
-    Repo.all Client
+  def get_all_users do
+    Repo.all User
   end
   def get_room_icon(chatd), do: chatd.room_map[chatd.channel.id][:room_icon]
   def get_room_status(chatd) do
@@ -87,6 +87,22 @@ defmodule UcxChat.SharedView do
     </span>
     <span class="copyonly">`</span>
     """
+  end
+
+  def get_avatar_img(username) do
+    # Logger.warn "get_avatar #{inspect msg}"
+    # ""
+    Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{username}.png?size=40x40"
+  end
+  def get_avatar(msg) do
+    # Logger.warn "get_avatar #{inspect msg}"
+    # ""
+    # Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{msg}.png?size=40x40"
+    "https://robohash.org/#{msg}.png?size=40x40"
+  end
+  def get_large_avatar(username) do
+    # Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{username}.png?size=350x310"
+    "https://robohash.org/#{username}.png?size=350x310"
   end
 
   defmacro gt(text, opts \\ []) do

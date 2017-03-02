@@ -5,7 +5,7 @@ defmodule UcxChat.PresenceAgentTest do
 
   setup do
     Agent.clear
-    {:ok, user: insert_client_user()}
+    {:ok, user: insert_user()}
   end
 
   test "load", %{user: user} do
@@ -15,7 +15,7 @@ defmodule UcxChat.PresenceAgentTest do
   end
 
   test "load overide" do
-    user = insert_client_user(%{chat_status: "busy"})
+    user = insert_user(%{chat_status: "busy"})
     Agent.load user.id
     assert Agent.get(user.id) == "busy"
   end

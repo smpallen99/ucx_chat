@@ -1,27 +1,27 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
-  alias UcxChat.{Message, Repo, TypingAgent, Client, Mention, Subscription, Settings, User}
+  alias UcxChat.{Message, Repo, TypingAgent, User, Mention, Subscription, Settings}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
   require Logger
 
-  # def broadcast_message(id, channel_id, client_id, html) do
+  # def broadcast_message(id, channel_id, user_id, html) do
   #   channel = Helpers.get
   # end
-  def broadcast_message(id, room, client_id, html) when is_binary(room) do
-    UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:new", create_broadcast_message(id, client_id, html)
+  def broadcast_message(id, room, user_id, html) when is_binary(room) do
+    UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:new", create_broadcast_message(id, user_id, html)
   end
 
-  def broadcast_message(socket, id, client_id, html) do
-    Phoenix.Channel.broadcast! socket, "message:new", create_broadcast_message(id, client_id, html)
+  def broadcast_message(socket, id, user_id, html) do
+    Phoenix.Channel.broadcast! socket, "message:new", create_broadcast_message(id, user_id, html)
   end
 
-  defp create_broadcast_message(id, client_id, html) do
+  defp create_broadcast_message(id, user_id, html) do
     %{
       html: html,
       id: "message-#{id}",
-      client_id: client_id
+      user_id: user_id
     }
   end
 
@@ -29,16 +29,16 @@ defmodule UcxChat.MessageService do
     Message
     |> where([m], m.channel_id == ^channel_id)
     |> Helpers.last_page
-    |> preload([:client])
+    |> preload([:user])
     |> Repo.all
   end
 
-  def last_client_id(channel_id) do
+  def last_user_id(channel_id) do
     channel_id
     |> last_message
     |> case do
       nil -> nil
-      message -> Map.get(message, :client_id)
+      message -> Map.get(message, :user_id)
     end
   end
 
@@ -50,21 +50,21 @@ defmodule UcxChat.MessageService do
   end
 
   def render_message(message) do
-    client_id = message.client.id
-    user = Repo.one(from u in User, where: u.client_id == ^client_id)
+    user_id = message.user.id
+    user = Repo.one(from u in User, where: u.id == ^user_id)
     "message.html"
     |> UcxChat.MessageView.render(message: message, user: user)
     |> Phoenix.HTML.safe_to_string
   end
 
-  def create_message(body, client_id, channel_id, params \\ %{}) do
+  def create_message(body, user_id, channel_id, params \\ %{}) do
     # Logger.warn "create_msg body: #{inspect body}, params: #{inspect params}"
     sequential? = case last_message(channel_id) do
       nil -> false
       lm ->
         Timex.after?(Timex.shift(lm.inserted_at,
           seconds: Settings.grouping_period_seconds()), Timex.now) and
-          client_id == lm.client_id
+          user_id == lm.user_id
     end
 
     message =
@@ -73,11 +73,11 @@ defmodule UcxChat.MessageService do
         %{
           sequential: sequential?,
           channel_id: channel_id,
-          client_id: client_id,
+          user_id: user_id,
           body: body
         }, params))
       |> Repo.insert!
-      |> Repo.preload([:client])
+      |> Repo.preload([:user])
     if params[:type] == "p" do
       Repo.delete(message)
     end
@@ -101,17 +101,17 @@ defmodule UcxChat.MessageService do
   end
 
   def encode_mention(name, body, acc) do
-    Client
-    |> where([c], c.nickname == ^name)
+    User
+    |> where([c], c.username == ^name)
     |> Repo.one
     |> do_encode_mention(name, body, acc)
   end
 
   def do_encode_mention(nil, _, body, acc), do: {body, acc}
-  def do_encode_mention(client, name, body, acc) do
-    name_link = " <a class='mention-link' data-username='#{client.nickname}'>@#{client.nickname}</a> "
+  def do_encode_mention(user, name, body, acc) do
+    name_link = " <a class='mention-link' data-username='#{user.username}'>@#{user.username}</a> "
     body = String.replace body, ~r/(^|\s|\.|\!|:|,|\?)@#{name}[\.\!\?\,\:\s]*/, name_link
-    {body, [client.id|acc]}
+    {body, [user.id|acc]}
   end
 
   def create_mentions([], _, _), do: :ok
@@ -122,13 +122,13 @@ defmodule UcxChat.MessageService do
 
   def create_mention(mention, message_id, channel_id) do
     %Mention{}
-    |> Mention.changeset(%{client_id: mention, message_id: message_id, channel_id: channel_id})
+    |> Mention.changeset(%{user_id: mention, message_id: message_id, channel_id: channel_id})
     |> Repo.insert!
     |> notify_mention
 
     subs =
       Subscription
-      |> where([s], s.client_id == ^mention and s.channel_id == ^channel_id)
+      |> where([s], s.user_id == ^mention and s.channel_id == ^channel_id)
       |> Repo.one!
 
     subs
@@ -136,8 +136,8 @@ defmodule UcxChat.MessageService do
     |> Repo.update!
   end
 
-  def create_and_render(body, client_id, channel_id, opts \\ []) do
-    message = create_message(body, client_id, channel_id, Enum.into(opts, %{}))
+  def create_and_render(body, user_id, channel_id, opts \\ []) do
+    message = create_message(body, user_id, channel_id, Enum.into(opts, %{}))
     {message, render_message(message)}
   end
 

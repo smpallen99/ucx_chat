@@ -13,6 +13,6 @@
 :javascript
   window.user_token = '<%= Coherence.user_token(@conn) %>'
   window.ucxchat = {room: '<%= @chatd.channel.name %>', channel_id: <%= @chatd.channel.id %>,
-    nickname: '<%= @chatd.client.nickname %>',client_id: <%= @chatd.client.id %>, display_name: '<%= @chatd.active_room[:display_name] %>'};
+    username: '<%= @chatd.user.username %>',user_id: <%= @chatd.user.id %>, display_name: '<%= @chatd.active_room[:display_name] %>'};
   let myPanel = $('.messages-box .wrapper')
   myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());

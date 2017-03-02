@@ -2,7 +2,7 @@ defmodule UcxChat.User do
   @moduledoc false
   use UcxChat.Web, :model
   use Coherence.Schema
-  alias UcxChat.Client
+  alias UcxChat.User
 
   @mod __MODULE__
 
@@ -10,18 +10,30 @@ defmodule UcxChat.User do
     field :name, :string
     field :email, :string
     field :username, :string
-    field :admin, :boolean, default: false
+    # field :admin, :boolean, default: false
     field :tz_offset, :integer
+    field :alias, :string
+    field :chat_status, :string
+    field :tag_line, :string
+    field :uri, :string
+    field :status, :string, default: "offline", virtual: true
+
+    belongs_to :open, UcxChat.Channel, foreign_key: :open_id
 
     has_many :roles, UcxChat.UserRole
+    has_many :subscriptions, UcxChat.Subscription
+    has_many :channels, through: [:subscriptions, :channel]
+    has_many :messages, UcxChat.Message
+    has_many :stared_messages, UcxChat.StaredMessage
+    has_many :owns, UcxChat.Channel, foreign_key: :user_id
 
-    belongs_to :client, UcxChat.Client
     belongs_to :account, UcxChat.Account
     coherence_schema()
 
     timestamps()
   end
-  @all_params ~w(name email username admin client_id account_id tz_offset)a
+
+  @all_params ~w(name email username account_id tz_offset alias chat_status tag_line uri open_id)a
   @required  ~w(name email username account_id)a
 
   def changeset(model, params \\ %{}) do
@@ -38,17 +50,20 @@ defmodule UcxChat.User do
     from u in @mod, select: count(u.id)
   end
 
-  def client_id_and_nickname(user_id) do
+  def user_id_and_username(user_id) do
     from u in @mod,
       where: u.id == ^user_id,
-      join: c in Client, on: u.client_id == c.id,
-      select: {c.id, c.nickname}
+      select: {u.id, u.username}
   end
-  def user_from_nickname(nickname) do
+  def user_from_username(username) do
     from u in @mod,
-      join: c in Client, on: c.id == u.client_id,
-      where: c.nickname == ^nickname
+      where: u.username == ^username
   end
+
+  def display_name(%@mod{} = user) do
+    user.alias || user.username
+  end
+
   def all do
     from u in @mod
   end

@@ -1,7 +1,7 @@
 defmodule UcxChat.FlexBarService do
   import Ecto.Query
 
-  alias UcxChat.{Repo, FlexBarView, Client, User, Mention, StaredMessage, PinnedMessage, ClientAgent}
+  alias UcxChat.{Repo, FlexBarView, User, Mention, StaredMessage, PinnedMessage, UserAgent}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -9,25 +9,25 @@ defmodule UcxChat.FlexBarService do
 
   def handle_in("close" = _event, msg) do
     # Logger.warn "FlexBarService.close msg: #{inspect msg}"
-    ClientAgent.close_ftab(msg["client_id"], msg["channel_id"])
+    UserAgent.close_ftab(msg["user_id"], msg["channel_id"])
     {:ok, %{}}
   end
 
   def handle_in("get_open" = _event, msg) do
     Logger.debug "FlexBarService.get_open msg: #{inspect msg}"
-    ftab = ClientAgent.get_ftab(msg["client_id"], msg["channel_id"])
+    ftab = UserAgent.get_ftab(msg["user_id"], msg["channel_id"])
     {:ok, %{ftab: ftab}}
   end
 
   def handle_flex_callback(:open, _ch, tab, nil, socket, _params) do
-    client_id = socket.assigns[:client_id]
+    user_id = socket.assigns[:user_id]
     channel_id = socket.assigns[:channel_id]
     case default_settings[String.to_atom(tab)][:templ] do
       nil -> %{}
       templ ->
         html =
           templ
-          |> FlexBarView.render(get_render_args(tab, client_id, channel_id, nil))
+          |> FlexBarView.render(get_render_args(tab, user_id, channel_id, nil))
           |> Phoenix.HTML.safe_to_string
         %{html: html}
     end
@@ -35,14 +35,14 @@ defmodule UcxChat.FlexBarService do
   def handle_flex_callback(:open, _ch, tab, args, socket, _params) do
     # require IEx
     # IEx.pry
-    client_id = socket.assigns[:client_id]
+    user_id = socket.assigns[:user_id]
     channel_id = socket.assigns[:channel_id]
     case default_settings[String.to_atom(tab)][:templ] do
       nil -> %{}
       templ ->
         html =
           templ
-          |> FlexBarView.render(get_render_args(tab, client_id, channel_id, nil, args))
+          |> FlexBarView.render(get_render_args(tab, user_id, channel_id, nil, args))
           |> Phoenix.HTML.safe_to_string
         %{html: html}
     end
@@ -57,12 +57,12 @@ defmodule UcxChat.FlexBarService do
 
     handle_open_close event, msg, fn msg ->
       # args = Helpers.get_channel(channel_id)
-      args = get_render_args("Info", msg["client_id"], channel_id, nil, nil)
+      args = get_render_args("Info", msg["user_id"], channel_id, nil, nil)
 
       html = FlexBarView.render(msg["templ"], args)
       |> Phoenix.HTML.safe_to_string
 
-      ClientAgent.open_ftab(msg["client_id"], channel_id, event, nil)
+      UserAgent.open_ftab(msg["user_id"], channel_id, event, nil)
 
       %{html: html}
     end
@@ -72,14 +72,14 @@ defmodule UcxChat.FlexBarService do
     log_click event, msg
 
     handle_open_close event, msg, fn msg ->
-      args = get_render_args("Members List", msg["client_id"], channel_id, nil, msg)
+      args = get_render_args("Members List", msg["user_id"], channel_id, nil, msg)
 
       html = FlexBarView.render(msg["templ"], args)
       |> Phoenix.HTML.safe_to_string
 
-      view = if msg["nickname"], do: {"nickname", msg["nickname"]}, else: nil
+      view = if msg["username"], do: {"username", msg["username"]}, else: nil
 
-      ClientAgent.open_ftab(msg["client_id"], channel_id, event, view)
+      UserAgent.open_ftab(msg["user_id"], channel_id, event, view)
 
       %{html: html}
     end
@@ -95,67 +95,67 @@ defmodule UcxChat.FlexBarService do
       html = FlexBarView.render(msg["templ"], args)
       |> Phoenix.HTML.safe_to_string
 
-      ClientAgent.open_ftab(msg["client_id"], msg["channel_id"], event, nil)
+      UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
 
       %{html: html}
     end
   end
 
-  def handle_click("Mentions" = event, %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
+  def handle_click("Mentions" = event, %{"user_id" => user_id, "channel_id" => channel_id} = msg) do
     log_click event, msg
     handle_open_close event, msg, fn msg ->
 
-      args = get_render_args("Mentions", client_id, channel_id, nil)
+      args = get_render_args("Mentions", user_id, channel_id, nil)
 
       html = FlexBarView.render(msg["templ"], args)
       |> Phoenix.HTML.safe_to_string
 
-      ClientAgent.open_ftab(msg["client_id"], msg["channel_id"], event, nil)
+      UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
 
       %{html: html}
     end
   end
 
-  def handle_click("Stared Messages" = event, %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
+  def handle_click("Stared Messages" = event, %{"user_id" => user_id, "channel_id" => channel_id} = msg) do
     log_click event, msg
 
     handle_open_close event, msg, fn msg ->
-      args = get_render_args("Stared Messages", client_id,  channel_id, msg["message_id"])
+      args = get_render_args("Stared Messages", user_id,  channel_id, msg["message_id"])
 
       html = FlexBarView.render(msg["templ"], args)
       |> Phoenix.HTML.safe_to_string
 
-      ClientAgent.open_ftab(msg["client_id"], msg["channel_id"], event, nil)
+      UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
 
       %{html: html}
     end
   end
-  def handle_click("Pinned Messages" = event, %{"client_id" => client_id, "channel_id" => channel_id} = msg) do
+  def handle_click("Pinned Messages" = event, %{"user_id" => user_id, "channel_id" => channel_id} = msg) do
     log_click event, msg
     handle_open_close event, msg, fn  msg ->
-      args = get_render_args("Pinned Messages", client_id, channel_id, msg["message_id"])
+      args = get_render_args("Pinned Messages", user_id, channel_id, msg["message_id"])
 
       html = FlexBarView.render(msg["templ"], args)
       |> Phoenix.HTML.safe_to_string
 
-      ClientAgent.open_ftab(msg["client_id"], msg["channel_id"], event, nil)
+      UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
 
       %{html: html}
     end
   end
 
   def handle_open_close(event, msg, fun) do
-    case ClientAgent.get_ftab(msg["client_id"], msg["channel_id"]) do
+    case UserAgent.get_ftab(msg["user_id"], msg["channel_id"]) do
       %{title: ^event} ->
-        ClientAgent.close_ftab(msg["client_id"], msg["channel_id"])
+        UserAgent.close_ftab(msg["user_id"], msg["channel_id"])
         {:ok, %{close: true}}
       _ ->
         {:ok, Map.put(fun.(msg), :open, true)}
     end
   end
 
-  def settings_form_fields(channel, client_id) do
-    disabled = channel.client_id != client_id
+  def settings_form_fields(channel, user_id) do
+    disabled = channel.user_id != user_id
     [
       %{name: "name", label: "Name", type: :text, value: channel.name, read_only: disabled},
       %{name: "topic", label: "Topic", type: :text, value: channel.topic, read_only: disabled},
@@ -167,45 +167,45 @@ defmodule UcxChat.FlexBarService do
     ]
   end
 
-  def get_setting_form_field(name, channel, client_id) do
-    settings_form_fields(channel, client_id)
+  def get_setting_form_field(name, channel, user_id) do
+    settings_form_fields(channel, user_id)
     |> Enum.find(&(&1[:name] == name))
   end
 
-  def get_render_args(event, client_id, channel_id, message_id, opts \\ %{})
+  def get_render_args(event, user_id, channel_id, message_id, opts \\ %{})
 
-  def get_render_args("Info", client_id, channel_id, _, _)  do
+  def get_render_args("Info", user_id, channel_id, _, _)  do
     channel = Helpers.get_channel(channel_id)
-    [channel: settings_form_fields(channel, client_id)]
+    [channel: settings_form_fields(channel, user_id)]
   end
 
-  def get_render_args("Members List", client_id, channel_id, _message_id, opts) do
-    channel = Helpers.get_channel(channel_id, [clients: :user])
+  def get_render_args("Members List", user_id, channel_id, _message_id, opts) do
+    channel = Helpers.get_channel(channel_id, [:users])
 
-    {client, user_mode} =
-      case opts["nickname"] do
-        nil -> {Helpers.get(Client, client_id, preload: [:user]), false}
-        nickname -> {Helpers.get_by(Client, :nickname, nickname, preload: [:user]), true}
+    {user, user_mode} =
+      case opts["username"] do
+        nil -> {Helpers.get(User, user_id), false}
+        username -> {Helpers.get_by(User, :username, username), true}
       end
 
-    clients =
-      channel.clients
-      |> Enum.map(fn cl ->
-        struct(cl, status: UcxChat.PresenceAgent.get(cl.user.id))
+    users =
+      channel.users
+      |> Enum.map(fn user ->
+        struct(user, status: UcxChat.PresenceAgent.get(user))
       end)
 
-    [clients: clients, client: client, user_mode: user_mode]
+    [users: users, user: user, user_mode: user_mode]
   end
 
   def get_render_args("Switch User", _, _, _, _) do
     [users: Repo.all(User)]
   end
 
-  def get_render_args("Mentions", client_id, channel_id, _message_id, _) do
+  def get_render_args("Mentions", user_id, channel_id, _message_id, _) do
     mentions =
       Mention
-      |> where([m], m.client_id == ^client_id and m.channel_id == ^channel_id)
-      |> preload([:client, :message])
+      |> where([m], m.user_id == ^user_id and m.channel_id == ^channel_id)
+      |> preload([:user, :message])
       |> Repo.all
       |> Enum.reduce({nil, []}, fn m, {last_day, acc} ->
         day = DateTime.to_date(m.updated_at)
@@ -213,9 +213,9 @@ defmodule UcxChat.FlexBarService do
           %{
             channel_id: channel_id,
             message: m.message,
-            nickname: m.client.nickname,
-            client: m.client,
-            own: m.message.client_id == client_id,
+            username: m.user.username,
+            user: m.user,
+            own: m.message.user_id == user_id,
             id: m.id,
             new_day: day != last_day,
             date: Helpers.format_date(m.message.updated_at),
@@ -229,11 +229,11 @@ defmodule UcxChat.FlexBarService do
 
     [mentions: mentions]
   end
-  def get_render_args("Stared Messages", client_id,  channel_id, _message_id, _) do
+  def get_render_args("Stared Messages", user_id,  channel_id, _message_id, _) do
     stars =
       StaredMessage
       |> where([m], m.channel_id == ^channel_id)
-      |> preload([:client, :message])
+      |> preload([:user, :message])
       |> order_by([m], desc: m.id)
       |> Repo.all
       |> Enum.reduce({nil, []}, fn m, {last_day, acc} ->
@@ -242,9 +242,9 @@ defmodule UcxChat.FlexBarService do
           %{
             channel_id: channel_id,
             message: m.message,
-            nickname: m.client.nickname,
-            client: m.client,
-            own: m.message.client_id == client_id,
+            username: m.user.username,
+            user: m.user,
+            own: m.message.user_id == user_id,
             id: m.id,
             new_day: day != last_day,
             date: Helpers.format_date(m.message.updated_at),
@@ -258,11 +258,11 @@ defmodule UcxChat.FlexBarService do
     [stars: stars]
   end
 
-  def get_render_args("Pinned Messages", client_id, channel_id, _message_id, _) do
+  def get_render_args("Pinned Messages", user_id, channel_id, _message_id, _) do
     pinned =
       PinnedMessage
       |> where([m], m.channel_id == ^channel_id)
-      |> preload([message: :client])
+      |> preload([message: :user])
       |> order_by([p], desc: p.id)
       |> Repo.all
       |> Enum.reduce({nil, []}, fn p, {last_day, acc} ->
@@ -271,9 +271,9 @@ defmodule UcxChat.FlexBarService do
           %{
             channel_id: channel_id,
             message: p.message,
-            nickname: p.message.client.nickname,
-            client: p.message.client,
-            own: p.message.client_id == client_id,
+            username: p.message.user.username,
+            user: p.message.user,
+            own: p.message.user_id == user_id,
             id: p.id,
             new_day: day != last_day,
             date: Helpers.format_date(p.message.updated_at),
@@ -296,11 +296,11 @@ defmodule UcxChat.FlexBarService do
       "Search": %{},
       "User Info": %{},
       "Members List": %{
-        templ: "clients_list.html",
+        templ: "users_list.html",
         args: %{},
         show: %{
           attr: "data-username",
-          args: [%{key: "nickname"}], # attr is optional for override -  attr: "data-username"}],
+          args: [%{key: "username"}], # attr is optional for override -  attr: "data-username"}],
           triggers: [
             %{action: "click", class: "button.user.user-card-message"},
             %{action: "click", class: ".mention-link"},

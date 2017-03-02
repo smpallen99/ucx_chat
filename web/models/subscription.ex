@@ -5,7 +5,7 @@ defmodule UcxChat.Subscription do
 
   schema "subscriptions" do
     belongs_to :channel, UcxChat.Channel
-    belongs_to :client, UcxChat.Client
+    belongs_to :user, UcxChat.User
     field :last_read, :integer
     field :type, :integer
     field :open, :boolean, default: false
@@ -29,7 +29,7 @@ defmodule UcxChat.Subscription do
   # entry where the messages are stored.
   # room => name: string, room_type: String, room_id: integer
 
-  @fields ~w(channel_id client_id)a
+  @fields ~w(channel_id user_id)a
   @all_fields @fields ++ ~w(last_read type open alert ls f unread)a
 
   @doc """
@@ -39,14 +39,14 @@ defmodule UcxChat.Subscription do
     struct
     |> cast(params, @all_fields)
     |> validate_required(@fields)
-    |> unique_constraint(:client_id, name: :subscriptions_client_id_channel_id_index)
+    |> unique_constraint(:user_id, name: :subscriptions_user_id_channel_id_index)
   end
 
   def get_all_for_channel(channel_id) do
     from c in @module, where: c.channel_id == ^channel_id
   end
 
-  def get(channel_id, client_id) do
-    from c in @module, where: c.channel_id == ^channel_id and c.client_id == ^client_id
+  def get(channel_id, user_id) do
+    from c in @module, where: c.channel_id == ^channel_id and c.user_id == ^user_id
   end
 end

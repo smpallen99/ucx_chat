@@ -2,11 +2,12 @@
   - if @message.avatar do
     - if avatar = avatar_from_username(@message) do
       %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
-        = avatar
+        =# avatar
     - else
       %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
         .avatar
-          .avatar-image{style: "background-image:url(#{get_avatar(@message)});"}
+          - avatar_url = get_avatar(@message)
+          .avatar-image(style='background-image:url(#{avatar_url});')
   - else
     - if emoji = emoji(@message) do
       %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
@@ -14,7 +15,7 @@
           = emoji
     - else
       %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
-        = get_username(@message) |> get_avatar
+        = get_username(@message) |> get_avatar_img
   - if alias? = alias?(@message) do
     %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{get_username @message}" tabindex="1")
       = alias?

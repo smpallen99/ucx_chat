@@ -3,7 +3,7 @@
     .background-transparent-darkest
       - # {{_ "Drop_to_upload_file"}}
   .main-content-flex
-    %section(class="messages-container flex-tab-main-content #{get_admin_class(@chatd.client)}" id="#{get_window_id(@chatd.channel)}" aria-label="Channel")
+    %section(class="messages-container flex-tab-main-content #{get_admin_class(@chatd.user)}" id="#{get_window_id(@chatd.channel)}" aria-label="Channel")
       - unless embedded_version() do
         %header.fixed-title.content-background-color.border-component-color
           = render "burger.html"

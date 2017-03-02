@@ -22,8 +22,8 @@
       - #{{> inputAutocomplete settings=autocompleteSettings id="channel-members" class="search"
       %input.search#channel-members(placeholder="Search by username" autocomplete="off")
       %ul.selected-users
-        - for user <- get_all_clients() do
-          %li.background-transparent-darker= user.nickname
+        - for user <- get_all_users() do
+          %li.background-transparent-darker= user.username
             %i.icon-cancel.remove-room-member
     .input-submit
       %button.button.primary.save-channel Create

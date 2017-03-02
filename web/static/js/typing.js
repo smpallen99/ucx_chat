@@ -25,7 +25,7 @@ class Typing {
   start_typing() {
     if (!this.is_typing) {
       this.is_typing = true
-      this.timer_ref = setTimeout(this.typing_timer_timeout, 15000, this, ucxchat.channel_id, ucxchat.client_id)
+      this.timer_ref = setTimeout(this.typing_timer_timeout, 15000, this, ucxchat.channel_id, ucxchat.user_id)
       console.log("roomchan", roomchan)
       cc.post("/typing")
     }
@@ -33,10 +33,10 @@ class Typing {
   update_typing(typing) {
     if (debug) { console.log('Typing.update_typing', typing) }
 
-    if (typing.indexOf(ucxchat.nickname) < 0) {
+    if (typing.indexOf(ucxchat.username) < 0) {
       this.do_update_typing(false, typing)
     } else {
-      utils.remove(typing, ucxchat.nickname)
+      utils.remove(typing, ucxchat.username)
       this.do_update_typing(true, typing)
     }
   }
@@ -63,17 +63,17 @@ class Typing {
     $('form.message-form .users-typing').html("<strong>" + list.join(", ") + "</strong>" + prepend)
   }
 
-  typing_timer_timeout(this_ref, channel_id, client_id) {
+  typing_timer_timeout(this_ref, channel_id, user_id) {
     if (debug) { console.log('typing_timer_timeout', this_ref.is_typing) }
     if ($('.message-form-text').val() == '') {
       if (this_ref.is_typing) {
         // assume they cleared the textedit and did not send
         this_ref.is_typing = false
         this_ref.timer_ref = undefined
-        roomchan.push("/typing/stop", {ucxchat: {method: "delete"}, channel_id: channel_id, client_id: client_id, room: ucxchat.room})
+        roomchan.push("/typing/stop", {ucxchat: {method: "delete"}, channel_id: channel_id, user_id: user_id, room: ucxchat.room})
       }
     } else {
-      this_ref.timer_ref = setTimeout(this.typing_timer_timeout, 15000, this_ref, channel_id, client_id)
+      this_ref.timer_ref = setTimeout(this.typing_timer_timeout, 15000, this_ref, channel_id, user_id)
     }
   }
 }

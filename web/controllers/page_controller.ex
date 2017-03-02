@@ -7,7 +7,7 @@ defmodule UcxChat.PageController do
 
   def index(conn, _params) do
     user = Coherence.current_user(conn)
-    |> Repo.preload([:client])
+    |> Repo.preload([:user])
     channel = UcxChat.Channel |> Ecto.Query.first |> Repo.one
     Logger.info "user: #{inspect user}"
     render conn, "index.html", user: user, channel: channel

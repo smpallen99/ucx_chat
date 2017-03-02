@@ -100,14 +100,14 @@ defmodule UcxChat.SystemChannel do
     {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
       # online_at: :os.system_time(:milli_seconds),
       status: "online",
-      nickname: user.client.nickname
+      username: user.username
     })
     {:noreply, socket}
   end
 
-  def update_status(%{assigns: %{user_id: user_id, nickname: nickname}} = socket, status) do
+  def update_status(%{assigns: %{user_id: user_id, username: username}} = socket, status) do
     case UcxChat.PresenceAgent.get_and_update_presence(user_id, status) do
-      ^status -> Presence.update socket, user_id, %{status: status, nickname: nickname}
+      ^status -> Presence.update socket, user_id, %{status: status, username: username}
       _ ->  nil
     end
   end

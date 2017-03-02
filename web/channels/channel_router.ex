@@ -70,7 +70,7 @@ end
   # MessageService
   # load
   # get_messages
-  # last_client_id
+  # last_user_id
   # new_message
   # render message
 

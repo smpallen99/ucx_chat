@@ -19,7 +19,7 @@ import * as cc from "./chat_channel"
 // import * as emoji from "./emojionearea"
 import hljs from "highlight.js"
 
-const chan_user = "client:"
+const chan_user = "user:"
 const chan_room = "room:"
 const chan_system = "system:"
 
@@ -27,7 +27,7 @@ const debug = true;
 
 let socket = new Socket("/socket", {params: {token: window.user_token, tz_offset: new Date().getTimezoneOffset() / -60}})
 
-window.clientchan = false
+window.userchan = false
 window.roomchan = false
 window.systemchan = false
 
@@ -41,12 +41,12 @@ let formatTimestamp = (timestamp) => {
   return date.toLocaleTimeString()
 }
 
-let listBy = (user, {metas: metas, nickname: nickname}) => {
+let listBy = (user, {metas: metas, username: username}) => {
   console.log('listBy user', user, 'metas', metas)
   return {
     user: user,
     // onlineAt: formatTimestamp(metas[0].online_at),
-    nickname: metas[0].nickname,
+    username: metas[0].username,
     status: metas[0].status
   }
 }
@@ -63,13 +63,13 @@ let render = (presences) => {
   Presence.list(presences, listBy)
     .map(presence => {
       let status = presence.status
-      let elem = $(`.info[data-status-name="${presence.nickname}"]`)
+      let elem = $(`.info[data-status-name="${presence.username}"]`)
       if (typeof elem === "object" &&  elem.length > 0) {
         update_presence(elem, status)
         elem.children(':first-child').data('status', status)
       }
-      update_presence($(`a[data-room] i[data-status-name="${presence.nickname}"]`), status)
-      update_presence($(`li.user-card-room[data-status-name="${presence.nickname}"]`), status)
+      update_presence($(`a[data-room] i[data-status-name="${presence.username}"]`), status)
+      update_presence($(`li.user-card-room[data-status-name="${presence.username}"]`), status)
     })
 }
 // end of presence stuff
@@ -90,7 +90,7 @@ $(document).ready(function() {
 
   console.log('socket...', socket)
   start_system_channel()
-  start_client_channel()
+  start_user_channel()
   start_room_channel(typing)
 
   $('body').on('submit', '.message-form', e => {
@@ -139,7 +139,7 @@ $(document).ready(function() {
   $('body').on('click', 'a.open-room', function(e) {
     e.preventDefault();
     if (debug) { console.log('clicked a.open-room', e, $(this), $(this).attr('data-room')) }
-    // roomchan.push("room:open", {client_id: ucxchat.client_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
+    // roomchan.push("room:open", {user_id: ucxchat.user_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
     //   .receive("ok", resp => { RoomManager.render_room(resp) })
     cc.get("/room/" + $(this).attr('data-room'), {display_name: $(this).attr('data-name'), room: ucxchat.room})
       .receive("ok", resp => { RoomManager.render_room(resp) })
@@ -162,7 +162,7 @@ $(document).ready(function() {
 })
 
 function start_system_channel() {
-  systemchan = socket.channel(chan_system, {user: ucxchat.nickname, channel_id: ucxchat.channel_id})
+  systemchan = socket.channel(chan_system, {user: ucxchat.username, channel_id: ucxchat.channel_id})
   let chan = systemchan
 
   chan.on('presence_state', state => {
@@ -181,9 +181,9 @@ function start_system_channel() {
     .receive("error", resp => { console.error('Unable to join system channel', resp)})
 }
 
-function start_client_channel() {
-  clientchan = socket.channel(chan_user + ucxchat.client_id, {user: ucxchat.nickname, channel_id: ucxchat.channel_id})
-  let chan = clientchan
+function start_user_channel() {
+  userchan = socket.channel(chan_user + ucxchat.user_id, {user: ucxchat.username, channel_id: ucxchat.channel_id})
+  let chan = userchan
 
   chan.on('room:update:name', resp => {
     if (debug) { console.log('room:update', resp) }
@@ -211,8 +211,8 @@ function start_client_channel() {
   })
 
   chan.join()
-    .receive("ok", resp => { console.log('Joined client successfully', resp)})
-    .receive("error", resp => { console.log('Unable to client lobby', resp)})
+    .receive("ok", resp => { console.log('Joined user successfully', resp)})
+    .receive("error", resp => { console.log('Unable to user lobby', resp)})
 
   chan.push('subscribe', {})
 }
@@ -223,10 +223,10 @@ export function restart_socket() {
 }
 
 function start_room_channel(typing) {
-  // socket.connect({user: ucxchat.nickname})
+  // socket.connect({user: ucxchat.username})
   let room = ucxchat.room
   // Now that you are connected, you can join channels with a topic:
-  roomchan = socket.channel(chan_room + room, {user: ucxchat.nickname, user_id: ucxchat.client_id})
+  roomchan = socket.channel(chan_room + room, {user: ucxchat.username, user_id: ucxchat.user_id})
 
   let chan = roomchan
 
@@ -246,7 +246,7 @@ function start_room_channel(typing) {
   })
 
   chan.on("message:new", msg => {
-    if (debug) { console.log('message:new current id, msg.client_id', msg, ucxchat.client_id, msg.client_id) }
+    if (debug) { console.log('message:new current id, msg.user_id', msg, ucxchat.user_id, msg.user_id) }
       // console.log('message:new', chan.params.user)
     Messages.new_message(msg)
   })
@@ -273,7 +273,7 @@ function start_room_channel(typing) {
 //   mode = mode || 'visible';
 
 //   var rect = elm.getBoundingClientRect();
-//   var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+//   var viewHeight = Math.max(document.documentElement.userHeight, window.innerHeight);
 //   var above = rect.bottom - threshold < 0;
 //   var below = rect.top - viewHeight + threshold >= 0;
 
@@ -284,7 +284,7 @@ function checkVisible(elm, threshold, mode) {
   mode = mode || 'visible';
   // elm = elm[0]
   var rect = elm.getBoundingClientRect();
-  // var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+  // var viewHeight = Math.max(document.documentElement.userHeight, window.innerHeight);
   var wr = $('.wrapper.has-more-next')[0].getBoundingClientRect()
   var viewHeight = wr.top + wr.bottom
   var above = rect.bottom - threshold < 0;
@@ -300,7 +300,7 @@ function isOnScreen(element)
     return (curTop > screenHeight) ? false : true;
 }
 window.cv = checkVisible
-// When you connect, you'll often need to authenticate the client.
+// When you connect, you'll often need to authenticate the user.
 // For example, imagine you have an authentication plug, `MyAuth`,
 // which authenticates the session and assigns a `:current_user`.
 // If the current user exists you can assign the user's token in

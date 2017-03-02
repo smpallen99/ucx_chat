@@ -2,13 +2,13 @@ defmodule UcxChat.Mute do
   use UcxChat.Web, :model
 
   schema "muted" do
-    belongs_to :client, UcxChat.Client
+    belongs_to :user, UcxChat.User
     belongs_to :channel, UcxChat.Channel
 
     timestamps()
   end
 
-  @fields ~w(client_id channel_id)a
+  @fields ~w(user_id channel_id)a
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
@@ -16,6 +16,6 @@ defmodule UcxChat.Mute do
     struct
     |> cast(params, @fields)
     |> validate_required(@fields)
-    |> unique_constraint(:client_id, name: :muted_client_id_channel_id_index)
+    |> unique_constraint(:user_id, name: :muted_user_id_channel_id_index)
   end
 end

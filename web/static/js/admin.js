@@ -44,7 +44,7 @@ class Admin {
       let value = $(this).is(':checked')
 
       if (!value) { value = "false" }
-      clientchan.push('admin:permissions:change:' + name, {value: value})
+      userchan.push('admin:permissions:change:' + name, {value: value})
       .receive("ok", resp => {
         // stop_loading_animation()
         toastr.success('Room ' + name + ' updated successfully.')
@@ -72,7 +72,7 @@ class Admin {
     $('body').on('click', '.admin-settings button.save', function(e) {
       console.log('saving form....', $('form').data('id'))
       e.preventDefault()
-      clientchan.push('admin:save:' + $('form').data('id'), $('form').serializeArray())
+      userchan.push('admin:save:' + $('form').data('id'), $('form').serializeArray())
         .receive("ok", resp => {
           if (resp.success) {
             admin.disable_save_button()

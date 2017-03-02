@@ -9,11 +9,11 @@ defmodule UcxChat.Repo.Migrations.CreateChannel do
       add :read_only, :boolean, default: false, null: false
       add :archived, :boolean, default: false, null: false
       add :description, :text, defaut: ""
-      add :client_id, references(:clients, on_delete: :delete_all)
+      add :user_id, references(:users, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:channels, [:client_id])
+    create index(:channels, [:user_id])
   end
 end

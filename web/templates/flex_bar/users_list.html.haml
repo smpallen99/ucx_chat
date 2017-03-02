@@ -9,43 +9,43 @@
             %input#user-add-search.search.content-background-color(type="text" placeholder="Add users")
             %i.icon-plus.secondary-font-color
       %p
-        = get_clients_list_stats(@clients)
+        = get_users_list_stats(@users)
         %button.see-all Show all
     %ul.list.clearfix.lines
-      - for client <- @clients do
-        %li.user-image.user-card-room(class="status-#{client.status}" data-status-name="#{client.nickname}")
-          %button(data-username="#{client.nickname}" tabindex="0" title="#{client.nickname}")
+      - for user <- @users do
+        %li.user-image.user-card-room(class="status-#{user.status}" data-status-name="#{user.username}")
+          %button(data-username="#{user.username}" tabindex="0" title="#{user.username}")
             .avatar
               .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
-            %p= client.nickname
+            %p= user.username
   - hidden = hidden_on_nil(@user_mode, "animated-")
   - # Logger.warn "@user_mode: #{inspect @user_mode}, hidden?: #{inspect hidden}"
   %div(class="user-view animated #{hidden}")
     .about.clearfix
       .thumb
         .avatar
-          .avatar-image(style="background-image...")
+          .avatar-image(style='background-image:url(#{get_large_avatar(@user.username)});')
       .info
-        %h3(title="#{@client.nickname}")
+        %h3(title="#{@user.username}")
           %i.status-offline
-          = @client.nickname
-        %p.secondary-font-color= @client.nickname
+          = @user.username
+        %p.secondary-font-color= @user.username
         %p.secondary-font-color
           %i.icon-clock
-          = "#{UcxChat.MessageView.format_time(Timex.now(), @client.user)} (UTC #{@client.user.tz_offset})"
+          = "#{UcxChat.MessageView.format_time(Timex.now(), @user)} (UTC #{@user.tz_offset})"
         %p.secondary-font-color
           %i.icon-mail
-          = @client.user.email
+          = @user.email
         %p.secondary-font-color
           %i.icon-calendar
           = "#{~g(Created at)}:"
-          = UcxChat.MessageView.format_date_time(@client.user.inserted_at, @client.user)
+          = UcxChat.MessageView.format_date_time(@user.inserted_at, @user)
         %p.secondary-font-color
           %i.icon-calendar
           = "#{~g(Last Login)}:"
-          = UcxChat.MessageView.format_date_time(@client.user.last_sign_in_at, @client.user)
+          = UcxChat.MessageView.format_date_time(@user.last_sign_in_at, @user)
 
-    %nav(data-username="#{map_field(@client, :nickname)}")
+    %nav(data-username="#{map_field(@user, :username)}")
       - owner = false
       - if owner do
         %button.button.button-block.primary.pvt-msg

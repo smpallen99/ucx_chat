@@ -3,14 +3,14 @@ defmodule UcxChat.Repo.Migrations.CreateMute do
 
   def change do
     create table(:muted) do
-      add :client_id, references(:clients, on_delete: :delete_all)
+      add :user_id, references(:users, on_delete: :delete_all)
       add :channel_id, references(:channels, on_delete: :delete_all)
 
       timestamps()
     end
-    # create index(:muted, [:client_id])
+    # create index(:muted, [:user_id])
     # create index(:muted, [:channel_id])
-    create unique_index(:muted, [:client_id, :channel_id], name: :muted_client_id_channel_id_index)
+    create unique_index(:muted, [:user_id, :channel_id], name: :muted_user_id_channel_id_index)
 
   end
 end

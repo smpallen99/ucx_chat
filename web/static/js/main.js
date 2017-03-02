@@ -16,7 +16,7 @@ export function run() {
   update_mentions()
 }
 export function update_mentions() {
-  let username = ucxchat.nickname;
+  let username = ucxchat.username;
   $(`.mention-link[data-username="${username}"]`).addClass('mention-link-me background-primary-action-color')
 }
 

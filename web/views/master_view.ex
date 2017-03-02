@@ -1,6 +1,6 @@
 defmodule UcxChat.MasterView do
   use UcxChat.Web, :view
-  alias UcxChat.{ChannelService, Client, Channel, ChatDat}
+  alias UcxChat.{ChannelService, User, Channel, ChatDat}
   require IEx
 
   def get_admin_class(_user), do: ""
@@ -129,7 +129,7 @@ defmodule UcxChat.MasterView do
         {"icon-star-empty", "Favorite"}
     end
   end
-  def favorite_room?(%Client{} = client, %Channel{} = channel) do
-    ChannelService.favorite_room?(client, channel)
+  def favorite_room?(%User{} = user, %Channel{} = channel) do
+    ChannelService.favorite_room?(user, channel)
   end
 end

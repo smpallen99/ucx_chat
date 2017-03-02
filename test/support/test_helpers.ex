@@ -1,5 +1,5 @@
 defmodule UcxChat.TestHelpers do
-  alias UcxChat.{Repo, User, Channel, Account, Client, Subscription}
+  alias UcxChat.{Repo, User, Channel, Account, User, Subscription}
   alias FakerElixir, as: Faker
   use Hound.Helpers
 
@@ -7,13 +7,11 @@ defmodule UcxChat.TestHelpers do
 
   def insert_channel(owner, attrs \\ %{})
   def insert_channel(%User{} = user, attrs),
-    do: insert_channel(user.client_id, attrs)
-  def insert_channel(%Client{} = client, attrs),
-    do: insert_channel(client.id, attrs)
+    do: insert_channel(user.id, attrs)
 
-  def insert_channel(client_id, attrs) when is_integer(client_id) do
+  def insert_channel(user_id, attrs) when is_integer(user_id) do
     changes = Map.merge(%{
-      client_id: client_id,
+      user_id: user_id,
       name: FakerElixir.Helper.cycle(:channel_names, @channel_names)
     }, to_map(attrs))
 
@@ -25,49 +23,27 @@ defmodule UcxChat.TestHelpers do
 
   def insert_subscription(attrs \\ %{})
   def insert_subscription(attrs) do
-    user = insert_client_user attrs
+    user = insert_user attrs
     insert_subscription(user, insert_channel(user))
   end
   def insert_subscription(%User{} = user, %Channel{} = channel) do
-    insert_subscription(user.client.id, channel.id)
+    insert_subscription(user.id, channel.id)
   end
-  def insert_subscription(%Client{} = client, %Channel{} = channel) do
-    insert_subscription(client.id, channel.id)
-  end
-  def insert_subscription(client_id, channel_id)
-    when is_integer(client_id) and is_integer(channel_id) do
+  def insert_subscription(user_id, channel_id)
+    when is_integer(user_id) and is_integer(channel_id) do
     changes = %{
       open: true,
-      client_id: client_id,
+      user_id: user_id,
       channel_id: channel_id
     }
     %Subscription{}
     |> Subscription.changeset(changes)
     |> Repo.insert!
-    |> Repo.preload([:channel, {:client, :user}])
+    |> Repo.preload([:channel, :user])
   end
 
-  def insert_client_user(attrs \\ %{}) do
-    attrs
-    |> insert_client
-    |> insert_user
-    |> Repo.preload([:client, :account])
-  end
-
-  def insert_client(attrs \\ %{}) do
-    changes = Map.merge(%{
-      nickname: Faker.Internet.user_name,
-      }, to_map(attrs))
-    Client.changeset(%Client{}, changes)
-    |> Repo.insert!()
-  end
-
-  def insert_user(client, attrs \\ %{})
-  def insert_user(%Client{id: id}, attrs) do
-    insert_user(id, attrs)
-  end
-
-  def insert_user(client_id, attrs) do
+  def insert_user(attrs \\ %{})
+  def insert_user(attrs) do
     account = Account.changeset(%Account{}, %{}) |> Repo.insert!
     changes = Map.merge(%{
       name: Faker.Name.name,
@@ -76,7 +52,6 @@ defmodule UcxChat.TestHelpers do
       email: Faker.Internet.email,
       password: "secret",
       password_confirmation: "secret",
-      client_id: client_id,
       }, to_map(attrs))
     User.changeset(%User{}, changes)
     |> Repo.insert!()

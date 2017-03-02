@@ -3,7 +3,7 @@ defmodule UcxChat.MessageTest do
 
   alias UcxChat.Message
 
-  @valid_attrs %{body: "some content", client_id: 1}
+  @valid_attrs %{body: "some content", user_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

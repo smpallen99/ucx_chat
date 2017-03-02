@@ -26,7 +26,7 @@ class RoomManager {
   }
   static toggle_favorite() {
     if (debug) { console.log('toggle_favorite') }
-    // roomchan.push("room:favorite", {client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
+    // roomchan.push("room:favorite", {user_id: ucxchat.user_id, channel_id: ucxchat.channel_id})
     cc.put("/room/favorite")
       .receive("ok", resp => {
         $('.messages-container .fixed-title h2').html(resp.messages_html)
@@ -34,10 +34,10 @@ class RoomManager {
       })
   }
   static add_private(elem) {
-    let nickname = elem.parent().attr('data-username')
-    if (debug) { console.log('pvt-msg button clicked...', nickname) }
-    // roomchan.push("room:add-direct", {nickname: nickname, client_id: ucxchat.client_id, channel_id: ucxchat.channel_id})
-    cc.put("direct/" + nickname)
+    let username = elem.parent().attr('data-username')
+    if (debug) { console.log('pvt-msg button clicked...', username) }
+    // roomchan.push("room:add-direct", {username: username, user_id: ucxchat.user_id, channel_id: ucxchat.channel_id})
+    cc.put("direct/" + username)
       .receive("ok", resp => {
         $('.messages-container .fixed-title h2').html(resp.messages_html)
         $('aside .rooms-list').html(resp.side_nav_html)

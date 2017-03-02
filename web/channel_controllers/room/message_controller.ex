@@ -11,25 +11,25 @@ defmodule UcxChat.MessageChannelController do
   def create(%{assigns: assigns} = socket, params) do
     # Logger.warn "++++ socket: #{inspect socket}"
     message = params["message"]
-    client_id = assigns[:client_id]
+    user_id = assigns[:user_id]
     channel_id = assigns[:channel_id]
     room = assigns[:room]
 
     {body, mentions} = encode_mentions(message)
 
-    message = create_message(body, client_id, channel_id)
+    message = create_message(body, user_id, channel_id)
     create_mentions(mentions, message.id, message.channel_id)
     message_html = render_message(message)
-    broadcast_message(socket, message.id, message.client.id, message_html)
+    broadcast_message(socket, message.id, message.user.id, message_html)
 
-    TypingAgent.stop_typing(channel_id, client_id)
+    TypingAgent.stop_typing(channel_id, user_id)
     update_typing(channel_id, room)
     {:noreply, socket}
   end
 
   def index(%{assigns: assigns}, params) do
-    client = Helpers.get(Client, assigns[:client_id])
-    # Logger.warn "MessageService.handle_in load msg: #{inspect msg}, client: #{inspect client}"
+    user = Helpers.get(User, assigns[:user_id])
+    # Logger.warn "MessageService.handle_in load msg: #{inspect msg}, user: #{inspect user}"
     channel_id = assigns[:channel_id]
     timestamp = params["timestamp"]
     # Logger.warn "timestamp: #{inspect timestamp}"
@@ -38,10 +38,10 @@ defmodule UcxChat.MessageChannelController do
       Message
       |> where([m], m.timestamp < ^timestamp and m.channel_id == ^channel_id)
       |> Helpers.last_page(page_size)
-      |> preload([:client])
+      |> preload([:user])
       |> Repo.all
       |> Enum.map(fn message ->
-        UcxChat.MessageView.render("message.html", client: client, message: message)
+        UcxChat.MessageView.render("message.html", user: user, message: message)
         |> Phoenix.HTML.safe_to_string
       end)
       |> to_string

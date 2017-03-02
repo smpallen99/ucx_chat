@@ -19,7 +19,7 @@ defmodule UcxChat.RoomSettingChannelController do
 
   def cancel(%{assigns: assigns} = socket, params) do
     channel = Helpers.get(Channel, assigns[:channel_id])
-    field = FlexBarService.get_setting_form_field(params["field_name"], channel, assigns[:client_id])
+    field = FlexBarService.get_setting_form_field(params["field_name"], channel, assigns[:user_id])
     html = FlexBarView.flex_form_input(field[:type], field)
     |> Enum.map(&Phoenix.HTML.safe_to_string/1)
     |> Enum.join
@@ -34,7 +34,7 @@ defmodule UcxChat.RoomSettingChannelController do
     |> Repo.update
     |> case do
       {:ok, channel} ->
-        field = FlexBarService.get_setting_form_field(params["field_name"], channel, assigns[:client_id])
+        field = FlexBarService.get_setting_form_field(params["field_name"], channel, assigns[:user_id])
         html = FlexBarView.flex_form_input(field[:type], field)
         |> case do
           list when is_list(list) ->
@@ -78,7 +78,7 @@ defmodule UcxChat.RoomSettingChannelController do
 
   # def handle_in("form:cancel", msg) do
   #   channel = Helpers.get(Channel, msg["channel_id"])
-  #   field = get_setting_form_field(msg["field_name"], channel, msg["client_id"])
+  #   field = get_setting_form_field(msg["field_name"], channel, msg["user_id"])
   #   html = FlexBarView.flex_form_input(field[:type], field)
   #   |> Enum.map(&Phoenix.HTML.safe_to_string/1)
   #   |> Enum.join
@@ -92,7 +92,7 @@ defmodule UcxChat.RoomSettingChannelController do
   #   |> Repo.update
   #   |> case do
   #     {:ok, channel} ->
-  #       field = get_setting_form_field(msg["field_name"], channel, msg["client_id"])
+  #       field = get_setting_form_field(msg["field_name"], channel, msg["user_id"])
   #       html = FlexBarView.flex_form_input(field[:type], field)
   #       |> case do
   #         list when is_list(list) ->

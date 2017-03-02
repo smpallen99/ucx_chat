@@ -1,7 +1,7 @@
 defmodule UcxChat.ChannelController do
   use UcxChat.Web, :controller
 
-  alias UcxChat.{Channel, Client}
+  alias UcxChat.{Channel, User}
 
   import Ecto.Query
 
@@ -9,21 +9,20 @@ defmodule UcxChat.ChannelController do
   require IEx
 
   alias UcxChat.Channel, as: Channel
-  alias UcxChat.{MessageService, ChatDat, Client}
+  alias UcxChat.{MessageService, ChatDat, User}
 
   def index(conn, _params) do
-    user = Coherence.current_user(conn) |> Repo.preload([:client])
-    client = user.client
-    channel = if client.open_id do
-      Repo.get!(Channel, client.open_id)
+    user = Coherence.current_user(conn)
+    channel = if user.open_id do
+      Repo.get!(Channel, user.open_id)
     else
       channel =
         UcxChat.Channel
         |> Ecto.Query.first
         |> Repo.one
 
-      client
-      |> Client.changeset(%{open_id: channel.id})
+      user
+      |> User.changeset(%{open_id: channel.id})
       |> Repo.update!
       channel
     end
@@ -35,7 +34,7 @@ defmodule UcxChat.ChannelController do
     user =
       conn
       |> Coherence.current_user
-      |> Repo.preload([:account, :client])
+      |> Repo.preload([:account])
 
     UcxChat.PresenceAgent.load user.id
 

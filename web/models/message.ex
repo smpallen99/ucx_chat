@@ -13,9 +13,9 @@ defmodule UcxChat.Message do
     field :expire_at, :utc_datetime
     field :system, :boolean, default: false
 
-    belongs_to :client, UcxChat.Client
+    belongs_to :user, UcxChat.User
     belongs_to :channel, UcxChat.Channel
-    belongs_to :edited_by, UcxChat.Client, foreign_key: :edited_id
+    belongs_to :edited_by, UcxChat.User, foreign_key: :edited_id
 
     has_many :stars, UcxChat.StaredMessage
 
@@ -30,8 +30,8 @@ defmodule UcxChat.Message do
     timestamps(type: :utc_datetime)
   end
 
-  @fields [:body, :client_id, :channel_id, :sequential, :timestamp, :edited_id, :type, :expire_at, :type, :system]
-  @required [:body, :client_id]
+  @fields [:body, :user_id, :channel_id, :sequential, :timestamp, :edited_id, :type, :expire_at, :type, :system]
+  @required [:body, :user_id]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

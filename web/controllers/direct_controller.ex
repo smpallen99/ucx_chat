@@ -35,7 +35,7 @@ defmodule UcxChat.DirectController do
     user =
       conn
       |> Coherence.current_user
-      |> Repo.preload([:client])
+      |> Repo.preload([:user])
 
     conn
     |> put_view(UcxChat.PageView)

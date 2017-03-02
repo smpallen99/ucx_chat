@@ -33,7 +33,7 @@ class SideNav {
     $('button.account-link').on('click', function(e) {
       e.preventDefault()
       $('.main-content-cache').html($('.main-content').html())
-      clientchan.push('side_nav:open', {page: $(this).attr('id')})
+      userchan.push('side_nav:open', {page: $(this).attr('id')})
         .receive("ok", resp => {
           $('.flex-nav section').html(resp.html)
         })
@@ -44,7 +44,7 @@ class SideNav {
     //   console.log('clicked admin....')
     //   e.preventDefault()
     //   $('.main-content-cache').html($('.main-content').html())
-    //   clientchan.push('side_nav:open', {page: "admin"})
+    //   userchan.push('side_nav:open', {page: "admin"})
     //     .receive("ok", resp => {
     //       $('.flex-nav section').html(resp.html)
     //     })
@@ -57,7 +57,7 @@ class SideNav {
     })
     $('body').on('click', '.flex-nav header', function(e) {
       e.preventDefault()
-      clientchan.push('side_nav:close', {})
+      userchan.push('side_nav:close', {})
       console.log('.flex-nav header clicked')
       $('div.flex-nav').addClass('animated-hidden')
       $('aside.side-nav span.arrow').removeClass('close').addClass('bottom')
@@ -67,15 +67,15 @@ class SideNav {
     })
     $('body').on('click', '.account-link', function(e) {
       e.preventDefault()
-      clientchan.push('account_link:click:' + $(this).data('link'), {})
+      userchan.push('account_link:click:' + $(this).data('link'), {})
     })
     $('body').on('click', '.admin-link', function(e) {
       e.preventDefault()
-      clientchan.push('admin_link:click:' + $(this).data('link'), {})
+      userchan.push('admin_link:click:' + $(this).data('link'), {})
     })
     $('body').on('submit', '#account-preferences-form', function(e) {
       e.preventDefault()
-      clientchan.push('account:preferences:save', $(this).serializeArray())
+      userchan.push('account:preferences:save', $(this).serializeArray())
         .receive("ok", resp => {
           if (resp.success) {
             toastr.success(resp.success)

@@ -19,7 +19,7 @@ defmodule UcxChat.Web do
   def service do
     quote do
       import Ecto.Query
-      alias UcxChat.{Repo, RoomChannel, ClientChannel, Settings}
+      alias UcxChat.{Repo, RoomChannel, UserChannel, Settings}
       alias UcxChat.ServiceHelpers, as: Helpers
       require UcxChat.SharedView
       import UcxChat.SharedView, only: [sigil_g: 2]

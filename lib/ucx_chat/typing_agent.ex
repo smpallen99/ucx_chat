@@ -6,19 +6,19 @@ defmodule UcxChat.TypingAgent do
     Agent.start_link(fn -> %{} end, name: @name)
   end
 
-  def start_typing(channel_id, %{} = client),
-    do: start_typing(channel_id, client.id, client.nickname)
+  def start_typing(channel_id, %{} = user),
+    do: start_typing(channel_id, user.id, user.username)
 
-  def start_typing(channel_id, client_id, nickname) do
+  def start_typing(channel_id, user_id, username) do
     spawn fn ->
       :timer.sleep(60000)
-      stop_typing(channel_id, client_id)
+      stop_typing(channel_id, user_id)
     end
 
     Agent.update(@name, fn state ->
       update_in state, [channel_id], fn
-        nil -> %{client_id => nickname}
-        map -> put_in(map, [client_id], nickname)
+        nil -> %{user_id => username}
+        map -> put_in(map, [user_id], username)
       end
     end)
   end
@@ -32,12 +32,12 @@ defmodule UcxChat.TypingAgent do
     Agent.get(@name, &(get_in &1, [channel_id]))
   end
 
-  def stop_typing(channel_id, %{} = client),
-    do: stop_typing(channel_id, client.id)
+  def stop_typing(channel_id, %{} = user),
+    do: stop_typing(channel_id, user.id)
 
-  def stop_typing(channel_id, client_id) do
+  def stop_typing(channel_id, user_id) do
     Agent.update(@name, fn data ->
-      update_in data, [channel_id], &(if &1, do: Map.delete(&1, client_id))
+      update_in data, [channel_id], &(if &1, do: Map.delete(&1, user_id))
     end)
   end
 

@@ -1,5 +1,5 @@
 export function push(message, args={}) {
-  let base = {client_id: ucxchat.client_id, channel_id: ucxchat.channel_id, room: ucxchat.room}
+  let base = {user_id: ucxchat.user_id, channel_id: ucxchat.channel_id, room: ucxchat.room}
   return roomchan.push(message, Object.assign(base, args));
 }
 
@@ -27,5 +27,5 @@ export function do_push(verb, route, args={}) {
 }
 
 function base() {
-  return {nickname: ucxchat.nickname, client_id: ucxchat.client_id, channel_id: ucxchat.channel_id, room: ucxchat.room}
+  return {username: ucxchat.username, user_id: ucxchat.user_id, channel_id: ucxchat.channel_id, room: ucxchat.room}
 }

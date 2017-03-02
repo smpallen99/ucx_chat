@@ -13,18 +13,18 @@ defmodule UcxChat.Presence do
   #   query =
   #     from u in User,
   #     where: u.id in ^keys,
-  #     preload: [:client],
+  #     preload: [:user],
   #     select: {u.id, u}
 
   #   users = query |> Repo.all |> Enum.into(%{})
   #   # Logger.warn "fetch users: #{inspect users}"
   #   for {key, %{metas: metas}} <- entries, into: %{} do
-  #     nickname = case users[String.to_integer(key)] do
+  #     username = case users[String.to_integer(key)] do
   #       nil -> ""
-  #       user -> user.client.nickname
+  #       user -> user.username
   #     end
-  #     # Logger.warn ".... nickname: #{inspect nickname}"
-  #     {key, %{metas: metas, nickname: nickname}}
+  #     # Logger.warn ".... username: #{inspect username}"
+  #     {key, %{metas: metas, username: username}}
   #   end
   # end
 

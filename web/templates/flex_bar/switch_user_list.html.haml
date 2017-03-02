@@ -9,7 +9,7 @@
             %input#user-add-search.search.content-background-color(type="text" placeholder="Add users")
             %i.icon-plus.secondary-font-color
       %p
-        =  #get_clients_list_stats(@users)
+        =  #get_users_list_stats(@users)
         %button.see-all Show all
     %ul.list.clearfix.lines
       - for user <- @users do

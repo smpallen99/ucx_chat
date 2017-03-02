@@ -6,17 +6,17 @@ defmodule UcxChat.Console do
   * ca
   * ftab
   """
-  alias UcxChat.ClientAgent, as: CA
+  alias UcxChat.UserAgent, as: CA
 
 
   @doc """
-  Get ClientAgent state
+  Get UserAgent state
   """
   def ca, do: CA.get
 
   @doc """
-  Get ftab state for a given client_id, channel_id
+  Get ftab state for a given user_id, channel_id
   """
-  def ftab(client_id, channel_id), do: CA.get_ftab(client_id, channel_id)
+  def ftab(user_id, channel_id), do: CA.get_ftab(user_id, channel_id)
 
 end

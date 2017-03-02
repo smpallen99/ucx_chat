@@ -6,8 +6,13 @@ defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
       add :email, :string
 
       add :username, :string
-      add :admin, :boolean, default: false
+      add :alias, :string
+
+      # add :admin, :boolean, default: false
+
       add :tz_offset, :integer
+
+      add :account_id, references(:accounts, on_delete: :delete_all)
 
       # unlockable_with_token
       add :unlock_token, :string
@@ -26,14 +31,15 @@ defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
       add :current_sign_in_ip, :string
       add :last_sign_in_ip, :string
 
-      add :client_id, references(:clients, on_delete: :delete_all)
 
-      add :account_id, references(:accounts, on_delete: :delete_all)
+      add :chat_status, :string
+      add :tag_line, :string, default: ""
+      add :uri, :string, default: ""
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
     create unique_index(:users, [:username])
-    create index(:users, [:client_id])
+    create unique_index(:users, [:alias])
     create index(:users, [:account_id])
   end
 end

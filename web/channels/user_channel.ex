@@ -1,4 +1,4 @@
-defmodule UcxChat.ClientChannel do
+defmodule UcxChat.UserChannel do
   use Phoenix.Channel
   use UcxChat.ChannelApi
   # alias UcxChat.Presence
@@ -13,20 +13,20 @@ defmodule UcxChat.ClientChannel do
 
   require Logger
 
-  def join_room(client_id, room) do
-    Logger.warn ("...join_room client_id: #{inspect client_id}")
-    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{client_id}", "room:join", %{room: room, client_id: client_id})
+  def join_room(user_id, room) do
+    Logger.warn ("...join_room user_id: #{inspect user_id}")
+    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "room:join", %{room: room, user_id: user_id})
   end
 
-  def leave_room(client_id, room) do
-    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{client_id}", "room:leave", %{room: room, client_id: client_id})
+  def leave_room(user_id, room) do
+    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "room:leave", %{room: room, user_id: user_id})
   end
 
   # intercept ~w(room:join room:leave)
   intercept ["room:join", "room:leave"]
 
-  def join(CC.chan_user() <>  client_id, params, socket) do
-    debug(CC.chan_user() <> client_id, params)
+  def join(CC.chan_user() <>  user_id, params, socket) do
+    debug(CC.chan_user() <> user_id, params)
     send(self(), :after_join)
     new_assigns = params |> Enum.map(fn {k,v} -> {String.to_atom(k), v} end) |> Enum.into(%{})
     socket =
@@ -35,7 +35,7 @@ defmodule UcxChat.ClientChannel do
       |> assign(:subscribed, socket.assigns[:subscribed] || [])
       |> assign(:flex, Flex.new())
     socket =
-      Repo.all(from s in Subscription, where: s.client_id == ^client_id, preload: [:channel, :client])
+      Repo.all(from s in Subscription, where: s.user_id == ^user_id, preload: [:channel, :user])
       |> Enum.map(&(&1.channel.name))
       |> subscribe(socket)
 
@@ -190,7 +190,7 @@ defmodule UcxChat.ClientChannel do
 
   # default unknown handler
   def handle_in(event, params, socket) do
-    Logger.warn "ClientChannel.handle_in unknown event: #{inspect event}, params: #{inspect params}"
+    Logger.warn "UserChannel.handle_in unknown event: #{inspect event}, params: #{inspect params}"
     {:noreply, socket}
   end
 
@@ -282,7 +282,7 @@ defmodule UcxChat.ClientChannel do
   end
 
   defp update_rooms_list(%{assigns: assigns} = socket) do
-    html = ChannelService.render_rooms(assigns[:channel_id], assigns[:client_id])
+    html = ChannelService.render_rooms(assigns[:channel_id], assigns[:user_id])
     push socket, "update:rooms", %{html: html}
     socket
   end

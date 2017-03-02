@@ -19,10 +19,10 @@ const default_settings = {
   "Search": {},
   "User Info": {},
   "Members List": {
-    args: {templ: "clients_list.html"},
+    args: {templ: "users_list.html"},
     show: {
       attr: "data-username",
-      args: [{key: "nickname"}], // attr is optional for override -  attr: "data-username"}],
+      args: [{key: "username"}], // attr is optional for override -  attr: "data-username"}],
       triggers: [
         {action: "click", class: "button.user.user-card-message"},
         {action: "click", class: ".mention-link"},
@@ -71,13 +71,13 @@ export function init_flexbar() {
     $('body').on('click', `.tab-button[title='${key}']`, function() {
       if (debug) { console.log(`${key} button clicked...`) }
       if (key == im_mode) {
-        clientchan.push("mode:set:im")
+        userchan.push("mode:set:im")
           .receive("ok", resp => {
             $(`.tab-button[title='${key}']`).addClass('hidden')
             $(`.tab-button[title='${rooms_mode}']`).removeClass('hidden')
           })
       } else if (key == rooms_mode) {
-        clientchan.push("mode:set:rooms")
+        userchan.push("mode:set:rooms")
           .receive("ok", resp => {
             $(`.tab-button[title='${key}']`).addClass('hidden')
             $(`.tab-button[title='${im_mode}']`).removeClass('hidden')
@@ -86,7 +86,7 @@ export function init_flexbar() {
         settings[key].function()
       } else {
         // push_click(key, settings[key].args)
-        clientchan.push("flex:open:" + key, settings[key].args)
+        userchan.push("flex:open:" + key, settings[key].args)
       }
     })
 
@@ -107,7 +107,7 @@ export function init_flexbar() {
             let new_args = build_show_args($(this), settings[key].args, show)
             console.log('show, topic, new_args', show, topic, new_args)
             // push_click(topic, new_args)
-            clientchan.push("flex:item:open:" + topic, {args: new_args})
+            userchan.push("flex:item:open:" + topic, {args: new_args})
           })
         }
       })
@@ -131,20 +131,20 @@ export function init_flexbar() {
 
   $('body').on('click', '.flex-tab-container .user-view nav .button.back', function() {
     $('.flex-tab-container .user-view').addClass('animated-hidden')
-    clientchan.push('flex:view_all:' + $('.tab-button.active').attr('title'))
+    userchan.push('flex:view_all:' + $('.tab-button.active').attr('title'))
   })
 
-  clientchan.on('flex:open', msg => {
+  userchan.on('flex:open', msg => {
     $('section.flex-tab').html(msg.html).parent().addClass('opened')
     $('.tab-button.active').removeClass('active')
     set_tab_button_active(msg.title)
   })
-  clientchan.on('flex:close', msg => {
+  userchan.on('flex:close', msg => {
     $('section.flex-tab').parent().removeClass('opened')
     $('.tab-button.active').removeClass('active')
   })
 
-  clientchan.on('update:rooms', msg => {
+  userchan.on('update:rooms', msg => {
     $('aside .rooms-list').html(msg.html)
   })
   // fbar_form.init()

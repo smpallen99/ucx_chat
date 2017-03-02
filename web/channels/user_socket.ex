@@ -7,14 +7,14 @@ defmodule UcxChat.UserSocket do
 
   ## Channels
   channel CC.chan_room <> "*", UcxChat.RoomChannel    # "ucxchat:"
-  channel CC.chan_user <> "*", UcxChat.ClientChannel  # "client:"
+  channel CC.chan_user <> "*", UcxChat.UserChannel  # "user:"
   channel CC.chan_system <> "*", UcxChat.SystemChannel  # "system:"
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
   # transport :longpoll, Phoenix.Transports.LongPoll
 
-  # Socket params are passed from the client and can
+  # Socket params are passed from the user and can
   # be used to verify and authenticate a user. After
   # verification, you can put default assigns into
   # the socket that will be set for all channels, ie
@@ -31,13 +31,13 @@ defmodule UcxChat.UserSocket do
     case Coherence.verify_user_token(socket, token, &assign/3) do
       {:error, _} -> :error
       {:ok, %{assigns: %{user_id: user_id}} = socket} ->
-        {client_id, nickname} = User.client_id_and_nickname(user_id) |> Repo.one
-        # client_id = Repo.get!(User, user_id) |> Map.get(:client_id)
+        {user_id, username} = User.user_id_and_username(user_id) |> Repo.one
+        # user_id = Repo.get!(User, user_id) |> Map.get(:user_id)
         {
           :ok,
           socket
-          |> assign(:client_id, client_id)
-          |> assign(:nickname, nickname)
+          |> assign(:user_id, user_id)
+          |> assign(:username, username)
           |> assign(:tz_offset, tz_offset)
         }
     end

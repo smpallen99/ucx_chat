@@ -6,12 +6,12 @@
       %h2 No started messages
   .ul.list.clearfix
     - for star <- @stars do
-      %li(id="#{star[:id]}" class="#{get_li_class(star, :starned)}" data-username="#{star[:nickname]}" data-date="#{star[:date]}" data-timestamp="#{star[:timestamp]}")
-        %button.thumb.user-card-message(data-username="#{star[:nickname]}" tabindex="1")
+      %li(id="#{star[:id]}" class="#{get_li_class(star, :starned)}" data-username="#{star[:username]}" data-date="#{star[:date]}" data-timestamp="#{star[:timestamp]}")
+        %button.thumb.user-card-message(data-username="#{star[:username]}" tabindex="1")
           .avatar
-            .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
-        %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{star[:nickname]}" tabindex="1")
-          = star[:nickname]
+            .avatar-image(style="background-image:url(#{get_avatar(star[:username])});")
+        %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{star[:username]}" tabindex="1")
+          = star[:username]
         %span.info.border-component-color.color-info-font-color
           %span.time(title="#{star[:date]}")= star[:time]
           .message-cog-container

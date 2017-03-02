@@ -6,12 +6,12 @@
       %h2 No pinned messages
   .ul.list.clearfix
     - for pin <- @pinned do
-      %li(id="#{pin[:id]}" class="#{get_li_class(pin, :pinned)}" data-username="#{pin[:nickname]}" data-date="#{pin[:date]}" data-timestamp="#{pin[:timestamp]}")
-        %button.thumb.user-card-message(data-username="#{pin[:nickname]}" tabindex="1")
+      %li(id="#{pin[:id]}" class="#{get_li_class(pin, :pinned)}" data-username="#{pin[:username]}" data-date="#{pin[:date]}" data-timestamp="#{pin[:timestamp]}")
+        %button.thumb.user-card-message(data-username="#{pin[:username]}" tabindex="1")
           .avatar
-            .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
-        %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{pin[:nickname]}" tabindex="1")
-          = pin[:nickname]
+            .avatar-image(style="background-image:url(#{get_avatar(pin[:username])});")
+        %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{pin[:username]}" tabindex="1")
+          = pin[:username]
         %span.info.border-component-color.color-info-font-color
           %span.time(title="#{pin[:date]}")= pin[:time]
           .message-cog-container

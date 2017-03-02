@@ -1,5 +1,5 @@
 defmodule UcxChat.ServiceHelpers do
-  alias UcxChat.{Repo, Channel, Client, Subscription, MessageService, User}
+  alias UcxChat.{Repo, Channel, User, Subscription, MessageService, User}
 
   import Ecto.Query
 
@@ -8,7 +8,7 @@ defmodule UcxChat.ServiceHelpers do
   end
 
   def get_user!(id) do
-    Repo.one!(from u in User, where: u.id == ^id, preload: [:client, :account, :roles])
+    Repo.one!(from u in User, where: u.id == ^id, preload: [:account, :roles])
   end
 
   def get!(model, id, opts \\ []) do
@@ -50,28 +50,28 @@ defmodule UcxChat.ServiceHelpers do
     |> Repo.one!
   end
 
-  def get_client(client_id, opts \\ []) do
+  def get_user(user_id, opts \\ []) do
     preload = opts[:preload] || []
-    Client
-    |> where([c], c.id == ^client_id)
+    User
+    |> where([c], c.id == ^user_id)
     |> preload(^preload)
     |> Repo.one!
   end
 
-  def get_channel_client(channel_id, client_id, opts \\ []) do
+  def get_channel_user(channel_id, user_id, opts \\ []) do
     preload = opts[:preload] || []
 
     Subscription
-    |> where([c], c.client_id == ^client_id and c.channel_id == ^channel_id)
+    |> where([c], c.user_id == ^user_id and c.channel_id == ^channel_id)
     |> preload(^preload)
     |> Repo.one!
   end
 
-  def get_client_by_name(nickname, preload \\ [])
-  def get_client_by_name(nil, _), do: nil
-  def get_client_by_name(nickname, preload) do
-    Client
-    |> where([c], c.nickname == ^nickname)
+  def get_user_by_name(username, preload \\ [])
+  def get_user_by_name(nil, _), do: nil
+  def get_user_by_name(username, preload) do
+    User
+    |> where([c], c.username == ^username)
     |> preload(^preload)
     |> Repo.one!
   end
@@ -141,7 +141,7 @@ defmodule UcxChat.ServiceHelpers do
     |> Phoenix.HTML.safe_to_string
 
     bot_id =
-      Client
+      User
       # |> where([m], m.type == "b")
       |> select([m], m.id)
       |> limit(1)
@@ -195,16 +195,16 @@ defmodule UcxChat.ServiceHelpers do
   defp parse_name("]" <> tail, buff, acc), do: parse_name(tail, "", [buff|acc])
   defp parse_name(<<ch::8>> <> tail, buff, acc), do: parse_name(tail, buff <> <<ch::8>>, acc)
 
-  def broadcast_message(body, client_id, channel_id) do
+  def broadcast_message(body, user_id, channel_id) do
     channel = get! Channel, channel_id
-    broadcast_message(body, channel.name, client_id, channel_id)
+    broadcast_message(body, channel.name, user_id, channel_id)
   end
 
-  def broadcast_message(body, room, client_id, channel_id, opts \\ []) do
-    UcxChat.TypingAgent.stop_typing(channel_id, client_id)
+  def broadcast_message(body, room, user_id, channel_id, opts \\ []) do
+    UcxChat.TypingAgent.stop_typing(channel_id, user_id)
     MessageService.update_typing(channel_id, room)
-    {message, html} = MessageService.create_and_render(body, client_id, channel_id, opts)
-    MessageService.broadcast_message(message.id, room, client_id, html)
+    {message, html} = MessageService.create_and_render(body, user_id, channel_id, opts)
+    MessageService.broadcast_message(message.id, room, user_id, html)
   end
 
 end

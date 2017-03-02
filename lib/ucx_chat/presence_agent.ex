@@ -12,7 +12,7 @@ defmodule UcxChat.PresenceAgent do
   """
   import Ecto.Query
 
-  alias UcxChat.{Repo, User, Client}
+  alias UcxChat.{Repo, User}
 
   require Logger
 
@@ -33,7 +33,7 @@ defmodule UcxChat.PresenceAgent do
   def startup do
     # query =
     #   from u in User,
-    #     join: c in Client, on: c.id == u.client_id,
+    #     join: c in User, on: c.id == u.user_id,
     #     select: {u.id, c.chat_status}
 
     # users =
@@ -62,14 +62,12 @@ defmodule UcxChat.PresenceAgent do
     query =
       from u in User,
         where: u.id == ^user_id,
-        join: c in Client, on: c.id == u.client_id,
-        select: c.chat_status
+        select: u.chat_status
 
     status =
       query
       |> Repo.one
       |> case do
-
         nil    -> "online"
         status -> {:override, status}
       end
@@ -159,15 +157,14 @@ defmodule UcxChat.PresenceAgent do
     Agent.update @name, fn _ -> %{} end
   end
 
-  defp client(user_id) do
-    Repo.one!(from u in User, where: u.id == ^user_id, preload: [:client])
-    |> Map.get(:client)
+  defp user(user_id) do
+    Repo.one!(from u in User, where: u.id == ^user_id)
   end
 
   defp set_chat_status(user_id, status) do
     user_id
-    |> client
-    |> Client.changeset(%{chat_status: status})
+    |> user
+    |> User.changeset(%{chat_status: status})
     |> Repo.update
   end
 

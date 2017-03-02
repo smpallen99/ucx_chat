@@ -11,12 +11,12 @@
 # and so on) as they will fail if something goes wrong.
 
 alias UcxChat.{
-  Repo, Client, User, Channel, Subscription, Message, Account, Mention,
-  Direct, PinnedMessage, StaredMessage, Config, Role
+  Repo, User, Channel, Subscription, Message, Account, Mention,
+  Direct, PinnedMessage, StaredMessage, Config, Role, UserRole
 }
 
+Repo.delete_all UserRole
 Repo.delete_all User
-Repo.delete_all Client
 Repo.delete_all Account
 Repo.delete_all Channel
 Repo.delete_all Subscription
@@ -38,79 +38,86 @@ roles =
     |> Repo.insert!
   end)
 
-create_user = fn c_id, name, email, username, password, admin ->
-  account = %Account{} |> Account.changeset(%{}) |> Repo.insert!
-  %User{}
-  |> User.changeset(%{account_id: account.id, client_id: c_id, name: name, email: email,
-      username: username, password: password, password_confirmation: password, admin: admin})
-  |> Repo.insert!
+create_username = fn name ->
+  name
+  |> String.downcase
+  |> String.split(" ", trim: true)
+  |> Enum.join(".")
 end
 
-c0 = Client.changeset(%Client{}, %{nickname: "UCxBot", type: "b"}) |> UcxChat.Repo.insert!
+create_user = fn name, email, password, admin ->
+  username = create_username.(name)
+  account = %Account{} |> Account.changeset(%{}) |> Repo.insert!
+  user =
+    %User{}
+    |> User.changeset(%{username: username, account_id: account.id, name: name, email: email,
+        password: password, password_confirmation: password})
+    |> Repo.insert!
+  role_name = case admin do
+    true -> "admin"
+    false -> "user"
+    :bot -> "bot"
+  end
 
-c1 = Client.changeset(%Client{}, %{nickname: "Admin"}) |> UcxChat.Repo.insert!
-c2 = Client.changeset(%Client{}, %{nickname: "Steve"}) |> UcxChat.Repo.insert!
-c3 = Client.changeset(%Client{}, %{nickname: "Merilee"}) |> UcxChat.Repo.insert!
+  %UserRole{}
+  |> UserRole.changeset(%{user_id: user.id, role: role_name})
+  |> Repo.insert!
 
-clients =
+  user
+end
+
+
+# c1 = User.changeset(%User{}, %{nickname: "Admin"}) |> UcxChat.Repo.insert!
+# c2 = User.changeset(%User{}, %{nickname: "Steve"}) |> UcxChat.Repo.insert!
+# c3 = User.changeset(%User{}, %{nickname: "Merilee"}) |> UcxChat.Repo.insert!
+
+# u0 = User.changeset(%User{}, %{name: "UCxBot", username: "UCxBot", type: "b"}) |> UcxChat.Repo.insert!
+u0 = create_user.("Bot", "bot@example.com", "test", :bot)
+u1 = create_user.("Admin", "steve.pallen@emetrotel.com", "test", true)
+u2 = create_user.("Steve Pallen", "smpallen99@gmail.com", "test", false)
+u3 = create_user.("Merilee Lackey", "smpallen99@yahoo.com", "test", false)
+
+users =
   [
-    "Jamie", "Jason", "Simon", "Eric", "Lina", "Denine", "Vince", "Richard", "Sharron",
+    "Jamie Pallen", "Jason Pallen", "Simon", "Eric", "Lina", "Denine", "Vince", "Richard", "Sharron",
     "Ardavan", "Joseph", "Chris", "Osmond", "Patrick", "Tom", "Jeff"
   ]
   |> Enum.map(fn name ->
-    c =
-      %Client{}
-      |> Client.changeset(%{nickname: name})
-      |> UcxChat.Repo.insert!
-    lname = String.downcase name
-    create_user.(c.id, name, "#{lname}@example.com", lname, "test", false)
-    # %User{}
-    # |> User.changeset(%{client_id: c.id, name: name, email: "#{lname}@example.com",
-    #     username: lname, password: "test", password_confirmation: "test", admin: false})
-    # |> Repo.insert!
-    c
+    lname = create_username.(name)
+    create_user.(name, "#{lname}@example.com", "test", false)
   end)
-_u1 = create_user.(c1.id, "Admin", "steve.pallen@emetrotel.com", "admin", "test", true)
-_u2 = create_user.(c2.id, "Steve Pallen", "smpallen99@gmail.com", "spallen", "test", false)
-_u3 = create_user.(c3.id, "Merilee Lackey", "smpallen99@yahoo.com", "merilee", "test", false)
 
-# _u1 = User.changeset(%User{}, %{client_id: c1.id, name: "Admin", email: "steve.pallen@emetrotel.com", username: "admin", password: "test123", password_confirmation: "test123", admin: true})
-# |> Repo.insert!
-# _u2 = User.changeset(%User{}, %{client_id: c2.id, name: "Steve Pallen", email: "smpallen99@gmail.com", username: "spallen", password: "test123", password_confirmation: "test123"})
-# |> Repo.insert!
-# _u3 = User.changeset(%User{}, %{client_id: c3.id, name: "Merilee Lackey", email: "smpallen99@yahoo.com", username: "merilee", password: "test123", password_confirmation: "test123"})
-# |> Repo.insert!
 
-ch1 = Channel.changeset(%Channel{}, %{name: "general", client_id: c0.id})
+ch1 = Channel.changeset(%Channel{}, %{name: "general", user_id: u0.id})
 |> Repo.insert!
-ch2 = Channel.changeset(%Channel{}, %{name: "support", client_id: c1.id})
+ch2 = Channel.changeset(%Channel{}, %{name: "support", user_id: u1.id})
 |> Repo.insert!
 
 channels =
-  ~w(Research Marketing HR Accounting Shipping Sales) ++ ["UCxWebClient", "UCxChat"]
+  ~w(Research Marketing HR Accounting Shipping Sales) ++ ["UCxWebUser", "UCxChat"]
   |> Enum.map(fn name ->
-    Channel.changeset(%Channel{}, %{name: name, client_id: c1.id})
+    Channel.changeset(%Channel{}, %{name: name, user_id: u1.id})
     |> Repo.insert!
   end)
 
 [ch1, ch2] ++ Enum.take(channels, 3)
 |> Enum.each(fn ch ->
   %Subscription{}
-  |> Subscription.changeset(%{channel_id: ch.id, client_id: c1.id})
+  |> Subscription.changeset(%{channel_id: ch.id, user_id: u1.id})
   |> Repo.insert!
   %Subscription{}
-  |> Subscription.changeset(%{channel_id: ch.id, client_id: c2.id})
+  |> Subscription.changeset(%{channel_id: ch.id, user_id: u2.id})
   |> Repo.insert!
   %Subscription{}
-  |> Subscription.changeset(%{channel_id: ch.id, client_id: c3.id})
+  |> Subscription.changeset(%{channel_id: ch.id, user_id: u3.id})
   |> Repo.insert!
 end)
 
 
-clients
+users
 |> Enum.each(fn c ->
   %Subscription{}
-  |> Subscription.changeset(%{channel_id: ch1.id, client_id: c.id})
+  |> Subscription.changeset(%{channel_id: ch1.id, user_id: c.id})
   |> Repo.insert!
 end)
 
@@ -141,38 +148,38 @@ if add_messages do
     "Let me tell you a story about a man named Jed",
   ]
 
-  client_ids = [c1.id, c2.id, c3.id]
+  user_ids = [u1.id, u2.id, u3.id]
   other_ch_ids = Enum.take(channels, 3) |> Enum.map(&(&1.id))
   for _ <- 0..500 do
     for ch_id <- [ch1.id, ch2.id] ++ other_ch_ids do
-      id = Enum.random client_ids
+      id = Enum.random user_ids
       %Message{}
-      |> Message.changeset(%{channel_id: ch_id, client_id: id, body: Enum.random(messages)})
+      |> Message.changeset(%{channel_id: ch_id, user_id: id, body: Enum.random(messages)})
       |> Repo.insert!
     end
   end
 
-  new_channel_clients = [
-    {Enum.random(clients), Enum.random(channels)},
-    {Enum.random(clients), Enum.random(channels)},
-    {Enum.random(clients), Enum.random(channels)},
-    {Enum.random(clients), Enum.random(channels)},
-    {Enum.random(clients), Enum.random(channels)},
-    {Enum.random(clients), Enum.random(channels)},
-    {Enum.random(clients), Enum.random(channels)},
+  new_channel_users = [
+    {Enum.random(users), Enum.random(channels)},
+    {Enum.random(users), Enum.random(channels)},
+    {Enum.random(users), Enum.random(channels)},
+    {Enum.random(users), Enum.random(channels)},
+    {Enum.random(users), Enum.random(channels)},
+    {Enum.random(users), Enum.random(channels)},
+    {Enum.random(users), Enum.random(channels)},
   ]
 
-  new_channel_clients
+  new_channel_users
   |> Enum.each(fn {c, ch} ->
     %Subscription{}
-    |> Subscription.changeset(%{channel_id: ch.id, client_id: c.id})
+    |> Subscription.changeset(%{channel_id: ch.id, user_id: c.id})
     |> Repo.insert!
   end)
 
   for _ <- 1..200 do
-    {c, ch} = Enum.random new_channel_clients
+    {c, ch} = Enum.random new_channel_users
     %Message{}
-    |> Message.changeset(%{channel_id: ch.id, client_id: c.id, body: Enum.random(messages)})
+    |> Message.changeset(%{channel_id: ch.id, user_id: c.id, body: Enum.random(messages)})
     |> Repo.insert!
   end
 end

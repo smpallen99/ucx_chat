@@ -2,7 +2,7 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{Settings, User, Repo, Channel, Subscription, MessageService, Client, ChatDat, Direct, Mute, ClientChannel}
+  alias UcxChat.{Settings, User, Repo, Channel, Subscription, MessageService, User, ChatDat, Direct, Mute, UserChannel}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   import Phoenix.HTML.Tag, only: [content_tag: 3, content_tag: 2]
@@ -39,14 +39,14 @@ defmodule UcxChat.ChannelService do
       template_name: get_templ(&1), rooms: []}))
   end
 
-  def side_nav_where(%User{account: %{chat_mode: true}}, client_id) do
+  def side_nav_where(%User{account: %{chat_mode: true}}, user_id) do
     Subscription
-    |> where([cc], cc.client_id == ^client_id and cc.type in [2, 3])
+    |> where([cc], cc.user_id == ^user_id and cc.type in [2, 3])
   end
 
-  def side_nav_where(_user, client_id) do
+  def side_nav_where(_user, user_id) do
     Subscription
-    |> where([cc], cc.client_id == ^client_id)
+    |> where([cc], cc.user_id == ^user_id)
   end
 
   ##################
@@ -62,9 +62,8 @@ defmodule UcxChat.ChannelService do
   @doc """
   Get the side_nav data used in the side_nav templates
   """
-  # def get_side_nav(%Client{id: id}, channel_id), do: get_side_nav(id, channel_id)
-  def get_side_nav(%User{} = user, channel_id) do
-    id = user.client.id
+  # def get_side_nav(%User{id: id}, channel_id), do: get_side_nav(id, channel_id)
+  def get_side_nav(%User{id: id} = user, channel_id) do
     chat_mode = user.account.chat_mode
     rooms =
       user
@@ -132,15 +131,15 @@ defmodule UcxChat.ChannelService do
     %{room_types: room_types, room_map: room_map, rooms: [], active_room: active_room}
   end
 
-  def get_channel_display_name(type, %Channel{id: id, name: name}, client_id) when type == :direct or type == :stared do
+  def get_channel_display_name(type, %Channel{id: id, name: name}, user_id) when type == :direct or type == :stared do
     Direct
-    |> where([d], d.channel_id == ^id and d.client_id == ^client_id)
+    |> where([d], d.channel_id == ^id and d.user_id == ^user_id)
     |> Repo.one
     |> case do
       %{} = direct ->
-        nickname = Map.get(direct, :clients)
-        user = Repo.one! User.user_from_nickname(nickname)
-        {nickname, UcxChat.PresenceAgent.get(user.id)}
+        username = Map.get(direct, :users)
+        user = Repo.one! User.user_from_username(username)
+        {username, UcxChat.PresenceAgent.get(user.id)}
       _ ->  {name, "offline"}
     end
   end
@@ -159,22 +158,21 @@ defmodule UcxChat.ChannelService do
   def get_chan_type(3, _), do: :stared
   def get_chan_type(_, type), do: room_type(type)
 
-  def open_room(client_id, room, _old_room, display_name) do
-    # Logger.debug "open_room client_id: #{inspect client_id}, room: #{inspect room}, old_room: #{inspect old_room}"
-    client =
-      Client
-      |> where([c], c.id == ^client_id)
-      |> preload([:user])
+  def open_room(user_id, room, _old_room, display_name) do
+    # Logger.debug "open_room user_id: #{inspect user_id}, room: #{inspect room}, old_room: #{inspect old_room}"
+    user =
+      User
+      |> where([c], c.id == ^user_id)
+      |> preload([:account])
       |> Repo.one!
 
-    user = Repo.preload(client.user, [:client, :account])
     channel =
       Channel
       |> where([c], c.name == ^room)
       |> Repo.one!
 
-    client
-    |> Client.changeset(%{open_id: channel.id})
+    user
+    |> User.changeset(%{open_id: channel.id})
     |> Repo.update!
 
     messages = MessageService.get_messages(channel.id)
@@ -197,8 +195,8 @@ defmodule UcxChat.ChannelService do
     }
   end
 
-  def toggle_favorite(client_id, channel_id) do
-    cc = Helpers.get_channel_client(channel_id, client_id, preload: [:channel, :client])
+  def toggle_favorite(user_id, channel_id) do
+    cc = Helpers.get_channel_user(channel_id, user_id, preload: [:channel])
     cc_type = if cc.type == room_type(:stared) do
       # change it back
       cc.channel.type
@@ -206,7 +204,7 @@ defmodule UcxChat.ChannelService do
       # star it
       room_type(:stared)
     end
-    user = Repo.one!(from u in User, where: u.client_id == ^client_id, preload: [:client, :account])
+    user = Repo.one!(from u in User, where: u.id == ^user_id, preload: [:account])
     Subscription.changeset(cc, %{type: cc_type}) |> Repo.update!
     chatd = ChatDat.new user, cc.channel, []
     messages_html =
@@ -222,19 +220,19 @@ defmodule UcxChat.ChannelService do
     {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
   end
 
-  def add_direct(nickname, client_id, channel_id) do
-    client_orig = Helpers.get(Client, client_id)
-    client_dest = Helpers.get_by(Client, :nickname, nickname)
+  def add_direct(username, user_id, channel_id) do
+    user_orig = Helpers.get(User, user_id)
+    user_dest = Helpers.get_by(User, :username, username)
 
-    name = client_orig.nickname <> "__" <> nickname
+    name = user_orig.username <> "__" <> username
     channel = case Helpers.get_by(Channel, :name, name) do
       %Channel{} = channel ->
         channel
       _ ->
-        do_add_direct(name, client_orig, client_dest, channel_id)
+        do_add_direct(name, user_orig, user_dest, channel_id)
     end
 
-    user = Repo.one!(from u in User, where: u.client_id == ^client_id, preload: [:client, :account])
+    user = Repo.one!(from u in User, where: u.id == ^user_id, preload: [:account])
 
     chatd = ChatDat.new user, channel, []
 
@@ -251,30 +249,30 @@ defmodule UcxChat.ChannelService do
     {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
   end
 
-  defp do_add_direct(name, client_orig, client_dest, _channel_id) do
+  defp do_add_direct(name, user_orig, user_dest, _channel_id) do
     # create the channel
     channel =
       %Channel{}
-      |> Channel.changeset(%{client_id: client_orig.id, name: name, type: room_type(:direct)})
+      |> Channel.changeset(%{user_id: user_orig.id, name: name, type: room_type(:direct)})
       |> Repo.insert!
 
     # Create the cc's, and the directs one for each user
-    client_names = %{client_orig.id => client_dest.nickname, client_dest.id => client_orig.nickname}
+    user_names = %{user_orig.id => user_dest.username, user_dest.id => user_orig.username}
 
-    for client <- [client_orig, client_dest] do
+    for user <- [user_orig, user_dest] do
       %Subscription{}
-      |> Subscription.changeset(%{channel_id: channel.id, client_id: client.id, type: room_type(:direct)})
+      |> Subscription.changeset(%{channel_id: channel.id, user_id: user.id, type: room_type(:direct)})
       |> Repo.insert!
       %Direct{}
-      |> Direct.changeset(%{clients: client_names[client.id], client_id: client.id, channel_id: channel.id})
+      |> Direct.changeset(%{users: user_names[user.id], user_id: user.id, channel_id: channel.id})
       |> Repo.insert!
     end
     channel
   end
 
-  def render_rooms(channel_id, client_id) do
+  def render_rooms(channel_id, user_id) do
     channel = Helpers.get!(Channel, channel_id)
-    user = Repo.one!(from u in User, where: u.client_id == ^client_id, preload: [:client, :account])
+    user = Repo.one!(from u in User, where: u.id == ^user_id, preload: [:account])
     chatd = ChatDat.new user, channel, []
 
     # side_nav_html =
@@ -288,16 +286,16 @@ defmodule UcxChat.ChannelService do
   ###################
   # channel commands
 
-  def channel_command(:create, name, client_id, channel_id) do
+  def channel_command(:create, name, user_id, channel_id) do
     if Helpers.get_by(Channel, :name, name) do
       Helpers.response_message(channel_id, text: "The channel ", code: "#" <> name, text: " already exists.")
     else
       %Channel{}
-      |> Channel.changeset(%{name: name, client_id: client_id})
+      |> Channel.changeset(%{name: name, user_id: user_id})
       |> Repo.insert
       |>case do
         {:ok, channel} ->
-          channel_command(:join, channel, client_id, channel_id)
+          channel_command(:join, channel, user_id, channel_id)
 
           tag = content_tag :span, style: "color: green;" do
             "Channel created successfully"
@@ -312,59 +310,48 @@ defmodule UcxChat.ChannelService do
 
   @channel_commands ~w(join leave open archive unarchive invite_all_to invite_all_from)a
 
-  def channel_command(command, name, client_id, channel_id) when command in @channel_commands and is_binary(name) do
+  def channel_command(command, name, user_id, channel_id) when command in @channel_commands and is_binary(name) do
     case Helpers.get_by(Channel, :name, name) do
       nil ->
         Helpers.response_message(channel_id, text: "The channel ", code: "#" <> name, text: " does not exists")
       channel ->
-        channel_command(command, channel, client_id, channel_id)
+        channel_command(command, channel, user_id, channel_id)
     end
   end
 
-  def channel_command(:join, %Channel{} = channel, client_id, channel_id) do
-    # %Subscription{}
-    # |> Subscription.changeset(%{client_id: client_id, channel_id: channel.id})
-    # |> Repo.insert
+  def channel_command(:join, %Channel{} = channel, user_id, channel_id) do
     channel
-    |> add_user_to_channel(client_id)
+    |> add_user_to_channel(user_id)
     |> case do
       {:ok, _subs} ->
-        # ClientChannel.join_room(client_id, channel.name)
-        # broadcast_message("Has joined the channel.", channel.name, client_id, channel.id, system: true, sequential: false)
         Helpers.response_message(channel_id, text: "You have joined the", code: channel.name, text: " channel.")
       {:error, _} ->
         Helpers.response_message(channel_id, text: "Problem joining ", code: channel.name, text: " channel.")
     end
   end
 
-  def channel_command(:leave, %Channel{} = channel, client_id, channel_id) do
+  def channel_command(:leave, %Channel{} = channel, user_id, channel_id) do
     channel
-    |> remove_user_from_channel(client_id)
-    # ch_id = channel.id
-    # Subscription
-    # |> where([s], s.channel_id == ^ch_id and s.client_id == ^client_id)
-    # |> Repo.one
+    |> remove_user_from_channel(user_id)
     |> case do
       nil ->
         Helpers.response_message(channel_id, text: "Your not subscribed to the ", code: channel.name, text: " channel.")
       _subs ->
-        # Repo.delete! subs
-        # ClientChannel.leave_room(client_id, channel.name)
-        # broadcast_message("Has left the channel.", channel.name, client_id, channel_id, system: true, sequential: false)
         Helpers.response_message(channel_id, text: "You have left to the ", code: channel.name, text: " channel.")
     end
   end
 
-  def channel_command(:open, %Channel{} = _channel, _client_id, _channel_id) do
+  def channel_command(:open, %Channel{} = _channel, _user_id, channel_id) do
     # send open channel to the user
+    Helpers.response_message(channel_id, text: "That command is not yet supported")
     %{}
   end
 
-  def channel_command(:archive, %Channel{archived: true} = channel, _client_id, channel_id) do
+  def channel_command(:archive, %Channel{archived: true} = channel, _user_id, channel_id) do
     Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is already archived.")
   end
 
-  def channel_command(:archive, %Channel{} = channel, _client_id, channel_id) do
+  def channel_command(:archive, %Channel{} = channel, _user_id, channel_id) do
     channel
     |> Channel.changeset(%{archived: true})
     |> Repo.update
@@ -377,11 +364,11 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(:unarchive, %Channel{archived: false} = channel, _client_id, channel_id) do
+  def channel_command(:unarchive, %Channel{archived: false} = channel, _user_id, channel_id) do
     Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is not archived.")
   end
 
-  def channel_command(:unarchive, %Channel{} = channel, _client_id, channel_id) do
+  def channel_command(:unarchive, %Channel{} = channel, _user_id, channel_id) do
     channel
     |> Channel.changeset(%{archived: false})
     |> Repo.update
@@ -394,127 +381,127 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(:invite_all_to, %Channel{} = channel, _client_id, channel_id) do
+  def channel_command(:invite_all_to, %Channel{} = channel, _user_id, channel_id) do
     to_channel = Helpers.get(Channel, channel.id).id
     from_channel = channel_id
 
     Subscription.get_all_for_channel(from_channel)
-    |> preload([:client])
+    |> preload([:user])
     |> Repo.all
     |> Enum.each(fn subs ->
       # TODO: check for errors here
-      invite_client(subs.client.id, to_channel)
+      invite_user(subs.user.id, to_channel)
     end)
 
     Helpers.response_message(channel_id, text: "The users have been added.")
   end
 
-  def channel_command(:invite_all_from, %Channel{} = channel, _client_id, channel_id) do
+  def channel_command(:invite_all_from, %Channel{} = channel, _user_id, channel_id) do
     from_channel = Helpers.get(Channel, channel.id).id
     to_channel = channel_id
 
     Subscription.get_all_for_channel(from_channel)
-    |> preload([:client])
+    |> preload([:user])
     |> Repo.all
     |> Enum.each(fn subs ->
       # TODO: check for errors here
-      invite_client(subs.client.id, to_channel)
+      invite_user(subs.user.id, to_channel)
     end)
 
     Helpers.response_message(channel_id, text: "The users have been added.")
   end
 
   ##################
-  # client commands
+  # user commands
 
-  @client_commands ~w(invite kick mute unmute)a
+  @user_commands ~w(invite kick mute unmute)a
 
-  def client_command(command, name, client_id, channel_id) when command in @client_commands and is_binary(name) do
-    case Helpers.get_by(Client, :nickname, name) do
+  def user_command(command, name, user_id, channel_id) when command in @user_commands and is_binary(name) do
+    case Helpers.get_by(User, :username, name) do
       nil ->
         Helpers.response_message(channel_id, text: "The user ", code: "@" <> name, text: " does not exists")
-      client ->
-        client_command(command, client, client_id, channel_id)
+      user ->
+        user_command(command, user, user_id, channel_id)
     end
   end
 
-  def client_command(:invite, %Client{} = client, client_id, channel_id) do
-    client.id
-    |> invite_client(channel_id)
+  def user_command(:invite, %User{} = user, user_id, channel_id) do
+    user.id
+    |> invite_user(channel_id)
     |> case do
       {:ok, _subs} ->
-        notify_client_action(client, client_id, channel_id, "added")
+        notify_user_action(user, user_id, channel_id, "added")
       {:error, _} ->
-        Helpers.response_message(channel_id, text: "Problem inviting ", code: client.nickname, text: " to this channel.")
+        Helpers.response_message(channel_id, text: "Problem inviting ", code: user.username, text: " to this channel.")
     end
   end
 
-  def client_command(:kick, %Client{} = client, client_id, channel_id) do
+  def user_command(:kick, %User{} = user, user_id, channel_id) do
     Channel
     |> Helpers.get!(channel_id)
-    |> remove_user_from_channel(client_id)
+    |> remove_user_from_channel(user_id)
     |> case do
       nil ->
-        Helpers.response_message(channel_id, text: "User ", code: client.nickname, text: " is not subscribed to this channel.")
+        Helpers.response_message(channel_id, text: "User ", code: user.username, text: " is not subscribed to this channel.")
       _subs ->
-        notify_client_action(client, client_id, channel_id, "removed")
+        notify_user_action(user, user_id, channel_id, "removed")
     end
   end
 
-  def client_command(:mute, %Client{} = client, client_id, channel_id) do
-    case mute_client(client, client_id, channel_id) do
+  def user_command(:mute, %User{} = user, user_id, channel_id) do
+    case mute_user(user, user_id, channel_id) do
       {:error, response_message} -> response_message
-      {:ok, _} -> notify_client_action(client, client_id, channel_id, "muted")
+      {:ok, _} -> notify_user_action(user, user_id, channel_id, "muted")
     end
   end
 
-  def client_command(:unmute, %Client{} = client, client_id, channel_id) do
-    case mute_client(client, client_id, channel_id) do
+  def user_command(:unmute, %User{} = user, user_id, channel_id) do
+    case mute_user(user, user_id, channel_id) do
       {:error, response_message} -> response_message
-      {:ok, _} -> notify_client_action(client, client_id, channel_id, "unmuted")
+      {:ok, _} -> notify_user_action(user, user_id, channel_id, "unmuted")
     end
   end
 
   # TODO: This needs to be broadcast to the channel
-  defp notify_client_action(client, client_id, channel_id, action) do
-    owner = Helpers.get(Client, client_id)
+  defp notify_user_action(user, user_id, channel_id, action) do
+    owner = Helpers.get(User, user_id)
     t1 = content_tag :em do
-     client.nickname
+     user.username
     end
     t2 = content_tag :em do
-     owner.nickname
+     owner.username
     end
     Helpers.response_message(channel_id, text: "User ", tag: t1, text: " #{action} by ", tag: t2, text: ".")
   end
 
-  def mute_client(%{id: id} = client, _client_id, channel_id) do
+  def mute_user(%{id: id} = user, _user_id, channel_id) do
     %Mute{}
-    |> Mute.changeset(%{client_id: id, channel_id: channel_id})
+    |> Mute.changeset(%{user_id: id, channel_id: channel_id})
     |> Repo.insert
     |> case do
       {:error, _cs} ->
-        {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> client.nickname, text: " already muted.")}
+        {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
       mute ->
         {:ok, mute}
     end
   end
 
-  def unmute_client(%{id: id} = client, _client_id, channel_id) do
+  def unmute_user(%{id: id} = user, _user_id, channel_id) do
     Mute
-    |> where([m], m.client_id == ^id and m.channel_id == ^channel_id)
+    |> where([m], m.user_id == ^id and m.channel_id == ^channel_id)
     |> Repo.one
     |> case do
       nil ->
-        {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> client.nickname, text: " is not muted.")}
+        {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " is not muted.")}
       mute ->
         Repo.delete mute
         {:ok, "unmuted"}
     end
   end
 
-  def invite_client(client_id, channel_id) do
+  def invite_user(user_id, channel_id) do
     Helpers.get!(Channel, channel_id)
-    |> add_user_to_channel(client_id)
+    |> add_user_to_channel(user_id)
   end
 
   #################
@@ -533,36 +520,36 @@ defmodule UcxChat.ChannelService do
   # def get_icon(:stared), do: "icon-hash"
   # def get_icon(:direct), do: "icon-at"
 
-  def broadcast_message(body, room, client_id, channel_id, opts \\ []) do
-    {message, html} = MessageService.create_and_render(body, client_id, channel_id, opts)
-    MessageService.broadcast_message(message.id, room, client_id, html)
+  def broadcast_message(body, room, user_id, channel_id, opts \\ []) do
+    {message, html} = MessageService.create_and_render(body, user_id, channel_id, opts)
+    MessageService.broadcast_message(message.id, room, user_id, html)
   end
 
-  def remove_user_from_channel(channel, client_id) do
+  def remove_user_from_channel(channel, user_id) do
     ch_id = channel.id
     Subscription
-    |> where([s], s.channel_id == ^ch_id and s.client_id == ^client_id)
+    |> where([s], s.channel_id == ^ch_id and s.user_id == ^user_id)
     |> Repo.one
     |> case do
       nil -> nil
       subs ->
         Repo.delete! subs
-        ClientChannel.leave_room(client_id, channel.name)
+        UserChannel.leave_room(user_id, channel.name)
         unless Settings.hide_user_leave() do
-          broadcast_message("Has left the channel.", channel.name, client_id, channel.id, system: true, sequential: false)
+          broadcast_message("Has left the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
         end
     end
   end
 
-  def add_user_to_channel(channel, client_id) do
+  def add_user_to_channel(channel, user_id) do
     %Subscription{}
-    |> Subscription.changeset(%{client_id: client_id, channel_id: channel.id})
+    |> Subscription.changeset(%{user_id: user_id, channel_id: channel.id})
     |> Repo.insert
     |> case do
       {:ok, _subs} = result ->
-        ClientChannel.join_room(client_id, channel.name)
+        UserChannel.join_room(user_id, channel.name)
         unless Settings.hide_user_join() do
-          broadcast_message("Has joined the channel.", channel.name, client_id, channel.id, system: true, sequential: false)
+          broadcast_message("Has joined the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
         end
         result
       result -> result

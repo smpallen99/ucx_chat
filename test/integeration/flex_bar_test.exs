@@ -11,7 +11,7 @@ defmodule UcxChat.FlexBarIntegrationTest do
 
   setup do
     subs = insert(:basic_setup)
-    user = insert_user(subs.client.id)
+    user = insert_user(subs.user.id)
     current_window_handle() |> maximize_window
     login_user(user)
     {:ok, subs: subs, user: user}

@@ -6,12 +6,12 @@
       %h2 No mentions found
   .ul.mentioned-messages-list.list.clearfix
     - for mention <- @mentions do
-      %li(id="#{mention[:id]}" class="#{get_li_class(mention, :mention)}" data-username="#{mention[:nickname]}" data-date="#{mention[:date]}" data-timestamp="#{mention[:timestamp]}")
-        %button.thumb.user-card-message(data-username="#{mention[:nickname]}" tabindex="1")
+      %li(id="#{mention[:id]}" class="#{get_li_class(mention, :mention)}" data-username="#{mention[:username]}" data-date="#{mention[:date]}" data-timestamp="#{mention[:timestamp]}")
+        %button.thumb.user-card-message(data-username="#{mention[:username]}" tabindex="1")
           .avatar
-            .avatar-image(style="background-image:url(https://cdn-demo.rocket.chat/avatar/smpallen99?_dc=0);")
-        %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{mention[:nickname]}" tabindex="1")
-          = mention[:nickname]
+            .avatar-image(style="background-image:url(#{get_avatar(mention[:username])});")
+        %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{mention[:username]}" tabindex="1")
+          = mention[:username]
         %span.info.border-component-color.color-info-font-color
           %span.time(title="#{mention[:date]}")= mention[:time]
           .message-cog-container

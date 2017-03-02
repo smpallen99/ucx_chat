@@ -29,11 +29,11 @@ defmodule UcxChat.ChannelRouter do
     apply(UcxChat.RoomChannelController, :favorite, [socket, params])
   end
 
-  # post "/direct/:nickname", DirectMessageChannelController, :create
-  # post "/direct/:nickname", RoomChannelController, :create
+  # post "/direct/:username", DirectMessageChannelController, :create
+  # post "/direct/:username", RoomChannelController, :create
 
-  def match(:put, socket, ["direct", nickname], params) do
-    params = Map.put(params, "nickname", nickname)
+  def match(:put, socket, ["direct", username], params) do
+    params = Map.put(params, "username", username)
     apply(UcxChat.RoomChannelController, :create, [socket, params])
   end
 

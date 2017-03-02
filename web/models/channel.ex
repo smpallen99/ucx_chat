@@ -13,22 +13,22 @@ defmodule UcxChat.Channel do
     field :archived, :boolean, default: false
     field :description, :string
     has_many :subscriptions, UcxChat.Subscription
-    has_many :clients, through: [:subscriptions, :client]
+    has_many :users, through: [:subscriptions, :user]
     has_many :stared_messages, UcxChat.StaredMessage
     has_many :messages, UcxChat.Message
-    belongs_to :owner, UcxChat.Client, foreign_key: :client_id
+    belongs_to :owner, UcxChat.User, foreign_key: :user_id
 
     timestamps(type: :utc_datetime)
   end
 
-  @fields ~w(archived name type topic read_only client_id description)a
+  @fields ~w(archived name type topic read_only user_id description)a
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @fields)
-    |> validate_required([:name, :client_id])
+    |> validate_required([:name, :user_id])
     |> validate_format(:name, ~r/^[a-z0-9\.\-_]+$/i)
     |> validate_length(:name, min: 2, max: 25)
   end

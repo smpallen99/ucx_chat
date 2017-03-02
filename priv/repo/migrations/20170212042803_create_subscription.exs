@@ -11,12 +11,12 @@ defmodule UcxChat.Repo.Migrations.CreateSubscription do
       add :f, :boolean, default: false          # favorite
       add :unread, :integer, default: 0
       add :channel_id, references(:channels, on_delete: :delete_all)
-      add :client_id, references(:clients, on_delete: :delete_all)
+      add :user_id, references(:users, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
       # timestamps()
     end
-    create unique_index(:subscriptions, [:client_id, :channel_id], name: :subscriptions_client_id_channel_id_index)
+    create unique_index(:subscriptions, [:user_id, :channel_id], name: :subscriptions_user_id_channel_id_index)
 
   end
 end

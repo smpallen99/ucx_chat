@@ -3,7 +3,7 @@ defmodule UcxChat.MuteTest do
 
   alias UcxChat.Mute
 
-  @valid_attrs %{client_id: 1, channel_id: 1}
+  @valid_attrs %{user_id: 1, channel_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

@@ -3,7 +3,7 @@ defmodule UcxChat.StaredMessageTest do
 
   alias UcxChat.StaredMessage
 
-  @valid_attrs %{channel_id: 1, client_id: 1, message_id: 1}
+  @valid_attrs %{channel_id: 1, user_id: 1, message_id: 1}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

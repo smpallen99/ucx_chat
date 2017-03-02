@@ -12,7 +12,7 @@ defmodule UcxChat.LogInTest do
   setup do
     subs = insert_subscription()
     current_window_handle() |> maximize_window
-    {:ok, subs: subs, user: subs.client.user}
+    {:ok, subs: subs, user: subs.user}
   end
 
   # broken

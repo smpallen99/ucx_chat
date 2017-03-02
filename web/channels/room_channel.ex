@@ -57,10 +57,10 @@ defmodule UcxChat.RoomChannel do
 
   def handle_out(ev = "lobby:" <> event, msg, socket) do
     debug ev, msg
-    client_id = socket.assigns[:user_id]
+    user_id = socket.assigns[:user_id]
     channel_id = msg[:channel_id]
 
-    if Repo.one(from s in Subscription, where: s.client_id == ^client_id and s.channel_id == ^channel_id) do
+    if Repo.one(from s in Subscription, where: s.user_id == ^user_id and s.channel_id == ^channel_id) do
       UcxChat.Endpoint.broadcast CC.chan_room <> "lobby", event, msg
     end
 

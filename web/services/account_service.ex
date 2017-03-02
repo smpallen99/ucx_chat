@@ -1,5 +1,5 @@
 # defmodule UcxChat.AccountService do
-#   alias UcxChat.{Repo, Client}
+#   alias UcxChat.{Repo, User}
 #   alias UcxChat.ServiceHelpers, as: Helpers
 
 
