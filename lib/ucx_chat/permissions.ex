@@ -1,4 +1,13 @@
 defmodule UcxChat.Permission do
+  @moduledoc """
+  Permissions management.
+
+  Permissions are managed with an ets table that is sync'ed to the
+  h/d when changes are made. The frequency of changes should be pretty
+  low since that is only done through the admin GUI.
+
+  TODO: Still need to implement the disk persistence part!!
+  """
 
   @default_permissions  [
     %{name: "access-permissions",            roles: ["admin"] },

@@ -49,6 +49,16 @@ defmodule UcxChat.ChannelService do
     |> where([cc], cc.client_id == ^client_id)
   end
 
+  ##################
+  # Repo Multi
+
+  def create_channel(_user, _params) do
+
+  end
+
+  ##################
+  #
+
   @doc """
   Get the side_nav data used in the side_nav templates
   """

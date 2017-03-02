@@ -3,9 +3,11 @@ defmodule UcxChat.FlexBarServiceTest do
 
   alias UcxChat.FlexBarService, as: Service
   alias UcxChat.ClientAgent, as: Agent
+  import UcxChat.TestHelpers
 
-require Logger
-require IEx
+
+  require Logger
+  require IEx
   # def handle_in("close" = event, msg) do
   #   # Logger.warn "FlexBarService.close msg: #{inspect msg}"
   #   ClientAgent.close_ftab(msg["client_id"], msg["channel_id"])
@@ -18,8 +20,7 @@ require IEx
   @title4 "Mentions"
 
   setup do
-    # {:ok, subs: insert(:subscription)}
-    {:ok, subs: insert(:basic_setup)}
+    {:ok, subs: insert_subscription()}
   end
 
   test "setup", %{subs: subs} do
