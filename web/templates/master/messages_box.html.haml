@@ -21,7 +21,7 @@
         %li.start.color-info-font-color
           Start of conversation
     - for message <- @chatd.messages do
-      = render UcxChat.MessageView, "message.html", client: @chatd.client, message: message
+      = render UcxChat.MessageView, "message.html", user: @chatd.user, message: message
     - #{{#each messagesHistory}}
     - #  {{#nrr nrrargs 'message' .}}{{/nrr}}
     - if has_more_next() do

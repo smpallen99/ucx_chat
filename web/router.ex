@@ -23,12 +23,17 @@ defmodule UcxChat.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/" do
+  scope "/", UcxChat.Coherence do
+    pipe_through :protected
+    get "/logout", SessionController, :delete
+  end
+
+  scope "/", UcxChat do
     pipe_through :browser
     coherence_routes
   end
 
-  scope "/" do
+  scope "/", UcxChat do
     pipe_through :protected
     coherence_routes :protected
   end
@@ -36,11 +41,6 @@ defmodule UcxChat.Router do
   scope "/", UcxChat do
     pipe_through :browser
 
-  end
-
-  scope "/", Coherence do
-    pipe_through :protected
-    get "/logout", SessionController, :delete
   end
 
   scope "/", UcxChat do

@@ -1,4 +1,4 @@
-= get_message_wrapper_opts(@message, @client)
+= get_message_wrapper_opts(@message, @user)
   - if @message.avatar do
     - if avatar = avatar_from_username(@message) do
       %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
@@ -27,7 +27,7 @@
       %span.role-tag.background-info-font-color(data-role="#{role_tag.description}")= role_tag.description
     - if is_bot(@message) do
       %span.is-bot.background-info-font-color BOT
-    %span.time(title="{get_date_time(@message)}")= get_time(@message)
+    %span.time(title="{get_date_time(@message, @user)}")= get_time(@message, @user)
     - if edited = edited(@message) do
       %span.edited(title="edited at #{edited[:edit_time]} by #{edited[:edited_by]}")
         %i.icon-edit(aria-label="Edited")

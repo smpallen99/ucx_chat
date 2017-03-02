@@ -26,14 +26,20 @@ defmodule UcxChat.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
 
-  def connect(%{"token" => token}, socket) do
+  def connect(%{"token" => token, "tz_offset" => tz_offset}, socket) do
     # Logger.warn "socket connect params: #{inspect params}, socket: #{inspect socket}"
     case Coherence.verify_user_token(socket, token, &assign/3) do
       {:error, _} -> :error
       {:ok, %{assigns: %{user_id: user_id}} = socket} ->
         {client_id, nickname} = User.client_id_and_nickname(user_id) |> Repo.one
         # client_id = Repo.get!(User, user_id) |> Map.get(:client_id)
-        {:ok, assign(socket, :client_id, client_id) |> assign(:nickname, nickname)}
+        {
+          :ok,
+          socket
+          |> assign(:client_id, client_id)
+          |> assign(:nickname, nickname)
+          |> assign(:tz_offset, tz_offset)
+        }
     end
   end
 

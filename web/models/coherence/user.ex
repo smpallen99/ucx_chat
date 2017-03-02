@@ -11,6 +11,7 @@ defmodule UcxChat.User do
     field :email, :string
     field :username, :string
     field :admin, :boolean, default: false
+    field :tz_offset, :integer
 
     has_many :roles, UcxChat.UserRole
 
@@ -20,7 +21,7 @@ defmodule UcxChat.User do
 
     timestamps()
   end
-  @all_params ~w(name email username admin client_id account_id)a
+  @all_params ~w(name email username admin client_id account_id tz_offset)a
   @required  ~w(name email username account_id)a
 
   def changeset(model, params \\ %{}) do

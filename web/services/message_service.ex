@@ -1,6 +1,6 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
-  alias UcxChat.{Message, Repo, TypingAgent, Client, Mention, Subscription}
+  alias UcxChat.{Message, Repo, TypingAgent, Client, Mention, Subscription, Settings, User}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -34,29 +34,44 @@ defmodule UcxChat.MessageService do
   end
 
   def last_client_id(channel_id) do
-    Message
-    |> where([m], m.channel_id == ^channel_id)
-    |> last
-    |> Repo.one
+    channel_id
+    |> last_message
     |> case do
       nil -> nil
       message -> Map.get(message, :client_id)
     end
   end
 
+  def last_message(channel_id) do
+    Message
+    |> where([m], m.channel_id == ^channel_id)
+    |> last
+    |> Repo.one
+  end
+
   def render_message(message) do
+    client_id = message.client.id
+    user = Repo.one(from u in User, where: u.client_id == ^client_id)
     "message.html"
-    |> UcxChat.MessageView.render(message: message, client: message.client)
+    |> UcxChat.MessageView.render(message: message, user: user)
     |> Phoenix.HTML.safe_to_string
   end
 
-  def create_message(body, client_id, channel_id, params) do
+  def create_message(body, client_id, channel_id, params \\ %{}) do
     # Logger.warn "create_msg body: #{inspect body}, params: #{inspect params}"
+    sequential? = case last_message(channel_id) do
+      nil -> false
+      lm ->
+        Timex.after?(Timex.shift(lm.inserted_at,
+          seconds: Settings.grouping_period_seconds()), Timex.now) and
+          client_id == lm.client_id
+    end
+
     message =
       %Message{}
       |> Message.changeset(Map.merge(
         %{
-          sequential: client_id == last_client_id(channel_id),
+          sequential: sequential?,
           channel_id: channel_id,
           client_id: client_id,
           body: body
@@ -67,18 +82,6 @@ defmodule UcxChat.MessageService do
       Repo.delete(message)
     end
     message
-  end
-
-  def create_message(body, client_id, channel_id) do
-    %Message{}
-    |> Message.changeset(%{
-      sequential: client_id == last_client_id(channel_id),
-      channel_id: channel_id,
-      client_id: client_id,
-      body: body
-    })
-    |> Repo.insert!
-    |> Repo.preload([:client])
   end
 
   def update_typing(channel_id, room) do

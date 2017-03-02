@@ -7,6 +7,7 @@ defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
 
       add :username, :string
       add :admin, :boolean, default: false
+      add :tz_offset, :integer
 
       # unlockable_with_token
       add :unlock_token, :string

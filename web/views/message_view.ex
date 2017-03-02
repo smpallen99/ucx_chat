@@ -15,37 +15,42 @@ defmodule UcxChat.MessageView do
     %{}
   end
 
-  def get_message_wrapper_opts(msg, client) do
+  def get_message_wrapper_opts(msg, user) do
     cls =
       ~w(get_sequential get_system get_t get_own get_is_temp get_chat_opts get_custom_class)a
       |> Enum.reduce("message background-transparent-dark-hover", fn fun, acc ->
-        acc <> apply(__MODULE__, fun, [msg, client])
+        acc <> apply(__MODULE__, fun, [msg, user.client])
       end)
     attrs = [
       id: "message-#{msg.id}",
       class: cls,
       "data-username": msg.client.nickname,
       "data-groupable": msg.is_groupable,
-      "data-date": format_date(msg.updated_at),
+      "data-date": format_date(msg.updated_at, user),
       "data-timestamp": msg.timestamp
     ]
     Phoenix.HTML.Tag.tag(:li, attrs)
   end
-  def format_date(%{updated_at: dt}) do
-    Helpers.format_date dt
+  def format_date(%{updated_at: dt}, user) do
+    Helpers.format_date tz_offset(dt, user)
   end
-  def format_date(dt) do
-    Helpers.format_date dt
+  def format_date(dt, user) do
+    Helpers.format_date tz_offset(dt, user)
   end
-  def format_timestamp(dt) do
+  def format_timestamp(dt, user) do
     Message.format_timestamp dt
   end
-  def format_time(%{updated_at: dt}) do
-    Helpers.format_time dt
+  def format_time(%{updated_at: dt}, user) do
+    Helpers.format_time tz_offset(dt, user)
   end
-  def format_date_time(%{updated_at: dt}) do
-    Helpers.format_date_time dt
+  def format_date_time(%{updated_at: dt}, user) do
+    Helpers.format_date_time tz_offset(dt, user)
   end
+
+  defp tz_offset(dt, user) do
+    Timex.shift(dt, hours: user.tz_offset || 0)
+  end
+
   def get_avatar(_msg) do
     ""
   end
@@ -59,8 +64,8 @@ defmodule UcxChat.MessageView do
   def alias?(_msg), do: false
   def role_tags(_user), do: []
   def is_bot(_msg), do: false
-  def get_date_time(msg), do: format_date_time(msg)
-  def get_time(msg), do: format_time(msg)
+  def get_date_time(msg, user), do: format_date_time(msg, user)
+  def get_time(msg, user), do: format_time(msg, user)
   def edited(_msg), do: false
   def is_private(%{type: "p"}), do: true
   def is_private(_msg), do: false

@@ -44,6 +44,7 @@ defmodule UcxChat.RoomChannel do
   end
 
   def handle_info({:after_join, room, msg}, socket) do
+    Logger.warn "room channel after_join, room: #{inspect room}"
     channel = ServiceHelpers.get_by!(Channel, :name, room)
     broadcast! socket, "user:entered", %{user: msg["user"], channel_id: channel.id}
     push socket, "join", %{status: "connected"}

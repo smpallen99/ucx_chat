@@ -25,7 +25,7 @@ const chan_system = "system:"
 
 const debug = true;
 
-let socket = new Socket("/socket", {params: {token: window.user_token}})
+let socket = new Socket("/socket", {params: {token: window.user_token, tz_offset: new Date().getTimezoneOffset() / -60}})
 
 window.clientchan = false
 window.roomchan = false

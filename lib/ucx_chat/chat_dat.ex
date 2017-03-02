@@ -2,8 +2,8 @@ defmodule UcxChat.ChatDat do
   alias UcxChat.{Channel, User}
 
   defstruct user: nil, room_types: [], settings: %{}, rooms: [], client: nil,
-            channel: nil, messages: nil, room_map: %{}, active_room: %{}, status: "offline"
-
+            channel: nil, messages: nil, room_map: %{}, active_room: %{},
+            status: "offline"
   def new(user, channel, messages \\ [])
   def new(%User{} = user, %Channel{} = channel, messages) do
     %{room_types: room_types, rooms: rooms, room_map: room_map, active_room: ar} =
