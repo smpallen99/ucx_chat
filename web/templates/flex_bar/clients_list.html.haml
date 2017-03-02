@@ -33,7 +33,7 @@
         %p.secondary-font-color
         %p.secondary-font-color
           %i.icon-clock
-          12:13 PM (UTC -5)
+          = "#{UcxChat.MessageView.format_time(Timex.now(), @client.user)} (UTC #{@client.user.tz_offset})"
 
     %nav(data-username="#{map_field(@client, :nickname)}")
       - owner = false

@@ -41,6 +41,9 @@ defmodule UcxChat.MessageView do
     Message.format_timestamp dt
   end
   def format_time(%{updated_at: dt}, user) do
+    format_time dt, user
+  end
+  def format_time(dt, user) do
     Helpers.format_time tz_offset(dt, user)
   end
   def format_date_time(%{updated_at: dt}, user) do

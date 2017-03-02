@@ -184,9 +184,10 @@ defmodule UcxChat.FlexBarService do
 
     {client, user_mode} =
       case opts["nickname"] do
-        nil -> {Helpers.get(Client, client_id), false}
-        nickname -> {Helpers.get_by(Client, :nickname, nickname), true}
+        nil -> {Helpers.get(Client, client_id, preload: [:user]), false}
+        nickname -> {Helpers.get_by(Client, :nickname, nickname, preload: [:user]), true}
       end
+
     clients =
       channel.clients
       |> Enum.map(fn cl ->
