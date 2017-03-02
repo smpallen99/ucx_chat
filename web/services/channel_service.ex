@@ -109,7 +109,6 @@ defmodule UcxChat.ChannelService do
       base_types()
       |> Enum.reject(fn %{type: type} -> type == :public && chat_mode end)
       |> Enum.map(fn %{type: type} = bt ->
-        Logger.warn "........ type: #{inspect type}"
         case room_types[type] do
           nil -> bt
           other -> other

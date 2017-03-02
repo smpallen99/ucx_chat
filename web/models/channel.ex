@@ -34,16 +34,15 @@ defmodule UcxChat.Channel do
   end
 
   def changeset_settings(struct, [{"private", value}] = params) do
-    Logger.warn "changeset #{inspect params}"
-    type = if value == "true", do: 1, else: 0
+    type = if value == true, do: 1, else: 0
     changeset(struct, %{type: type})
   end
   def changeset_settings(struct, [{field, value}]) do
-    value = case value do
-      "true" -> true
-      "false" -> false
-      other -> other
-    end
+    # value = case value do
+    #   "true" -> true
+    #   "false" -> false
+    #   other -> other
+    # end
     changeset(struct, %{field => value})
   end
 

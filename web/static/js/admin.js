@@ -1,14 +1,41 @@
 import toastr from 'toastr'
 
+const reset_i = '<i class="icon-ccw secondary-font-color color-error-contrast"></i>'
+
 class Admin {
   constructor() {
     this.modifed = false
-    this.register_events()
+    this.register_events(this)
   }
 
-  register_events() {
-    $('body').on('change', '.admin-settings form', function(e) {
-      $('button.save[disabled="true"]').removeAttr('disabled')
+  enable_save_button() {
+    let save = $('button.save')
+    if (save.attr('disabled') == 'disabled') {
+      save.removeAttr('disabled')
+      save.parent().prepend('<button class="button danger discard"><i class="icon-send"></i><span>Cancel</span></button>')
+      this.modified = true
+    }
+  }
+  disable_save_button() {
+    let save = $('button.save')
+    this.modified = false
+    save.attr('disabled', 'disabled')
+    $('button.discard').remove()
+  }
+  register_events(admin) {
+    $('body').on('click', 'button.discard', function() {
+      // admin.disable_save_button()
+      $('a.admin-link[data-link="info"]').click()
+    })
+    $('body').on('change', '.admin-settings form input', function(e) {
+      let target = e.currentTarget
+      admin.enable_save_button()
+      let reset = `<button text='Reset' data-setting="${target.getAttribute('name')}" class="reset-setting button danger">${reset_i}</button>`
+      $(this).closest('.input-line').addClass('setting-changed') //.append(reset)
+    })
+    $('body').on('keyup keypress paste', '.admin-settings form input', function(e) {
+      admin.enable_save_button()
+      $(this).closest('.input-line').addClass('setting-changed') //.append(reset)
     })
     $('body').on('change', '.permissions-manager [type="checkbox"]', function(e, t) {
       e.preventDefault()
@@ -48,8 +75,7 @@ class Admin {
       clientchan.push('admin:save:' + $('form').data('id'), $('form').serializeArray())
         .receive("ok", resp => {
           if (resp.success) {
-            $(this).attr('disabled', 'true')
-            this.modified = false
+            admin.disable_save_button()
             toastr.success(resp.success)
           } else if (resp.error) {
             toastr.error(resp.error)

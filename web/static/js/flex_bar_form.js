@@ -48,7 +48,7 @@ $(document).ready(function() {
   $('body').on('change', '.channel-settings [type="checkbox"]', function(e, t) {
     console.log('checkbox change t', $(this))
     let name = $(this).attr('name')
-    let value = $(this).attr('value')
+    let value = $(this).is(':checked')
     if (!value) { value = "false" }
     // if (value == 'on') { value = true } else { value = false }
     start_loading_animation($(this))
