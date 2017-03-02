@@ -27,6 +27,11 @@ defmodule UcxChat.SideNavView do
   end
 
   def get_user_name(%User{} = user), do: user.username
-  def show_admin_option(%User{}), do: true
+
+  def show_admin_option(%User{} = user) do
+    user = UcxChat.Repo.preload(user, [:roles])
+    list = ~w(view-statistics  view-room-administration view-user-administration view-privileged-setting)
+    UcxChat.Permission.has_at_least_one_permission?(user, list)
+  end
 end
 

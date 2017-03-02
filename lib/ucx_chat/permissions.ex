@@ -100,6 +100,9 @@ defmodule UcxChat.Permission do
     |> Enum.any?(fn %{role: name, scope: value} -> name in permissions and (value == 0 or value == scope) end)
   end
 
+  def has_at_least_one_permission?(user, list) do
+    Enum.any? list, &has_permission?(user, &1)
+  end
   def add_role_to_permission(permission, role) do
     insert {@perms_key, permission, role}
   end
