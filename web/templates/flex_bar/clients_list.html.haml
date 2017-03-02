@@ -31,9 +31,19 @@
           = @client.nickname
         %p.secondary-font-color= @client.nickname
         %p.secondary-font-color
-        %p.secondary-font-color
           %i.icon-clock
           = "#{UcxChat.MessageView.format_time(Timex.now(), @client.user)} (UTC #{@client.user.tz_offset})"
+        %p.secondary-font-color
+          %i.icon-mail
+          = @client.user.email
+        %p.secondary-font-color
+          %i.icon-calendar
+          = "#{~g(Created at)}:"
+          = UcxChat.MessageView.format_date_time(@client.user.inserted_at, @client.user)
+        %p.secondary-font-color
+          %i.icon-calendar
+          = "#{~g(Last Login)}:"
+          = UcxChat.MessageView.format_date_time(@client.user.last_sign_in_at, @client.user)
 
     %nav(data-username="#{map_field(@client, :nickname)}")
       - owner = false

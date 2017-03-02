@@ -47,6 +47,18 @@ defmodule UcxChat.MessageView do
     Helpers.format_time tz_offset(dt, user)
   end
   def format_date_time(%{updated_at: dt}, user) do
+    format_date_time dt, user
+  end
+
+  def format_date_time(%Ecto.DateTime{} = dt, user) do
+    dt
+    |> Ecto.DateTime.to_erl
+    |> NaiveDateTime.from_erl!
+    |> format_date_time(user)
+  end
+  def format_date_time(nil, _), do: ""
+
+  def format_date_time(dt, user) do
     Helpers.format_date_time tz_offset(dt, user)
   end
 
