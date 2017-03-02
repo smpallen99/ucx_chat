@@ -83,7 +83,12 @@ defmodule UcxChat.ChannelService do
     room_map = Enum.reduce rooms, %{}, fn room, acc ->
       put_in acc, [room[:channel_id]], room
     end
-    types = Enum.group_by(rooms, &Map.get(&1, :type))
+    types = Enum.group_by(rooms, fn item ->
+      case Map.get(item, :type) do
+        :private -> :public
+        other -> other
+      end
+    end)
     # Logger.warn "get_side_nav types: #{inspect types}"
     # IEx.pry
     room_types = Enum.reduce(types, %{}, fn {type, list}, acc ->
@@ -104,6 +109,7 @@ defmodule UcxChat.ChannelService do
       base_types()
       |> Enum.reject(fn %{type: type} -> type == :public && chat_mode end)
       |> Enum.map(fn %{type: type} = bt ->
+        Logger.warn "........ type: #{inspect type}"
         case room_types[type] do
           nil -> bt
           other -> other
@@ -510,7 +516,7 @@ defmodule UcxChat.ChannelService do
   def get_templ(_), do: "channels.html"
 
   def get_icon(0), do: "icon-hash"
-  def get_icon(1), do: "icon-hash"
+  def get_icon(1), do: "icon-lock"
   def get_icon(2), do: "icon-at"
   def get_icon(3), do: "icon-at"
   # def get_icon(:public), do: "icon-hash"

@@ -135,7 +135,6 @@ defmodule UcxChat.MessageService do
 
   def create_and_render(body, client_id, channel_id, opts \\ []) do
     message = create_message(body, client_id, channel_id, Enum.into(opts, %{}))
-    Logger.warn "create_and_render message: #{inspect message}"
     {message, render_message(message)}
   end
 

@@ -10,7 +10,8 @@
     "phoenix_html": "file:deps/phoenix_html",
     "toastr": "^2.1.2",
     "jquery": "~2.2.0",
-    "highlight.js": "~9.9.0"
+    "highlight.js": "~9.9.0",
+    "emojionearea": "^3.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",

@@ -16,6 +16,7 @@ import Admin from "./admin"
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
+// import * as emoji from "./emojionearea"
 import hljs from "highlight.js"
 
 const chan_user = "client:"
@@ -83,6 +84,7 @@ $(document).ready(function() {
   new Admin()
 
   socket.connect()
+  // $(".input-message-container .inner-left-toolbar").emoji.emojioneArea();
 
   $('textarea.message-form-text').focus()
 

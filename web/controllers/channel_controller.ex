@@ -6,6 +6,7 @@ defmodule UcxChat.ChannelController do
   import Ecto.Query
 
   require Logger
+  require IEx
 
   alias UcxChat.Channel, as: Channel
   alias UcxChat.{MessageService, ChatDat, Client}
@@ -40,6 +41,7 @@ defmodule UcxChat.ChannelController do
 
     messages = MessageService.get_messages(channel.id)
     chatd = ChatDat.new(user, channel, messages)
+
     conn
     |> put_view(UcxChat.MasterView)
     |> render("main.html", chatd: chatd)
