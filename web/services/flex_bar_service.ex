@@ -1,7 +1,7 @@
 defmodule UcxChat.FlexBarService do
   import Ecto.Query
 
-  alias UcxChat.{Repo, FlexBarView, User, Mention, StaredMessage, PinnedMessage, UserAgent}
+  alias UcxChat.{Repo, FlexBarView, User, Mention, StaredMessage, PinnedMessage, UserAgent, Permission}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -155,7 +155,8 @@ defmodule UcxChat.FlexBarService do
   end
 
   def settings_form_fields(channel, user_id) do
-    disabled = channel.user_id != user_id
+    user = Helpers.get_user! user_id
+    disabled = !Permission.has_permission?(user, "edit-room", channel.id)
     [
       %{name: "name", label: "Name", type: :text, value: channel.name, read_only: disabled},
       %{name: "topic", label: "Topic", type: :text, value: channel.topic, read_only: disabled},

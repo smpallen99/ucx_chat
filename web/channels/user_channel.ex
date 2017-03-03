@@ -35,7 +35,7 @@ defmodule UcxChat.UserChannel do
       |> assign(:subscribed, socket.assigns[:subscribed] || [])
       |> assign(:flex, Flex.new())
     socket =
-      Repo.all(from s in Subscription, where: s.user_id == ^user_id, preload: [:channel, :user])
+      Repo.all(from s in Subscription, where: s.user_id == ^user_id, preload: [:channel, {:user, :roles}])
       |> Enum.map(&(&1.channel.name))
       |> subscribe(socket)
 

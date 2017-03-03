@@ -45,12 +45,13 @@ defmodule UcxChat.SlashCommandChannelController do
   def handle_command(command, args, user_id, channel_id) when command in @user_commands,
     do: handle_user_command(command, args, user_id, channel_id)
 
-  def handle_command(:topic, args, _user_id, channel_id) do
+  def handle_command(:topic, args, user_id, channel_id) do
+    user = Helpers.get_user! user_id
     _channel =
       Channel
       |> where([c], c.id == ^channel_id)
       |> Repo.one!
-      |> Channel.changeset(%{topic: args})
+      |> Channel.do_changeset(user, %{topic: args})
       |> Repo.update!
     # {:broadcast, {"room:update_topic", %{room: channel.name, topic: args}}}
     {:ok, %{}}

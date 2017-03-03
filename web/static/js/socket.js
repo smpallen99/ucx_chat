@@ -18,6 +18,7 @@ import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
 // import * as emoji from "./emojionearea"
 import hljs from "highlight.js"
+import toastr from 'toastr'
 
 const chan_user = "user:"
 const chan_room = "room:"
@@ -210,6 +211,15 @@ function start_user_channel() {
     window.location.reload()
   })
 
+  chan.on("toastr:success", resp => {
+    toastr.success(resp.message)
+  })
+
+  chan.on("toastr:error", resp => {
+    toastr.error(resp.message)
+  })
+
+
   chan.join()
     .receive("ok", resp => { console.log('Joined user successfully', resp)})
     .receive("error", resp => { console.log('Unable to user lobby', resp)})
@@ -258,6 +268,14 @@ function start_room_channel(typing) {
 
   chan.on("room:update", msg => {
     RoomManager.update(msg)
+  })
+
+  chan.on("toastr:success", resp => {
+    toastr.success(resp.message)
+  })
+
+  chan.on("toastr:error", resp => {
+    toastr.error(resp.message)
   })
 
   if (!window.flexbar) {

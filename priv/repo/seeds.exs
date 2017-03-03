@@ -12,7 +12,8 @@
 
 alias UcxChat.{
   Repo, User, Channel, Subscription, Message, Account, Mention,
-  Direct, PinnedMessage, StaredMessage, Config, Role, UserRole
+  Direct, PinnedMessage, StaredMessage, Config, Role, UserRole,
+  ChannelService
 }
 
 Repo.delete_all UserRole
@@ -88,16 +89,13 @@ users =
   end)
 
 
-ch1 = Channel.changeset(%Channel{}, %{name: "general", user_id: u0.id})
-|> Repo.insert!
-ch2 = Channel.changeset(%Channel{}, %{name: "support", user_id: u1.id})
-|> Repo.insert!
+ch1 = ChannelService.insert_channel!(%{name: "general", user_id: u0.id})
+ch2 = ChannelService.insert_channel!(%{name: "support", user_id: u1.id})
 
 channels =
   ~w(Research Marketing HR Accounting Shipping Sales) ++ ["UCxWebUser", "UCxChat"]
   |> Enum.map(fn name ->
-    Channel.changeset(%Channel{}, %{name: name, user_id: u1.id})
-    |> Repo.insert!
+    ChannelService.insert_channel!(%{name: name, user_id: u1.id})
   end)
 
 [ch1, ch2] ++ Enum.take(channels, 3)

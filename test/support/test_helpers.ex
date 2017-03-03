@@ -1,5 +1,5 @@
 defmodule UcxChat.TestHelpers do
-  alias UcxChat.{Repo, User, Channel, Account, User, Subscription}
+  alias UcxChat.{Repo, User, Channel, Account, User, Subscription, ChannelService}
   alias FakerElixir, as: Faker
   use Hound.Helpers
 
@@ -15,9 +15,7 @@ defmodule UcxChat.TestHelpers do
       name: FakerElixir.Helper.cycle(:channel_names, @channel_names)
     }, to_map(attrs))
 
-    %Channel{}
-    |> Channel.changeset(changes)
-    |> Repo.insert!
+    ChannelService.insert_channel(changes)
   end
 
 

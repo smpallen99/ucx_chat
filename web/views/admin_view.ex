@@ -1,8 +1,6 @@
 defmodule UcxChat.AdminView do
   use UcxChat.Web, :view
 
-  def has_permission(_user, _permission), do: true
-
   def collapsable_section(title, fun) do
     content_tag :div, class: "section section-collapsed" do
       [

@@ -8,7 +8,8 @@ defmodule UcxChat.RoomChannel do
   import Ecto.Query
 
   alias UcxChat.{Subscription, Repo, Channel}
-  alias UcxChat.{ServiceHelpers}
+  alias UcxChat.{ServiceHelpers, Permission}
+  alias UcxChat.ServiceHelpers, as: Helpers
 
   require UcxChat.ChatConstants, as: CC
   require Logger
@@ -73,8 +74,13 @@ defmodule UcxChat.RoomChannel do
 
   def handle_in(pattern, %{"params" => params, "ucxchat" =>  ucxchat} = msg, socket) do
     debug pattern, msg
-    # Logger.debug "new handle_in params: #{inspect params}, ucxchat: #{inspect ucxchat}"
-    UcxChat.ChannelRouter.route(socket, pattern, params, ucxchat)
+    user = Helpers.get_user! socket.assigns.user_id
+    if authorized? socket, pattern, params, ucxchat, user do
+      UcxChat.ChannelRouter.route(socket, pattern, params, ucxchat)
+    else
+      push socket, "toastr:error", %{message: "You are not authorized!"}
+      {:noreply, socket}
+    end
   end
 
   def handle_in(ev = "flex_bar:click:" <> mod, msg, socket) do
@@ -119,4 +125,10 @@ defmodule UcxChat.RoomChannel do
   #########
   # Private
 
+  defp authorized?(_socket, pattern = "/room_settings/" <> _, _params, ucxchat, user) do
+    # Logger.warn "authorized? pattern: #{inspect pattern}, params: #{inspect params}, ucxchat: #{inspect ucxchat}"
+    Permission.has_permission? user, "edit-room", ucxchat["assigns"]["channel_id"]
+  end
+
+  defp authorized?(_socket, _pattern, _params, _ucxchat, _), do: true
 end

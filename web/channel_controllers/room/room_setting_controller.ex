@@ -28,9 +28,10 @@ defmodule UcxChat.RoomSettingChannelController do
 
   def update(%{assigns: assigns} = socket, params) do
     Logger.warn "RoomSettingChannelController assigns: #{inspect assigns}, params: #{inspect params}"
+    user = Helpers.get_user! socket
     Channel
     |> Helpers.get(assigns[:channel_id])
-    |> Channel.changeset_settings([{params["field_name"], params["value"]}])
+    |> Channel.changeset_settings(user, [{params["field_name"], params["value"]}])
     |> Repo.update
     |> case do
       {:ok, channel} ->
@@ -67,47 +68,5 @@ defmodule UcxChat.RoomSettingChannelController do
     end
   end
 
-  # def handle_in("form:click", msg) do
-  #   channel = Helpers.get(Channel, msg["channel_id"])
-  #   field_name = String.to_atom(msg["field_name"])
-  #   value = Map.get channel, field_name
-  #   html = FlexBarView.render("channel_form_text_input.html", field: %{name: field_name, value: value})
-  #   |> Phoenix.HTML.safe_to_string
-  #   {:ok, %{html: html}}
-  # end
-
-  # def handle_in("form:cancel", msg) do
-  #   channel = Helpers.get(Channel, msg["channel_id"])
-  #   field = get_setting_form_field(msg["field_name"], channel, msg["user_id"])
-  #   html = FlexBarView.flex_form_input(field[:type], field)
-  #   |> Enum.map(&Phoenix.HTML.safe_to_string/1)
-  #   |> Enum.join
-  #   {:ok, %{html: html}}
-  # end
-
-  # def handle_in("form:save", msg) do
-  #   Channel
-  #   |> Helpers.get(msg["channel_id"])
-  #   |> Channel.changeset_settings([{msg["field_name"], msg["value"]}])
-  #   |> Repo.update
-  #   |> case do
-  #     {:ok, channel} ->
-  #       field = get_setting_form_field(msg["field_name"], channel, msg["user_id"])
-  #       html = FlexBarView.flex_form_input(field[:type], field)
-  #       |> case do
-  #         list when is_list(list) ->
-  #           list
-  #           |> Enum.map(&Phoenix.HTML.safe_to_string/1)
-  #           |> Enum.join
-  #         tuple ->
-  #           Phoenix.HTML.safe_to_string(tuple)
-  #       end
-  #       {:ok, %{html: html}}
-  #     {:error, cs} ->
-  #       Logger.warn "error: #{inspect cs.errors}"
-  #       {field, {error, _}} = cs.errors |> hd
-  #       {:error, %{error: "#{field} #{error}"}}
-  #   end
-  # end
 
 end

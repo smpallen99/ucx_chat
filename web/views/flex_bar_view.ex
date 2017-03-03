@@ -42,7 +42,7 @@ defmodule UcxChat.FlexBarView do
     content_tag :div, class: "input checkbox toggle" do
       [
         with opts <- [class: field[:name], type: :checkbox, name: field[:name], id: field[:name]],
-             opts <- if(field[:disabled], do: [{:disabled, true}|opts], else: opts),
+             opts <- if(field[:read_only], do: [{:disabled, true}|opts], else: opts),
              opts <- if(field[:value], do: [{:checked, true}|opts], else: opts) do
           content_tag :input, opts do
           end

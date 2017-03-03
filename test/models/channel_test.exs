@@ -6,13 +6,17 @@ defmodule UcxChat.ChannelTest do
   @valid_attrs %{name: "somecontent", user_id: 1}
   @invalid_attrs %{}
 
-  test "changeset with valid attributes" do
-    changeset = Channel.changeset(%Channel{}, @valid_attrs)
-    assert changeset.valid?
-  end
+  # setup do
+  #   {:ok, user: insert_user()}
+  # end
 
-  test "changeset with invalid attributes" do
-    changeset = Channel.changeset(%Channel{}, @invalid_attrs)
-    refute changeset.valid?
-  end
+  # test "changeset with valid attributes", %{user: user} do
+  #   # changeset = Channel.do_changeset(%Channel{}, @valid_attrs, user)
+  #   # assert changeset.valid?
+  # end
+
+  # test "changeset with invalid attributes", %{user: user} do
+  #   # changeset = Channel.do_changeset(%Channel{}, @invalid_attrs, user)
+  #   # refute changeset.valid?
+  # end
 end

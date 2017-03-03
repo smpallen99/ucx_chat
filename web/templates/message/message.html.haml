@@ -2,7 +2,7 @@
   - if @message.avatar do
     - if avatar = avatar_from_username(@message) do
       %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
-        =# avatar
+        = avatar
     - else
       %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
         .avatar

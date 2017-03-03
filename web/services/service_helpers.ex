@@ -149,6 +149,7 @@ defmodule UcxChat.ServiceHelpers do
     message = MessageService.create_message(body, bot_id, channel_id,
       %{
         type: "p",
+        system: true,
         sequential: false,
       })
 

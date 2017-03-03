@@ -2,12 +2,15 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
-  alias UcxChat.{Settings, User, Repo, Channel, Subscription, MessageService, User, ChatDat, Direct, Mute, UserChannel}
-  alias UcxChat.ServiceHelpers, as: Helpers
-
   import Phoenix.HTML.Tag, only: [content_tag: 3, content_tag: 2]
-
   import Ecto.Query
+
+  alias UcxChat.{
+    Settings, User, Repo, Channel, Subscription, MessageService, User,
+    ChatDat, Direct, Mute, UserChannel, UserRole
+  }
+  alias UcxChat.ServiceHelpers, as: Helpers
+  alias Ecto.Multi
 
   require Logger
   require IEx
@@ -52,10 +55,45 @@ defmodule UcxChat.ChannelService do
   ##################
   # Repo Multi
 
-  def create_channel(_user, _params) do
-
+  def insert_channel!(%{user_id: user_id} = params) do
+    User
+    |> Helpers.get!(user_id, preload: [:roles])
+    |> insert_channel!(params)
+  end
+  def insert_channel!(user, params) do
+    case insert_channel user, params do
+      {:ok, channel} -> channel
+      _ -> raise "insert channel failed"
+    end
   end
 
+  def insert_channel(%{user_id: user_id} = params) do
+    user = Helpers.get!(User, user_id, preload: [:roles])
+    insert_channel(user, params)
+  end
+  def insert_channel(user, params) do
+    multi =
+      Multi.new
+      |> Multi.insert(:channel, Channel.do_changeset(%Channel{}, user, params))
+      |> Multi.run(:roles, &do_roles/1)
+    Repo.transaction(multi)
+    |> case do
+      %{channel: channel} -> {:ok, channel}
+      {:ok, %{channel: channel}} -> {:ok, channel}
+    end
+  end
+
+
+  def do_roles(%{channel: %{id: ch_id, user_id: u_id} = channel}) do
+    case Repo.insert(UserRole.changeset(%UserRole{}, %{user_id: u_id, role: "owner", scope: ch_id})) do
+      {:ok, _} -> {:ok, channel}
+      error -> error
+    end
+  end
+
+  def add_moderator(_channel, _user_id) do
+
+  end
   ##################
   #
 
@@ -251,10 +289,7 @@ defmodule UcxChat.ChannelService do
 
   defp do_add_direct(name, user_orig, user_dest, _channel_id) do
     # create the channel
-    channel =
-      %Channel{}
-      |> Channel.changeset(%{user_id: user_orig.id, name: name, type: room_type(:direct)})
-      |> Repo.insert!
+    {:ok, channel} = insert_channel(%{user_id: user_orig.id, name: name, type: room_type(:direct)})
 
     # Create the cc's, and the directs one for each user
     user_names = %{user_orig.id => user_dest.username, user_dest.id => user_orig.username}
@@ -290,9 +325,7 @@ defmodule UcxChat.ChannelService do
     if Helpers.get_by(Channel, :name, name) do
       Helpers.response_message(channel_id, text: "The channel ", code: "#" <> name, text: " already exists.")
     else
-      %Channel{}
-      |> Channel.changeset(%{name: name, user_id: user_id})
-      |> Repo.insert
+      insert_channel(%{name: name, user_id: user_id})
       |>case do
         {:ok, channel} ->
           channel_command(:join, channel, user_id, channel_id)
@@ -351,9 +384,10 @@ defmodule UcxChat.ChannelService do
     Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is already archived.")
   end
 
-  def channel_command(:archive, %Channel{} = channel, _user_id, channel_id) do
+  def channel_command(:archive, %Channel{} = channel, user_id, channel_id) do
+    user = Helpers.get_user! user_id
     channel
-    |> Channel.changeset(%{archived: true})
+    |> Channel.do_changeset(user, %{archived: true})
     |> Repo.update
     |> case do
       {:ok, _} ->
@@ -368,9 +402,10 @@ defmodule UcxChat.ChannelService do
     Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is not archived.")
   end
 
-  def channel_command(:unarchive, %Channel{} = channel, _user_id, channel_id) do
+  def channel_command(:unarchive, %Channel{} = channel, user_id, channel_id) do
+    user = Helpers.get_user! user_id
     channel
-    |> Channel.changeset(%{archived: false})
+    |> Channel.do_changeset(user, %{archived: false})
     |> Repo.update
     |> case do
       {:ok, _} ->

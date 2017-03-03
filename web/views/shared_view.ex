@@ -1,6 +1,6 @@
 defmodule UcxChat.SharedView do
   use UcxChat.Utils
-  alias UcxChat.{User, Repo}
+  alias UcxChat.{User, Repo, Permission}
   require Logger
 
   def markdown(text), do: text
@@ -39,10 +39,11 @@ defmodule UcxChat.SharedView do
   @regex1 ~r/^(.*?)(`(.*?)`)(.*?)$/
   @regex2 ~r/\A(```(.*)```)\z/Ums
 
-  def format_quoted_code(string, true) do
+  def format_quoted_code(string, _, true), do: string
+  def format_quoted_code(string, true, _) do
     do_format_multi_line_quoted_code(string)
   end
-  def format_quoted_code(string, _) do
+  def format_quoted_code(string, _, _) do
     do_format_quoted_code(string, "")
   end
 
@@ -104,6 +105,8 @@ defmodule UcxChat.SharedView do
     # Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{username}.png?size=350x310"
     "https://robohash.org/#{username}.png?set=any&bgset=any&size=350x310"
   end
+
+  def has_permission(user, permission), do: Permission.has_permission?(user, permission)
 
   defmacro gt(text, opts \\ []) do
     quote do
