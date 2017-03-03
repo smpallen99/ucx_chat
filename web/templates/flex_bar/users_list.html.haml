@@ -30,6 +30,11 @@
           %i.status-offline
           = @user.username
         %p.secondary-font-color= @user.username
+        - if tags = UcxChat.User.tags(@user, @channel_id) do
+          %p.secondary-font-color
+            - for tag <- tags do
+              %span.role-tag(data-role="#{tag}")= tag
+
         %p.secondary-font-color
           %i.icon-clock
           = "#{UcxChat.MessageView.format_time(Timex.now(), @user)} (UTC #{@user.tz_offset})"

@@ -67,4 +67,16 @@ defmodule UcxChat.User do
   def all do
     from u in @mod
   end
+
+  def tags(user, channel_id) do
+    user.roles
+    |> Enum.reduce([], fn
+      %{role: role, scope: ^channel_id}, acc -> [role | acc]
+      %{role: "user"}, acc -> acc
+      %{role: role}, acc when role in ~w(bot guest admin) -> [role | acc]
+      _, acc -> acc
+    end)
+    |> Enum.map(&String.capitalize/1)
+    |> Enum.sort
+  end
 end

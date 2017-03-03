@@ -60,6 +60,7 @@ defmodule UcxChat.Permission do
     %{name: "view-p-room",                   roles: ["admin", "user"] },
     %{name: "view-privileged-setting",       roles: ["admin"] },
     %{name: "view-room-administration",      roles: ["admin"] },
+    %{name: "view-message-administration",   roles: ["admin"] },
     %{name: "view-statistics",               roles: ["admin"] },
     %{name: "view-user-administration",      roles: ["admin"] },
     %{name: "preview-c-room",                roles: ["admin", "user"] }

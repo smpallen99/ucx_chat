@@ -181,12 +181,12 @@ defmodule UcxChat.FlexBarService do
   end
 
   def get_render_args("Members List", user_id, channel_id, _message_id, opts) do
-    channel = Helpers.get_channel(channel_id, [:users])
+    channel = Helpers.get_channel(channel_id, [users: :roles])
 
     {user, user_mode} =
       case opts["username"] do
-        nil -> {Helpers.get(User, user_id), false}
-        username -> {Helpers.get_by(User, :username, username), true}
+        nil -> {Helpers.get_user!(user_id), false}
+        username -> {Helpers.get_by(User, :username, username, preload: [:roles]), true}
       end
 
     users =
@@ -195,7 +195,7 @@ defmodule UcxChat.FlexBarService do
         struct(user, status: UcxChat.PresenceAgent.get(user))
       end)
 
-    [users: users, user: user, user_mode: user_mode]
+    [users: users, user: user, user_mode: user_mode, channel_id: channel_id]
   end
 
   def get_render_args("Switch User", _, _, _, _) do

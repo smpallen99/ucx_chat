@@ -10,11 +10,9 @@
         <a href="#" class="admin-link" data-link="info"><%= ~g"Info" %></a>
       </li>
 
-      <%= if has_permission @user, "run-general" do %>
-        <li>
-          <a href="#" class="admin-link" data-link="general"><%= ~g"General" %></a>
-        </li>
-      <% end %>
+      <li>
+        <a href="#" class="admin-link" data-link="general"><%= ~g"General" %></a>
+      </li>
 
       <%= if  has_permission @user, "view-message-administration" do %>
         <li>

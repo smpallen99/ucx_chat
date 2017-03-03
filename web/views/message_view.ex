@@ -74,7 +74,15 @@ defmodule UcxChat.MessageView do
   def get_users_typing(_msg), do: []
   def get_users_typing(_msg, _cmd), do: []
   def alias?(_msg), do: false
-  def role_tags(_user), do: []
+  def role_tags(message) do
+    if UcxChat.Settings.display_roles() do
+      message.user_id
+      |> Helpers.get_user!
+      |> UcxChat.User.tags(message.channel_id)
+    else
+      []
+    end
+  end
   def is_bot(_msg), do: false
   def get_date_time(msg, user), do: format_date_time(msg, user)
   def get_time(msg, user), do: format_time(msg, user)
