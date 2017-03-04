@@ -80,6 +80,11 @@ defmodule UcxChat.MasterView do
     end
   end
   def get_flex_tabs(user, open_tab) do
+    switch_user = if Application.get_env :ucx_chat, :switch_user, false do
+      ""
+    else
+      " hidden"
+    end
     config = Settings.config
     defn = UcxChat.FlexBarService.default_settings()
     tab = case open_tab do
@@ -103,7 +108,7 @@ defmodule UcxChat.MasterView do
       {"OTR", "key", " hidden"},
       {"Video Chat", "videocam", " hidden"},
       {"Snippeted Messages", "code", cc(config, :allow_message_snippeting)},
-      {"Switch User", "login", ""},
+      {"Switch User", "login", switch_user},
       {"Logout", "logout", " hidden"},
     ]
     |> Enum.map(fn {title, icon, display} ->
