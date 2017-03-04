@@ -1,6 +1,6 @@
 - account = @user.account
 - import Phoenix.HTML.Form
-- defer = true
+- defer = Application.get_env :ucx_chat, :defer, true
 %section.page-container.page-home.page-static
   %header.fixed-title.border-component-color
     = render UcxChat.MasterView, "burger.html"

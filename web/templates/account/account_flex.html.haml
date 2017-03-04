@@ -1,3 +1,4 @@
+- defer = Application.get_env :ucx_chat, :defer, true
 %header
   %div
     %h4 My Account
@@ -9,6 +10,7 @@
       %li
         - #{{#if allowUserProfileChange}}
         %a.account-link(data-link="profile") Profile
-      %li
-        - #{{#if allowUserAvatarChange}}
-        %a.account-link(data-link="avatar") Avatar
+      - unless defer do
+        %li
+          - #{{#if allowUserAvatarChange}}
+          %a.account-link(data-link="avatar") Avatar

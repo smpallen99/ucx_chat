@@ -1,4 +1,4 @@
-<% defer = true %>
+<% defer = Application.get_env :ucx_chat, :defer, true %>
 <section class="page-container page-home page-static page-static page-list">
   <header class="fixed-title border-component-color">
     <%= render UcxChat.MasterView, "burger.html" %>
