@@ -1,5 +1,6 @@
 - account = @user.account
 - import Phoenix.HTML.Form
+- defer = true
 %section.page-container.page-home.page-static
   %header.fixed-title.border-component-color
     = render UcxChat.MasterView, "burger.html"
@@ -19,93 +20,94 @@
           .section
             %h1 Messages
             .section-content.border-component-color
-              .input-line.double-col
-                %label Desktop Notifications
-                %div
-                  - if account.desktop_notification_enabled do
-                    %label Desktop Notifications Enabled
-                    %label
-                      %button.button.test-notifications
-                        %i.icon-comment-empty.secondary-font-color
-                        %span Test Desktop Notifications
-                  -else
-                    -if !account.desktop_notification_enabled do
-                      %label Desktop Notifications Disabled
-                    - else
+              - unless defer do
+                .input-line.double-col
+                  %label Desktop Notifications
+                  %div
+                    - if account.desktop_notification_enabled do
+                      %label Desktop Notifications Enabled
                       %label
-                        %button.button.enable-notifications
+                        %button.button.test-notifications
                           %i.icon-comment-empty.secondary-font-color
-                          %span Enable Desktop Notifications
-              .input-line.double-col
-                %label Notification Duration
-                %div
-                  -if account.desktop_notification_duration do
-                    = text_input f, :desktop_notification_duration, type: :number, min: "0"
-                  - else
-                    = text_input f, :desktop_notification_duration, type: :number, min: "0", placeholder: "User Global Settings"
-              .input-line.double-col#unreadAlert
-                %label Unread Alert
-                %div
-                  %label
-                    = radio_button f, :unread_alert, "1", checked: account.unread_alert
-                    On
-                  %label
-                    = radio_button f, :unread_alert, "0", checked: !account.unread_alert
-                    Off
-              .input-line.double-col
-                %label Use Emojis
-                %div
-                  %label
-                    = radio_button f, :use_emojis, "1", checked: account.use_emojis
-                    True
-                  %label
-                    = radio_button f, :use_emojis, "0", checked: !account.use_emojis
-                    False
-              .input-line.double-col#convertAsciiEmoji
-                %label Convert Ascii Emojis
-                %div
-                  %label
-                    = radio_button f, :convert_ascii_emoji, "1", checked: account.convert_ascii_emoji
-                    True
-                  %label
-                    = radio_button f, :convert_ascii_emoji, "1", checked: !account.convert_ascii_emoji
-                    False
-              .input-line.double-col#autoImageLoad
-                %label Auto Load Images
-                %div
-                  %label
-                    = radio_button f, :auto_image_load, "1", checked: account.auto_image_load
-                    True
-                  %label
-                    = radio_button f, :auto_image_load, "0", checked: !account.auto_image_load
-                    False
-              .input-line.double-col#saveMobileBandwidth
-                %label Save Mobile Bandwidth
-                %div
-                  %label
-                    = radio_button f, :save_mobile_bandwidth, "1", checked: account.save_mobile_bandwidth
-                    True
-                  %label
-                    = radio_button f, :save_mobile_bandwidth, "0", checked: !account.save_mobile_bandwidth
-                    False
-              .input-line.double-col#collapseMediaByDefault
-                %label Collapse Embedded Media By Default
-                %div
-                  %label
-                    = radio_button f, :collapse_media_by_default, "1", checked: account.collapse_media_by_default
-                    True
-                  %label
-                    = radio_button f, :collapse_media_by_default, "0", checked: !account.collapse_media_by_default
-                    False
-              .input-line.double-col#unreadRoomsMode
-                %label Unread Rooms Mode
-                %div
-                  %label
-                    = radio_button f, :unread_rooms_mode, "1", checked: account.unread_rooms_mode
-                    True
-                  %label
-                    = radio_button f, :unread_rooms_mode, "0", checked: !account.unread_rooms_mode
-                    False
+                          %span Test Desktop Notifications
+                    -else
+                      -if !account.desktop_notification_enabled do
+                        %label Desktop Notifications Disabled
+                      - else
+                        %label
+                          %button.button.enable-notifications
+                            %i.icon-comment-empty.secondary-font-color
+                            %span Enable Desktop Notifications
+                .input-line.double-col
+                  %label Notification Duration
+                  %div
+                    -if account.desktop_notification_duration do
+                      = text_input f, :desktop_notification_duration, type: :number, min: "0"
+                    - else
+                      = text_input f, :desktop_notification_duration, type: :number, min: "0", placeholder: "User Global Settings"
+                .input-line.double-col#unreadAlert
+                  %label Unread Alert
+                  %div
+                    %label
+                      = radio_button f, :unread_alert, "1", checked: account.unread_alert
+                      On
+                    %label
+                      = radio_button f, :unread_alert, "0", checked: !account.unread_alert
+                      Off
+                .input-line.double-col
+                  %label Use Emojis
+                  %div
+                    %label
+                      = radio_button f, :use_emojis, "1", checked: account.use_emojis
+                      True
+                    %label
+                      = radio_button f, :use_emojis, "0", checked: !account.use_emojis
+                      False
+                .input-line.double-col#convertAsciiEmoji
+                  %label Convert Ascii Emojis
+                  %div
+                    %label
+                      = radio_button f, :convert_ascii_emoji, "1", checked: account.convert_ascii_emoji
+                      True
+                    %label
+                      = radio_button f, :convert_ascii_emoji, "1", checked: !account.convert_ascii_emoji
+                      False
+                .input-line.double-col#autoImageLoad
+                  %label Auto Load Images
+                  %div
+                    %label
+                      = radio_button f, :auto_image_load, "1", checked: account.auto_image_load
+                      True
+                    %label
+                      = radio_button f, :auto_image_load, "0", checked: !account.auto_image_load
+                      False
+                .input-line.double-col#saveMobileBandwidth
+                  %label Save Mobile Bandwidth
+                  %div
+                    %label
+                      = radio_button f, :save_mobile_bandwidth, "1", checked: account.save_mobile_bandwidth
+                      True
+                    %label
+                      = radio_button f, :save_mobile_bandwidth, "0", checked: !account.save_mobile_bandwidth
+                      False
+                .input-line.double-col#collapseMediaByDefault
+                  %label Collapse Embedded Media By Default
+                  %div
+                    %label
+                      = radio_button f, :collapse_media_by_default, "1", checked: account.collapse_media_by_default
+                      True
+                    %label
+                      = radio_button f, :collapse_media_by_default, "0", checked: !account.collapse_media_by_default
+                      False
+                .input-line.double-col#unreadRoomsMode
+                  %label Unread Rooms Mode
+                  %div
+                    %label
+                      = radio_button f, :unread_rooms_mode, "1", checked: account.unread_rooms_mode
+                      True
+                    %label
+                      = radio_button f, :unread_rooms_mode, "0", checked: !account.unread_rooms_mode
+                      False
               .input-line.double-col#hideUsernames
                 %label Hide usernames
                 %div
@@ -115,15 +117,16 @@
                   %label
                     = radio_button f, :hide_user_names, "0", checked: !account.hide_user_names
                     False
-              .input-line.double-col#hideFlexTab
-                %label Hide flextab
-                %div
-                  %label
-                    = radio_button f, :hide_flex_tab, "1", checked: account.hide_flex_tab
-                    True
-                  %label
-                    = radio_button f, :hide_flex_tab, "0", checked: !account.hide_flex_tab
-                    False
+              - unless defer do
+                .input-line.double-col#hideFlexTab
+                  %label Hide flextab
+                  %div
+                    %label
+                      = radio_button f, :hide_flex_tab, "1", checked: account.hide_flex_tab
+                      True
+                    %label
+                      = radio_button f, :hide_flex_tab, "0", checked: !account.hide_flex_tab
+                      False
               .input-line.double-col#hideAvatars
                 %label Hide Avatars
                 %div
@@ -133,18 +136,19 @@
                   %label
                     = radio_button f, :hide_avatars, "0", checked: !account.hide_avatars
                     False
-              .input-line.double-col#mergeChannels
-                %label UI Merge Channels Groups
-                %div
-                  %label
-                    = radio_button f, :merge_channels, "1", checked: account.merge_channels == true
-                    True
-                  %label
-                    = radio_button f, :merge_channels, "0", checked: account.merge_channels == false
-                    False
-                  %label
-                    = radio_button f, :merge_channels, "", checked: account.merge_channels == nil
-                    Default
+              - unless defer do
+                .input-line.double-col#mergeChannels
+                  %label UI Merge Channels Groups
+                  %div
+                    %label
+                      = radio_button f, :merge_channels, "1", checked: account.merge_channels == true
+                      True
+                    %label
+                      = radio_button f, :merge_channels, "0", checked: account.merge_channels == false
+                      False
+                    %label
+                      = radio_button f, :merge_channels, "", checked: account.merge_channels == nil
+                      Default
               .input-line.double-col#viewMode
                 %label View mode
                 %div
@@ -155,25 +159,26 @@
                 %div
                   = select f, :email_notification_model, Disabled: "disabled", "Every Mention/DM": "all"
                   .info You need to verify your email address to get notifications
-          .section
-            %h1 Highlights
-            .section-content.border-component-color
-              .input-line.double-col
-                %label Highlights List
-                %div
-                  %label Highlights How To
-                  = textarea f, :highlights, cols: "30", rows: "10", placeholder: "highlight"
-          .section
-            %h1 Sound
-            .section-content.border-component-color
-              .input-line.double-col
-                %label New Room Notification
-                %div
-                  = select f, :new_room_notification, get_room_notification_sounds(), class: "audio"
-              .input-line.double-col
-                %label New Message Notification
-                %div
-                  = select f, :new_message_notification, get_message_notification_sounds(), class: "audio"
+          - unless defer do
+            .section
+              %h1 Highlights
+              .section-content.border-component-color
+                .input-line.double-col
+                  %label Highlights List
+                  %div
+                    %label Highlights How To
+                    = textarea f, :highlights, cols: "30", rows: "10", placeholder: "highlight"
+            .section
+              %h1 Sound
+              .section-content.border-component-color
+                .input-line.double-col
+                  %label New Room Notification
+                  %div
+                    = select f, :new_room_notification, get_room_notification_sounds(), class: "audio"
+                .input-line.double-col
+                  %label New Message Notification
+                  %div
+                    = select f, :new_message_notification, get_message_notification_sounds(), class: "audio"
         .submit
           %button.button.primary.save
             %i.icon-send
