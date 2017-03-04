@@ -133,8 +133,10 @@ defmodule UcxChat.MessageView do
       max_message_length: Settings.max_allowed_message_size(config),
       show_formatting_tips: Settings.show_formatting_tips(config)
     }
-    [:subscribed, :allowed_to_send, :show_file_upload, :katex_syntax,
-     :show_sandstorm, :show_location, :show_mic, :show_v_rec, :is_blocked_or_blocker,
+    # [:subscribed, :allowed_to_send, :show_file_upload, :katex_syntax,
+    #  :show_sandstorm, :show_location, :show_mic, :show_v_rec, :is_blocked_or_blocker,
+    #  :allowed_to_send, :show_mark_down, :show_markdown_code, :show_markdown]
+    [:subscribed, :allowed_to_send, :katex_syntax, :is_blocked_or_blocker,
      :allowed_to_send, :show_mark_down, :show_markdown_code, :show_markdown]
     |> Enum.map(&({&1, true}))
     |> Enum.into(settings)
