@@ -29,6 +29,13 @@ defmodule UcxChat.ChannelRouter do
     apply(UcxChat.RoomChannelController, :favorite, [socket, params])
   end
 
+  def match(:put, socket, ["room", command, username], params) do
+    params =
+      [{"command", command}, {"username", username}]
+      |> Enum.into(params)
+    apply(UcxChat.RoomChannelController, :command, [socket, params])
+  end
+
   # post "/direct/:username", DirectMessageChannelController, :create
   # post "/direct/:username", RoomChannelController, :create
 
@@ -43,6 +50,10 @@ defmodule UcxChat.ChannelRouter do
 
   def match(:get, socket, ["messages"], params) do
     apply(UcxChat.MessageChannelController, :index, [socket, params])
+  end
+  def match(:put, socket, ["messages", message_id], params) do
+    params = Map.put(params, "id", message_id)
+    apply(UcxChat.MessageChannelController, :update, [socket, params])
   end
 
   def match(:get, socket, ["room_settings", field_name], params) do

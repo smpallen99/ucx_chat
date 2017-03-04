@@ -36,7 +36,7 @@
               .upload-progress-text
                 = "#{get_error_name(error)}... #{get_error_percentage(error)}%"
                 %button cancel
-      %div(class="messages-box #{message_box_selectable()} #{view_mode()}" style="height: calc(100% - 131px);")
+      %div(class="messages-box #{message_box_selectable()} #{view_mode(@chatd.user)}" style="height: calc(100% - 131px);")
         = render "messages_box.html", chatd: @chatd
       %footer.footer.border-component-color
         = render UcxChat.MessageView, "message_box.html", chatd: @chatd, mb: get_mb()

@@ -129,6 +129,7 @@ export function init_flexbar() {
     })
   })
 
+
   $('body').on('click', '.flex-tab-container .user-view nav .button.back', function() {
     $('.flex-tab-container .user-view').addClass('animated-hidden')
     userchan.push('flex:view_all:' + $('.tab-button.active').attr('title'))
@@ -145,6 +146,7 @@ export function init_flexbar() {
   })
 
   userchan.on('update:rooms', msg => {
+    console.log('update:rooms', msg)
     $('aside .rooms-list').html(msg.html)
   })
   // fbar_form.init()

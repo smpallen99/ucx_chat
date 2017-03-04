@@ -90,10 +90,10 @@ defmodule UcxChat.SharedView do
     """
   end
 
-  def get_avatar_img(username) do
+  def get_avatar_img(username, size \\ "40x40") do
     # Logger.warn "get_avatar #{inspect msg}"
     # ""
-    Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{username}.png?set=any&bgset=any&size=40x40"
+    Phoenix.HTML.Tag.tag :img, src: "https://robohash.org/#{username}.png?set=any&bgset=any&size=#{size}"
   end
   def get_avatar(msg) do
     # Logger.warn "get_avatar #{inspect msg}"
@@ -106,7 +106,10 @@ defmodule UcxChat.SharedView do
     "https://robohash.org/#{username}.png?set=any&bgset=any&size=350x310"
   end
 
-  def has_permission(user, permission), do: Permission.has_permission?(user, permission)
+  def has_permission?(user, permission, scope \\ 0), do: Permission.has_permission?(user, permission, scope)
+  def has_role?(user, role, scope \\ 0), do: User.has_role?(user, role, scope)
+
+  def user_muted?(%{} = user, channel_id), do: UcxChat.ChannelService.user_muted?(user.id, channel_id)
 
   defmacro gt(text, opts \\ []) do
     quote do

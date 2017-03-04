@@ -19,12 +19,13 @@ import * as cc from "./chat_channel"
 // import * as emoji from "./emojionearea"
 import hljs from "highlight.js"
 import toastr from 'toastr'
+import * as sweet from "./sweetalert.min"
 
 const chan_user = "user:"
 const chan_room = "room:"
 const chan_system = "system:"
 
-const debug = true;
+const debug = false;
 
 let socket = new Socket("/socket", {params: {token: window.user_token, tz_offset: new Date().getTimezoneOffset() / -60}})
 
@@ -120,8 +121,14 @@ $(document).ready(function() {
       return true
     }
     if(e.keyCode == 13) {
+      console.log('return ', $('.message-form-text').hasClass('editing'))
+      if ($('.message-form-text').hasClass('editing')) {
+        console.log('editing submit...', $('li.message.editing').attr('id'))
+        Messages.send_message({update: $('li.message.editing').attr('id'), value: $('.message-form-text').val()})
+      } else {
+        Messages.send_message($('.message-form-text').val())
+      }
       message_popup.handle_enter()
-      Messages.send_message($('.message-form-text').val())
       typing.clear()
       return false
     } //else if (e.keyCode == 64) {
@@ -137,24 +144,6 @@ $(document).ready(function() {
   })
 
 
-  $('body').on('click', 'a.open-room', function(e) {
-    e.preventDefault();
-    if (debug) { console.log('clicked a.open-room', e, $(this), $(this).attr('data-room')) }
-    // roomchan.push("room:open", {user_id: ucxchat.user_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
-    //   .receive("ok", resp => { RoomManager.render_room(resp) })
-    cc.get("/room/" + $(this).attr('data-room'), {display_name: $(this).attr('data-name'), room: ucxchat.room})
-      .receive("ok", resp => { RoomManager.render_room(resp) })
-  })
-  $('body').on('click', 'a.toggle-favorite', e => {
-    if (debug) { console.log('click a.toggle-favorite') }
-    e.preventDefault();
-    RoomManager.toggle_favorite()
-  })
-  $('body').on('click', '.button.pvt-msg', function(e) {
-    if (debug) { console.log('click .button.pvt-msg') }
-    e.preventDefault();
-    RoomManager.add_private($(this))
-  })
 
   $('body').on('restart-socket', () => {
     start_room_channel(typing)
@@ -204,8 +193,7 @@ function start_user_channel() {
     console.log('room:leave', resp)
   })
   chan.on('code:update', resp => {
-    console.log('code:update', resp)
-    $(resp.selector)[resp.action](resp.html)
+    code_update(resp)
   })
   chan.on('window:reload', resp => {
     window.location.reload()
@@ -225,6 +213,15 @@ function start_user_channel() {
     .receive("error", resp => { console.log('Unable to user lobby', resp)})
 
   chan.push('subscribe', {})
+}
+
+function code_update(resp) {
+  console.log('code:update', resp)
+  if (resp.html) {
+    $(resp.selector)[resp.action](resp.html)
+  } else {
+    $(resp.selector)[resp.action]()
+  }
 }
 
 export function restart_socket() {
@@ -260,6 +257,10 @@ function start_room_channel(typing) {
       // console.log('message:new', chan.params.user)
     Messages.new_message(msg)
   })
+  chan.on("message:update", msg => {
+    if (debug) { console.log('message:update current id, msg.user_id', msg, ucxchat.user_id, msg.user_id) }
+    Messages.update_message(msg)
+  })
 
   chan.on("typing:update", msg => {
     if (debug) { console.log('typing:update', msg) }
@@ -277,6 +278,20 @@ function start_room_channel(typing) {
   chan.on("toastr:error", resp => {
     toastr.error(resp.message)
   })
+
+  chan.on("sweet:open", resp => {
+    $('.sweet-container').html(resp.html)
+  })
+
+  chan.on('update:Members List', msg => {
+    //console.log('update:Members List', msg)
+    console.log('update:Members List', msg, $('.tab-button[title="Members List"]').hasClass('active'))
+
+  })
+  chan.on('code:update', resp => {
+    code_update(resp)
+  })
+
 
   if (!window.flexbar) {
     flexbar.init_flexbar()

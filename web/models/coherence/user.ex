@@ -79,4 +79,11 @@ defmodule UcxChat.User do
     |> Enum.map(&String.capitalize/1)
     |> Enum.sort
   end
+
+  def has_role?(user, role, scope) do
+    Enum.any?(user.roles, fn
+      %{role: ^role, scope: ^scope} -> true
+      _ -> false
+    end)
+  end
 end

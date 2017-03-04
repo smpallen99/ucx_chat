@@ -9,7 +9,8 @@
 
   %div.main-content-cache.hidden
   = render UcxChat.SideNavView, "show.html", conn: @conn, chatd: @chatd
-
+.sweet-container
+  =# render "sweet.html"
 :javascript
   window.user_token = '<%= Coherence.user_token(@conn) %>'
   window.ucxchat = {room: '<%= @chatd.channel.name %>', channel_id: <%= @chatd.channel.id %>,

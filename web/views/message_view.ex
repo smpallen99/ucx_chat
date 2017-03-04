@@ -17,7 +17,7 @@ defmodule UcxChat.MessageView do
 
   def get_message_wrapper_opts(msg, user) do
     cls =
-      ~w(get_sequential get_system get_t get_own get_is_temp get_chat_opts get_custom_class)a
+      ~w(get_sequential get_system get_t get_own get_is_temp get_chat_opts get_custom_class get_new_day)a
       |> Enum.reduce("message background-transparent-dark-hover", fn fun, acc ->
         acc <> apply(__MODULE__, fun, [msg, user])
       end)
@@ -86,7 +86,6 @@ defmodule UcxChat.MessageView do
   def is_bot(_msg), do: false
   def get_date_time(msg, user), do: format_date_time(msg, user)
   def get_time(msg, user), do: format_time(msg, user)
-  def edited(_msg), do: false
   def is_private(%{type: "p"}), do: true
   def is_private(_msg), do: false
   def hide_cog(_msg), do: ""
@@ -98,7 +97,17 @@ defmodule UcxChat.MessageView do
   def mark_user_reaction(_reaction), do: ""
   def render_emoji(_emoji), do: ""
   def has_oembed(_msg), do: false
+  def edited(%{edited_id: edited_id} = msg, user) when not is_nil(edited_id) do
+    %{
+      edit_time: format_date_time(msg, user),
+      edited_by: msg.edited_by.username,
+    }
+  end
+  def edited(_msg, _), do: false
 
+
+  def get_new_day(%{new_day: true}, _), do: " new-day"
+  def get_new_day(_, _), do: ""
   def get_sequential(%{sequential: true}, _), do: " sequential"
   def get_sequential(_, _), do: ""
   def get_system(%{system: true}, _), do: " system"

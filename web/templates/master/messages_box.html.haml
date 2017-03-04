@@ -10,7 +10,7 @@
   .content.room-not-found.error-color
     %div
       You must join to view messages in this channel
-%div(class="wrapper #{has_more_next(:has_more_next)} #{hide_username()} #{hide_avatar()}")
+%div(class="wrapper #{has_more_next(:has_more_next)} #{hide_username(@chatd.user)} #{hide_avatar(@chatd.user)}")
   %ul(aria-live="polite")
     - if can_preview() do
       - if has_more() do

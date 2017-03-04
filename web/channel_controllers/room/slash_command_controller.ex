@@ -19,33 +19,33 @@ defmodule UcxChat.SlashCommandChannelController do
     user_id = socket.assigns[:user_id]
     channel_id = socket.assigns[:channel_id]
     command = String.replace(command, "-", "_") |> String.to_atom
-    case handle_command(command, args, user_id, channel_id) do
+    case handle_command(socket, command, args, user_id, channel_id) do
       {:ok, _} = res -> {:reply, res, socket}
       :noreply -> {:noreply, socket}
     end
   end
 
-  def handle_command(:part, args, user_id, channel_id),
+  def handle_command(_, :part, args, user_id, channel_id),
     do: handle_channel_command(:leave, args, user_id, channel_id)
 
-  def handle_command(:gimme, args, user_id, channel_id),
+  def handle_command(_, :gimme, args, user_id, channel_id),
     do: handle_command_text(:gimme, args, user_id, channel_id)
 
   @text_commands ~w(lennyface tableflip unflip shrug)a
 
-  def handle_command(command, args, user_id, channel_id) when command in @text_commands,
+  def handle_command(_, command, args, user_id, channel_id) when command in @text_commands,
     do: handle_command_text(command, args, user_id, channel_id, true)
 
   @channel_commands ~w(create join leave open archive unarchive invite_all_from invite_all_to)a
 
-  def handle_command(command, args, user_id, channel_id) when command in @channel_commands,
+  def handle_command(_, command, args, user_id, channel_id) when command in @channel_commands,
     do: handle_channel_command(command, args, user_id, channel_id)
 
   @user_commands ~w(invite kick mute unmute)a
-  def handle_command(command, args, user_id, channel_id) when command in @user_commands,
-    do: handle_user_command(command, args, user_id, channel_id)
+  def handle_command(socket, command, args, user_id, channel_id) when command in @user_commands,
+    do: handle_user_command(socket, command, args, user_id, channel_id)
 
-  def handle_command(:topic, args, user_id, channel_id) do
+  def handle_command(_, :topic, args, user_id, channel_id) do
     user = Helpers.get_user! user_id
     _channel =
       Channel
@@ -59,7 +59,7 @@ defmodule UcxChat.SlashCommandChannelController do
 
 
   # unknown command
-  def handle_command(command, args, _user_id, channel_id) do
+  def handle_command(_, command, args, _user_id, channel_id) do
     command = to_string(command) <> " " <> args
     Logger.warn "SlashCommandsService unrecognized command: #{inspect command}"
     {:ok, Helpers.response_message(channel_id, text: "No such command: ", code: command)}
@@ -89,10 +89,10 @@ defmodule UcxChat.SlashCommandChannelController do
     end
   end
 
-  def handle_user_command(command, args, user_id, channel_id) do
+  def handle_user_command(socket, command, args, user_id, channel_id) do
     with "@" <> name <- String.trim(args),
          true <- String.match?(name, ~r/[a-z0-9\.\-_]/i) do
-     {:ok, ChannelService.user_command(command, name, user_id, channel_id)}
+     {:ok, ChannelService.user_command(socket, command, name, user_id, channel_id)}
     else
       _ ->
         {:ok, Helpers.response_message(channel_id, text: "Invalid username:", code: args)}

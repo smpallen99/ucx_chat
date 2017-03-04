@@ -7,7 +7,7 @@ defmodule UcxChat.RoomChannel do
 
   import Ecto.Query
 
-  alias UcxChat.{Subscription, Repo, Channel}
+  alias UcxChat.{Subscription, Repo, Channel, Message}
   alias UcxChat.{ServiceHelpers, Permission}
   alias UcxChat.ServiceHelpers, as: Helpers
 
@@ -17,6 +17,7 @@ defmodule UcxChat.RoomChannel do
   ############
   # API
   # intercept ["lobby:room:update:name"]
+  intercept ["user:action"]
 
   def user_join(nil), do: Logger.warn "join for nil username"
   def user_join(username, room) do
@@ -56,6 +57,10 @@ defmodule UcxChat.RoomChannel do
   ##########
   # Outgoing message handlers
 
+  def handle_out(ev = "user:action", msg, socket) do
+    warn ev, msg
+    {:noreply, socket}
+  end
   def handle_out(ev = "lobby:" <> event, msg, socket) do
     debug ev, msg
     user_id = socket.assigns[:user_id]
@@ -75,7 +80,7 @@ defmodule UcxChat.RoomChannel do
   def handle_in(pattern, %{"params" => params, "ucxchat" =>  ucxchat} = msg, socket) do
     debug pattern, msg
     user = Helpers.get_user! socket.assigns.user_id
-    if authorized? socket, pattern, params, ucxchat, user do
+    if authorized? socket, String.split(pattern, "/"), params, ucxchat, user do
       UcxChat.ChannelRouter.route(socket, pattern, params, ucxchat)
     else
       push socket, "toastr:error", %{message: "You are not authorized!"}
@@ -104,7 +109,7 @@ defmodule UcxChat.RoomChannel do
 
   def handle_in(ev = "message_cog:" <> cmd, msg, socket) do
     debug ev, msg
-    resp = case UcxChat.MessageCogService.handle_in(cmd, msg) do
+    resp = case UcxChat.MessageCogService.handle_in(cmd, msg, socket) do
       {:nil, msg} ->
         {:ok, msg}
       {event, msg} ->
@@ -114,7 +119,11 @@ defmodule UcxChat.RoomChannel do
     end
     {:reply, resp, socket}
   end
-
+  def handle_in(ev = "message:get-body:message-" <> id, msg, socket) do
+    debug ev, msg
+    message = Helpers.get Message, String.to_integer(id)
+    {:reply, {:ok, %{body: message.body}}, socket}
+  end
   # default case
   def handle_in(event, msg, socket) do
     Logger.warn "RoomChannel no handler for: event: #{event}, msg: #{inspect msg}"
@@ -125,9 +134,14 @@ defmodule UcxChat.RoomChannel do
   #########
   # Private
 
-  defp authorized?(_socket, pattern = "/room_settings/" <> _, _params, ucxchat, user) do
+  @room_commands ~w(set-owner set-moderator mute-user remove-user)
+
+  defp authorized?(_socket, ["room_settings" | _], _params, ucxchat, user) do
     # Logger.warn "authorized? pattern: #{inspect pattern}, params: #{inspect params}, ucxchat: #{inspect ucxchat}"
     Permission.has_permission? user, "edit-room", ucxchat["assigns"]["channel_id"]
+  end
+  defp authorized?(_socket, pattern = ["room", command, username], _params, ucxchat, user) when command in @room_commands do
+    Permission.has_permission? user, command, ucxchat["assigns"]["channel_id"]
   end
 
   defp authorized?(_socket, _pattern, _params, _ucxchat, _), do: true

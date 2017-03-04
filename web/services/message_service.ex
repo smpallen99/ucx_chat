@@ -9,13 +9,15 @@ defmodule UcxChat.MessageService do
   # def broadcast_message(id, channel_id, user_id, html) do
   #   channel = Helpers.get
   # end
-  def broadcast_message(id, room, user_id, html) when is_binary(room) do
-    UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:new", create_broadcast_message(id, user_id, html)
+  def broadcast_message(id, room, user_id, html, event \\ "new")
+  def broadcast_message(id, room, user_id, html, event) when is_binary(room) do
+    UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:" <> event, create_broadcast_message(id, user_id, html)
   end
 
-  def broadcast_message(socket, id, user_id, html) do
-    Phoenix.Channel.broadcast! socket, "message:new", create_broadcast_message(id, user_id, html)
+  def broadcast_message(socket, id, user_id, html, event) do
+    Phoenix.Channel.broadcast! socket, "message:" <> event, create_broadcast_message(id, user_id, html)
   end
+
 
   defp create_broadcast_message(id, user_id, html) do
     %{
@@ -25,13 +27,30 @@ defmodule UcxChat.MessageService do
     }
   end
 
-  def get_messages(channel_id) do
+  def get_messages(channel_id, %{tz_offset: tz}) do
+    Logger.warn "get_messages ========================="
     Message
     |> where([m], m.channel_id == ^channel_id)
     |> Helpers.last_page
-    |> preload([:user])
+    |> preload([:user, :edited_by])
     |> Repo.all
+    |> new_days(tz, [])
   end
+
+  defp new_days([h|t], tz, []), do: new_days(t, tz, [Map.put(h, :new_day, true)])
+  defp new_days([h|t], tz, [last|_] = acc) do
+    # TODO: this needs to be shifted by the tz offset
+    dt1 = Timex.shift(h.inserted_at, hours: tz)
+    dt2 = Timex.shift(last.inserted_at, hours: tz)
+    h = if Timex.day(dt1) == Timex.day(dt2) do
+      h
+    else
+      Map.put(h, :new_day, true)
+    end
+    new_days t, tz, [h|acc]
+  end
+  defp new_days([], _, []), do: []
+  defp new_days([], _, acc), do: Enum.reverse(acc)
 
   def last_user_id(channel_id) do
     channel_id

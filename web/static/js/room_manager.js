@@ -1,12 +1,14 @@
 import Messages from "./messages"
 import * as socket from './socket'
 import * as cc from "./chat_channel"
+import sweetAlert from "./sweetalert.min"
+import toastr from 'toastr'
 
 const debug = false;
 
 class RoomManager {
   constructor() {
-
+    this.register_events()
   }
 
   static render_room(resp) {
@@ -57,6 +59,133 @@ class RoomManager {
 
     $('.current-setting[data-edit="' + msg.field_name + '"]').html(msg.value)
     console.warn('RoomManager.update', msg)
+  }
+
+  register_events() {
+    $('body').on('click', 'a.open-room', function(e) {
+      e.preventDefault();
+      if (debug) { console.log('clicked a.open-room', e, $(this), $(this).attr('data-room')) }
+      // roomchan.push("room:open", {user_id: ucxchat.user_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
+      //   .receive("ok", resp => { RoomManager.render_room(resp) })
+      cc.get("/room/" + $(this).attr('data-room'), {display_name: $(this).attr('data-name'), room: ucxchat.room})
+        .receive("ok", resp => { RoomManager.render_room(resp) })
+    })
+    $('body').on('click', 'a.toggle-favorite', e => {
+      if (debug) { console.log('click a.toggle-favorite') }
+      e.preventDefault();
+      RoomManager.toggle_favorite()
+    })
+    $('body').on('click', '.button.pvt-msg', function(e) {
+      if (debug) { console.log('click .button.pvt-msg') }
+      e.preventDefault();
+      RoomManager.add_private($(this))
+    })
+    $('body').on('click', 'button.set-owner', function(e) {
+      let username = $(this).parent().attr('data-username')
+      e.preventDefault()
+      cc.put("/room/set-owner/" + username)
+        .receive("ok", resp => {
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
+    })
+    $('body').on('click', 'button.unset-owner', function(e) {
+      let username = $(this).parent().attr('data-username')
+      e.preventDefault()
+      cc.put("/room/unset-owner/" + username)
+        .receive("ok", resp => {
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
+    })
+    $('body').on('click', 'button.set-moderator', function(e) {
+      let username = $(this).parent().attr('data-username')
+      e.preventDefault()
+      cc.put("/room/set-moderator/" + username)
+        .receive("ok", resp => {
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
+    })
+    $('body').on('click', 'button.unset-moderator', function(e) {
+      let username = $(this).parent().attr('data-username')
+      e.preventDefault()
+      cc.put("/room/unset-moderator/" + username)
+        .receive("ok", resp => {
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
+    })
+    $('body').on('click', 'button.unmute-user', function(e) {
+      let username = $(this).parent().attr('data-username')
+      e.preventDefault()
+      cc.put("/room/unmute-user/" + username)
+        .receive("ok", resp => {
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
+    })
+    $('body').on('click', 'button.mute-user', function(e) {
+      let username = $(this).parent().attr('data-username')
+      e.preventDefault()
+      sweetAlert({
+        title: "Are you sure?",
+        text: "The user wont be able to type in " + ucxchat.room,
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, mute user!",
+        closeOnConfirm: false
+      },
+      function(){
+        cc.put("/room/mute-user/" + username)
+          .receive("ok", resp => {
+            swal({
+                title: 'Muted',
+                text: "The user has been muted in " + ucxchat.room,
+                type: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+            })
+          })
+          .receive("error", resp => {
+            toastr.error(resp.error)
+          })
+      });
+    })
+    $('body').on('click', 'button.remove-user', function(e) {
+      let username = $(this).parent().attr('data-username')
+      e.preventDefault()
+      sweetAlert({
+        title: "Are you sure?",
+        text: "The user will be removed from " + ucxchat.room,
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, remove user!",
+        closeOnConfirm: false
+      },
+      function(){
+        cc.put("/room/remove-user/" + username)
+          .receive("ok", resp => {
+            swal({
+                title: 'Removed',
+                text: "The user has been removed from " + ucxchat.room,
+                type: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+            })
+          })
+          .receive("error", resp => {
+            toastr.error(resp.error)
+          })
+      });
+    })
   }
 }
 

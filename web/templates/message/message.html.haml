@@ -15,7 +15,9 @@
           = emoji
     - else
       %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
-        = get_username(@message) |> get_avatar_img
+        .avatar
+          - avatar_url = get_username(@message) |> get_avatar
+          .avatar-image(style='background-image:url(#{avatar_url});')
   - if alias? = alias?(@message) do
     %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{get_username @message}" tabindex="1")
       = alias?
@@ -29,11 +31,13 @@
     - if is_bot(@message) do
       %span.is-bot.background-info-font-color BOT
     %span.time(title="{get_date_time(@message, @user)}")= get_time(@message, @user)
-    - if edited = edited(@message) do
+    - if edited = edited(@message, @user) do
       %span.edited(title="edited at #{edited[:edit_time]} by #{edited[:edited_by]}")
         %i.icon-edit(aria-label="Edited")
         %button.thumb.thumb-small.user-card-message(data-username="#{edited[:edited_by]}" tabindex="1")
-          = get_avatar(edited[:username])
+          .avatar
+            - avatar_url = get_avatar(edited[:edited_by])
+            .avatar-image(style='background-image:url(#{avatar_url});')
     - if is_private(@message) do
       %span.private Only you can see this message
     %div(class="message-cog-container #{hide_cog(@message)}")

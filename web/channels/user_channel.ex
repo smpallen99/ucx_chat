@@ -7,7 +7,7 @@ defmodule UcxChat.UserChannel do
 
   alias Phoenix.Socket.Broadcast
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService}
-  alias UcxChat.{AccountView, Account, AdminService}
+  alias UcxChat.{AccountView, Account, AdminService, User, FlexBarView}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -23,6 +23,7 @@ defmodule UcxChat.UserChannel do
   end
 
   # intercept ~w(room:join room:leave)
+  # intercept ["room:join", "room:leave", "user:update"]
   intercept ["room:join", "room:leave"]
 
   def join(CC.chan_user() <>  user_id, params, socket) do
@@ -58,6 +59,11 @@ defmodule UcxChat.UserChannel do
     update_rooms_list(socket)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
   end
+
+  # def handle_out(ev <> "user:update", msg, socket) do
+  #   Logger.warn "user_channel: ev: #{inspect ev}, msg: #{inspect msg}"
+  #   {:noreply, socket}
+  # end
 
   ###############
   # Incoming Messages
@@ -214,6 +220,56 @@ defmodule UcxChat.UserChannel do
     {:noreply, assign(socket, :subscribed, [payload[:new_name] | List.delete(socket.assigns[:subscribed], payload[:old_name])])}
   end
 
+  def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "owner"} = payload}, %{assigns: assigns} = socket) do
+    warn event, payload
+    current_user = Helpers.get_user! assigns.user_id
+    user = Helpers.get_user! payload.user_id
+    if Flex.panel_active? assigns.flex, assigns.channel_id, "Members List" do
+      warn event, payload, "open"
+      html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user)
+      # html2 = Helpers.render(FlexBarView, "users_list_item.html", channel_id: assigns.channel_id, user: user)
+      push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
+      # push socket, "code:update", %{html: html2, selector: ~s(.user-card-room[data-status-name="#{user.username}"), action: "html"}
+    else
+      warn event, payload, "closed"
+    end
+    {:noreply, socket}
+  end
+
+  def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload:
+      %{action: action} = payload}, %{assigns: assigns} = socket) when action in ~w(mute moderator owner) do
+    warn event, payload
+    current_user = Helpers.get_user! assigns.user_id
+    user = Helpers.get_user! payload.user_id
+    if Flex.panel_active? assigns.flex, assigns.channel_id, "Members List" do
+      warn event, payload, action <> " open"
+      html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user)
+      push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
+
+      if action == "mute" do
+        html2 = Helpers.render(FlexBarView, "users_list_item.html", channel_id: assigns.channel_id, user: user)
+        push socket, "code:update", %{html: html2, selector: ~s(.user-card-room[data-status-name="#{user.username}"]), action: "html"}
+      end
+    else
+      warn event, payload, "closed"
+    end
+    {:noreply, socket}
+  end
+
+  def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "removed"} = payload}, %{assigns: assigns} = socket) do
+    warn event, payload
+    current_user = Helpers.get_user! assigns.user_id
+    user = Helpers.get_user! payload.user_id
+    if Flex.panel_active? assigns.flex, assigns.channel_id, "Members List" do
+      warn event, payload, "removed open"
+
+      push socket, "code:update", %{selector: ~s(.user-card-room[data-status-name='#{user.username}']), action: "remove"}
+      push socket, "code:update", %{selector: ".flex-tab-container .user-view", action: "addClass", html: "animated-hidden"}
+    else
+      warn event, payload, "closed"
+    end
+    {:noreply, socket}
+  end
   def handle_info(%Broadcast{topic: _, event: "user:entered" = event, payload: payload}, %{assigns: assigns} = socket) do
     debug event, payload
     old_channel_id = assigns[:channel_id]

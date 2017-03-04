@@ -1,7 +1,7 @@
 defmodule UcxChat.MessageChannelController do
   use UcxChat.Web, :channel_controller
 
-  alias UcxChat.{TypingAgent}
+  alias UcxChat.{TypingAgent, User, Message}
   alias UcxChat.ServiceHelpers, as: Helpers
   import UcxChat.MessageService
   # import Phoenix.Channel
@@ -27,7 +27,7 @@ defmodule UcxChat.MessageChannelController do
     {:noreply, socket}
   end
 
-  def index(%{assigns: assigns}, params) do
+  def index(%{assigns: assigns} = socket, params) do
     user = Helpers.get(User, assigns[:user_id])
     # Logger.warn "MessageService.handle_in load msg: #{inspect msg}, user: #{inspect user}"
     channel_id = assigns[:channel_id]
@@ -45,6 +45,32 @@ defmodule UcxChat.MessageChannelController do
         |> Phoenix.HTML.safe_to_string
       end)
       |> to_string
-    {:reply, {:ok, %{html: messages}}}
+    {:reply, {:ok, %{html: messages}}, socket}
+  end
+
+  def update(%{assigns: assigns} = socket, params) do
+    user = Helpers.get(User, assigns[:user_id])
+    channel_id = assigns[:channel_id]
+    "message-" <> id = params["id"]
+    id = String.to_integer id
+
+    value = params["message"]
+    Helpers.get(Message, id)
+    |> Message.changeset(%{body: value, edited_id: user.id})
+    |> Repo.update
+    |> case do
+      {:ok, message} ->
+        message = Repo.preload(message, [:user, :edited_by])
+        # TODO: Need to handle new mentions for edited message
+        message_html = render_message(message)
+        broadcast_message(socket, message.id, message.user.id, message_html, "update")
+
+        TypingAgent.stop_typing(channel_id, user.id)
+        update_typing(channel_id, assigns[:room])
+
+    end
+
+    Logger.warn "MessageController.update id: #{inspect id}, value: #{inspect value}"
+    {:reply, {:ok, %{}}, socket}
   end
 end

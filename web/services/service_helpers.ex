@@ -154,8 +154,12 @@ defmodule UcxChat.ServiceHelpers do
       })
 
     html = MessageService.render_message(message)
+    message =
+      message
+      |> Enum.filter(&elem(&1, 0) == :text)
+      |> Enum.join("")
 
-    %{html: html}
+    %{html: html, message: message}
   end
 
   def render(view, templ, opts \\ []) do
@@ -206,6 +210,19 @@ defmodule UcxChat.ServiceHelpers do
     MessageService.update_typing(channel_id, room)
     {message, html} = MessageService.create_and_render(body, user_id, channel_id, opts)
     MessageService.broadcast_message(message.id, room, user_id, html)
+  end
+
+  def show_sweet_dialog(socket, opts) do
+    header = if opts[:confirm], do: opts[:header] || "Are you sure?"
+    opts = Map.put(opts, :header, header)
+
+    html = UcxChat.MasterView.render("sweet.html", opts: Map.put(opts, :show, true))
+    |> Phoenix.HTML.safe_to_string
+    Phoenix.Channel.push socket, "sweet:open", %{html: html}
+  end
+
+  def hide_sweet_dialog(socket) do
+
   end
 
 end

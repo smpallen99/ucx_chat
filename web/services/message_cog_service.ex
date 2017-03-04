@@ -1,12 +1,11 @@
 defmodule UcxChat.MessageCogService do
   require Logger
   alias UcxChat.{Repo, Message, MessageView, StaredMessage, PinnedMessage}
-  # alias UcxChat.ServiceHelpers, as: Helpers
+  alias UcxChat.ServiceHelpers, as: Helpers
   import Ecto.Query
 
-  def handle_in("open", %{"user_id" => user_id, "channel_id" => channel_id} = msg) do
-    "message-" <> id = msg["message_id"]
-    id = String.to_integer(id)
+  def handle_in("open", %{"user_id" => user_id, "channel_id" => channel_id} = msg, _) do
+    id = get_message_id msg["message_id"]
     star_count =
       StaredMessage
       |> where([s], s.user_id == ^user_id and s.message_id == ^id and s.channel_id == ^channel_id)
@@ -25,9 +24,8 @@ defmodule UcxChat.MessageCogService do
     {nil, %{html: html}}
   end
 
-  def handle_in("star-message", %{"user_id" => user_id, "channel_id" => channel_id} = msg) do
-    "message-" <> id = msg["message_id"]
-    id = String.to_integer(id)
+  def handle_in("star-message", %{"user_id" => user_id, "channel_id" => channel_id} = msg, _) do
+    id = get_message_id msg["message_id"]
     star =
       %StaredMessage{}
       |> StaredMessage.changeset(%{message_id: id, user_id: user_id, channel_id: channel_id})
@@ -36,9 +34,8 @@ defmodule UcxChat.MessageCogService do
     {"update:stared", %{}}
   end
 
-  def handle_in("unstar-message", %{"user_id" => user_id, "channel_id" => channel_id} = msg) do
-    "message-" <> id = msg["message_id"]
-    id = String.to_integer(id)
+  def handle_in("unstar-message", %{"user_id" => user_id, "channel_id" => channel_id} = msg, _) do
+    id = get_message_id msg["message_id"]
     StaredMessage
     |> where([s], s.user_id == ^user_id and s.message_id == ^id and s.channel_id == ^channel_id)
     |> Repo.one!
@@ -46,9 +43,8 @@ defmodule UcxChat.MessageCogService do
     {"update:stared", %{}}
   end
 
-  def handle_in("pin-message", %{"user_id" => _user_id, "channel_id" => channel_id} = msg) do
-    "message-" <> id = msg["message_id"]
-    id = String.to_integer(id)
+  def handle_in("pin-message", %{"user_id" => _user_id, "channel_id" => channel_id} = msg, _) do
+    id = get_message_id msg["message_id"]
     message = Repo.get Message, id
     pin =
       %PinnedMessage{}
@@ -58,13 +54,25 @@ defmodule UcxChat.MessageCogService do
     {"update:pinned", %{}}
   end
 
-  def handle_in("unpin-message", %{"user_id" => _user_id, "channel_id" => _channel_id} = msg) do
-    "message-" <> id = msg["message_id"]
-    id = String.to_integer(id)
+  def handle_in("unpin-message", %{"user_id" => _user_id, "channel_id" => _channel_id} = msg, _) do
+    id = get_message_id msg["message_id"]
     PinnedMessage
     |> where([s], s.message_id == ^id)
     |> Repo.one!
     |> Repo.delete!
     {"update:pinned", %{}}
+  end
+  def handle_in("edit-message", %{"user_id" => _user_id, "channel_id" => _channel_id} = msg, socket) do
+
+  end
+  def handle_in("delete-message", %{"user_id" => _user_id, "channel_id" => _channel_id} = msg, socket) do
+    message = Helpers.get Message, get_message_id(msg["message_id"])
+    Repo.delete message
+    Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li.message#" <> msg["message_id"], action: "remove"}
+    {nil, %{}}
+  end
+
+  defp get_message_id("message-" <> id) do
+    String.to_integer id
   end
 end

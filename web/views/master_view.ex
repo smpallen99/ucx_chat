@@ -38,7 +38,14 @@ defmodule UcxChat.MasterView do
     # "selectable"
     ""
   end
-  def view_mode, do: ""
+  def view_mode(user) do
+    case user.account.view_mode do
+      1 -> ""
+      2 -> " cozy"
+      3 -> " compact"
+      _ -> ""
+    end
+  end
 
   def has_more_next(text) do
     # {{#unless hasMoreNext}}not{{/unless}}">
@@ -47,8 +54,13 @@ defmodule UcxChat.MasterView do
   end
   def has_more(), do: false
   def can_preview, do: true
-  def hide_username, do: ""
-  def hide_avatar, do: ""
+
+  def hide_avatar(user) do
+    if user.account.hide_avatars, do: " hide-avatars", else: ""
+  end
+  def hide_username(user) do
+    if user.account.hide_user_names, do: " hide-usernames", else: ""
+  end
 
   def is_loading, do: false
   def get_loading, do: ""

@@ -7,7 +7,7 @@
   </header>
   <div class="content">
     <div class="permissions-manager">
-      <%= if has_permission @user, "access-permissions" do %>
+      <%= if has_permission? @user, "access-permissions" do %>
         <a href="#admin-permissions-new" class="button primary new-role"><%= ~g"New_role" %></a>
         <table border="1" class="permission-grid secondary-background-color">
           <thead class="content-background-color">

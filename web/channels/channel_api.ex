@@ -27,6 +27,19 @@ defmodule UcxChat.ChannelApi do
       end
     end
   end
+  defmacro warn(event, params, msg \\ "") do
+    name = __CALLER__.function |> elem(0) |> to_string
+    quote location: :keep do
+      msg1 = case unquote(msg) do
+        "" -> ""
+        mg -> mg <> ", "
+      end
+
+      if debug() do
+        Logger.warn "%% " <> inspect(__MODULE__) <> ".#{unquote(name)} #{unquote(event)}: #{msg1}params: #{inspect unquote(params)}"
+      end
+    end
+  end
 
   # defmacro handle_in(ev, msg, sock, block) do
   #   quote do
