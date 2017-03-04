@@ -1,3 +1,4 @@
+<% defer = true %>
 <section class="page-container page-home page-static page-static page-list">
   <header class="fixed-title border-component-color">
     <%= render UcxChat.MasterView, "burger.html" %>
@@ -8,7 +9,9 @@
   <div class="content">
     <div class="permissions-manager">
       <%= if has_permission? @user, "access-permissions" do %>
-        <a href="#admin-permissions-new" class="button primary new-role"><%= ~g"New_role" %></a>
+        <%= unless defer do %>
+          <a href="#admin-permissions-new" class="button primary new-role"><%= ~g"New_role" %></a>
+        <% end %>
         <table border="1" class="permission-grid secondary-background-color">
           <thead class="content-background-color">
             <tr>

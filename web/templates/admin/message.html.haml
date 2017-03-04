@@ -1,4 +1,5 @@
 - item = @changeset.data
+- defer = true
 %section.page-container.page-home.page-static.page-settings.admin-settings
   %header.fixed-title.border-component-color
     = render UcxChat.MasterView, "burger.html"
@@ -15,26 +16,30 @@
         .section
           .section-content.border-component-color
             = radio_button_line f, item, :allow_message_editing, ~g"Allow Message Editing"
-            = text_input_line f, item, :block_message_editing_after, ~g"Block Message Editing After (n) Minutes", type: :number, description: ~g"Enter 0 to disable blocking."
+            - unless defer do
+              = text_input_line f, item, :block_message_editing_after, ~g"Block Message Editing After (n) Minutes", type: :number, description: ~g"Enter 0 to disable blocking."
             = radio_button_line f, item, :allow_message_deleting, ~g"Allow Message Deleting"
-            = text_input_line f, item, :block_message_deleting_after, ~g"Block Message Deleting After (n) Minutes", type: :number, description: ~g"Enter 0 to disable blocking."
-            = radio_button_line f, item, :show_edited_status, ~g"Show Edited Status"
-            = radio_button_line f, item, :show_deleted_status, ~g"Show Deleted Status"
-            = radio_button_line f, item, :allow_bad_words_filtering, ~g"Allow Message bad words filtering"
-            = radio_button_line f, item, :add_bad_words_to_blacklist, ~g"Add bad words to the blacklist"
-            = text_input_line f, item, :max_channel_size_for_all_message, ~g"Maximum channel size for ALL message", type: :number
-            = text_input_line f, item, :max_allowed_message_size, ~g"Maximum Allowed Message Size", type: :number
+            - unless defer do
+              = text_input_line f, item, :block_message_deleting_after, ~g"Block Message Deleting After (n) Minutes", type: :number, description: ~g"Enter 0 to disable blocking."
+              = radio_button_line f, item, :show_edited_status, ~g"Show Edited Status"
+              = radio_button_line f, item, :show_deleted_status, ~g"Show Deleted Status"
+            - unless defer do
+              = radio_button_line f, item, :allow_bad_words_filtering, ~g"Allow Message bad words filtering"
+              = radio_button_line f, item, :add_bad_words_to_blacklist, ~g"Add bad words to the blacklist"
+              = text_input_line f, item, :max_channel_size_for_all_message, ~g"Maximum channel size for ALL message", type: :number
+              = text_input_line f, item, :max_allowed_message_size, ~g"Maximum Allowed Message Size", type: :number
             = radio_button_line f, item, :show_formatting_tips, ~g"Show Formatting Tips"
             = text_input_line f, item, :grouping_period_seconds, ~g"Grouping Period (in seconds)", type: :number, description: ~g"Messages will be grouped with previous message if both are from the same user and the elapsed time was less than the informed time in seconds."
-            = radio_button_line f, item, :embed_link_previews, ~g"Embed Link Previews", description: ~g"Whether embedded link previews are enabled or not when a user posts a link to a website."
-            - opts = [description: ~g"Comma-separated list of usernames to disable the embedded link previews."]
-            = text_input_line f, item, :disable_embedded_for_users, ~g"Disable Embed for Users", opts
-            - opts = [description: ~g"Comma-separated list of hosts or CIDR addresses, eg. localhost, 127.0.0.1, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16"]
-            = text_input_line f, item, :embeded_ignore_hosts, ~g"Embed Ignored Hosts", opts
-            - opts = [description: ~g"See also: Moment.js"]
-            = text_input_line f, item, :time_format, ~g"Time Format", opts
-            - opts = [description: ~g"See also: Moment.js"]
-            = text_input_line f, item, :date_format, ~g"Date Format", opts
+            - unless defer do
+              = radio_button_line f, item, :embed_link_previews, ~g"Embed Link Previews", description: ~g"Whether embedded link previews are enabled or not when a user posts a link to a website."
+              - opts = [description: ~g"Comma-separated list of usernames to disable the embedded link previews."]
+              = text_input_line f, item, :disable_embedded_for_users, ~g"Disable Embed for Users", opts
+              - opts = [description: ~g"Comma-separated list of hosts or CIDR addresses, eg. localhost, 127.0.0.1, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16"]
+              = text_input_line f, item, :embeded_ignore_hosts, ~g"Embed Ignored Hosts", opts
+              - opts = [description: ~g"See also: Moment.js"]
+              = text_input_line f, item, :time_format, ~g"Time Format", opts
+              - opts = [description: ~g"See also: Moment.js"]
+              = text_input_line f, item, :date_format, ~g"Date Format", opts
             = radio_button_line f, item, :hide_user_join, ~g'Hide "User Join" messages'
             = radio_button_line f, item, :hide_user_leave, ~g'Hide "User Leave" messages'
             = radio_button_line f, item, :hide_user_removed, ~g'Hide "User Removed" messages'
@@ -43,16 +48,18 @@
             - opts = [description: ~g"Allow messages to be pinned to any of the channels."]
             = radio_button_line f, item, :allow_message_pinning, ~g'Allow Message Pinning', opts
             = radio_button_line f, item, :allow_message_staring, ~g'Allow Message Staring'
-            = radio_button_line f, item, :allow_message_snippeting, ~g'Allow Message Snippeting'
-            = reset_section_settings()
-        - collapsable_section ~g"AutoLinker", fn _ ->
-          - opts = [description: "Short display. e.g. https://emetrotel.com => emetrotel.com"]
-          = radio_button_line f, item, :autolinker_strip_prefix, ~g'AutoLinker Strip Prefix', opts
-          = radio_button_line f, item, :autolinker_scheme_urls, ~g'AutoLinker Scheme:// URLs'
-          = radio_button_line f, item, :autolinker_www_urls, ~g"AutoLinker 'www' URLs"
-          = radio_button_line f, item, :autolinker_tld_urls, ~g'AutoLinker TLD URLs'
-          = text_input_line f, item, :autolinker_url_regexl, ~g"AutoLinker URL Regular Expression"
-          = radio_button_line f, item, :autolinker_email, ~g'AutoLinker Email'
-          = radio_button_line f, item, :autolinker_phone, ~g'AutoLinker Phone'
+            - unless defer do
+              = radio_button_line f, item, :allow_message_snippeting, ~g'Allow Message Snippeting'
+              = reset_section_settings()
+        - unless defer do
+          - collapsable_section ~g"AutoLinker", fn _ ->
+            - opts = [description: "Short display. e.g. https://emetrotel.com => emetrotel.com"]
+            = radio_button_line f, item, :autolinker_strip_prefix, ~g'AutoLinker Strip Prefix', opts
+            = radio_button_line f, item, :autolinker_scheme_urls, ~g'AutoLinker Scheme:// URLs'
+            = radio_button_line f, item, :autolinker_www_urls, ~g"AutoLinker 'www' URLs"
+            = radio_button_line f, item, :autolinker_tld_urls, ~g'AutoLinker TLD URLs'
+            = text_input_line f, item, :autolinker_url_regexl, ~g"AutoLinker URL Regular Expression"
+            = radio_button_line f, item, :autolinker_email, ~g'AutoLinker Email'
+            = radio_button_line f, item, :autolinker_phone, ~g'AutoLinker Phone'
 
 

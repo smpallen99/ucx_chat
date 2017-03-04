@@ -1,4 +1,5 @@
 - item = @changeset.data
+- defer = true
 %section.page-container.page-home.page-static.page-settings.admin-settings
   %header.fixed-title.border-component-color
     = render UcxChat.MasterView, "burger.html"
@@ -12,9 +13,10 @@
     - form_for @changeset, "#", [id: "admin-general-form", "data-id": "general"], fn f ->
       = hidden_input f, :id, value: item.id
       .rocket-form
-        .section
-          .section-content.border-component-color
-            = radio_button_line(f, item, :enable_favorite_rooms, ~g"Enable Favorite Rooms")
+        - unless defer do
+          .section
+            .section-content.border-component-color
+              = radio_button_line(f, item, :enable_favorite_rooms, ~g"Enable Favorite Rooms")
         = render "slash_commands.html", f: f, item: item, field: :rooms_slash_commands, title: ~g"Slash Commands (Rooms Mode)"
         = render "slash_commands.html", f: f, item: item, field: :chat_slash_commands, title: ~g"Slash Commands (Chat Mode)"
 

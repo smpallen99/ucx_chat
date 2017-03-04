@@ -1,4 +1,5 @@
 - item = @changeset.data
+- defer = true
 %section.page-container.page-home.page-static.page-settings.admin-settings
   %header.fixed-title.border-component-color
     = render UcxChat.MasterView, "burger.html"
@@ -12,18 +13,20 @@
     - form_for @changeset, "#", [id: "admin-message-form", "data-id": "layout"], fn f ->
       = hidden_input f, :id, value: item.id
       .rocket-form
-        - collapsable_section ~g"Content", fn _ ->
-          = text_input_line f, item, :content_home_title, ~g"Home Title"
-          = text_input_line f, item, :content_home_body, ~g"Home Body"
-          = text_input_line f, item, :content_side_nav_footer, ~g"Side Navigation Footer"
-          = reset_section_settings()
+        - unless defer do
+          - collapsable_section ~g"Content", fn _ ->
+            = text_input_line f, item, :content_home_title, ~g"Home Title"
+            = text_input_line f, item, :content_home_body, ~g"Home Body"
+            = text_input_line f, item, :content_side_nav_footer, ~g"Side Navigation Footer"
+            = reset_section_settings()
 
-        - collapsable_section ~g"Fonts", fn _ ->
-          = text_input_line f, item, :body_font_family, ~g"Body Font Family"
-          = reset_section_settings()
+          - collapsable_section ~g"Fonts", fn _ ->
+            = text_input_line f, item, :body_font_family, ~g"Body Font Family"
+            = reset_section_settings()
 
         - collapsable_section ~g"User Interface", fn _ ->
           = radio_button_line f, item, :display_roles, ~g"Display Roles"
-          = radio_button_line f, item, :merge_private_groups, ~g"Merge private groups with channels"
-          = radio_button_line f, item, :user_full_initials_for_avatars, ~g"Use full name initials to generate default avatar"
-          = reset_section_settings()
+          - unless defer do
+            = radio_button_line f, item, :merge_private_groups, ~g"Merge private groups with channels"
+            = radio_button_line f, item, :user_full_initials_for_avatars, ~g"Use full name initials to generate default avatar"
+            = reset_section_settings()
