@@ -7,7 +7,7 @@ defmodule UcxChat.ChannelService do
 
   alias UcxChat.{
     Settings, User, Repo, Channel, Subscription, MessageService, User,
-    ChatDat, Direct, Mute, UserChannel, UserRole
+    ChatDat, Direct, Mute, UserChannel, UserRole, Permission
   }
   alias UcxChat.ServiceHelpers, as: Helpers
   alias Ecto.Multi
@@ -321,102 +321,99 @@ defmodule UcxChat.ChannelService do
   ###################
   # channel commands
 
-  def channel_command(:create, name, user_id, channel_id) do
+  def channel_command(socket, :create, name, user_id, channel_id) do
     if Helpers.get_by(Channel, :name, name) do
-      Helpers.response_message(channel_id, text: "The channel ", code: "#" <> name, text: " already exists.")
+      Helpers.response_message(channel_id, "The channel `##{name}` already exists.")
     else
       insert_channel(%{name: name, user_id: user_id})
       |>case do
         {:ok, channel} ->
-          channel_command(:join, channel, user_id, channel_id)
+          channel_command(socket, :join, channel, user_id, channel_id)
 
-          tag = content_tag :span, style: "color: green;" do
-            "Channel created successfully"
-          end
-          Helpers.response_message(channel_id, tag: tag)
+          Helpers.response_message(channel_id, "Channel created successfully")
 
         {:error, _} ->
-          Helpers.response_message(channel_id, text: "There was a problem creating ", code: "#" <> name, text: " channel.")
+          Helpers.response_message(channel_id, "There was a problem creating `##{name}` channel.")
       end
     end
   end
 
   @channel_commands ~w(join leave open archive unarchive invite_all_to invite_all_from)a
 
-  def channel_command(command, name, user_id, channel_id) when command in @channel_commands and is_binary(name) do
+  def channel_command(socket, command, name, user_id, channel_id) when command in @channel_commands and is_binary(name) do
     case Helpers.get_by(Channel, :name, name) do
       nil ->
-        Helpers.response_message(channel_id, text: "The channel ", code: "#" <> name, text: " does not exists")
+        Helpers.response_message(channel_id, text: "The channel `##{name}` does not exists")
       channel ->
-        channel_command(command, channel, user_id, channel_id)
+        channel_command(socket, command, channel, user_id, channel_id)
     end
   end
 
-  def channel_command(:join, %Channel{} = channel, user_id, channel_id) do
+  def channel_command(socket, :join, %Channel{} = channel, user_id, channel_id) do
     channel
     |> add_user_to_channel(user_id)
     |> case do
       {:ok, _subs} ->
-        Helpers.response_message(channel_id, text: "You have joined the", code: channel.name, text: " channel.")
+        Helpers.response_message(channel_id, "You have joined the `#{channel.name}` channel.")
       {:error, _} ->
-        Helpers.response_message(channel_id, text: "Problem joining ", code: channel.name, text: " channel.")
+        Helpers.response_message(channel_id, "Problem joining `#{channel.name}` channel.")
     end
   end
 
-  def channel_command(:leave, %Channel{} = channel, user_id, channel_id) do
+  def channel_command(socket, :leave, %Channel{} = channel, user_id, channel_id) do
     channel
     |> remove_user_from_channel(user_id)
     |> case do
       nil ->
-        Helpers.response_message(channel_id, text: "Your not subscribed to the ", code: channel.name, text: " channel.")
+        Helpers.response_message(channel_id, "Your not subscribed to the `#{channel.name}` channel.")
       _subs ->
-        Helpers.response_message(channel_id, text: "You have left to the ", code: channel.name, text: " channel.")
+        Helpers.response_message(channel_id, "You have left to the `#{channel.name}` channel.")
     end
   end
 
-  def channel_command(:open, %Channel{} = _channel, _user_id, channel_id) do
+  def channel_command(socket, :open, %Channel{} = _channel, _user_id, channel_id) do
     # send open channel to the user
-    Helpers.response_message(channel_id, text: "That command is not yet supported")
+    Helpers.response_message(channel_id, "That command is not yet supported")
     %{}
   end
 
-  def channel_command(:archive, %Channel{archived: true} = channel, _user_id, channel_id) do
-    Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is already archived.")
+  def channel_command(socket, :archive, %Channel{archived: true} = channel, _user_id, channel_id) do
+    Helpers.response_message(channel_id, "Channel with name `#{channel.name}` is already archived.")
   end
 
-  def channel_command(:archive, %Channel{} = channel, user_id, channel_id) do
+  def channel_command(socket, :archive, %Channel{} = channel, user_id, channel_id) do
     user = Helpers.get_user! user_id
     channel
     |> Channel.do_changeset(user, %{archived: true})
     |> Repo.update
     |> case do
       {:ok, _} ->
-        Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " has been archived successfully.")
+        Helpers.response_message(channel_id, "Channel with name `channel.name` has been archived successfully.")
       {:error, cs} ->
         Logger.warn "error archiving channel #{inspect cs.errors}"
-        Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " was not archived.")
+        Helpers.response_message(channel_id, "Channel with name `#{channel.name}` was not archived.")
     end
   end
 
-  def channel_command(:unarchive, %Channel{archived: false} = channel, _user_id, channel_id) do
-    Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " is not archived.")
+  def channel_command(socket, :unarchive, %Channel{archived: false} = channel, _user_id, channel_id) do
+    Helpers.response_message(channel_id, text: "Channel with name `#{channel.name}` is not archived.")
   end
 
-  def channel_command(:unarchive, %Channel{} = channel, user_id, channel_id) do
+  def channel_command(socket, :unarchive, %Channel{} = channel, user_id, channel_id) do
     user = Helpers.get_user! user_id
     channel
     |> Channel.do_changeset(user, %{archived: false})
     |> Repo.update
     |> case do
       {:ok, _} ->
-        Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " has been unarchived successfully.")
+        Helpers.response_message(channel_id, "Channel with name `#{channel.name}`  has been unarchived successfully.")
       {:error, cs} ->
         Logger.warn "error unarchiving channel #{inspect cs.errors}"
-        Helpers.response_message(channel_id, text: "Channel with name ", code: channel.name, text: " was not unarchived.")
+        Helpers.response_message(channel_id, "Channel with name `#{channel.name}` was not unarchived.")
     end
   end
 
-  def channel_command(:invite_all_to, %Channel{} = channel, _user_id, channel_id) do
+  def channel_command(socket, :invite_all_to, %Channel{} = channel, _user_id, channel_id) do
     to_channel = Helpers.get(Channel, channel.id).id
     from_channel = channel_id
 
@@ -428,10 +425,10 @@ defmodule UcxChat.ChannelService do
       invite_user(subs.user.id, to_channel)
     end)
 
-    Helpers.response_message(channel_id, text: "The users have been added.")
+    Helpers.response_message(channel_id, "The users have been added.")
   end
 
-  def channel_command(:invite_all_from, %Channel{} = channel, _user_id, channel_id) do
+  def channel_command(socket, :invite_all_from, %Channel{} = channel, _user_id, channel_id) do
     from_channel = Helpers.get(Channel, channel.id).id
     to_channel = channel_id
 
@@ -443,7 +440,7 @@ defmodule UcxChat.ChannelService do
       invite_user(subs.user.id, to_channel)
     end)
 
-    Helpers.response_message(channel_id, text: "The users have been added.")
+    Helpers.response_message(channel_id, "The users have been added.")
   end
 
   ##################
@@ -454,7 +451,7 @@ defmodule UcxChat.ChannelService do
   def user_command(socket, command, name, user_id, channel_id) when command in @user_commands and is_binary(name) do
     case Helpers.get_by(User, :username, name) do
       nil ->
-        Helpers.response_message(channel_id, text: "The user ", code: "@" <> name, text: " does not exists")
+        Helpers.response_message(channel_id, "The user `@#{name}` does not exists")
       user ->
         user_command(socket, command, user, user_id, channel_id)
     end
@@ -467,7 +464,7 @@ defmodule UcxChat.ChannelService do
       {:ok, _subs} ->
         notify_user_action(user, user_id, channel_id, "added")
       {:error, _} ->
-        Helpers.response_message(channel_id, text: "Problem inviting ", code: user.username, text: " to this channel.")
+        Helpers.response_message(channel_id, "Problem inviting `#{user.username}` to this channel.")
     end
   end
 
@@ -477,21 +474,27 @@ defmodule UcxChat.ChannelService do
     |> remove_user_from_channel(user_id)
     |> case do
       nil ->
-        Helpers.response_message(channel_id, text: "User ", code: user.username, text: " is not subscribed to this channel.")
+        Helpers.response_message(channel_id, "User `#{user.username}` is not subscribed to this channel.")
       _subs ->
         notify_user_action(user, user_id, channel_id, "removed")
     end
   end
 
+    # field :hide_user_join, :boolean, default: false
+    # field :hide_user_leave, :boolean, default: false
+    # field :hide_user_removed, :boolean, default: false
+    # field :hide_user_added, :boolean, default: false
   def user_command(socket, :mute, %User{} = user, user_id, channel_id) do
     case mute_user(user, user_id, channel_id) do
       {:ok, msg} ->
-        notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, "muted")
+        unless Settings.hide_user_muted() do
+          notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, "muted")
+        end
         Phoenix.Channel.broadcast socket, "user:action", %{action: "mute", user_id: user.id}
-        Logger.warn "mute #{user.id} by #{user_id}...."
+        # Logger.warn "mute #{user.id} by #{user_id}...."
         {:ok, msg}
       error ->
-        Logger.error "user_command error #{inspect error}"
+        # Logger.error "user_command error #{inspect error}"
         error
     end
   end
@@ -499,12 +502,14 @@ defmodule UcxChat.ChannelService do
   def user_command(socket, :unmute, %User{} = user, user_id, channel_id) do
     case unmute_user(user, user_id, channel_id) do
       {:ok, msg} ->
-        notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, "unmuted")
+        unless Settings.hide_user_muted() do
+          notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, "unmuted")
+        end
         Phoenix.Channel.broadcast socket, "user:action", %{action: "mute", user_id: user.id}
-        Logger.warn "unmute #{user.id} by #{user_id}...."
+        # Logger.warn "unmute #{user.id} by #{user_id}...."
         {:ok, msg}
       error ->
-        Logger.error "user_command error #{inspect error}"
+        # Logger.error "user_command error #{inspect error}"
         error
     end
   end
@@ -558,7 +563,6 @@ defmodule UcxChat.ChannelService do
     "User <em class='username'>#{n1}</em> #{operation} by <em class='username'>#{n2}</em>."
   end
 
-  # TODO: This needs to be broadcast to the channel
 
   defp notify_user_action2(socket, user, user_id, channel_id, fun) do
     owner = Helpers.get(User, user_id)
@@ -577,30 +581,38 @@ defmodule UcxChat.ChannelService do
     #Helpers.response_message(channel_id, text: "User ", tag: t1, text: " #{action} by ", tag: t2, text: ".")
   end
 
-  def mute_user(%{id: id} = user, _user_id, channel_id) do
-    %Mute{}
-    |> Mute.changeset(%{user_id: id, channel_id: channel_id})
-    |> Repo.insert
-    |> case do
-      {:error, _cs} ->
-        # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
-        {:error, "User `@" <> user.username <> "` already muted."}
-      mute ->
-        {:ok, mute}
+  def mute_user(%{id: id} = user, user_id, channel_id) do
+    if Permission.has_permission?(Helpers.get_user!(user_id), "mute-user", channel_id) do
+      %Mute{}
+      |> Mute.changeset(%{user_id: id, channel_id: channel_id})
+      |> Repo.insert
+      |> case do
+        {:error, _cs} ->
+          # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
+          {:error, "User `@" <> user.username <> "` already muted."}
+        mute ->
+          {:ok, mute}
+      end
+    else
+      {:error, :no_permission}
     end
   end
 
-  def unmute_user(%{id: id} = user, _user_id, channel_id) do
-    Mute
-    |> where([m], m.user_id == ^id and m.channel_id == ^channel_id)
-    |> Repo.one
-    |> case do
-      nil ->
-        # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " is not muted.")}
-        {:error, "User `@" <> user.username"` is not muted."}
-      mute ->
-        Repo.delete mute
-        {:ok, "unmuted"}
+  def unmute_user(%{id: id} = user, user_id, channel_id) do
+    if Permission.has_permission?(Helpers.get_user!(user_id), "mute-user", channel_id) do
+      Mute
+      |> where([m], m.user_id == ^id and m.channel_id == ^channel_id)
+      |> Repo.one
+      |> case do
+        nil ->
+          # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " is not muted.")}
+          {:error, "User `@" <> user.username <> "` is not muted."}
+        mute ->
+          Repo.delete mute
+          {:ok, "unmuted"}
+      end
+    else
+      {:error, :no_permission}
     end
   end
 

@@ -22,8 +22,7 @@ defmodule UcxChat.MessageChannelController do
     message_html = render_message(message)
     broadcast_message(socket, message.id, message.user.id, message_html)
 
-    TypingAgent.stop_typing(channel_id, user_id)
-    update_typing(channel_id, room)
+    stop_typing(socket, user_id, channel_id)
     {:noreply, socket}
   end
 
@@ -65,9 +64,7 @@ defmodule UcxChat.MessageChannelController do
         message_html = render_message(message)
         broadcast_message(socket, message.id, message.user.id, message_html, "update")
 
-        TypingAgent.stop_typing(channel_id, user.id)
-        update_typing(channel_id, assigns[:room])
-
+        stop_typing(socket, user.id, channel_id)
     end
 
     Logger.warn "MessageController.update id: #{inspect id}, value: #{inspect value}"

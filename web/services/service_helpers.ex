@@ -136,9 +136,9 @@ defmodule UcxChat.ServiceHelpers do
   def month(11), do: "November"
   def month(12), do: "December"
 
-  def response_message(channel_id, message) do
-    body = UcxChat.MessageView.render("message_response_body.html", message: message)
-    |> Phoenix.HTML.safe_to_string
+  def response_message(channel_id, body) do
+    # body = UcxChat.MessageView.render("message_response_body.html", message: message)
+    # |> Phoenix.HTML.safe_to_string
 
     bot_id =
       User
@@ -154,12 +154,12 @@ defmodule UcxChat.ServiceHelpers do
       })
 
     html = MessageService.render_message(message)
-    message =
-      message
-      |> Enum.filter(&elem(&1, 0) == :text)
-      |> Enum.join("")
+    # message =
+    #   message
+    #   |> Enum.filter(&elem(&1, 0) == :text)
+    #   |> Enum.join("")
 
-    %{html: html, message: message}
+    %{html: html, message: message.body}
   end
 
   def render(view, templ, opts \\ []) do
