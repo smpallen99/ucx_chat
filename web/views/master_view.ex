@@ -149,4 +149,8 @@ defmodule UcxChat.MasterView do
   def favorite_room?(%User{} = user, %Channel{} = channel) do
     ChannelService.favorite_room?(user, channel)
   end
+
+  def direct?(chatd) do
+    chatd.channel.type == 2
+  end
 end

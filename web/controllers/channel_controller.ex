@@ -1,7 +1,7 @@
 defmodule UcxChat.ChannelController do
   use UcxChat.Web, :controller
 
-  alias UcxChat.{Channel, User}
+  alias UcxChat.{Channel, User, Direct}
 
   import Ecto.Query
 
@@ -46,12 +46,26 @@ defmodule UcxChat.ChannelController do
     |> render("main.html", chatd: chatd)
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"name" => name}) do
     channel =
       Channel
-      |> where([c], c.name == ^id)
+      |> where([c], c.name == ^name)
       |> Repo.one!
     show(conn, channel)
+  end
+
+  def direct(conn, %{"name" => name}) do
+    user_id = Coherence.current_user(conn) |> Map.get(:id)
+    (from d in Direct,
+      where: d.user_id == ^user_id and like(d.users, ^"%#{name}%"),
+      preload: [:channel])
+    |> Repo.one
+    |> case do
+      nil ->
+        redirect(conn, to: "/")
+      direct ->
+        show(conn, direct.channel)
+    end
   end
 
 end

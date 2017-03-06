@@ -61,7 +61,7 @@ defmodule UcxChat.RoomChannelController do
 
     # resp = case ChannelService.user_command(:unmute, user, socket.assigns.user_id, socket.assigns.channel_id) do
     resp = case ChannelService.user_command(socket, @command_list[command], user, socket.assigns.user_id, socket.assigns.channel_id) do
-      {:ok, msg} ->
+      {:ok, _msg} ->
         if message = @message_list[command] do
           message = message |> String.replace("%%user%%", user.username) |> String.replace("%%room%%", socket.assigns.room)
           Phoenix.Channel.push socket, "toastr:success", %{message: message}

@@ -239,7 +239,10 @@ function start_room_channel(typing) {
 
   if (debug) { console.log('start socket', ucxchat) }
   chan.join()
-    .receive("ok", resp => { console.log("Joined successfully", resp) })
+    .receive("ok", resp => {
+      history.pushState(history.state, ucxchat.display_name, '/' + ucxchat.room_route + '/' + ucxchat.display_name)
+      console.log("Joined successfully", resp)
+    })
     .receive("error", resp => { console.log("Unable to join", resp) })
 
   chan.on("user:entered", msg => {

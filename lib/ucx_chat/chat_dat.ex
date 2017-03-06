@@ -4,7 +4,7 @@ defmodule UcxChat.ChatDat do
 
   defstruct user: nil, room_types: [], settings: %{}, rooms: [],
             channel: nil, messages: nil, room_map: %{}, active_room: %{},
-            status: "offline"
+            status: "offline", room_route: "channels"
 
   def new(user, channel, messages \\ [])
   def new(%User{roles: %Ecto.Association.NotLoaded{}} = user, %Channel{} = channel, messages) do
@@ -24,7 +24,8 @@ defmodule UcxChat.ChatDat do
       room_map: room_map,
       channel: channel,
       messages: messages,
-      active_room: ar
+      active_room: ar,
+      room_route: Channel.room_route(channel)
     }
   end
 

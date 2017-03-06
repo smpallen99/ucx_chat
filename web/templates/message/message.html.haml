@@ -26,8 +26,10 @@
     %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{get_username @message}" tabindex="1")
       = get_username @message
   %span.info.border-component-color.color-info-font-color
-    - for tag <- role_tags(@message) do
-      %span.role-tag.background-info-font-color(data-role="#{tag}")= tag
+    - # Logger.error "===== message: #{inspect @message}"
+    - unless @message.type == "d" do
+      - for tag <- role_tags(@message) do
+        %span.role-tag.background-info-font-color(data-role="#{tag}")= tag
     - if is_bot(@message) do
       %span.is-bot.background-info-font-color BOT
     %span.time(title="{get_date_time(@message, @user)}")= get_time(@message, @user)

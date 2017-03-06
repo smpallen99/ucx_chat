@@ -81,7 +81,23 @@ defmodule UcxChat.SlashCommandChannelController do
     # {:ok, %{html: MessageService.render_message(message)}}
   end
 
+  def handle_channel_command(socket, :leave = command, _args, user_id, channel_id) do
+    channel = Helpers.get!(Channel, channel_id)
+    Logger.warn ".......... 0 #{inspect command}, #{inspect channel.name}, user.id: #{inspect socket.assigns.user_id}, user_id: #{inspect user_id}"
+
+    resp = case ChannelService.channel_command(socket, command, channel, user_id, channel_id) do
+      {:ok, _} ->
+        {:ok, %{}}
+      {:error, :no_permission}
+        {:ok, %{}}
+      {:error, error} ->
+        Logger.warn "returned error: #{inspect error}"
+        {:ok, Helpers.response_message(channel_id, error)}
+    end
+    {:reply, resp, socket}
+  end
   def handle_channel_command(socket, command, args, user_id, channel_id) do
+    Logger.warn ".......... #{inspect command}"
     with "#" <> name <- String.trim(args),
          true <- String.match?(name, ~r/[a-z0-9\.\-_]/i) do
       resp = case ChannelService.channel_command(socket, command, name, user_id, channel_id) do

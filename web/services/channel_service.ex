@@ -198,11 +198,12 @@ defmodule UcxChat.ChannelService do
 
   def open_room(user_id, room, _old_room, display_name) do
     # Logger.debug "open_room user_id: #{inspect user_id}, room: #{inspect room}, old_room: #{inspect old_room}"
-    user =
-      User
-      |> where([c], c.id == ^user_id)
-      |> preload([:account])
-      |> Repo.one!
+    # user =
+    #   User
+    #   |> where([c], c.id == ^user_id)
+    #   |> preload([:account, :roles])
+    #   |> Repo.one!
+    user = Helpers.get_user!(user_id)
 
     channel =
       Channel
@@ -229,7 +230,8 @@ defmodule UcxChat.ChannelService do
       room_title: room,
       channel_id: channel.id,
       box_html: box_html,
-      header_html: header_html
+      header_html: header_html,
+      room_route: Channel.room_route(channel)
     }
   end
 
@@ -270,7 +272,12 @@ defmodule UcxChat.ChannelService do
         do_add_direct(name, user_orig, user_dest, channel_id)
     end
 
-    user = Repo.one!(from u in User, where: u.id == ^user_id, preload: [:account])
+    # user = Repo.one!(from u in User, where: u.id == ^user_id, preload: [:account, :roles])
+    user =
+      user_id
+      |> Helpers.get_user!
+      |> User.changeset(%{open_id: channel.id})
+      |> Repo.update!
 
     chatd = ChatDat.new user, channel, []
 
@@ -284,7 +291,15 @@ defmodule UcxChat.ChannelService do
       |> UcxChat.SideNavView.render(chatd: chatd)
       |> Phoenix.HTML.safe_to_string
 
-    {:ok, %{messages_html: messages_html, side_nav_html: side_nav_html}}
+    resp = %{
+      messages_html: messages_html,
+      side_nav_html: side_nav_html,
+      display_name: username,
+      channel_id: channel.id,
+      room: channel.name,
+      room_route: chatd.room_route
+    }
+    {:ok, resp}
   end
 
   defp do_add_direct(name, user_orig, user_dest, _channel_id) do
@@ -307,7 +322,9 @@ defmodule UcxChat.ChannelService do
 
   def render_rooms(channel_id, user_id) do
     channel = Helpers.get!(Channel, channel_id)
-    user = Repo.one!(from u in User, where: u.id == ^user_id, preload: [:account])
+    # user = Repo.one!(from u in User, where: u.id == ^user_id, preload: [:account])
+    user = Helpers.get_user!(user_id)
+
     chatd = ChatDat.new user, channel, []
 
     # side_nav_html =
@@ -354,20 +371,21 @@ defmodule UcxChat.ChannelService do
     |> add_user_to_channel(user_id)
     |> case do
       {:ok, _subs} ->
-        Helpers.response_message(channel_id, "You have joined the `#{channel.name}` channel.")
+        {:ok, "You have joined the `#{channel.name}` channel."}
       {:error, _} ->
-        Helpers.response_message(channel_id, "Problem joining `#{channel.name}` channel.")
+        {:error, "Problem joining `#{channel.name}` channel."}
     end
   end
 
   def channel_command(socket, :leave, %Channel{} = channel, user_id, channel_id) do
+    Logger.error ".... channel.name: #{inspect channel.name}, user_id: #{inspect user_id}, channel.id: #{inspect channel.id}"
     channel
     |> remove_user_from_channel(user_id)
     |> case do
       nil ->
-        Helpers.response_message(channel_id, "Your not subscribed to the `#{channel.name}` channel.")
+        {:error, "Your not subscribed to the `#{channel.name}` channel."}
       _subs ->
-        Helpers.response_message(channel_id, "You have left to the `#{channel.name}` channel.")
+        {:ok, "You have left to the `#{channel.name}` channel."}
     end
   end
 
@@ -388,15 +406,15 @@ defmodule UcxChat.ChannelService do
     |> Repo.update
     |> case do
       {:ok, _} ->
-        Helpers.response_message(channel_id, "Channel with name `channel.name` has been archived successfully.")
+        {:ok, "Channel with name `channel.name` has been archived successfully."}
       {:error, cs} ->
         Logger.warn "error archiving channel #{inspect cs.errors}"
-        Helpers.response_message(channel_id, "Channel with name `#{channel.name}` was not archived.")
+        {:error, "Channel with name `#{channel.name}` was not archived."}
     end
   end
 
   def channel_command(socket, :unarchive, %Channel{archived: false} = channel, _user_id, channel_id) do
-    Helpers.response_message(channel_id, text: "Channel with name `#{channel.name}` is not archived.")
+    {:error, "Channel with name `#{channel.name}` is not archived."}
   end
 
   def channel_command(socket, :unarchive, %Channel{} = channel, user_id, channel_id) do
@@ -406,10 +424,10 @@ defmodule UcxChat.ChannelService do
     |> Repo.update
     |> case do
       {:ok, _} ->
-        Helpers.response_message(channel_id, "Channel with name `#{channel.name}`  has been unarchived successfully.")
+        {:ok, "Channel with name `#{channel.name}` has been unarchived successfully."}
       {:error, cs} ->
         Logger.warn "error unarchiving channel #{inspect cs.errors}"
-        Helpers.response_message(channel_id, "Channel with name `#{channel.name}` was not unarchived.")
+        {:erorr, "Channel with name `#{channel.name}` was not unarchived."}
     end
   end
 
@@ -451,7 +469,7 @@ defmodule UcxChat.ChannelService do
   def user_command(socket, command, name, user_id, channel_id) when command in @user_commands and is_binary(name) do
     case Helpers.get_by(User, :username, name) do
       nil ->
-        Helpers.response_message(channel_id, "The user `@#{name}` does not exists")
+        {:error, "The user `@#{name}` does not exists"}
       user ->
         user_command(socket, command, user, user_id, channel_id)
     end
@@ -463,8 +481,9 @@ defmodule UcxChat.ChannelService do
     |> case do
       {:ok, _subs} ->
         notify_user_action(user, user_id, channel_id, "added")
+        {:ok, "User added"}
       {:error, _} ->
-        Helpers.response_message(channel_id, "Problem inviting `#{user.username}` to this channel.")
+        {:error, "Problem inviting `#{user.username}` to this channel."}
     end
   end
 
@@ -474,9 +493,10 @@ defmodule UcxChat.ChannelService do
     |> remove_user_from_channel(user_id)
     |> case do
       nil ->
-        Helpers.response_message(channel_id, "User `#{user.username}` is not subscribed to this channel.")
+        {:error, "User `#{user.username}` is not subscribed to this channel."}
       _subs ->
         notify_user_action(user, user_id, channel_id, "removed")
+        {:ok, "User removed"}
     end
   end
 
@@ -563,7 +583,6 @@ defmodule UcxChat.ChannelService do
     "User <em class='username'>#{n1}</em> #{operation} by <em class='username'>#{n2}</em>."
   end
 
-
   defp notify_user_action2(socket, user, user_id, channel_id, fun) do
     owner = Helpers.get(User, user_id)
     body = fun.(user.username, owner.username)
@@ -591,7 +610,7 @@ defmodule UcxChat.ChannelService do
           # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
           {:error, "User `@" <> user.username <> "` already muted."}
         mute ->
-          {:ok, mute}
+          {:ok, "muted"}
       end
     else
       {:error, :no_permission}
@@ -725,6 +744,8 @@ defmodule UcxChat.ChannelService do
         unless Settings.hide_user_leave() do
           broadcast_message("Has left the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
         end
+        Logger.error "remove .... subs: #{inspect subs}"
+        {:ok, "removed"}
     end
   end
 
@@ -733,12 +754,12 @@ defmodule UcxChat.ChannelService do
     |> Subscription.changeset(%{user_id: user_id, channel_id: channel.id})
     |> Repo.insert
     |> case do
-      {:ok, _subs} = result ->
+      {:ok, _subs} ->
         UserChannel.join_room(user_id, channel.name)
         unless Settings.hide_user_join() do
           broadcast_message("Has joined the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
         end
-        result
+        {:ok, "added"}
       result -> result
     end
   end

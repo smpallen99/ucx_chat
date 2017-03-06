@@ -38,12 +38,11 @@ defmodule UcxChat.MessageService do
     |> Helpers.last_page
     |> preload([:user, :edited_by])
     |> Repo.all
-    |> new_days(tz, [])
+    |> new_days(tz || 0, [])
   end
 
   defp new_days([h|t], tz, []), do: new_days(t, tz, [Map.put(h, :new_day, true)])
   defp new_days([h|t], tz, [last|_] = acc) do
-    # TODO: this needs to be shifted by the tz offset
     dt1 = Timex.shift(h.inserted_at, hours: tz)
     dt2 = Timex.shift(last.inserted_at, hours: tz)
     h = if Timex.day(dt1) == Timex.day(dt2) do

@@ -8,6 +8,7 @@ defmodule UcxChat.Repo.Migrations.CreateChannel do
       add :type, :integer, default: 0, null: false
       add :read_only, :boolean, default: false, null: false
       add :archived, :boolean, default: false, null: false
+      add :blocked, :boolean, default: false, null: false
       add :description, :text, defaut: ""
       add :user_id, references(:users, on_delete: :delete_all)
 

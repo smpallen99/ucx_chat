@@ -4,7 +4,7 @@ defmodule UcxChat.Repo.Migrations.AddOpenIdToUsers do
   def change do
 
     alter table(:users) do
-      add :open_id, references(:users, on_delete: :delete_all)
+      add :open_id, references(:channels, on_delete: :delete_all)
     end
 
     create index(:users, [:open_id])

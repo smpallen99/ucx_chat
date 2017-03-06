@@ -1,7 +1,7 @@
 defmodule UcxChat.MessageChannelController do
   use UcxChat.Web, :channel_controller
 
-  alias UcxChat.{TypingAgent, User, Message, ChannelService}
+  alias UcxChat.{TypingAgent, User, Message, ChannelService, Channel}
   alias UcxChat.ServiceHelpers, as: Helpers
   import UcxChat.MessageService
   # import Phoenix.Channel
@@ -9,11 +9,14 @@ defmodule UcxChat.MessageChannelController do
   require Logger
 
   def create(%{assigns: assigns} = socket, params) do
-    # Logger.warn "++++ socket: #{inspect socket}"
+    Logger.warn "++++ socket: #{inspect socket}"
     message = params["message"]
     user_id = assigns[:user_id]
     channel_id = assigns[:channel_id]
     room = assigns[:room]
+    channel = Helpers.get!(Channel, channel_id)
+    msg_params = if Channel.direct?(channel), do: %{type: "d"}, else: %{}
+
 
     if ChannelService.user_muted? user_id, channel_id do
       sys_msg = create_system_message(channel_id, "You have been muted and cannot speak in this room")
@@ -26,7 +29,7 @@ defmodule UcxChat.MessageChannelController do
     else
       {body, mentions} = encode_mentions(message)
 
-      message = create_message(body, user_id, channel_id)
+      message = create_message(body, user_id, channel_id, msg_params)
       create_mentions(mentions, message.id, message.channel_id)
       message_html = render_message(message)
       broadcast_message(socket, message.id, message.user.id, message_html)

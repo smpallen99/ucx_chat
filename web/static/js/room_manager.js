@@ -20,6 +20,7 @@ class RoomManager {
     ucxchat.channel_id = resp.channel_id
     ucxchat.room = resp.room_title
     ucxchat.display_name = resp.display_name
+    ucxchat.room_route = resp.room_route
     $('.room-title').html(ucxchat.display_name)
     $('.link-room-' + ucxchat.room).addClass("active")
     Messages.scroll_bottom()
@@ -43,10 +44,16 @@ class RoomManager {
       .receive("ok", resp => {
         $('.messages-container .fixed-title h2').html(resp.messages_html)
         $('aside .rooms-list').html(resp.side_nav_html)
+        ucxchat.channel_id = resp.channel_id
+        ucxchat.room = resp.room
+        ucxchat.display_name = resp.display_name
+        ucxchat.room_route = resp.room_route
         // flex_bar.close_flex_tab()
         if ($('section.flex-tab').parent().hasClass('opened')) {
           $('section.flex-tab').html('').parent().removeClass('opened')
         }
+        roomchan.leave()
+        socket.restart_socket()
     })
   }
   static update(msg) {

@@ -13,6 +13,7 @@ defmodule UcxChat.Channel do
     field :type, :integer, default: 0
     field :read_only, :boolean, default: false
     field :archived, :boolean, default: false
+    field :blocked, :boolean, default: false
     field :description, :string
     has_many :subscriptions, UcxChat.Subscription
     has_many :users, through: [:subscriptions, :user]
@@ -23,7 +24,7 @@ defmodule UcxChat.Channel do
     timestamps(type: :utc_datetime)
   end
 
-  @fields ~w(archived name type topic read_only user_id description)a
+  @fields ~w(archived name type topic read_only blocked user_id description)a
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
@@ -98,5 +99,15 @@ defmodule UcxChat.Channel do
 
   def get_all_public_channels do
     from c in @module, where: c.type == 0
+  end
+
+  def room_route(channel) do
+    case channel.type do
+      ch when ch in [0,1] -> "channels"
+      _ -> "direct"
+    end
+  end
+  def direct?(channel) do
+    channel.type == 2
   end
 end
