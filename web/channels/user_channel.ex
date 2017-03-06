@@ -221,28 +221,28 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "owner"} = payload}, %{assigns: assigns} = socket) do
-    warn event, payload
+    debug event, payload
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
-    if Flex.panel_active? assigns.flex, assigns.channel_id, "Members List" do
-      warn event, payload, "open"
+    if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
+      # warn event, payload, "open"
       html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user)
       # html2 = Helpers.render(FlexBarView, "users_list_item.html", channel_id: assigns.channel_id, user: user)
       push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
       # push socket, "code:update", %{html: html2, selector: ~s(.user-card-room[data-status-name="#{user.username}"), action: "html"}
     else
-      warn event, payload, "closed"
+      # warn event, payload, "closed"
     end
     {:noreply, socket}
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload:
       %{action: action} = payload}, %{assigns: assigns} = socket) when action in ~w(mute moderator owner) do
-    warn event, payload
+    debug event, payload
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
-    if Flex.panel_active? assigns.flex, assigns.channel_id, "Members List" do
-      warn event, payload, action <> " open"
+    if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
+      # warn event, payload, action <> " open"
       html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user)
       push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
 
@@ -251,7 +251,7 @@ defmodule UcxChat.UserChannel do
         push socket, "code:update", %{html: html2, selector: ~s(.user-card-room[data-status-name="#{user.username}"]), action: "html"}
       end
     else
-      warn event, payload, "closed"
+      # warn event, payload, "closed"
     end
     {:noreply, socket}
   end
@@ -260,7 +260,7 @@ defmodule UcxChat.UserChannel do
     warn event, payload
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
-    if Flex.panel_active? assigns.flex, assigns.channel_id, "Members List" do
+    if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
       warn event, payload, "removed open"
 
       push socket, "code:update", %{selector: ~s(.user-card-room[data-status-name='#{user.username}']), action: "remove"}

@@ -9,7 +9,7 @@ defmodule UcxChat.Flex do
   def new, do: %{o: %{}, t: %{}, c: %{}}
 
   @doc """
-  Is a tab currently open?
+  Is any tab currently open?
 
   ## Examples
 
@@ -21,6 +21,22 @@ defmodule UcxChat.Flex do
       true
   """
   def open?(fl, ch), do: !!get_in(fl, [:o, ch])
+
+  @doc """
+  Is a specified tab currently open?
+
+  ## Examples
+
+      iex> alias UcxChat.Flex
+      iex> fl = Flex.new()
+      iex> Flex.open?(fl, 1)
+      false
+      iex> Flex.toggle(fl, 1, "Info") |> Flex.open?(1, "Info")
+      true
+      iex> Flex.toggle(fl, 1, "Info") |> Flex.open?(1, "other")
+      false
+  """
+  def open?(fl, ch, name), do: open_tab_name(fl, ch) == name
 
   @doc """
   Returns the name of the currently opened tab
