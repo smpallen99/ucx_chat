@@ -18,6 +18,10 @@ defmodule UcxChat.MessageService do
     Phoenix.Channel.broadcast! socket, "message:" <> event, create_broadcast_message(id, user_id, html)
   end
 
+  def push_message(socket, id, user_id, html) do
+    Phoenix.Channel.push socket, "message:new", create_broadcast_message(id, user_id, html)
+  end
+
 
   defp create_broadcast_message(id, user_id, html) do
     %{
@@ -74,6 +78,16 @@ defmodule UcxChat.MessageService do
     "message.html"
     |> UcxChat.MessageView.render(message: message, user: user)
     |> Phoenix.HTML.safe_to_string
+  end
+
+  def create_system_message(channel_id, body) do
+    bot_id = Helpers.get_bot_id()
+    create_message(body, bot_id, channel_id,
+      %{
+        type: "p",
+        system: true,
+        sequential: false,
+      })
   end
 
   def create_message(body, user_id, channel_id, params \\ %{}) do

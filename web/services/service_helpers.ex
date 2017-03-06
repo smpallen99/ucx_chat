@@ -140,12 +140,7 @@ defmodule UcxChat.ServiceHelpers do
     # body = UcxChat.MessageView.render("message_response_body.html", message: message)
     # |> Phoenix.HTML.safe_to_string
 
-    bot_id =
-      User
-      # |> where([m], m.type == "b")
-      |> select([m], m.id)
-      |> limit(1)
-      |> Repo.one
+    bot_id = get_bot_id()
     message = MessageService.create_message(body, bot_id, channel_id,
       %{
         type: "p",
@@ -160,6 +155,14 @@ defmodule UcxChat.ServiceHelpers do
     #   |> Enum.join("")
 
     %{html: html, message: message.body}
+  end
+
+  def get_bot_id do
+    User
+    # |> where([m], m.type == "b")
+    |> select([m], m.id)
+    |> limit(1)
+    |> Repo.one
   end
 
   def render(view, templ, opts \\ []) do

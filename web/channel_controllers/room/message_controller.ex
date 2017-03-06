@@ -1,7 +1,7 @@
 defmodule UcxChat.MessageChannelController do
   use UcxChat.Web, :channel_controller
 
-  alias UcxChat.{TypingAgent, User, Message}
+  alias UcxChat.{TypingAgent, User, Message, ChannelService}
   alias UcxChat.ServiceHelpers, as: Helpers
   import UcxChat.MessageService
   # import Phoenix.Channel
@@ -15,13 +15,22 @@ defmodule UcxChat.MessageChannelController do
     channel_id = assigns[:channel_id]
     room = assigns[:room]
 
-    {body, mentions} = encode_mentions(message)
+    if ChannelService.user_muted? user_id, channel_id do
+      sys_msg = create_system_message(channel_id, "You have been muted and cannot speak in this room")
+      html = render_message(sys_msg)
+      push_message(socket, sys_msg.id, user_id, html)
 
-    message = create_message(body, user_id, channel_id)
-    create_mentions(mentions, message.id, message.channel_id)
-    message_html = render_message(message)
-    broadcast_message(socket, message.id, message.user.id, message_html)
+      msg = create_message(message, user_id, channel_id, %{ type: "p", })
+      html = render_message(msg)
+      push_message(socket, msg.id, user_id, html)
+    else
+      {body, mentions} = encode_mentions(message)
 
+      message = create_message(body, user_id, channel_id)
+      create_mentions(mentions, message.id, message.channel_id)
+      message_html = render_message(message)
+      broadcast_message(socket, message.id, message.user.id, message_html)
+    end
     stop_typing(socket, user_id, channel_id)
     {:noreply, socket}
   end
