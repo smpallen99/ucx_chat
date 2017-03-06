@@ -13,11 +13,11 @@
     - form_for @changeset, "#", [id: "admin-message-form", "data-id": "layout"], fn f ->
       = hidden_input f, :id, value: item.id
       .rocket-form
-        - unless defer do
-          - collapsable_section ~g"Content", fn _ ->
-            = text_input_line f, item, :content_home_title, ~g"Home Title"
-            = text_input_line f, item, :content_home_body, ~g"Home Body"
-            = text_input_line f, item, :content_side_nav_footer, ~g"Side Navigation Footer"
+        - collapsable_section ~g"Content", fn _ ->
+          = text_input_line f, item, :content_home_title, ~g"Home Title"
+          = text_input_line f, item, :content_home_body, ~g"Home Body"
+          = text_input_line f, item, :content_side_nav_footer, ~g"Side Navigation Footer"
+          - unless defer do
             = reset_section_settings()
 
           - collapsable_section ~g"Fonts", fn _ ->

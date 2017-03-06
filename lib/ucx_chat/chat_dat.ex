@@ -33,6 +33,22 @@ defmodule UcxChat.ChatDat do
     channel = Helpers.get(Channel, channel_id)
     new(user, channel, messages)
   end
+  def new(user) do
+    %{room_types: room_types, rooms: rooms, room_map: room_map, active_room: ar} =
+      UcxChat.ChannelService.get_side_nav(user, nil)
+    status = UcxChat.PresenceAgent.get user.id
+    %__MODULE__{
+      status: status,
+      user: user,
+      room_types: room_types,
+      rooms: rooms,
+      room_map: room_map,
+      channel: nil,
+      messages: [],
+      active_room: 0,
+      room_route: "home"
+    }
+  end
 
   def favorite_room?(%__MODULE__{} = chatd, channel_id) do
     with room_types <- chatd.rooms,

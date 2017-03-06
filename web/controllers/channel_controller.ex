@@ -14,7 +14,10 @@ defmodule UcxChat.ChannelController do
   def index(conn, _params) do
     user = Coherence.current_user(conn)
     channel = if user.open_id do
-      Repo.get!(Channel, user.open_id)
+      case Repo.get(Channel, user.open_id) do
+        nil -> Repo.all(Channel) |> hd
+        channel -> channel
+      end
     else
       channel =
         UcxChat.Channel

@@ -196,6 +196,14 @@ defmodule UcxChat.ChannelService do
   def get_chan_type(3, _), do: :stared
   def get_chan_type(_, type), do: room_type(type)
 
+  def room_redirect(room, display_name) do
+    channel =
+      Channel
+      |> where([c], c.name == ^room)
+      |> Repo.one!
+    "/" <> Channel.room_route(channel) <> "/" <> display_name
+  end
+
   def open_room(user_id, room, _old_room, display_name) do
     # Logger.debug "open_room user_id: #{inspect user_id}, room: #{inspect room}, old_room: #{inspect old_room}"
     # user =

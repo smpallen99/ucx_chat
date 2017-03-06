@@ -7,7 +7,11 @@ defmodule UcxChat.RoomChannelController do
 
   def show(%{assigns: assigns} = socket, params) do
     # Logger.warn "room channel_controller params: #{inspect params}, socket.assigns: #{inspect socket.assigns}"
-    reply = ChannelService.open_room(assigns[:user_id], params["room_id"], assigns[:room], params["display_name"])
+    reply = if assigns.room == "lobby" do
+      %{redirect: ChannelService.room_redirect(params["room_id"], params["display_name"])}
+    else
+      ChannelService.open_room(assigns[:user_id], params["room_id"], assigns[:room], params["display_name"])
+    end
     {:reply, {:ok, reply}, socket}
   end
 

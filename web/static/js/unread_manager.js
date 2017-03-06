@@ -12,12 +12,14 @@ const new_message_unread_time = 5000;
 class UnreadManager {
   constructor() {
     this.view_elem = $('.messages-box .wrapper')[0];
-    this.rect = this.view_elem.getBoundingClientRect()
-    this.focus = document.hasFocus();
-    this.unread = ucxchat.unread;
-    this.unread_list = [];
-    this.new_message_ref = undefined;
-    this.is_loading = false
+    if (this.view_elem) {
+      this.rect = this.view_elem.getBoundingClientRect()
+      this.focus = document.hasFocus();
+      this.unread = ucxchat.unread;
+      this.unread_list = [];
+      this.new_message_ref = undefined;
+      this.is_loading = false
+    }
   }
 
   get bounding() { return this.rect; }

@@ -8,7 +8,7 @@ defmodule UcxChat.Config.Layout do
     field :body_font_family, :string, default: "-apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Meiryo UI'"
     field :content_home_title, :string, default: "Home"
     field :content_home_body, :string, default: "Welcome to Ucx Chat <br> Go to APP SETTINGS -> Layout to customize this intro."
-    field :content_side_nav_footer, :string, default: ~s(<img src="/assets/logo" />)
+    field :content_side_nav_footer, :string, default: ~s(<img src="/images/logo.png" />)
   end
 
   @fields [
