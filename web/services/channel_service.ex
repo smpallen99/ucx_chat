@@ -348,6 +348,33 @@ defmodule UcxChat.ChannelService do
   ###################
   # channel commands
 
+  def channel_command(socket, :unhide, name, user_id, _channel_id) do
+    channel_id =
+      Channel
+      |> where([c], c.name == ^name)
+      |> select([c], c.id)
+      |> Repo.one
+
+    Subscription
+    |> where([s], s.channel_id == ^channel_id and s.user_id == ^user_id)
+    |> Repo.one
+    |> case do
+      nil ->
+        {:error, "You are not subscribed to that room"}
+      subs ->
+        subs
+        |> Subscription.changeset(%{hidden: false})
+        |> Repo.update
+        |> case do
+          {:ok, _} ->
+            Phoenix.Channel.broadcast socket, "user:action", %{action: "unhide", user_id: user_id, channel_id: channel_id}
+            {:ok, ""}
+          {:error, _} ->
+            {:error, "Could not unhide that room"}
+        end
+    end
+  end
+
   def channel_command(socket, :hide, name, user_id, _channel_id) do
     channel_id =
       Channel

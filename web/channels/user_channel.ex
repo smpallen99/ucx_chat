@@ -290,6 +290,23 @@ defmodule UcxChat.UserChannel do
     end
     {:noreply, socket}
   end
+  def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "unhide"} = payload}, %{assigns: assigns} = socket) do
+    warn event, payload, "assigns: #{inspect assigns}"
+    # current_user = Helpers.get_user! assigns.user_id
+    # user = Helpers.get_user! payload.user_id
+
+    UserSocket.push_rooms_list_update(socket, payload.channel_id, payload.user_id)
+
+    # if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
+    #   warn event, payload, "removed open"
+
+    #   push socket, "code:update", %{selector: ~s(.user-card-room[data-status-name='#{user.username}']), action: "remove"}
+    #   push socket, "code:update", %{selector: ".flex-tab-container .user-view", action: "addClass", html: "animated-hidden"}
+    # else
+    #   warn event, payload, "closed"
+    # end
+    {:noreply, socket}
+  end
   def handle_info(%Broadcast{topic: _, event: "user:entered" = event, payload: payload}, %{assigns: assigns} = socket) do
     warn event, payload
     old_channel_id = assigns[:channel_id]
