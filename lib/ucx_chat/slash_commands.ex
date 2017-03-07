@@ -6,7 +6,7 @@ defmodule UcxChat.SlashCommands do
   @commands [
     "join", "archive", "kick", "lennyface", "leave", "gimme", "create", "invite",
     "invite-all-to", "invite-all-from", "msg", "part", "unarchive", "tableflip",
-    "topic", "mute", "me", "open", "unflip", "shrug", "unmute" ]
+    "topic", "mute", "me", "open", "unflip", "shrug", "unmute", "unhide"]
 
   @special_text %{
     "gimme" => "༼ つ ◕_◕ ༽つ",
@@ -37,7 +37,8 @@ defmodule UcxChat.SlashCommands do
     %{command: "open", args: "room name", description: "Opens a channel, group or direct message"},
     %{command: "unflip", args: "your message (optional)", description: "Displays ┬─┬﻿ ノ( ゜-゜ノ)"},
     %{command: "shrug", args: "your message (optional)", description: "Displays ¯\_(ツ)_/¯ after your message"},
-    %{command: "unmute", args: "@username", description: "Unmute someone in the room"}
+    %{command: "unmute", args: "@username", description: "Unmute someone in the room"},
+    %{command: "unhide", args: "#channel", description: "Unhide a hidden channel"}
   ]
 
   @command_map @command_data |> Enum.reduce(%{}, fn %{command: command} = map, acc -> Map.put(acc, command, map) end)

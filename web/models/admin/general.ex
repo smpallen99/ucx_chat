@@ -4,7 +4,7 @@ defmodule UcxChat.Config.General do
   @all_slash_commands [
     "join", "archive", "kick", "lennyface", "leave", "gimme", "create", "invite",
     "invite-all-to", "invite-all-from", "msg", "part", "unarchive", "tableflip",
-    "topic", "mute", "me", "open", "unflip", "shrug", "unmute" ]
+    "topic", "mute", "me", "open", "unflip", "shrug", "unmute", "unhide" ]
 
   @rooms_slash_commands @all_slash_commands
 

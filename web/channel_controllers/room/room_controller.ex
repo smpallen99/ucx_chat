@@ -27,6 +27,26 @@ defmodule UcxChat.RoomChannelController do
     {:reply, resp, socket}
   end
 
+  def hide(%{assigns: assigns} = socket, params) do
+    resp = case ChannelService.channel_command(socket, :hide, params["room"], assigns[:user_id], assigns[:channel_id]) do
+      {:ok, _} ->
+        {:ok, %{redirect: "/"}}
+      {:error, error} ->
+        {:error, %{error: error}}
+    end
+    {:reply, resp, socket}
+  end
+
+  def leave(%{assigns: assigns} = socket, params) do
+    resp = case ChannelService.channel_command(socket, :leave, params["room"], assigns[:user_id]) do
+      {:ok, _} ->
+        {:ok, %{}}
+      {:error, error} ->
+        {:error, %{error: error}}
+    end
+    {:reply, resp, socket}
+  end
+
   # def command(socket, %{"command" => "set-owner", "username" => username}) do
   #   Logger.warn "RoomChannelController: command: set-owner, username: #{inspect username}"
 

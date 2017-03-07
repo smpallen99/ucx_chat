@@ -29,6 +29,16 @@ defmodule UcxChat.ChannelRouter do
     apply(UcxChat.RoomChannelController, :favorite, [socket, params])
   end
 
+  def match(:put, socket, ["room", "hide", room], params) do
+    params = Map.put(params, "room", room)
+    apply(UcxChat.RoomChannelController, :hide, [socket, params])
+  end
+
+  def match(:put, socket, ["room", "leave", room], params) do
+    params = Map.put(params, "room", room)
+    apply(UcxChat.RoomChannelController, :leave, [socket, params])
+  end
+
   def match(:put, socket, ["room", command, username], params) do
     params =
       [{"command", command}, {"username", username}]

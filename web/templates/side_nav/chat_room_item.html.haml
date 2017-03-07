@@ -4,8 +4,8 @@
       %span.unread= @room[:unread]
     %i(class="#{@room[:room_icon]} status-#{@room[:user_status]}" aria-label="" data-status-name="#{@room[:display_name]}")
     %span(class="name #{@room[:archived]}")= @room[:display_name]
-    - if !! @room[:unread] do
-      %span.opt
-        %i.icon-eye-off.hide-room(title="Hide_room" aria-label="Hide_room")
-        - if @room[:can_leave] do
-          %i.icon-logout.leave-room(title="Leave_room" aria-label="Leave_room")
+    -# if !! @room[:unread] do
+    %span.opt
+      %i.icon-eye-off.hide-room(title="Hide_room" aria-label="Hide_room")
+      - if @room[:can_leave] do
+        %i.icon-logout.leave-room(title="Leave_room" aria-label="Leave_room")

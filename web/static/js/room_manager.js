@@ -4,7 +4,7 @@ import * as cc from "./chat_channel"
 import sweetAlert from "./sweetalert.min"
 import toastr from 'toastr'
 
-const debug = false;
+const debug = true;
 
 class RoomManager {
   constructor() {
@@ -120,6 +120,9 @@ class RoomManager {
       e.preventDefault()
       cc.put("/room/set-moderator/" + username)
         .receive("ok", resp => {
+          if (resp.redirect) {
+            window.location = resp.redirect
+          }
         })
         .receive("error", resp => {
           toastr.error(resp.error)
@@ -224,11 +227,70 @@ class RoomManager {
     $('body').on('click', 'button.join', function(e) {
       cc.put("/room/join/" + ucxchat.username)
         .receive("ok", resp => {
-
         })
         .receive("error", resp => {
           toastr.error(resp.error)
         })
+    })
+    $('body').on('click', 'a.open-room i.hide-room', function(e) {
+      e.preventDefault()
+      let room = $(this).closest('.open-room').data('room')
+      console.log('cliecked open-room', room)
+      sweetAlert({
+        title: "Are you sure?",
+        text: 'Are you sure you want to hide the room "' + room + '"?',
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, hide it!",
+        closeOnConfirm: false
+      },
+      function(){
+        cc.put("/room/hide/" + room)
+          .receive("ok", resp => {
+            if (resp.redirect) {
+              window.location = resp.redirect
+            }
+            // swal({
+            //     timer: 1,
+            //     showConfirmButton: false,
+            // })
+          })
+          .receive("error", resp => {
+            toastr.error(resp.error)
+          })
+      });
+      return false
+    })
+    $('body').on('click', 'a.open-room i.leave-room', function(e) {
+      e.preventDefault()
+      let room = $(this).closest('.open-room').data('room')
+      console.log('cliecked leave-room', room)
+      sweetAlert({
+        title: "Are you sure?",
+        text: 'Are you sure you want to leave the room "' + room + '"?',
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, leave it!",
+        closeOnConfirm: false
+      },
+      function(){
+        cc.put("/room/leave/" + room)
+          .receive("ok", resp => {
+            swal({
+                title: 'Left the room',
+                text: "You have left the room " + ucxchat.room,
+                type: 'success',
+                timer: 500,
+                showConfirmButton: false,
+            })
+          })
+          .receive("error", resp => {
+            toastr.error(resp.error)
+          })
+      });
+      return false
     })
   }
 }

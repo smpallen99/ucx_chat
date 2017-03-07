@@ -10,6 +10,7 @@ defmodule UcxChat.Subscription do
     field :type, :integer
     field :open, :boolean, default: false
     field :alert, :boolean, default: false
+    field :hidden, :boolean, default: false
     field :ls, :utc_datetime
     field :f, :boolean, default: false          # favorite
     field :unread, :integer, default: 0
@@ -30,7 +31,7 @@ defmodule UcxChat.Subscription do
   # room => name: string, room_type: String, room_id: integer
 
   @fields ~w(channel_id user_id)a
-  @all_fields @fields ++ ~w(last_read type open alert ls f unread)a
+  @all_fields @fields ++ ~w(last_read type open alert ls f unread hidden)a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

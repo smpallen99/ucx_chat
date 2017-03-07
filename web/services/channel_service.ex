@@ -118,12 +118,14 @@ defmodule UcxChat.ChannelService do
         # IEx.pry
         %{
           active: active, unread: unread, alert: cc.alert, user_status: user_status,
-          can_leave: true, archived: false, name: chan.name,
+          can_leave: true, archived: false, name: chan.name, hidden: cc.hidden,
           room_icon: get_icon(chan.type), channel_id: chan.id, channel_type: chan.type,
           type: type, can_leave: true, display_name: display_name
         }
       end)
-    rooms = Enum.reject rooms, fn %{channel_type: chan_type} -> chat_mode && (chan_type in [0,1]) end
+    rooms = Enum.reject rooms, fn %{channel_type: chan_type, hidden: hidden} ->
+      chat_mode && (chan_type in [0,1]) or hidden
+    end
     active_room = Enum.find(rooms, &(&1[:active]))
     Logger.debug "get_side_nav active_room: #{inspect active_room}"
 
@@ -346,6 +348,33 @@ defmodule UcxChat.ChannelService do
   ###################
   # channel commands
 
+  def channel_command(socket, :hide, name, user_id, _channel_id) do
+    channel_id =
+      Channel
+      |> where([c], c.name == ^name)
+      |> select([c], c.id)
+      |> Repo.one
+
+    Subscription
+    |> where([s], s.channel_id == ^channel_id and s.user_id == ^user_id)
+    |> Repo.one
+    |> case do
+      nil ->
+        {:error, "You are not subscribed to that room"}
+      subs ->
+        subs
+        |> Subscription.changeset(%{hidden: true})
+        |> Repo.update
+        |> case do
+          {:ok, _} ->
+            Phoenix.Channel.broadcast socket, "user:action", %{action: "hide", user_id: user_id}
+            {:ok, ""}
+          {:error, _} ->
+            {:error, "Could not hide that room"}
+        end
+    end
+  end
+
   def channel_command(socket, :create, name, user_id, channel_id) do
     if Helpers.get_by(Channel, :name, name) do
       Helpers.response_message(channel_id, "The channel `##{name}` already exists.")
@@ -363,6 +392,14 @@ defmodule UcxChat.ChannelService do
     end
   end
 
+  def channel_command(socket, :leave, name, user_id) do
+    case Helpers.get_by(Channel, :name, name) do
+      nil ->
+        {:error, "The channels does not exist"}
+      channel ->
+        channel_command(socket, :leave, channel, user_id, channel.id)
+    end
+  end
   @channel_commands ~w(join leave open archive unarchive invite_all_to invite_all_from)a
 
   def channel_command(socket, command, name, user_id, channel_id) when command in @channel_commands and is_binary(name) do

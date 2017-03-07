@@ -12,7 +12,7 @@ defmodule UcxChat.SlashCommandChannelController do
   @commands [
     "join", "archive", "kick", "lennyface", "leave", "gimme", "create", "invite",
     "invite-all-to", "invite-all-from", "msg", "part", "unarchive", "tableflip",
-    "topic", "mute", "me", "open", "unflip", "shrug", "unmute" ]
+    "topic", "mute", "me", "open", "unflip", "shrug", "unmute", "unhide"]
 
   def execute(socket, %{"command" => command, "args" => args}) do
     # Logger.warn "SlashCommandsService.execute params: #{inspect params}"
@@ -38,7 +38,7 @@ defmodule UcxChat.SlashCommandChannelController do
   def handle_command(_, command, args, user_id, channel_id) when command in @text_commands,
     do: handle_command_text(command, args, user_id, channel_id, true)
 
-  @channel_commands ~w(create join leave open archive unarchive invite_all_from invite_all_to)a
+  @channel_commands ~w(create join leave open archive unarchive invite_all_from invite_all_to unhide)a
 
   def handle_command(socket, command, args, user_id, channel_id) when command in @channel_commands,
     do: handle_channel_command(socket, command, args, user_id, channel_id)
