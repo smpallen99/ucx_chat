@@ -10,7 +10,7 @@
             %i.icon-plus.secondary-font-color
       %p
         = get_users_list_stats(@users, @user_info)
-        %button.see-all Show all
+        %button.see-all.show-all Show all
     %ul.list.clearfix.lines
       - for user <- @users do
         = render "users_list_item.html", user: user, channel_id: @channel_id

@@ -24,6 +24,7 @@ defmodule UcxChat.Web do
       require UcxChat.SharedView
       import UcxChat.SharedView, only: [sigil_g: 2]
       import UcxChat.Gettext
+      import Phoenix.HTML, only: [safe_to_string: 1]
     end
   end
 

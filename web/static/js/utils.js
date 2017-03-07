@@ -103,8 +103,21 @@ export function page_loading() {
     </style>`
  $('head').prepend(stylesheet)
 }
+
 export function remove_page_loading() {
   $('head > style').remove()
+}
+
+export function code_update(resp) {
+  console.log('code:update', resp)
+  // let event = jQuery.Event( resp.selector + '-change' );
+
+  if (resp.html) {
+    $(resp.selector)[resp.action](resp.html)
+  } else {
+    $(resp.selector)[resp.action]()
+  }
+  // $('body').trigger(event)
 }
 
 window.pl = page_loading

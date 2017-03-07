@@ -20,6 +20,7 @@ import * as cc from "./chat_channel"
 import hljs from "highlight.js"
 import toastr from 'toastr'
 import * as sweet from "./sweetalert.min"
+import * as utils from "./utils"
 
 const chan_user = "user:"
 const chan_room = "room:"
@@ -193,7 +194,7 @@ function start_user_channel() {
     console.log('room:leave', resp)
   })
   chan.on('code:update', resp => {
-    code_update(resp)
+    utils.code_update(resp)
   })
   chan.on('window:reload', resp => {
     window.location.reload()
@@ -213,15 +214,6 @@ function start_user_channel() {
     .receive("error", resp => { console.log('Unable to user lobby', resp)})
 
   chan.push('subscribe', {})
-}
-
-function code_update(resp) {
-  console.log('code:update', resp)
-  if (resp.html) {
-    $(resp.selector)[resp.action](resp.html)
-  } else {
-    $(resp.selector)[resp.action]()
-  }
 }
 
 export function restart_socket() {
@@ -292,7 +284,7 @@ function start_room_channel(typing) {
 
   })
   chan.on('code:update', resp => {
-    code_update(resp)
+    utils.code_update(resp)
   })
 
 

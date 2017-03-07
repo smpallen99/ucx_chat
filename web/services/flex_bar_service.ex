@@ -1,9 +1,10 @@
 defmodule UcxChat.FlexBarService do
-  import Ecto.Query
+  # import Ecto.Query
+  use UcxChat.Web, :service
 
   alias UcxChat.{Repo, FlexBarView, User, Mention, StaredMessage, PinnedMessage,
-    UserAgent, Permission, Direct}
-  alias UcxChat.ServiceHelpers, as: Helpers
+    UserAgent, Permission, Direct, Channel}
+  # alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
   require IEx
@@ -18,6 +19,23 @@ defmodule UcxChat.FlexBarService do
     Logger.debug "FlexBarService.get_open msg: #{inspect msg}"
     ftab = UserAgent.get_ftab(msg["user_id"], msg["channel_id"])
     {:ok, %{ftab: ftab}}
+  end
+
+  def handle_in("show-all", params, socket) do
+    users =
+      Channel
+      |> Helpers.get!(params["channel_id"], preload: [:users])
+      |> get_all_channel_users
+
+    channel_id = params["channel_id"]
+    html =
+      for user <- users do
+        FlexBarView.render("users_list_item.html", user: user, channel_id: channel_id)
+        |> safe_to_string
+      end
+      |> Enum.join("")
+
+    {:reply, {:ok, %{html: html, selector: ".list-view ul.lines", action: "append"}}, socket}
   end
 
   def handle_flex_callback(:open, _ch, tab, nil, socket, _params) do
@@ -217,17 +235,15 @@ defmodule UcxChat.FlexBarService do
         username -> {Helpers.get_by(User, :username, username, preload: [:roles]), true}
       end
 
-    users =
-      channel.users
-      |> Enum.map(fn user ->
-        struct(user, status: UcxChat.PresenceAgent.get(user))
-      end)
-    total_count = length users
-    users =
-      users
-      |> Enum.reject(&(&1.status == "offline"))
-    user_info = user_info(channel, user_mode: user_mode, view_mode: true)
-    |> Map.put(:total_count, total_count)
+    users = get_all_channel_online_users(channel)
+
+    total_count = User.total_count() |> Repo.one
+
+    user_info =
+      channel
+      |> user_info(user_mode: user_mode, view_mode: true)
+      |> Map.put(:total_count, total_count)
+
     [users: users, user: user, user_info: user_info, channel_id: channel_id, current_user: current_user]
   end
 
@@ -320,6 +336,25 @@ defmodule UcxChat.FlexBarService do
       |> Enum.reverse
 
     [pinned: pinned]
+  end
+
+  def get_all_channel_users(channel) do
+    channel.users
+    |> Enum.map(fn user ->
+      struct(user, status: UcxChat.PresenceAgent.get(user))
+    end)
+  end
+
+  def get_all_channel_online_users(channel) do
+    channel
+    |> get_all_channel_users
+    |> Enum.reject(&(&1.status == "offline"))
+  end
+
+  def get_channel_offline_users(channel) do
+    channel
+    |> get_all_channel_users
+    |> Enum.filter(&(&1.status == "offline"))
   end
 
   def user_info(channel, opts \\ []) do

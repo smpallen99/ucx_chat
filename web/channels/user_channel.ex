@@ -195,6 +195,10 @@ defmodule UcxChat.UserChannel do
     AdminService.handle_in(link, params, socket)
   end
 
+  def handle_in(ev = "flex:member-list:" <> action, params, socket) do
+    debug ev, params
+    FlexBarService.handle_in action, params, socket
+  end
 
   # default unknown handler
   def handle_in(event, params, socket) do

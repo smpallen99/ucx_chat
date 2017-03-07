@@ -156,7 +156,6 @@ defmodule UcxChat.ServiceHelpers do
 
     %{html: html, message: message.body}
   end
-
   def get_bot_id do
     User
     # |> where([m], m.type == "b")

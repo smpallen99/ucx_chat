@@ -6,13 +6,23 @@ defmodule UcxChat.FlexBarView do
   def get_users_list_stats(users, user_info) do
     total = user_info.total_count
     showing = online = length(users)
-    Phoenix.HTML.Tag.content_tag :span do
+    Phoenix.HTML.Tag.content_tag :span, class: ".stats" do
       [
-        "Showing: ",
-        Phoenix.HTML.Tag.content_tag :b do
+        ~g(Showing: ),
+        Phoenix.HTML.Tag.content_tag :b, class: "showing-cnt" do
           showing
         end,
-        ", Online: #{online}, Total: #{total} users"
+        ", ",
+        ~g(Online: ),
+        Phoenix.HTML.Tag.content_tag :span, class: "online-cnt" do
+          online
+        end,
+        ", ",
+        ~g(Total: ),
+        Phoenix.HTML.Tag.content_tag :span, class: "total-cnt" do
+          total
+        end,
+        ~g( users)
       ]
     end
     # |> Phoenix.HTML.safe_to_string
