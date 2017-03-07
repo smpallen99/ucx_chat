@@ -311,8 +311,8 @@ defmodule UcxChat.UserChannel do
     # end
     {:noreply, socket}
   end
-  def handle_info(%Broadcast{topic: _, event: "user:entered" = event, payload: payload}, %{assigns: assigns} = socket) do
-    warn event, payload
+  def handle_info(%Broadcast{topic: _, event: "user:entered" = event, payload: %{user: user} = payload}, %{assigns: %{user: user} = assigns} = socket) do
+    warn event, payload, "assigns: #{inspect assigns}"
     old_channel_id = assigns[:channel_id]
     channel_id = payload[:channel_id]
     socket = %{assigns: assigns} = assign(socket, :channel_id, channel_id)
