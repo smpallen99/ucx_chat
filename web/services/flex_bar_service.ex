@@ -222,7 +222,7 @@ defmodule UcxChat.FlexBarService do
       |> Enum.map(fn user ->
         struct(user, status: UcxChat.PresenceAgent.get(user))
       end)
-    user_info = user_info channel, user_mode: user_mode
+    user_info = user_info channel, user_mode: user_mode, view_mode: true
     [users: users, user: user, user_info: user_info, channel_id: channel_id, current_user: current_user]
   end
 
@@ -321,8 +321,9 @@ defmodule UcxChat.FlexBarService do
     show_admin = opts[:admin] || false
     direct = opts[:direct] || false
     user_mode = opts[:user_mode] || false
+    view_mode = opts[:view_mode] || false
 
-    %{direct?: direct, show_admin?: show_admin, blocked?: channel.blocked, user_mode?: user_mode}
+    %{direct: direct, show_admin: show_admin, blocked: channel.blocked, user_mode: user_mode, view_mode: view_mode}
   end
 
   def default_settings do

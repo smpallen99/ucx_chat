@@ -1,11 +1,11 @@
 - Logger.warn "template @channel_id: #{inspect @channel_id}, user_id: #{@user.id}, current_user_id: #{@current_user.id}"
-- unless @current_user.id == @user.id or @user_info[:direct?] do
+- unless @current_user.id == @user.id or @user_info[:direct] do
   %button.button.button-block.primary.pvt-msg
     %span
       %i.icon-chat
       Conversation
-- if @user_info[:direct?] do
-  - if @user_info[:blocked?] do
+- if @user_info[:direct] do
+  - if @user_info[:blocked] do
     %button.button.button-block.tertiary.unblock-user
       %span unblock user
   - else
@@ -37,7 +37,7 @@
   - if has_permission? @current_user, "remove-user", @channel_id do
     %button.button.button-block.danger.remove-user
       %span Remove from room
-  - if @user_info[:view_mode?] do
+  - if @user_info[:view_mode] do
     %button.button.back
       %span
         View All

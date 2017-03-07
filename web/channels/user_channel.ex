@@ -76,27 +76,27 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_in("flex:open:" <> tab = ev, params, socket) do
-    debug ev, params, "assigns: #{inspect socket.assigns}"
+    warn ev, params, "assigns: #{inspect socket.assigns}"
     {:noreply, toggle_flex(socket, tab, params)}
   end
   def handle_in("flex:item:open:" <> tab = ev, params, socket) do
-    debug ev, params, "assigns: #{inspect socket.assigns}"
+    warn ev, params, "assigns: #{inspect socket.assigns}"
     {:noreply, open_flex_item(socket, tab, params)}
   end
 
   def handle_in("flex:close" = ev, params, socket) do
-    debug ev, params
+    warn ev, params
     {:noreply, socket}
   end
 
   def handle_in("flex:view_all:" <> tab = ev, params, %{assigns: assigns} = socket) do
-    debug ev, params
+    warn ev, params
     fl = assigns[:flex] |> Flex.view_all(assigns[:channel_id], tab)
     {:noreply, assign(socket, :flex, fl)}
   end
 
   def handle_in("side_nav:open" = ev, %{"page" => "account"} = params, socket) do
-    debug ev, params
+    warn ev, params
 
     user = Helpers.get_user!(socket)
     account_cs = Account.changeset(user.account, %{})
@@ -217,14 +217,14 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_info(%Broadcast{topic: _, event: "room:update:name" = event, payload: payload}, socket) do
-    debug event, payload
+    warn event, payload
     push socket, event, payload
     socket.endpoint.unsubscribe(CC.chan_room <> payload[:old_name])
     {:noreply, assign(socket, :subscribed, [payload[:new_name] | List.delete(socket.assigns[:subscribed], payload[:old_name])])}
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "owner"} = payload}, %{assigns: assigns} = socket) do
-    debug event, payload
+    warn event, payload
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
     if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
@@ -258,7 +258,7 @@ defmodule UcxChat.UserChannel do
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload:
       %{action: action} = payload}, %{assigns: assigns} = socket) when action in ~w(mute moderator owner) do
-    debug event, payload
+    warn event, payload
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
     if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
@@ -325,19 +325,20 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_info({:flex, :open, ch, tab, nil, params} = msg, socket) do
-    debug inspect(msg), ""
+    warn inspect(msg), "nil"
     resp = FlexBarService.handle_flex_callback(:open, ch, tab, nil, socket, params)
     push socket, "flex:open", Enum.into([title: tab], resp)
     {:noreply, socket}
   end
   def handle_info({:flex, :open, ch, tab, args, params} = msg, socket) do
-    debug inspect(msg), ""
+    warn inspect(msg), "args"
     resp = FlexBarService.handle_flex_callback(:open, ch, tab, args[tab], socket, params)
+    warn "resp: #{inspect resp}", ""
     push socket, "flex:open", Enum.into([title: tab], resp)
     {:noreply, socket}
   end
   def handle_info({:flex, :close, _ch, _tab, _, _params} = msg, socket) do
-    debug inspect(msg), ""
+    warn inspect(msg), ""
     push socket, "flex:close", %{}
     {:noreply, socket}
   end
@@ -380,8 +381,4 @@ defmodule UcxChat.UserChannel do
     socket
   end
 
-  # def broadcast_message_box(socket, channel_id, user_id) do
-  #   html = MessageService.render_message_box(channel_id, user_id)
-  #   push socket, "code:update", %{html: html, selector: ".room-container footer.footer", action: "html"}
-  # end
 end

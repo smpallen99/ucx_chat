@@ -1,4 +1,4 @@
-- hidden = hidden_on_nil(@user_info[:user_mode?], "animated-")
+- hidden = hidden_on_nil(@user_info[:user_mode], "animated-")
 - # Logger.warn "@user_mode: #{inspect @user_mode}, hidden?: #{inspect hidden}"
 %div(class="user-view animated #{hidden}" data-username="#{@user.username}")
   .about.clearfix
