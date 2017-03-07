@@ -1,6 +1,6 @@
 defmodule UcxChat.AdminService do
   use UcxChat.Web, :service
-  alias UcxChat.{Message, Channel, User}
+  alias UcxChat.{Message, Channel, User, UserService}
   require Logger
 
   alias UcxChat.{Permission, Role, AdminView, Config}
@@ -115,8 +115,8 @@ defmodule UcxChat.AdminService do
   #   [user: user, changeset: cs]
   # end
   defp get_args("info", user) do
-    total = User.total_count() |> Repo.one
-    online = Agent.get(Coherence.CredentialStore.Agent, &(&1)) |> Map.keys |> length
+    total = UserService.total_users_count()
+    online = UserService.online_users_count()
 
     usage = [
       %{title: ~g"Total Users", value: total},

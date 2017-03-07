@@ -3,8 +3,9 @@ defmodule UcxChat.FlexBarView do
   # import Phoenix.HTML.Tag, only: [content_tag: 3, content_tag: 2]
 
   # "Showing: <b>1<b>, Online: 1, Total: 1 users"
-  def get_users_list_stats(users) do
-    showing = online = total = length(users)
+  def get_users_list_stats(users, user_info) do
+    total = user_info.total_count
+    showing = online = length(users)
     Phoenix.HTML.Tag.content_tag :span do
       [
         "Showing: ",

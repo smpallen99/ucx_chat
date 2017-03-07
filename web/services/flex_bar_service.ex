@@ -222,7 +222,12 @@ defmodule UcxChat.FlexBarService do
       |> Enum.map(fn user ->
         struct(user, status: UcxChat.PresenceAgent.get(user))
       end)
-    user_info = user_info channel, user_mode: user_mode, view_mode: true
+    total_count = length users
+    users =
+      users
+      |> Enum.reject(&(&1.status == "offline"))
+    user_info = user_info(channel, user_mode: user_mode, view_mode: true)
+    |> Map.put(:total_count, total_count)
     [users: users, user: user, user_info: user_info, channel_id: channel_id, current_user: current_user]
   end
 
