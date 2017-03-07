@@ -14,7 +14,7 @@ defmodule UcxChat.UserChannel do
   require Logger
 
   def join_room(user_id, room) do
-    Logger.warn ("...join_room user_id: #{inspect user_id}")
+    # Logger.debug ("...join_room user_id: #{inspect user_id}")
     UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "room:join", %{room: room, user_id: user_id})
   end
 
@@ -22,8 +22,6 @@ defmodule UcxChat.UserChannel do
     UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "room:leave", %{room: room, user_id: user_id})
   end
 
-  # intercept ~w(room:join room:leave)
-  # intercept ["room:join", "room:leave", "user:update"]
   intercept ["room:join", "room:leave"]
 
   def join(CC.chan_user() <>  user_id, params, socket) do
@@ -48,59 +46,53 @@ defmodule UcxChat.UserChannel do
 
   def handle_out("room:join" = ev, msg, socket) do
     %{room: room} = msg
-    warn ev, msg, "assigns: #{inspect socket.assigns}"
+    debug ev, msg, "assigns: #{inspect socket.assigns}"
     UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     update_rooms_list(socket)
     {:noreply, subscribe([room], socket)}
   end
   def handle_out("room:leave" = ev, msg, socket) do
     %{room: room} = msg
-    warn ev, msg, "assigns: #{inspect socket.assigns}"
+    debug ev, msg, "assigns: #{inspect socket.assigns}"
     UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     socket.endpoint.unsubscribe(CC.chan_room <> room)
     update_rooms_list(socket)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
   end
 
-  # def handle_out(ev <> "user:update", msg, socket) do
-  #   Logger.warn "user_channel: ev: #{inspect ev}, msg: #{inspect msg}"
-  #   {:noreply, socket}
-  # end
-
   ###############
   # Incoming Messages
 
   def handle_in("subscribe" = ev, params, socket) do
-    warn ev, params, "assigns: #{inspect socket.assigns}"
+    debug ev, params, "assigns: #{inspect socket.assigns}"
     {:noreply, socket}
   end
 
   def handle_in("flex:open:" <> tab = ev, params, socket) do
-    warn ev, params, "assigns: #{inspect socket.assigns}"
+    debug ev, params, "assigns: #{inspect socket.assigns}"
     {:noreply, toggle_flex(socket, tab, params)}
   end
   def handle_in("flex:item:open:" <> tab = ev, params, socket) do
-    warn ev, params, "assigns: #{inspect socket.assigns}"
+    debug ev, params, "assigns: #{inspect socket.assigns}"
     {:noreply, open_flex_item(socket, tab, params)}
   end
 
   def handle_in("flex:close" = ev, params, socket) do
-    warn ev, params
+    debug ev, params
     {:noreply, socket}
   end
 
   def handle_in("flex:view_all:" <> tab = ev, params, %{assigns: assigns} = socket) do
-    warn ev, params
+    debug ev, params
     fl = assigns[:flex] |> Flex.view_all(assigns[:channel_id], tab)
     {:noreply, assign(socket, :flex, fl)}
   end
 
   def handle_in("side_nav:open" = ev, %{"page" => "account"} = params, socket) do
-    warn ev, params
+    debug ev, params
 
     user = Helpers.get_user!(socket)
     account_cs = Account.changeset(user.account, %{})
-    #  $('.main-content').html(resp.html)
     html = Helpers.render(AccountView, "account_preferences.html", user: user, account_changeset: account_cs)
     push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
 
@@ -126,7 +118,7 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_in("account:preferences:save" = ev, params, socket) do
-    warn ev, params, "assigns: #{inspect socket.assigns}"
+    debug ev, params, "assigns: #{inspect socket.assigns}"
     params =
       params
       |> Helpers.normalize_form_params
@@ -166,12 +158,6 @@ defmodule UcxChat.UserChannel do
       |> Repo.update
       |> case do
         {:ok, _} ->
-          # channel = Helpers.get!(Channel, socket.assigns[:channel_id])
-          # chatd = ChatDat.new user, channel, []
-          # html =
-          #   "rooms_list.html"
-          #   |> UcxChat.SideNavView.render(chatd: chatd)
-          #   |> Phoenix.HTML.safe_to_string
           push socket, "window:reload", %{}
           {:ok, %{}}
         {:error, _} ->
@@ -191,7 +177,6 @@ defmodule UcxChat.UserChannel do
 
   def handle_in(ev = "admin:" <> link, params, socket) do
     debug ev, params
-    # user = Helpers.get_user! socket
     AdminService.handle_in(link, params, socket)
   end
 
@@ -210,63 +195,52 @@ defmodule UcxChat.UserChannel do
   # Info messages
 
   def handle_info(:after_join, socket) do
-    warn "after_join", socket.assigns
-    # list = Presence.list(socket)
-    # Logger.warn "after join presence list: #{inspect list}"
-    # push socket, "presence_state", list
-    # {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
-    #   online_at: inspect(System.system_time(:seconds))
-    # })
+    debug "after_join", socket.assigns
     {:noreply, socket}
   end
 
   def handle_info(%Broadcast{topic: _, event: "room:update:name" = event, payload: payload}, socket) do
-    warn event, payload
+    debug event, payload
     push socket, event, payload
-    socket.endpoint.unsubscribe(CC.chan_room <> payload[:old_name])
+    socket.enkdpoint.unsubscribe(CC.chan_room <> payload[:old_name])
     {:noreply, assign(socket, :subscribed, [payload[:new_name] | List.delete(socket.assigns[:subscribed], payload[:old_name])])}
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "owner"} = payload}, %{assigns: assigns} = socket) do
-    warn event, payload
+    debug event, payload
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
     if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
-      # warn event, payload, "open"
       html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user)
-      # html2 = Helpers.render(FlexBarView, "users_list_item.html", channel_id: assigns.channel_id, user: user)
       push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
-      # push socket, "code:update", %{html: html2, selector: ~s(.user-card-room[data-status-name="#{user.username}"), action: "html"}
-    else
-      # warn event, payload, "closed"
     end
     {:noreply, socket}
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload:
       %{action: action} = payload}, %{assigns: assigns} = socket) when action in ~w(block) do
-    warn event, payload, "assigns: #{inspect assigns}"
+    debug event, payload, "assigns: #{inspect assigns}"
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
     channel = Helpers.get!(Channel, assigns.channel_id)
     if Flex.open? assigns.flex, assigns.channel_id, "User Info" do
-      # warn event, payload, action <> " open"
+      # debug event, payload, action <> " open"
       user_info = FlexBarService.user_info channel, direct: true
       html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user, user_info: user_info)
       push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
     else
-      # warn event, payload, "closed"
+      # debug event, payload, "closed"
     end
     {:noreply, socket}
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload:
       %{action: action} = payload}, %{assigns: assigns} = socket) when action in ~w(mute moderator owner) do
-    warn event, payload
+    debug event, payload
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
     if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
-      # warn event, payload, action <> " open"
+      # debug event, payload, action <> " open"
       html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user)
       push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
 
@@ -275,44 +249,34 @@ defmodule UcxChat.UserChannel do
         push socket, "code:update", %{html: html2, selector: ~s(.user-card-room[data-status-name="#{user.username}"]), action: "html"}
       end
     else
-      # warn event, payload, "closed"
+      # debug event, payload, "closed"
     end
     {:noreply, socket}
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "removed"} = payload}, %{assigns: assigns} = socket) do
-    warn event, payload, "assigns: #{inspect assigns}"
+    debug event, payload, "assigns: #{inspect assigns}"
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
     if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
-      warn event, payload, "removed open"
+      debug event, payload, "removed open"
 
       push socket, "code:update", %{selector: ~s(.user-card-room[data-status-name='#{user.username}']), action: "remove"}
       push socket, "code:update", %{selector: ".flex-tab-container .user-view", action: "addClass", html: "animated-hidden"}
     else
-      warn event, payload, "closed"
+      debug event, payload, "closed"
     end
     {:noreply, socket}
   end
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "unhide"} = payload}, %{assigns: assigns} = socket) do
-    warn event, payload, "assigns: #{inspect assigns}"
-    # current_user = Helpers.get_user! assigns.user_id
-    # user = Helpers.get_user! payload.user_id
+    debug event, payload, "assigns: #{inspect assigns}"
 
     UserSocket.push_rooms_list_update(socket, payload.channel_id, payload.user_id)
 
-    # if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
-    #   warn event, payload, "removed open"
-
-    #   push socket, "code:update", %{selector: ~s(.user-card-room[data-status-name='#{user.username}']), action: "remove"}
-    #   push socket, "code:update", %{selector: ".flex-tab-container .user-view", action: "addClass", html: "animated-hidden"}
-    # else
-    #   warn event, payload, "closed"
-    # end
     {:noreply, socket}
   end
   def handle_info(%Broadcast{topic: _, event: "user:entered" = event, payload: %{user: user} = payload}, %{assigns: %{user: user} = assigns} = socket) do
-    warn event, payload, "assigns: #{inspect assigns}"
+    debug event, payload, "assigns: #{inspect assigns}"
     old_channel_id = assigns[:channel_id]
     channel_id = payload[:channel_id]
     socket = %{assigns: assigns} = assign(socket, :channel_id, channel_id)
@@ -329,20 +293,20 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_info({:flex, :open, ch, tab, nil, params} = msg, socket) do
-    warn inspect(msg), "nil"
+    debug inspect(msg), "nil"
     resp = FlexBarService.handle_flex_callback(:open, ch, tab, nil, socket, params)
     push socket, "flex:open", Enum.into([title: tab], resp)
     {:noreply, socket}
   end
   def handle_info({:flex, :open, ch, tab, args, params} = msg, socket) do
-    warn inspect(msg), "args"
+    debug inspect(msg), "args"
     resp = FlexBarService.handle_flex_callback(:open, ch, tab, args[tab], socket, params)
-    warn "resp: #{inspect resp}", ""
+    debug "resp: #{inspect resp}", ""
     push socket, "flex:open", Enum.into([title: tab], resp)
     {:noreply, socket}
   end
   def handle_info({:flex, :close, _ch, _tab, _, _params} = msg, socket) do
-    warn inspect(msg), ""
+    debug inspect(msg), ""
     push socket, "flex:close", %{}
     {:noreply, socket}
   end
