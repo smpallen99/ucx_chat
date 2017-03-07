@@ -46,8 +46,8 @@ defmodule UcxChat.RoomChannelController do
   #   end
   #   {:reply, resp, socket}
   # end
-  @commands ~w(mute-user unmute-user set-moderator unset-moderator set-owner unset-owner remove-user)
-  @command_list Enum.zip(@commands, ~w(mute unmute set_moderator unset_moderator set_owner unset_owner remove_user)a) |> Enum.into(%{})
+  @commands ~w(mute-user unmute-user set-moderator unset-moderator set-owner unset-owner remove-user block-user unblock-user)
+  @command_list Enum.zip(@commands, ~w(mute unmute set_moderator unset_moderator set_owner unset_owner remove_user block_user unblock_user)a) |> Enum.into(%{})
   @messages [
     nil,
     "User unmuted in Room",
@@ -55,7 +55,9 @@ defmodule UcxChat.RoomChannelController do
     "User %%user%% remove from %%room%% moderators",
     "User %%user%% is now an owner of %%room%%",
     "User %%user%% removed from %%room%% owners",
-    nil
+    nil,
+    "User is blocked",
+    "User is unblocked",
   ]
   @message_list Enum.zip(@commands, @messages) |> Enum.into(%{})
 
@@ -70,6 +72,27 @@ defmodule UcxChat.RoomChannelController do
           message = message |> String.replace("%%user%%", user.username) |> String.replace("%%room%%", socket.assigns.room)
           Phoenix.Channel.push socket, "toastr:success", %{message: message}
         end
+        {:ok, %{}}
+      {:error, error} ->
+        {:error, %{error: error}}
+    end
+    {:reply, resp, socket}
+  end
+
+  @commands ~w(join)
+  @command_list Enum.zip(@commands, ~w(join)a) |> Enum.into(%{})
+
+  def command(socket, %{"command" => command, "username" => username}) when command in @commands do
+    Logger.warn "RoomChannelController: item: #{inspect @command_list[command]}, command: #{command}, username: #{inspect username}, socket: #{inspect socket}"
+    user = Helpers.get_by! User, :username, username
+
+    # resp = case ChannelService.user_command(:unmute, user, socket.assigns.user_id, socket.assigns.channel_id) do
+    resp = case ChannelService.channel_command(socket, @command_list[command], socket.assigns.room, socket.assigns.user_id, socket.assigns.channel_id) do
+      {:ok, _msg} ->
+        # if message = @message_list[command] do
+        #   message = message |> String.replace("%%user%%", user.username) |> String.replace("%%room%%", socket.assigns.room)
+        #   Phoenix.Channel.push socket, "toastr:success", %{message: message}
+        # end
         {:ok, %{}}
       {:error, error} ->
         {:error, %{error: error}}

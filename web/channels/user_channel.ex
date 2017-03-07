@@ -6,8 +6,8 @@ defmodule UcxChat.UserChannel do
   import Ecto.Query
 
   alias Phoenix.Socket.Broadcast
-  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService}
-  alias UcxChat.{AccountView, Account, AdminService, User, FlexBarView}
+  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel}
+  alias UcxChat.{AccountView, Account, AdminService, User, FlexBarView, MessageService, UserSocket}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -48,13 +48,15 @@ defmodule UcxChat.UserChannel do
 
   def handle_out("room:join" = ev, msg, socket) do
     %{room: room} = msg
-    debug ev, msg
+    warn ev, msg, "assigns: #{inspect socket.assigns}"
+    UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     update_rooms_list(socket)
     {:noreply, subscribe([room], socket)}
   end
   def handle_out("room:leave" = ev, msg, socket) do
     %{room: room} = msg
-    debug ev, msg
+    warn ev, msg, "assigns: #{inspect socket.assigns}"
+    UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     socket.endpoint.unsubscribe(CC.chan_room <> room)
     update_rooms_list(socket)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
@@ -69,7 +71,7 @@ defmodule UcxChat.UserChannel do
   # Incoming Messages
 
   def handle_in("subscribe" = ev, params, socket) do
-    debug ev, params
+    warn ev, params, "assigns: #{inspect socket.assigns}"
     {:noreply, socket}
   end
 
@@ -124,7 +126,7 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_in("account:preferences:save" = ev, params, socket) do
-    debug ev, params
+    warn ev, params, "assigns: #{inspect socket.assigns}"
     params =
       params
       |> Helpers.normalize_form_params
@@ -204,6 +206,7 @@ defmodule UcxChat.UserChannel do
   # Info messages
 
   def handle_info(:after_join, socket) do
+    warn "after_join", socket.assigns
     # list = Presence.list(socket)
     # Logger.warn "after join presence list: #{inspect list}"
     # push socket, "presence_state", list
@@ -237,6 +240,23 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload:
+      %{action: action} = payload}, %{assigns: assigns} = socket) when action in ~w(block) do
+    warn event, payload, "assigns: #{inspect assigns}"
+    current_user = Helpers.get_user! assigns.user_id
+    user = Helpers.get_user! payload.user_id
+    channel = Helpers.get!(Channel, assigns.channel_id)
+    if Flex.open? assigns.flex, assigns.channel_id, "User Info" do
+      # warn event, payload, action <> " open"
+      user_info = FlexBarService.user_info channel, direct: true
+      html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user, user_info: user_info)
+      push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
+    else
+      # warn event, payload, "closed"
+    end
+    {:noreply, socket}
+  end
+
+  def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload:
       %{action: action} = payload}, %{assigns: assigns} = socket) when action in ~w(mute moderator owner) do
     debug event, payload
     current_user = Helpers.get_user! assigns.user_id
@@ -257,7 +277,7 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "removed"} = payload}, %{assigns: assigns} = socket) do
-    warn event, payload
+    warn event, payload, "assigns: #{inspect assigns}"
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
     if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
@@ -271,7 +291,7 @@ defmodule UcxChat.UserChannel do
     {:noreply, socket}
   end
   def handle_info(%Broadcast{topic: _, event: "user:entered" = event, payload: payload}, %{assigns: assigns} = socket) do
-    debug event, payload
+    warn event, payload
     old_channel_id = assigns[:channel_id]
     channel_id = payload[:channel_id]
     socket = %{assigns: assigns} = assign(socket, :channel_id, channel_id)
@@ -343,4 +363,8 @@ defmodule UcxChat.UserChannel do
     socket
   end
 
+  # def broadcast_message_box(socket, channel_id, user_id) do
+  #   html = MessageService.render_message_box(channel_id, user_id)
+  #   push socket, "code:update", %{html: html, selector: ".room-container footer.footer", action: "html"}
+  # end
 end

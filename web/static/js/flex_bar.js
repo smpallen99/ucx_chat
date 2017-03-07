@@ -17,7 +17,7 @@ const default_settings = {
   "Rooms Mode": {},
   "Info": { args: {templ: "channel_settings.html"} },
   "Search": {},
-  "User Info": {},
+  "User Info": { args: {templ: "user_card.html"}},
   "Members List": {
     args: {templ: "users_list.html"},
     show: {

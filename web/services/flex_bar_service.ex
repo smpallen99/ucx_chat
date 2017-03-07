@@ -1,7 +1,8 @@
 defmodule UcxChat.FlexBarService do
   import Ecto.Query
 
-  alias UcxChat.{Repo, FlexBarView, User, Mention, StaredMessage, PinnedMessage, UserAgent, Permission}
+  alias UcxChat.{Repo, FlexBarView, User, Mention, StaredMessage, PinnedMessage,
+    UserAgent, Permission, Direct}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -144,6 +145,20 @@ defmodule UcxChat.FlexBarService do
     end
   end
 
+  # def handle_click("User Info" = event, %{"user_id" => user_id, "channel_id" => channel_id} = msg) do
+  #   log_click event, msg
+  #   handle_open_close event, msg, fn  msg ->
+  #     args = get_render_args("Pinned Messages", user_id, channel_id, msg["message_id"])
+
+  #     html = FlexBarView.render(msg["templ"], args)
+  #     |> Phoenix.HTML.safe_to_string
+
+  #     UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
+
+  #     %{html: html}
+  #   end
+  # end
+
   def handle_open_close(event, msg, fun) do
     case UserAgent.get_ftab(msg["user_id"], msg["channel_id"]) do
       %{title: ^event} ->
@@ -180,6 +195,18 @@ defmodule UcxChat.FlexBarService do
     [channel: settings_form_fields(channel, user_id)]
   end
 
+  def get_render_args("User Info", user_id, channel_id, _, _)  do
+    current_user = Helpers.get_user! user_id
+    channel = Helpers.get_channel(channel_id)
+    direct = (from d in Direct,
+      where: d.user_id == ^user_id and d.channel_id == ^(channel.id))
+    |> Repo.one
+
+    user = Helpers.get_user_by_name(direct.users, [:roles, :account])
+    user_info = user_info(channel, direct: true)
+    [user: user, current_user: current_user, channel_id: channel_id, user_info: user_info]
+  end
+
   def get_render_args("Members List", user_id, channel_id, _message_id, opts) do
     current_user = Helpers.get_user!(user_id)
     channel = Helpers.get_channel(channel_id, [users: :roles])
@@ -195,8 +222,8 @@ defmodule UcxChat.FlexBarService do
       |> Enum.map(fn user ->
         struct(user, status: UcxChat.PresenceAgent.get(user))
       end)
-
-    [users: users, user: user, user_mode: user_mode, channel_id: channel_id, current_user: current_user]
+    user_info = user_info channel, user_mode: user_mode
+    [users: users, user: user, user_info: user_info, channel_id: channel_id, current_user: current_user]
   end
 
   def get_render_args("Switch User", _, _, _, _) do
@@ -290,13 +317,21 @@ defmodule UcxChat.FlexBarService do
     [pinned: pinned]
   end
 
+  def user_info(channel, opts \\ []) do
+    show_admin = opts[:admin] || false
+    direct = opts[:direct] || false
+    user_mode = opts[:user_mode] || false
+
+    %{direct?: direct, show_admin?: show_admin, blocked?: channel.blocked, user_mode?: user_mode}
+  end
+
   def default_settings do
     %{
       "IM Mode": %{},
       "Rooms Mode": %{},
       "Info": %{templ: "channel_settings.html", args: %{} },
       "Search": %{},
-      "User Info": %{},
+      "User Info": %{templ: "user_card.html", args: %{}},
       "Members List": %{
         templ: "users_list.html",
         args: %{},

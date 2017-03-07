@@ -145,6 +145,26 @@ class RoomManager {
           toastr.error(resp.error)
         })
     })
+    $('body').on('click', 'button.unblock-user', function(e) {
+      let username = $(this).parent().attr('data-username')
+      e.preventDefault()
+      cc.put("/room/unblock-user/" + username)
+        .receive("ok", resp => {
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
+    })
+    $('body').on('click', 'button.block-user', function(e) {
+      let username = $(this).parent().attr('data-username')
+      e.preventDefault()
+      cc.put("/room/block-user/" + username)
+        .receive("ok", resp => {
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
+    })
     $('body').on('click', 'button.mute-user', function(e) {
       let username = $(this).parent().attr('data-username')
       e.preventDefault()
@@ -200,6 +220,15 @@ class RoomManager {
             toastr.error(resp.error)
           })
       });
+    })
+    $('body').on('click', 'button.join', function(e) {
+      cc.put("/room/join/" + ucxchat.username)
+        .receive("ok", resp => {
+
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
     })
   }
 }

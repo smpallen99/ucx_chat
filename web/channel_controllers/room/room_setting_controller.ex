@@ -59,6 +59,11 @@ defmodule UcxChat.RoomSettingChannelController do
 
         broadcast! socket, "room:update", %{field_name: params["field_name"], value: params["value"]}
 
+        if params["field_name"] in ~w(private read_only archived) do
+          # Logger.warn "------------------ assigns: #{inspect socket.assigns}"
+          broadcast! socket, "room:state_change", %{change: params["field_name"], channel_id: socket.assigns.channel_id}
+        end
+
         {:reply, {:ok, %{html: html}}, socket}
 
       {:error, cs} ->

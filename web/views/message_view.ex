@@ -1,8 +1,9 @@
 defmodule UcxChat.MessageView do
   use UcxChat.Web, :view
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3, tag: 1]
+  import Ecto.Query, except: [select: 3]
 
-  alias UcxChat.Message
+  alias UcxChat.{Message, Subscription, Repo}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -127,19 +128,52 @@ defmodule UcxChat.MessageView do
   def get_info_class(%{system: _}), do: "color-info-font-color"
   def get_info_class(_), do: ""
 
-  def get_mb do
+  def get_mb(chatd) do
+    defaults =
+      [:blocked?, :read_only?, :archived?, :allowed_to_send?, :subscribed?, :can_join?]
+      |> Enum.map(&({&1, false}))
+      |> Enum.into(%{})
+
+    channel = chatd.channel
+    private = channel.type != 0
+
+    subscribed =
+      Subscription
+      |> where([s], s.channel_id == ^(chatd.channel.id) and s.user_id == ^(chatd.user.id))
+      |> Repo.all
+      |> case do
+        [] -> false
+        _ -> true
+      end
+    blocked = channel.blocked
+    read_only = channel.read_only
+    archived = channel.archived
+    can_join = !(private or read_only or blocked or archived)
+
+    settings =
+      [
+        blocked?: blocked, read_only?: read_only, archived?: archived,
+        allowed_to_send?: !(blocked or read_only or archived),
+        can_join?: can_join, subscribed?: subscribed,
+      ]
+      |> Enum.into(defaults)
+
     config = UcxChat.Repo.one(UcxChat.Config)
-    settings = %{
-      max_message_length: Settings.max_allowed_message_size(config),
-      show_formatting_tips: Settings.show_formatting_tips(config)
-    }
+
+    settings =
+      [
+        max_message_length: Settings.max_allowed_message_size(config),
+        show_formatting_tips?: Settings.show_formatting_tips(config),
+
+      ]
+      |> Enum.into(settings)
+
     if Application.get_env :ucx_chat, :defer, true do
-      [:subscribed, :allowed_to_send, :katex_syntax, :is_blocked_or_blocker,
-       :allowed_to_send, :show_mark_down, :show_markdown_code, :show_markdown]
+      [:katex_syntax?, :show_mark_down?, :show_markdown_code?, :show_markdown?]
     else
-      [:subscribed, :allowed_to_send, :show_file_upload, :katex_syntax,
-       :show_sandstorm, :show_location, :show_mic, :show_v_rec, :is_blocked_or_blocker,
-       :allowed_to_send, :show_mark_down, :show_markdown_code, :show_markdown]
+      [:show_file_upload?, :katex_syntax?,
+       :show_sandstorm?, :show_location?, :show_mic?, :show_v_rec?,
+       :show_mark_down?, :show_markdown_code?, :show_markdown?]
     end
     |> Enum.map(&({&1, true}))
     |> Enum.into(settings)
@@ -150,7 +184,7 @@ defmodule UcxChat.MessageView do
     # - if nst[:join_code_required] do
   end
 
-  def show_formatting_tips(%{show_formatting_tips: true} = mb) do
+  def show_formatting_tips(%{show_formatting_tips?: true} = mb) do
     content_tag :div, class: "formatting-tips", "aria-hidden": "true", dir: "auto" do
       [
         show_markdown1(mb),
@@ -162,7 +196,7 @@ defmodule UcxChat.MessageView do
   end
   def show_formatting_tips(_), do: ""
 
-  def show_katax_syntax(%{katex_syntax: true}) do
+  def show_katax_syntax(%{katex_syntax?: true}) do
     content_tag :span do
       content_tag :a, href: "https://github.com/Khan/KaTeX/wiki/Function-Support-in-KaTeX", target: "_blank" do
         "\[KaTex\]"
@@ -171,7 +205,7 @@ defmodule UcxChat.MessageView do
   end
   def show_katax_syntax(_), do: []
 
-  def show_markdown1(%{show_mark_down: true}) do
+  def show_markdown1(%{show_mark_down?: true}) do
     [
       content_tag(:b, "*bold*"),
       content_tag(:i, "_italics_"),
@@ -180,14 +214,14 @@ defmodule UcxChat.MessageView do
   end
   def show_markdown1(_), do: []
 
-  def show_markdown2(%{show_mark_down: true}) do
+  def show_markdown2(%{show_mark_down?: true}) do
     content_tag :q do
       [ hidden_br(), ">quote" ]
     end
   end
   def show_markdown2(_), do: []
 
-  def show_markdown_code(%{show_markdown_code: true}) do
+  def show_markdown_code(%{show_markdown_code?: true}) do
     [
       content_tag(:code, [class: "code-colors inline"], do: "`inline_code`"),
       show_markdown_code1()

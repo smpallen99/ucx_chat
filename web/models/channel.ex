@@ -50,6 +50,14 @@ defmodule UcxChat.Channel do
     do_changeset(struct, user, %{field => value})
   end
 
+  def blocked_changeset(struct, blocked) when blocked in [true, false] do
+    struct
+    |> cast(%{blocked: blocked}, @fields)
+    |> validate_required([:name, :user_id])
+    |> validate_format(:name, ~r/^[a-z0-9\.\-_]+$/i)
+    |> validate_length(:name, min: 2, max: 25)
+  end
+
   def validate_permission(%{changes: changes, data: data} = changeset, user) do
     Logger.warn "validate_permission: changeset: #{inspect changeset}, type: #{inspect changeset.data.type}"
     changeset

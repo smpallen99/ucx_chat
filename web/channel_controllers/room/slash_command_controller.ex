@@ -98,7 +98,8 @@ defmodule UcxChat.SlashCommandChannelController do
   end
   def handle_channel_command(socket, command, args, user_id, channel_id) do
     Logger.warn ".......... #{inspect command}"
-    with "#" <> name <- String.trim(args),
+    with name <- String.trim(args),
+         name <- String.replace(name, ~r/^#/, ""),
          true <- String.match?(name, ~r/[a-z0-9\.\-_]/i) do
       resp = case ChannelService.channel_command(socket, command, name, user_id, channel_id) do
         {:ok, _} ->

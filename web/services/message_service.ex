@@ -1,6 +1,7 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
-  alias UcxChat.{Message, Repo, TypingAgent, User, Mention, Subscription, Settings}
+  alias UcxChat.{Message, Repo, TypingAgent, User, Mention, Subscription,
+          Settings, MessageView, ChatDat, Channel}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -185,5 +186,13 @@ defmodule UcxChat.MessageService do
 
   defp notify_mention(_mention) do
     # have to figure out if we need to have another socket for this?
+  end
+
+  def render_message_box(channel_id, user_id) do
+    user = Helpers.get_user! user_id
+    channel = Helpers.get!(Channel, channel_id)
+    chatd = ChatDat.new(user, channel)
+    MessageView.render("message_box.html", chatd: chatd, mb: MessageView.get_mb(chatd))
+    |> Phoenix.HTML.safe_to_string
   end
 end

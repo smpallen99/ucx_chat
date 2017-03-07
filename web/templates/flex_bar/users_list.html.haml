@@ -14,7 +14,4 @@
     %ul.list.clearfix.lines
       - for user <- @users do
         = render "users_list_item.html", user: user, channel_id: @channel_id
-  - hidden = hidden_on_nil(@user_mode, "animated-")
-  - # Logger.warn "@user_mode: #{inspect @user_mode}, hidden?: #{inspect hidden}"
-  %div(class="user-view animated #{hidden}" data-username="#{@user.username}")
-    = render "user_card.html", user: @user, channel_id: @channel_id, current_user: @current_user, mode: :members_list
+  = render "user_card.html", user_info: @user_info, user: @user, channel_id: @channel_id, current_user: @current_user

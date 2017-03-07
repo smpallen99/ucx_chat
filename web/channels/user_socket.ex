@@ -1,6 +1,6 @@
 defmodule UcxChat.UserSocket do
   use Phoenix.Socket
-  alias UcxChat.{User, Repo}
+  alias UcxChat.{User, Repo, MessageService}
   require UcxChat.ChatConstants, as: CC
 
   require Logger
@@ -54,4 +54,9 @@ defmodule UcxChat.UserSocket do
   #
   # Returning `nil` makes this socket anonymous.
   def id(socket), do: "users_socket:#{socket.assigns.user_id}"
+
+  def push_message_box(socket, channel_id, user_id) do
+    html = MessageService.render_message_box(channel_id, user_id)
+    Phoenix.Channel.push socket, "code:update", %{html: html, selector: ".room-container footer.footer", action: "html"}
+  end
 end

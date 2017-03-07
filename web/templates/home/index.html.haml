@@ -1,0 +1,26 @@
+#user-card-popover
+#ucx-chat.menu-nav
+  .connection-status.status-online
+    = # connection status
+  .main-content.content-background-color(style="transform: translateX(0px);")
+    = #{{#if modal}}main-modal{{/if}}">
+    %section.page-container.page-home.page-static.content-background-color
+      %header.fixed-title.content-background-color.border-component-color
+        .burger
+          %i
+          %i
+          %i
+        %h2
+          .room-title= UcxChat.Settings.content_home_title()
+      .content= raw UcxChat.Settings.content_home_body()
+
+  %div.main-content-cache.hidden
+  = render UcxChat.SideNavView, "show.html", conn: @conn, chatd: @chatd
+.sweet-container
+  =# render "sweet.html"
+:javascript
+  window.user_token = '<%= Coherence.user_token(@conn) %>'
+  window.ucxchat = {room_route: '<%= @chatd.room_route %>', room: 'lobby', channel_id: undefined,
+    username: '<%= @chatd.user.username %>',user_id: <%= @chatd.user.id %>, display_name: ""};
+
+  let myPanel = $('.page-container')

@@ -8,7 +8,7 @@ defmodule UcxChat.RoomChannel do
   import Ecto.Query
 
   alias UcxChat.{Subscription, Repo, Channel, Message}
-  alias UcxChat.{ServiceHelpers, Permission}
+  alias UcxChat.{ServiceHelpers, Permission, UserSocket}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require UcxChat.ChatConstants, as: CC
@@ -17,7 +17,7 @@ defmodule UcxChat.RoomChannel do
   ############
   # API
   # intercept ["lobby:room:update:name"]
-  intercept ["user:action"]
+  intercept ["user:action", "room:state_change"]
 
   def user_join(nil), do: Logger.warn "join for nil username"
   def user_join(username, room) do
@@ -56,6 +56,16 @@ defmodule UcxChat.RoomChannel do
 
   ##########
   # Outgoing message handlers
+
+  def handle_out(ev = "room:state_change", msg, %{assigns: assigns} = socket) do
+    warn ev, msg, "assigns: #{inspect assigns}"
+    channel_id = assigns[:channel_id] || msg[:channel_id]
+    if channel_id do
+      UserSocket.push_message_box(socket, channel_id, assigns.user_id)
+    end
+
+    {:noreply, socket}
+  end
 
   def handle_out(ev = "user:action", msg, socket) do
     warn ev, msg

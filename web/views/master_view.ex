@@ -67,7 +67,7 @@ defmodule UcxChat.MasterView do
   def has_more_next, do: false
 
   def loading, do: ""
-  def get_mb, do: UcxChat.MessageView.get_mb
+  def get_mb(chatd), do: UcxChat.MessageView.get_mb(chatd)
 
   def get_open_ftab(nil, _), do: nil
   def get_open_ftab({title, _}, flex_tabs), do: Enum.find(flex_tabs, fn tab -> tab[:open] && tab[:title] == title end)
@@ -79,7 +79,15 @@ defmodule UcxChat.MasterView do
       " hidden"
     end
   end
-  def get_flex_tabs(user, open_tab) do
+
+  def uu(true, "User Info"), do: ""
+  def uu(false, "Members List"), do: ""
+  def uu(_, _), do: " hidden"
+
+  def get_flex_tabs(chatd, open_tab) do
+    user = chatd.user
+    user_mode = chatd.channel.type == 2
+    Logger.warn "chatd: #{inspect chatd}"
     switch_user = if Application.get_env :ucx_chat, :switch_user, false do
       ""
     else
@@ -96,8 +104,8 @@ defmodule UcxChat.MasterView do
       {"Rooms Mode", "hash", " hidden"},
       {"Info", "info-circled", ""},
       {"Search", "search", ""},
-      {"User Info", "user", " hidden"},
-      {"Members List", "users", ""},
+      {"User Info", "user", uu(user_mode, "User Info")},
+      {"Members List", "users", uu(user_mode, "Members List")},
       {"Notifications", "bell-alt", " hidden"},
       {"Files List", "attach", " hidden"},
       {"Mentions", "at", ""},

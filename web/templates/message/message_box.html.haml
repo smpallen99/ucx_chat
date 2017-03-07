@@ -1,8 +1,8 @@
--if @mb[:subscribed] do
+-if @mb[:subscribed?] do
   %form.message-form.secondary-font-color(method="post" action="/")
     .message-popup-results
     - # {{> messagePopupConfig getPopupConfig}}
-    - if @mb[:allowed_to_send] do
+    - if @mb[:allowed_to_send?] do
       .message-input.border-component-color
         .input-message-container.content-background-color
           %textarea.message-form-text.input-message.autogrow-short{dir: "auto", name: "msg", maxlength:@mb[:max_message_length], placeholder: "Message"}
@@ -11,27 +11,27 @@
             - #%i.emoji-picker-icon.icon-people
 
         - unless @mb[:show_send] do
-          - if @mb[:show_file_upload] do
+          - if @mb[:show_file_upload?] do
             .message-buttons.file
               %i.icon-attach.file
               %input{type: "file", accept: file_upload_allowed_media_types()}
 
-          - if @mb[:show_sandstorm] do
+          - if @mb[:show_sandstorm?] do
             .message-buttons.sandstorm-offer
               %i.icon-plus(title="Sandstorm_Powerbox_Share")
 
-          - if @mb[:show_location] do
+          - if @mb[:show_location?] do
             .message-buttons.location
               %i.icon-location.location
 
-          - if @mb[:show_mic] do
+          - if @mb[:show_mic?] do
             .message-buttons
               .mic
                 %i.icon-mic(aria-label="Record")
               .stop-mic.hidden
                 %i.icon-stop(aria-label="Stop_Recording")
 
-          - if @mb[:show_v_rec] do
+          - if @mb[:show_v_rec?] do
             .message-buttons.video-button
               %i.icon-videocam(aria-label="Record")
 
@@ -40,12 +40,12 @@
             %i.icon-paper-plane(aria-label="Send")
     - else
       .stream-info
-        - if @mb[:is_blocked_or_blocker] do
+        - if @mb[:blocked?] do
           Room is blocked
         - else
           Room is read only
     .users-typing.stream-info
-    - if @mb[:allowed_to_send] do
+    - if @mb[:allowed_to_send?] do
       = show_formatting_tips(@mb)
     .editing-commands(aria-hidden="true" dir="auto")
       .editing-commands-cancel
@@ -59,11 +59,11 @@
   - if nst[:template] do
     = render nst[:template]
   - else
-    - if nst[:can_join] do
+    - if @mb[:can_join?] do
       %div
         you are in preview mode of
-        = nst[:room_name]
-        - if nst[:join_code_required] do
+        = UcxChat.SharedView.get_room_display_name(@chatd)
+        - if @mb[:join_code_required] do
           %input(type="text" name="joinCode" placeholder="Code" style="width: 100px")
         %button.button.join
           %span

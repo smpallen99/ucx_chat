@@ -414,6 +414,7 @@ defmodule UcxChat.ChannelService do
     |> Repo.update
     |> case do
       {:ok, _} ->
+        Phoenix.Channel.broadcast! socket, "room:state_change", %{change: "archive"}
         {:ok, "Channel with name `channel.name` has been archived successfully."}
       {:error, cs} ->
         Logger.warn "error archiving channel #{inspect cs.errors}"
@@ -432,6 +433,7 @@ defmodule UcxChat.ChannelService do
     |> Repo.update
     |> case do
       {:ok, _} ->
+        Phoenix.Socket.broadcast! socket, "room:state_change", %{change: "unarchive"}
         {:ok, "Channel with name `#{channel.name}` has been unarchived successfully."}
       {:error, cs} ->
         Logger.warn "error unarchiving channel #{inspect cs.errors}"
@@ -472,7 +474,7 @@ defmodule UcxChat.ChannelService do
   ##################
   # user commands
 
-  @user_commands ~w(invite kick mute unmute)a
+  @user_commands ~w(invite kick mute unmute block_user unblock_user)a
 
   def user_command(socket, command, name, user_id, channel_id) when command in @user_commands and is_binary(name) do
     case Helpers.get_by(User, :username, name) do
@@ -512,6 +514,38 @@ defmodule UcxChat.ChannelService do
     # field :hide_user_leave, :boolean, default: false
     # field :hide_user_removed, :boolean, default: false
     # field :hide_user_added, :boolean, default: false
+  def user_command(socket, :block_user, %User{} = user, user_id, channel_id) do
+    case block_user(user, user_id, channel_id) do
+      {:ok, msg} ->
+        # unless Settings.hide_user_muted() do
+        #   notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, "muted")
+        # end
+        Phoenix.channel.broadcast! socket, "room:state_change", %{change: "block"}
+        Phoenix.Channel.broadcast socket, "user:action", %{action: "block", user_id: user.id}
+        # Logger.warn "mute #{user.id} by #{user_id}...."
+        {:ok, msg}
+      error ->
+        # Logger.error "user_command error #{inspect error}"
+        error
+    end
+  end
+
+  def user_command(socket, :unblock_user, %User{} = user, user_id, channel_id) do
+    case unblock_user(user, user_id, channel_id) do
+      {:ok, msg} ->
+        # unless Settings.hide_user_muted() do
+        #   notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, "muted")
+        # end
+        Phoenix.Channel.broadcast! socket, "room:state_change", %{change: "unblock"}
+        Phoenix.Channel.broadcast socket, "user:action", %{action: "block", user_id: user.id}
+        # Logger.warn "mute #{user.id} by #{user_id}...."
+        {:ok, msg}
+      error ->
+        # Logger.error "user_command error #{inspect error}"
+        error
+    end
+  end
+
   def user_command(socket, :mute, %User{} = user, user_id, channel_id) do
     case mute_user(user, user_id, channel_id) do
       {:ok, msg} ->
@@ -606,6 +640,36 @@ defmodule UcxChat.ChannelService do
     end
     # broadcast_message(body, room, user_id, channel_id)
     #Helpers.response_message(channel_id, text: "User ", tag: t1, text: " #{action} by ", tag: t2, text: ".")
+  end
+
+  def block_user(%{id: id} = user, user_id, channel_id) do
+    user = Helpers.get_user! user_id
+    Channel
+    |> Helpers.get!(channel_id)
+    |> Channel.blocked_changeset(true)
+    |> Repo.update
+    |> case do
+      {:error, _cs} ->
+        # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
+        {:error, "Could not block user"}
+      _ ->
+        {:ok, "blocked"}
+    end
+  end
+
+  def unblock_user(%{id: id} = user, user_id, channel_id) do
+    user = Helpers.get_user! user_id
+    Channel
+    |> Helpers.get!(channel_id)
+    |> Channel.blocked_changeset(false)
+    |> Repo.update
+    |> case do
+      {:error, _cs} ->
+        # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
+        {:error, "Could not unblock user"}
+      _ ->
+        {:ok, "unblocked"}
+    end
   end
 
   def mute_user(%{id: id} = user, user_id, channel_id) do
