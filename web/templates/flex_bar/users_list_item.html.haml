@@ -2,7 +2,7 @@
 %li.user-image.user-card-room(class="status-#{user.status}" data-status-name="#{user.username}")
   %button(data-username="#{user.username}" tabindex="0" title="#{user.username}")
     .avatar
-      .avatar-image(style="background-image:url(#{get_avatar(user.username)});")
+      .avatar-image(style="background-image:url(/avatar/#{user.username});")
     %p= user.username
     - if user_muted? user, @channel_id do
       %i.icon-mute(title="User Muted")

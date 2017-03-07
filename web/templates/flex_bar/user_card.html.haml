@@ -4,7 +4,7 @@
   .about.clearfix
     .thumb
       .avatar
-        .avatar-image(style='background-image:url(#{get_large_avatar(@user.username)});')
+        .avatar-image(style='background-image:url(/avatar/#{@user.username});')
     .info
       %h3(title="#{@user.username}")
         %i.status-offline
