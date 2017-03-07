@@ -16,8 +16,7 @@
     - else
       %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
         .avatar
-          - avatar_url = get_username(@message) |> get_avatar
-          .avatar-image(style='background-image:url(#{avatar_url});')
+          .avatar-image(style='background-image:url(/avatar/#{@message.user.username});')
   - if alias? = alias?(@message) do
     %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{get_username @message}" tabindex="1")
       = alias?
