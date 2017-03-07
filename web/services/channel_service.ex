@@ -330,21 +330,6 @@ defmodule UcxChat.ChannelService do
     channel
   end
 
-  def render_rooms(channel_id, user_id) do
-    channel = Helpers.get!(Channel, channel_id)
-    # user = Repo.one!(from u in User, where: u.id == ^user_id, preload: [:account])
-    user = Helpers.get_user!(user_id)
-
-    chatd = ChatDat.new user, channel, []
-
-    # side_nav_html =
-    "rooms_list.html"
-    |> UcxChat.SideNavView.render(chatd: chatd)
-    |> Phoenix.HTML.safe_to_string
-  end
-  # def change_type(channel_id, type) do
-
-  # end
   ###################
   # channel commands
 

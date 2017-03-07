@@ -6,7 +6,7 @@ defmodule UcxChat.UserChannel do
   import Ecto.Query
 
   alias Phoenix.Socket.Broadcast
-  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel}
+  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService}
   alias UcxChat.{AccountView, Account, AdminService, User, FlexBarView, MessageService, UserSocket}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
@@ -375,7 +375,7 @@ defmodule UcxChat.UserChannel do
   end
 
   defp update_rooms_list(%{assigns: assigns} = socket) do
-    html = ChannelService.render_rooms(assigns[:channel_id], assigns[:user_id])
+    html = SideNavService.render_rooms_list(assigns[:channel_id], assigns[:user_id])
     push socket, "update:rooms", %{html: html}
     socket
   end
