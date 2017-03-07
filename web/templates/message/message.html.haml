@@ -1,29 +1,29 @@
+- username = get_username @message
 = get_message_wrapper_opts(@message, @user)
   - if @message.avatar do
     - if avatar = avatar_from_username(@message) do
-      %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
+      %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
         = avatar
     - else
-      %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
+      %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
         .avatar
-          - avatar_url = get_avatar(@message)
-          .avatar-image(style='background-image:url(#{avatar_url});')
+          .avatar-image(style='background-image:url(/avatar/#{username});')
   - else
     - if emoji = emoji(@message) do
-      %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
+      %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
         .avatar
           = emoji
     - else
-      %button.thumb.user-card-message(data-username="#{get_username(@message)}" tabindex="1")
+      %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
         .avatar
-          .avatar-image(style='background-image:url(/avatar/#{@message.user.username});')
+          .avatar-image(style='background-image:url(/avatar/#{username});')
   - if alias? = alias?(@message) do
-    %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{get_username @message}" tabindex="1")
+    %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{username}" tabindex="1")
       = alias?
-      %span.message-alias.border-component-color.color-info-font-color= "@#{get_username @message}"
+      %span.message-alias.border-component-color.color-info-font-color= "@#{username}"
   - else
-    %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{get_username @message}" tabindex="1")
-      = get_username @message
+    %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{username}" tabindex="1")
+      = username
   %span.info.border-component-color.color-info-font-color
     - # Logger.error "===== message: #{inspect @message}"
     - unless @message.type == "d" do
@@ -37,8 +37,7 @@
         %i.icon-edit(aria-label="Edited")
         %button.thumb.thumb-small.user-card-message(data-username="#{edited[:edited_by]}" tabindex="1")
           .avatar
-            - avatar_url = get_avatar(edited[:edited_by])
-            .avatar-image(style='background-image:url(#{avatar_url});')
+            .avatar-image(style='background-image:url(/avatar/#{username});')
     - if is_private(@message) do
       %span.private Only you can see this message
     %div(class="message-cog-container #{hide_cog(@message)}")
