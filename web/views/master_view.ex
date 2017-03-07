@@ -87,7 +87,6 @@ defmodule UcxChat.MasterView do
   def get_flex_tabs(chatd, open_tab) do
     user = chatd.user
     user_mode = chatd.channel.type == 2
-    Logger.warn "chatd: #{inspect chatd}"
     switch_user = if Application.get_env :ucx_chat, :switch_user, false do
       ""
     else

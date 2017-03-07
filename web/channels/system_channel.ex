@@ -6,8 +6,8 @@ defmodule UcxChat.SystemChannel do
 
   # import Ecto.Query
 
-  @blur_timer 5 * 60 * 1000
-  # @blur_timer 10 * 1000
+  # @blur_timer 5 * 60 * 1000
+  @blur_timer 15 * 1000
 
   # import Ecto.Query
 
@@ -102,6 +102,7 @@ defmodule UcxChat.SystemChannel do
       status: "online",
       username: user.username
     })
+    update_status socket, "online"
     {:noreply, socket}
   end
 

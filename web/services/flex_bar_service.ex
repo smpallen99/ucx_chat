@@ -25,7 +25,7 @@ defmodule UcxChat.FlexBarService do
     users =
       Channel
       |> Helpers.get!(params["channel_id"], preload: [:users])
-      |> get_all_channel_users
+      |> get_channel_offline_users
 
     channel_id = params["channel_id"]
     html =
@@ -237,7 +237,7 @@ defmodule UcxChat.FlexBarService do
 
     users = get_all_channel_online_users(channel)
 
-    total_count = User.total_count() |> Repo.one
+    total_count = channel.users |> length
 
     user_info =
       channel
@@ -341,7 +341,7 @@ defmodule UcxChat.FlexBarService do
   def get_all_channel_users(channel) do
     channel.users
     |> Enum.map(fn user ->
-      struct(user, status: UcxChat.PresenceAgent.get(user))
+      struct(user, status: UcxChat.PresenceAgent.get(user.id))
     end)
   end
 
