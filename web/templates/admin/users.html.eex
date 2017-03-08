@@ -1,0 +1,66 @@
+<div class="main-content-flex">
+  <section class="page-container page-list flex-tab-main-content">
+    <header class="fixed-title border-component-color">
+      <div class="burger">
+        <i></i>
+        <i></i>
+        <i></i>
+      </div>
+      <h2>
+        <span class="room-title"><%= ~g"Users" %></span>
+      </h2>
+    </header>
+    <div class="content">
+      <%= unless has_permission? @user, "view-user-administration" do %>
+        <p><%= ~g(You are not authorized to view this page) %></p>
+      <% else %>
+        <form class="search-form" role="form">
+          <div class="input-line search">
+            <input type="text" id="users-filter" placeholder="<%= ~g(Search) %>" dir="auto">
+            <i class="icon-search secondary-font-color"></i>
+            <%= unless :isReady do %>
+              <i class="icon-spin secondary-font-color"></i>
+            <% end %>
+          </div>
+        </form>
+        <div class="results">
+          <%= ~g(SHOWING) %> <b><%= @users |> length %></b> <%= ~g(RESULTS) %>
+        </div>
+        <div class="list">
+          <table class="secondary-background-color">
+            <thead>
+              <tr class="admin-table-row">
+                <th class="content-background-color border-component-color">&nbsp;</th>
+                <th class="content-background-color border-component-color" width="34%"><%= ~g(Name) %></th>
+                <th class="content-background-color border-component-color" width="33%"><%= ~g(Username) %></th>
+                <th class="content-background-color border-component-color" width="33%"><%= ~g(Email) %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for user <- @users do %>
+              <tr class="user-info row-link">
+                <td class="border-component-color">
+                  <div class="user-image status-<%= get_status(user) %>">
+                    <div class="avatar">
+                      <div class="avatar-image" style="background-image:url(/avatar/<%= user.username %>);"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="border-component-color"><%= user.name %></td>
+                <td class="border-component-color"><%= user.username %></td>
+                <td class="border-component-color"><%= user.email %></td>
+              </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <%# {{#if hasMore}} %>
+            <%# <button class="button secondary load-more {{isLoading}}">{{_ "Load_more"}}</button> %>
+          <%# {{/if}} %>
+        </div>
+      <% end %>
+    </div>
+  </section>
+  <%# {{#with flexData}} %>
+    <%# {{> flexTabBar}} %>
+  <%# {{/with}} %>
+</div>

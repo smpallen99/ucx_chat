@@ -106,6 +106,23 @@ defmodule UcxChat.AdminService do
       |> mod.changeset(%{})
     [user: user, changeset: cs]
   end
+  defp get_args("users" = view, user) do
+    view_a = String.to_atom view
+    mod = Module.concat Config, String.capitalize(view)
+    # cs =
+    #   Config
+    #   |> Repo.one
+    #   |> Map.get(view_a)
+    #   |> mod.changeset(%{})
+    users = Repo.all(User)
+    [user: user, users: users]
+  end
+  defp get_args("rooms" = view, user) do
+    view_a = String.to_atom view
+    mod = Module.concat Config, String.capitalize(view)
+    rooms = Repo.all(from c in Channel, preload: [:subscriptions, :messages])
+    [user: user, rooms: rooms]
+  end
   # defp get_args("message", user) do
   #   cs =
   #     Config

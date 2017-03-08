@@ -11,6 +11,14 @@
       </li>
 
       <li>
+        <a href="#" class="admin-link" data-link="rooms"><%= ~g"Rooms" %></a>
+      </li>
+
+      <li>
+        <a href="#" class="admin-link" data-link="users"><%= ~g"Users" %></a>
+      </li>
+
+      <li>
         <a href="#" class="admin-link" data-link="general"><%= ~g"General" %></a>
       </li>
 

@@ -1,0 +1,63 @@
+<div class="main-content-flex">
+  <section class="page-container page-list flex-tab-main-content">
+    <header class="fixed-title border-component-color">
+      <div class="burger">
+        <i></i>
+        <i></i>
+        <i></i>
+      </div>
+      <h2>
+        <span class="room-title"><%= ~g(Rooms) %></span>
+      </h2>
+    </header>
+    <div class="content">
+      <%= unless has_permission? @user, "view-room-administration" do %>
+        <p><%= ~g(You are not authorized to view this page) %></p>
+      <% else %>
+        <form class="search-form" role="form">
+          <div class="input-line search">
+            <input type="text" id="rooms-filter" placeholder="<%= ~g(Search) %>" dir="auto">
+            <i class="icon-search secondary-font-color"></i>
+            <%# {{#unless isReady}}<i class="icon-spin"></i>{{/unless}} %>
+          </div>
+          <label><input type="checkbox" name="room-type" value="c"> <%= ~g(Channels) %></label>
+          <label><input type="checkbox" name="room-type" value="d"> <%= ~g(Direct Messages) %></label>
+          <label><input type="checkbox" name="room-type" value="p"> <%= ~g(Private Groups) %></label>
+        </form>
+        <div class="results">
+          <%= ~g(SHOWING) %> <b><%= @rooms |> length %></b> <%= ~g(RESULTS) %>
+        </div>
+        <div class="list">
+          <table class="secondary-background-color">
+            <thead>
+              <tr class="admin-table-row">
+                <th class="content-background-color border-component-color" width="30%"><%= ~g(Name) %></th>
+                <th class="content-background-color border-component-color" width="20%"><%= ~g(Type) %></th>
+                <th class="content-background-color border-component-color" width="20%"><%= ~g(Users) %></th>
+                <th class="content-background-color border-component-color" width="10%"><%= ~g(Msgs) %></th>
+                <th class="content-background-color border-component-color" width="20%"><%= ~g(Default) %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for room <- @rooms do %>
+              <tr class="room-info row-link">
+                <td class="border-component-color"><%= room.name %></td>
+                <td class="border-component-color"><%= room_type room.type %></td>
+                <td class="border-component-color"><%= room.subscriptions |> length %></td>
+                <td class="border-component-color"><%= room.messages |> length %></td>
+                <td class="border-component-color"><%= false %></td>
+              </tr>
+              <% end %>
+            </tbody>
+          </table>
+<%#           {{#if hasMore}}
+            <button class="button secondary load-more {{isLoading}}">{{_ "Load_more"}}</button>
+          {{/if}}
+ %>        </div>
+      <% end %>
+    </div>
+  </section>
+<%#   {{#with flexData}}
+    {{> flexTabBar}}
+  {{/with}}
+ %></div>

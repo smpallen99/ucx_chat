@@ -166,7 +166,7 @@ defmodule UcxChat.UserChannel do
     {:reply, resp, socket}
   end
 
-  @links ~w(info general message permissions layout)
+  @links ~w(info general message permissions layout users rooms)
   def handle_in(ev = "admin_link:click:" <> link, params, socket) when link in @links do
     debug ev, params
     user = Helpers.get_user! socket

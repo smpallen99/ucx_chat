@@ -8,6 +8,11 @@ defmodule UcxChat.SharedView do
   def get_all_users do
     Repo.all User
   end
+
+  def get_status(user) do
+    UcxChat.PresenceAgent.get(user.id)
+  end
+
   def get_room_icon(chatd), do: chatd.room_map[chatd.channel.id][:room_icon]
   def get_room_status(chatd) do
     # Logger.error "get room status room_map: #{inspect chatd.room_map[chatd.channel.id]}"

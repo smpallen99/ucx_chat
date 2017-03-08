@@ -103,4 +103,8 @@ defmodule UcxChat.AdminView do
       ]
     end
   end
+
+  def room_type(0), do: ~g"Channel"
+  def room_type(1), do: ~g"Private Group"
+  def room_type(2), do: ~g"Direct Message"
 end
