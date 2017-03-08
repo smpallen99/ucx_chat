@@ -1,0 +1,5 @@
+- opts = @opts
+%button.button.button-block(class="#{opts[:type]} #{opts[:action]}")
+  %span
+    %i(class="icon-#{opts[:icon]}")
+    = opts[:label]

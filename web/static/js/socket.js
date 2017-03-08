@@ -13,6 +13,7 @@ import MessagePopup from "./message_popup"
 import MessageCog from "./message_cog"
 import SideNav from "./side_nav"
 import Admin from "./admin"
+import AdminFlexBar from "./admin_flex_bar"
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
@@ -85,6 +86,7 @@ $(document).ready(function() {
   new RoomManager()
   new SideNav()
   new Admin()
+  new AdminFlexBar()
 
   socket.connect()
   // $(".input-message-container .inner-left-toolbar").emoji.emojioneArea();

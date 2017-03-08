@@ -31,7 +31,7 @@ defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
       add :current_sign_in_ip, :string
       add :last_sign_in_ip, :string
 
-
+      add :active, :boolean, default: true
       add :chat_status, :string
       add :tag_line, :string, default: ""
       add :uri, :string, default: ""

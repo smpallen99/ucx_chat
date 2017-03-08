@@ -1,6 +1,8 @@
 defmodule UcxChat.AdminService do
   use UcxChat.Web, :service
-  alias UcxChat.{Message, Channel, User, UserService}
+  use UcxChat.ChannelApi
+
+  alias UcxChat.{Message, Channel, User, UserService, FlexBarView, UserRole, AdminView}
   require Logger
 
   alias UcxChat.{Permission, Role, AdminView, Config}
@@ -68,6 +70,86 @@ defmodule UcxChat.AdminService do
           {:ok, %{error: "There a problem updating your settings."}}
       end
     {:reply, resp, socket}
+  end
+
+  def handle_in(ev = "flex:user-info", %{"name" => name} = params, socket) do
+    debug ev, params
+    assigns = socket.assigns
+    current_user = Helpers.get_user!(assigns.user_id)
+    user = Helpers.get_by!(User, :username, name, preload: [:roles, :account])
+    html =
+      "user_card.html"
+      |> FlexBarView.render(user: user, current_user: current_user, channel_id: 0, user_info: %{admin: true})
+      |> safe_to_string
+
+    {:reply, {:ok, %{html: html, title: "User Info"}}, socket}
+  end
+
+  def handle_in(ev = "flex:action:" <> action, %{"username" => username} = params, socket) do
+    resp = case Helpers.get_by(User, :username, username, preload: [:roles, :account]) do
+      nil ->
+        {:error, %{error: ~g(User ) <> username <> ~g( does not exist.)}}
+      user ->
+        flex_action(action, user, username, params, socket)
+    end
+    {:reply, resp, socket}
+  end
+
+  def handle_in(ev = "flex:row-info", %{"name" => name} = params, socket) do
+    debug ev, params
+    {:noreply, socket}
+  end
+
+  defp flex_action(action, user, username, params, socket) when action in ~w(make-admin remove-admin) do
+    [role1, role2, success, error] =
+      if action == "make-admin" do
+        ["user", "admin", ~g(User is now an admin), ~g(Problem  making the an admin)]
+      else
+        ["admin", "user", ~g(User is no longer an admin), ~g(Problem encountered. User is still an admin)]
+      end
+
+    (from r in UserRole, where: r.user_id == ^(user.id) and r.role == ^role1 and r.scope == 0)
+    |> Repo.one
+    |> Repo.delete
+
+    %UserRole{}
+    |> UserRole.changeset(%{user_id: user.id, role: role2, scope: 0})
+    |> Repo.insert
+    |> case do
+      {:ok, _} ->
+        html =
+          user.id
+          |> Helpers.get_user
+          |> AdminView.render_user_action_button("admin")
+          |> safe_to_string
+        {:ok, %{success: success, code_update: %{selector: "button." <> action, action: "replaceWith", html: html}}}
+      {:error, _} ->
+        {:error, %{error: error}}
+    end
+  end
+
+  defp flex_action(action, user, username, params, socket) when action in ~w(activate deactivate) do
+    res = [active, success, error] =
+      if action == "activate" do
+        [true, ~g(User has been activated), ~g(Problem activating User)]
+      else
+        [false, ~g(User has been deactivated), ~g(Problem encountered. User is still activated)]
+      end
+
+    user
+    |> User.changeset(%{active: active})
+    |> Repo.update
+    |> case do
+      {:ok, user} ->
+        Logger.warn "flex acttie res: #{inspect res}, user.active: #{inspect user.active}"
+        html =
+          user
+          |> AdminView.render_user_action_button("activate")
+          |> safe_to_string
+        {:ok, %{success: success, code_update: %{selector: "button." <> action, action: "replaceWith", html: html}}}
+      {:error, _} ->
+        {:error, %{error: error}}
+    end
   end
 
   def do_slash_commands_params(params, which) do

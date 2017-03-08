@@ -1,44 +1,51 @@
 - Logger.warn "template @channel_id: #{inspect @channel_id}, user_id: #{@user.id}, current_user_id: #{@current_user.id}"
-- unless @current_user.id == @user.id or @user_info[:direct] do
-  %button.button.button-block.primary.pvt-msg
-    %span
-      %i.icon-chat
-      Conversation
-- if @user_info[:direct] do
-  - if @user_info[:blocked] do
-    %button.button.button-block.tertiary.unblock-user
-      %span unblock user
-  - else
-    %button.button.button-block.danger.block-user
-      %span Block User
-
+- alias UcxChat.AdminView, as: Admin
+- if @user_info[:admin] do
+  = Admin.render_user_action_button(@user, "edit")
+  = Admin.render_user_action_button(@user, "admin")
+  = Admin.render_user_action_button(@user, "activate")
+  = Admin.render_user_action_button(@user, "delete")
 - else
-  - if has_permission? @current_user, "set-owner", @channel_id do
-    - if has_role? @user, "owner", @channel_id do
-      %button.button.button-block.danger.unset-owner
-        %span Remove as owner
-    - else
-      %button.button.button-block.tertiary.set-owner
-        %span Set as owner
-  - if has_permission? @current_user, "set-moderator", @channel_id do
-    - if has_role? @user, "moderator", @channel_id do
-      %button.button.button-block.danger.unset-moderator
-        %span Remove as moderator
-    - else
-      %button.button.button-block.tertiary.set-moderator
-        %span Set as moderator
-  - if has_permission? @current_user, "mute-user", @channel_id do
-    - if user_muted? @user, @channel_id do
-      %button.button.button-block.secondary.primary.unmute-user
-        %span unmute user
-    - else
-      %button.button.button-block.danger.mute-user
-        %span Mute user
-  - if has_permission? @current_user, "remove-user", @channel_id do
-    %button.button.button-block.danger.remove-user
-      %span Remove from room
-  - if @user_info[:view_mode] do
-    %button.button.back
+  - unless @current_user.id == @user.id do
+    %button.button.button-block.primary.pvt-msg
       %span
-        View All
-        %i.icon-angle-right
+        %i.icon-chat
+        Conversation
+  - if @user_info[:direct] do
+    - if @user_info[:blocked] do
+      %button.button.button-block.tertiary.unblock-user
+        %span unblock user
+    - else
+      %button.button.button-block.danger.block-user
+        %span Block User
+
+  - else
+    - if has_permission? @current_user, "set-owner", @channel_id do
+      - if has_role? @user, "owner", @channel_id do
+        %button.button.button-block.danger.unset-owner
+          %span Remove as owner
+      - else
+        %button.button.button-block.tertiary.set-owner
+          %span Set as owner
+    - if has_permission? @current_user, "set-moderator", @channel_id do
+      - if has_role? @user, "moderator", @channel_id do
+        %button.button.button-block.danger.unset-moderator
+          %span Remove as moderator
+      - else
+        %button.button.button-block.tertiary.set-moderator
+          %span Set as moderator
+    - if has_permission? @current_user, "mute-user", @channel_id do
+      - if user_muted? @user, @channel_id do
+        %button.button.button-block.secondary.primary.unmute-user
+          %span unmute user
+      - else
+        %button.button.button-block.danger.mute-user
+          %span Mute user
+    - if has_permission?(@current_user, "remove-user", @channel_id) do
+      %button.button.button-block.danger.remove-user
+        %span Remove from room
+    - if @user_info[:view_mode] do
+      %button.button.back
+        %span
+          View All
+          %i.icon-angle-right

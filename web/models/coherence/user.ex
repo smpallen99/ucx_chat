@@ -17,6 +17,7 @@ defmodule UcxChat.User do
     field :tag_line, :string
     field :uri, :string
     field :status, :string, default: "offline", virtual: true
+    field :active, :boolean, default: true
 
     belongs_to :open, UcxChat.Channel, foreign_key: :open_id
 
@@ -33,7 +34,7 @@ defmodule UcxChat.User do
     timestamps()
   end
 
-  @all_params ~w(name email username account_id tz_offset alias chat_status tag_line uri open_id)a
+  @all_params ~w(name email username account_id tz_offset alias chat_status tag_line uri open_id active)a
   @required  ~w(name email username account_id)a
 
   def changeset(model, params \\ %{}) do

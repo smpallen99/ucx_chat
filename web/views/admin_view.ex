@@ -1,5 +1,6 @@
 defmodule UcxChat.AdminView do
   use UcxChat.Web, :view
+  alias UcxChat.{User}
 
   def collapsable_section(title, fun) do
     content_tag :div, class: "section section-collapsed" do
@@ -107,4 +108,35 @@ defmodule UcxChat.AdminView do
   def room_type(0), do: ~g"Channel"
   def room_type(1), do: ~g"Private Group"
   def room_type(2), do: ~g"Direct Message"
+
+  def get_admin_flex_tabs(mode) do
+    # user = chatd.user
+    # user_mode = chatd.channel.type == 2
+    # config = Settings.config
+    UcxChat.FlexAdminService.default_settings(mode)
+  end
+
+  def render_user_action_button(user, "admin") do
+    if User.has_role? user, "admin", 0 do
+      render "user_action_buttons.html", opts: %{type: :danger, action: "remove-admin", icon: :shield, label: ~g(REMOVE ADMIN)}
+    else
+      render "user_action_buttons.html", opts: %{type: :secondary, action: "make-admin", icon: :shield, label: ~g(MAKE ADMIN)}
+    end
+  end
+
+  def render_user_action_button(user, "activate") do
+    if user.active do
+      render "user_action_buttons.html", opts: %{type: :danger, action: "deactivate", icon: :block, label: ~g(DEACTIVATE)}
+    else
+      render "user_action_buttons.html", opts: %{type: :secondary, action: "activate", icon: "ok-circled", label: ~g(ACTIVATE)}
+    end
+  end
+
+  def render_user_action_button(user, "edit") do
+    render "user_action_buttons.html", opts: %{type: :primary, action: "edit-user", icon: :edit, label: ~g(EDIT)}
+  end
+
+  def render_user_action_button(user, "delete") do
+    render "user_action_buttons.html", opts: %{type: :danger, action: "delete", icon: :trash, label: ~g(DELETE)}
+  end
 end

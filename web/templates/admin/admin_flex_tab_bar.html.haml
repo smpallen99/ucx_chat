@@ -1,0 +1,12 @@
+- flex_tabs = get_admin_flex_tabs(@mode)
+.flex-tab-container.border-component-color
+  %section.flex-tab.admin.content-background-color
+    .content
+      %div(class="#{@mode}-view")
+        .edit-form
+          %div= "#{~g(Please select a)} #{@mode}"
+  .flex-tab-bar.admin.content-background-color(role="toolbar")
+    - for tab <- flex_tabs do
+      %div(class="tab-button#{tab[:display]}" title="#{tab[:title]}")
+        %button(aria-label="#{tab[:title]}")
+          %i(class="icon-#{tab[:icon]}")

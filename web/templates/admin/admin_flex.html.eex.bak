@@ -18,6 +18,13 @@
         <a href="#" class="admin-link" data-link="users"><%= ~g"Users" %></a>
       </li>
 
+      <%= if  has_permission? @user, "access-permissions" do %>
+        <li>
+          <a href="#" class="admin-link" data-link="permissions"><%= ~g"Permissions" %></a>
+        </li>
+      <% end %>
+       <h3 class=""
+
       <li>
         <a href="#" class="admin-link" data-link="general"><%= ~g"General" %></a>
       </li>
@@ -25,11 +32,6 @@
       <%= if  has_permission? @user, "view-message-administration" do %>
         <li>
           <a href="#" class="admin-link" data-link="message"><%= ~g"Message" %></a>
-        </li>
-      <% end %>
-      <%= if  has_permission? @user, "access-permissions" do %>
-        <li>
-          <a href="#" class="admin-link" data-link="permissions"><%= ~g"Permissions" %></a>
         </li>
       <% end %>
         <li>

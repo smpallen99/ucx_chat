@@ -1,0 +1,29 @@
+%header
+  %div
+    %h4 Administration
+.content
+  .wrapper
+    %ul
+      %li
+        %a.admin-link(href="#" data-link="info")= ~g"Info"
+      %li
+        %a.admin-link(href="#" data-link="rooms")= ~g"Rooms"
+      %li
+        %a.admin-link(href="#" data-link="users")= ~g"Users"
+
+      - if  has_permission? @user, "access-permissions" do
+        %li
+          %a.admin-link(href="#" data-link="permissions")= ~g"Permissions"
+
+      %h3.add-room= ~g(Settings)
+      %li
+        %input(type="text" name="settings-search" placeholder="#{~g(Search)}")
+
+      %li
+        %a.admin-link(href="#" data-link="general")= ~g"General"
+
+      - if  has_permission? @user, "view-message-administration" do
+        %li
+          %a.admin-link(href="#" data-link="message")= ~g"Message"
+        %li
+          %a.admin-link(href="#" data-link="layout")= ~g"Layout"

@@ -215,23 +215,23 @@ function custom_show_switch_user() {
 ////////////////
 // Helpers
 
-function get_tab_button(title) {
+export function get_tab_button(title) {
   return $(`.tab-button[title="${title}"]`)
 }
 
-function is_tab_button_active(title) {
+export function is_tab_button_active(title) {
   return get_tab_button().hasClass('active')
 }
 
-function set_tab_button_active(title) {
+export function set_tab_button_active(title) {
   return get_tab_button(title).addClass('active')
 }
 
-function set_tab_buttons_inactive() {
+export function set_tab_buttons_inactive() {
   $('.tab-button').removeClass('active')
 }
 
-function is_tab_bar_open() {
+export function is_tab_bar_open() {
   return $(`.tab-button.active`).length > 0
 }
 
@@ -240,17 +240,20 @@ function set_tab_defaults(settings, key) {
   settings[key] = Object.assign({topic: key}, default_settings[key])
 }
 
-function get_tab_container() {
+export function get_tab_container() {
   return $('.flex-tab-container')
 }
-function is_tab_container_open() {
+export function is_tab_container_open() {
   return get_tab_container().hasClass('opened')
 }
-function open_tab_container() {
+export function open_tab_container() {
   return get_tab_container().addClass('opened')
 }
-function close_tab_container() {
+export function close_tab_container() {
   return get_tab_container().removeClass('opened')
+}
+export function toggle_tab_container() {
+  return get_tab_container().toggleClass('opened', '')
 }
 
 

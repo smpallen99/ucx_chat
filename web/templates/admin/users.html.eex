@@ -38,7 +38,7 @@
             </thead>
             <tbody>
               <%= for user <- @users do %>
-              <tr class="user-info row-link">
+              <tr class="user-info row-link" data-name="<%= user.username %>">
                 <td class="border-component-color">
                   <div class="user-image status-<%= get_status(user) %>">
                     <div class="avatar">
@@ -60,6 +60,7 @@
       <% end %>
     </div>
   </section>
+  <%= render "admin_flex_tab_bar.html", mode: "user" %>
   <%# {{#with flexData}} %>
     <%# {{> flexTabBar}} %>
   <%# {{/with}} %>

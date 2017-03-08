@@ -11,6 +11,14 @@ defmodule UcxChat.ServiceHelpers do
     Repo.one!(from u in User, where: u.id == ^id, preload: [:account, :roles])
   end
 
+  def get_user(%Phoenix.Socket{assigns: assigns}) do
+    get_user(assigns[:user_id])
+  end
+
+  def get_user(id, opts \\ []) do
+    Repo.one(from u in User, where: u.id == ^id, preload: [:account, :roles])
+  end
+
   def get!(model, id, opts \\ []) do
     preload = opts[:preload] || []
     model
@@ -50,13 +58,6 @@ defmodule UcxChat.ServiceHelpers do
     |> Repo.one!
   end
 
-  def get_user(user_id, opts \\ []) do
-    preload = opts[:preload] || []
-    User
-    |> where([c], c.id == ^user_id)
-    |> preload(^preload)
-    |> Repo.one!
-  end
 
   def get_channel_user(channel_id, user_id, opts \\ []) do
     preload = opts[:preload] || []
