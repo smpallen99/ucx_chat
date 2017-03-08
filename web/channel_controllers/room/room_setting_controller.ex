@@ -3,7 +3,7 @@ defmodule UcxChat.RoomSettingChannelController do
 
   import Phoenix.Channel
 
-  alias UcxChat.{FlexBarView, Channel, FlexBarService, ChannelService}
+  alias UcxChat.{Subscription, FlexBarView, Channel, FlexBarService, ChannelService}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -27,7 +27,7 @@ defmodule UcxChat.RoomSettingChannelController do
   end
 
   def update(%{assigns: assigns} = socket, params) do
-    Logger.warn "RoomSettingChannelController assigns: #{inspect assigns}, params: #{inspect params}"
+    # Logger.warn "RoomSettingChannelController assigns: #{inspect assigns}, params: #{inspect params}"
     user = Helpers.get_user! socket
     Channel
     |> Helpers.get(assigns[:channel_id])
@@ -35,6 +35,7 @@ defmodule UcxChat.RoomSettingChannelController do
     |> Repo.update
     |> case do
       {:ok, channel} ->
+        update_archive_hidden(channel, params["field_name"], params["value"])
         field = FlexBarService.get_setting_form_field(params["field_name"], channel, assigns[:user_id])
         html = FlexBarView.flex_form_input(field[:type], field)
         |> case do
@@ -74,7 +75,16 @@ defmodule UcxChat.RoomSettingChannelController do
         {field, {error, _}} = cs.errors |> hd
         {:reply, {:error, %{error: "#{field} #{error}"}}, socket}
     end
+
   end
 
+  def update_archive_hidden(%{id: id} = channel, "archived", value) do
+    value = if value == true, do: true, else: false
+    Subscription
+    |> where([s], s.channel_id == ^id)
+    |> Repo.update_all(set: [hidden: value])
+    channel
+  end
+  def update_archive_hidden(channel, _type, _value), do: channel
 
 end

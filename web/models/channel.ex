@@ -25,6 +25,7 @@ defmodule UcxChat.Channel do
   end
 
   @fields ~w(archived name type topic read_only blocked user_id description)a
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
@@ -59,7 +60,7 @@ defmodule UcxChat.Channel do
   end
 
   def validate_permission(%{changes: changes, data: data} = changeset, user) do
-    Logger.warn "validate_permission: changeset: #{inspect changeset}, type: #{inspect changeset.data.type}"
+    # Logger.warn "validate_permission: changeset: #{inspect changeset}, type: #{inspect changeset.data.type}"
     changeset
     cond do
       changes[:type] != nil -> has_permission?(user, changes)
@@ -117,7 +118,7 @@ defmodule UcxChat.Channel do
       User.has_role?(user, "user") ->
         from c in @module,
           left_join: s in Subscription, on: s.channel_id == c.id and s.user_id == ^user_id,
-          where: c.type == 0 or (c.type == 1 and not is_nil(s.id))
+          where: (c.type == 0 or (c.type == 1 and not is_nil(s.id))) and (not s.hidden or c.user_id == ^user_id)
       true -> from c in @module, where: false
     end
   end

@@ -456,13 +456,17 @@ defmodule UcxChat.ChannelService do
     Helpers.response_message(channel_id, "Channel with name `#{channel.name}` is already archived.")
   end
 
-  def channel_command(socket, :archive, %Channel{} = channel, user_id, channel_id) do
+  def channel_command(socket, :archive, %Channel{id: id} = channel, user_id, channel_id) do
     user = Helpers.get_user! user_id
     channel
     |> Channel.do_changeset(user, %{archived: true})
     |> Repo.update
     |> case do
       {:ok, _} ->
+        Logger.warn "archiving... #{id}"
+        Subscription
+        |> where([s], s.channel_id == ^id)
+        |> Repo.update_all(set: [hidden: true])
         Phoenix.Channel.broadcast! socket, "room:state_change", %{change: "archive"}
         {:ok, "Channel with name `channel.name` has been archived successfully."}
       {:error, cs} ->
@@ -475,13 +479,17 @@ defmodule UcxChat.ChannelService do
     {:error, "Channel with name `#{channel.name}` is not archived."}
   end
 
-  def channel_command(socket, :unarchive, %Channel{} = channel, user_id, channel_id) do
+  def channel_command(socket, :unarchive, %Channel{id: id} = channel, user_id, channel_id) do
     user = Helpers.get_user! user_id
     channel
     |> Channel.do_changeset(user, %{archived: false})
     |> Repo.update
     |> case do
       {:ok, _} ->
+        Logger.warn "unarchiving... #{id}"
+        Subscription
+        |> where([s], s.channel_id == ^id)
+        |> Repo.update_all(set: [hidden: false])
         Phoenix.Socket.broadcast! socket, "room:state_change", %{change: "unarchive"}
         {:ok, "Channel with name `#{channel.name}` has been unarchived successfully."}
       {:error, cs} ->
