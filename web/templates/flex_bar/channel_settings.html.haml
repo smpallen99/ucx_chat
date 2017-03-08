@@ -5,7 +5,13 @@
     %form
       %ul.list.clearfix
         - for field <- @channel do
-          = flex_form_line(field)
+          - Logger.warn "field: #{inspect field}"
+          - if @channel_type == 2 do
+            - if field[:name] == "topic" do
+              = flex_form_line(field)
+          - else
+            = flex_form_line(field)
+
     - if has_permission? @current_user, "delete-" <> Permission.room_type(@channel_type) do
       %nav
         %button.button.danger.delete(title="#{~g(Delete)}")
