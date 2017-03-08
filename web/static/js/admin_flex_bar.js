@@ -42,6 +42,18 @@ class AdminFlexBar {
     console.log('nav_button', action, username)
     switch(action) {
       case 'edit-user':
+        userchan.push('admin:flex:action:' + action, {username: username})
+          .receive("ok", resp => {
+            console.log('flex action resp', resp)
+            $('section.flex-tab').html(resp.html).parent().addClass('opened')
+            flex.set_tab_buttons_inactive()
+            flex.set_tab_button_active(resp.title)
+          })
+          .receive("error", resp => {
+            if (resp.error) { toastr.error(resp.error) }
+          })
+
+        break
       case 'make-admin':
       case 'remove-admin':
       case 'deactivate':

@@ -100,6 +100,15 @@ defmodule UcxChat.AdminService do
     {:noreply, socket}
   end
 
+  defp flex_action("edit-user", user, username, params, socket) do
+    current_user = Helpers.get_user socket.assigns.user_id
+    html =
+      "admin_edit_user.html"
+      |> AdminView.render(user: user, current_user: current_user)
+      |> safe_to_string
+    {:ok, %{html: html, title: "Edit User"}}
+  end
+
   defp flex_action(action, user, username, params, socket) when action in ~w(make-admin remove-admin) do
     [role1, role2, success, error] =
       if action == "make-admin" do
@@ -141,7 +150,6 @@ defmodule UcxChat.AdminService do
     |> Repo.update
     |> case do
       {:ok, user} ->
-        Logger.warn "flex acttie res: #{inspect res}, user.active: #{inspect user.active}"
         html =
           user
           |> AdminView.render_user_action_button("activate")

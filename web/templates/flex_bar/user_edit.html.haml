@@ -1,0 +1,52 @@
+- user = @user
+-# {{#unless canEditOrAdd}}
+- if false do
+  %p.secondary-font-color= ~g(You are not authorized to view this page)
+- else
+  .about.clearfix
+    %form.edit-form(autocomplete="off")
+      - if user do
+        %h3= user.name
+      - else
+        %h3= ~g(Add User)
+      .input-line
+        %label(for="name")= ~g(Name)
+        %input#name(type="text" autocomplete="off" value="#{user.name}")
+      .input-line
+        %label(for="username")= ~g(Username)
+        %input#username(type="text" autocomplete="off" value="#{user.username}")
+      .input-line
+        %label(for="email")= ~g(Email)
+        %input#email(type="email" autocomplete="off" value="#{user.email}")
+      .input-line
+        %label(for="verified")
+          %input#verified(type="checkbox" value="1" checked="")
+          = ~g(Verified)
+      - if has_permission? @current_user, "edit-other-user-password" do
+        .input-line
+          %label(for="password")= ~g(Password)
+          %input#password(type="password" autocomplete="off" value="")
+          %button#randomPassword.button= ~g(Random)
+        .input-line
+          %label(for="changePassword")
+            %input#changePassword(type="checkbox" value="1" checked="{{requirePasswordChange}}")
+            = ~g(Require password change)
+      - unless user do
+        .input-line
+          %label(for="role")= ~g(Role)
+          %select#role
+            -# for role in user.roles do
+              -# %option(value="#{role.id}" selected="{{selectUserRole}}">{{name}}</option>
+        .input-line
+          %label(for="joinDefaultChannels")
+            %input#joinDefaultChannels(type="checkbox" value="1" checked="true")
+            = ~g(Join default channels)
+        .input-line
+          %label(for="sendWelcomeEmail")
+            %input#sendWelcomeEmail(type="checkbox" value="1" checked="true")
+            = ~g(Send welcome email)
+      %nav
+        %button.button.button-block.cancel(type="button")
+          %span= ~g(Cancel)
+        %button.button.button-block.primary.save
+          %span= ~g(Save)
