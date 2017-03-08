@@ -202,8 +202,12 @@ defmodule UcxChat.UserChannel do
   def handle_info(%Broadcast{topic: _, event: "room:update:name" = event, payload: payload}, socket) do
     debug event, payload
     push socket, event, payload
-    socket.enkdpoint.unsubscribe(CC.chan_room <> payload[:old_name])
+    socket.endpoint.unsubscribe(CC.chan_room <> payload[:old_name])
     {:noreply, assign(socket, :subscribed, [payload[:new_name] | List.delete(socket.assigns[:subscribed], payload[:old_name])])}
+  end
+  def handle_info(%Broadcast{topic: _, event: "room:update:list" = event, payload: payload}, socket) do
+    debug event, payload
+    {:noreply, update_rooms_list(socket)}
   end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "owner"} = payload}, %{assigns: assigns} = socket) do

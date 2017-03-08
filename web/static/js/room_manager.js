@@ -1,6 +1,7 @@
 import Messages from "./messages"
 import * as socket from './socket'
 import * as cc from "./chat_channel"
+import * as utils from './utils'
 import sweetAlert from "./sweetalert.min"
 import toastr from 'toastr'
 
@@ -57,11 +58,15 @@ class RoomManager {
     })
   }
   static update(msg) {
+    console.log('update...', msg)
     let fname = msg.field_name
     if ( fname == "topic"  || fname == "title") {
       $('.room-' + fname).html(msg.value)
     } else if (fname == "name") {
       $('.room-title').html(msg.value)
+      ucxchat.room = msg.value
+      ucxchat.display_name = msg.value
+      utils.replace_history()
     }
 
     $('.current-setting[data-edit="' + msg.field_name + '"]').html(msg.value)

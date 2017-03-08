@@ -17,7 +17,7 @@ defmodule UcxChat.RoomChannel do
   ############
   # API
   # intercept ["lobby:room:update:name"]
-  intercept ["user:action", "room:state_change"]
+  intercept ["user:action", "room:state_change", "room:update:list"]
 
   def user_join(nil), do: Logger.warn "join for nil username"
   def user_join(username, room) do
@@ -46,7 +46,6 @@ defmodule UcxChat.RoomChannel do
   end
 
   def handle_info({:after_join, room, msg}, socket) do
-    Logger.warn "room channel after_join, room: #{inspect room}"
     channel = ServiceHelpers.get_by!(Channel, :name, room)
     broadcast! socket, "user:entered", %{user: msg["user"], channel_id: channel.id}
     push socket, "join", %{status: "connected"}
@@ -58,7 +57,7 @@ defmodule UcxChat.RoomChannel do
   # Outgoing message handlers
 
   def handle_out(ev = "room:state_change", msg, %{assigns: assigns} = socket) do
-    warn ev, msg, "assigns: #{inspect assigns}"
+    debug ev, msg, "assigns: #{inspect assigns}"
     channel_id = assigns[:channel_id] || msg[:channel_id]
     if channel_id do
       UserSocket.push_message_box(socket, channel_id, assigns.user_id)
@@ -68,7 +67,10 @@ defmodule UcxChat.RoomChannel do
   end
 
   def handle_out(ev = "user:action", msg, socket) do
-    warn ev, msg
+    debug ev, msg
+    {:noreply, socket}
+  end
+  def handle_out(ev = "room:update:list", msg, socket) do
     {:noreply, socket}
   end
   def handle_out(ev = "lobby:" <> event, msg, socket) do
@@ -123,7 +125,6 @@ defmodule UcxChat.RoomChannel do
       {:nil, msg} ->
         {:ok, msg}
       {event, msg} ->
-        Logger.warn "msg cog ret event: #{inspect event}, msg: #{inspect msg}"
         broadcast! socket, event, %{}
         {:ok, msg}
     end

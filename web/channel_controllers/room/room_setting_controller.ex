@@ -3,7 +3,7 @@ defmodule UcxChat.RoomSettingChannelController do
 
   import Phoenix.Channel
 
-  alias UcxChat.{FlexBarView, Channel, FlexBarService}
+  alias UcxChat.{FlexBarView, Channel, FlexBarService, ChannelService}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -46,6 +46,8 @@ defmodule UcxChat.RoomSettingChannelController do
             Phoenix.HTML.safe_to_string(tuple)
         end
 
+        channel = Helpers.get!(Channel, assigns[:channel_id])
+        icon = ChannelService.get_icon channel.type
 
         if params["field_name"] == "name" do
           broadcast! socket, "room:update:name",
@@ -53,11 +55,12 @@ defmodule UcxChat.RoomSettingChannelController do
               channel_id: assigns[:channel_id],
               old_name: assigns[:room],
               new_name: params["value"],
-              icon: "hash"
+              icon: icon
             }
         end
 
         broadcast! socket, "room:update", %{field_name: params["field_name"], value: params["value"]}
+        broadcast! socket, "room:update:list", %{}
 
         if params["field_name"] in ~w(private read_only archived) do
           # Logger.warn "------------------ assigns: #{inspect socket.assigns}"

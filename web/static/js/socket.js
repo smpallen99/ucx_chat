@@ -184,7 +184,7 @@ function start_user_channel() {
       .children(':first-child')
       .attr('title', resp.new_name).attr('data-room', resp.new_name)
       .attr('data-name', resp.new_name)
-      .children(':first-child').attr('class', 'icon-' + resp.icon + ' off-line')
+      .children(':first-child').attr('class', resp.icon + ' off-line')
       .next('span').html(resp.new_name)
   })
   chan.on('room:join', resp => {
@@ -232,7 +232,8 @@ function start_room_channel(typing) {
   if (debug) { console.log('start socket', ucxchat) }
   chan.join()
     .receive("ok", resp => {
-      history.pushState(history.state, ucxchat.display_name, '/' + ucxchat.room_route + '/' + ucxchat.display_name)
+      // history.pushState(history.state, ucxchat.display_name, '/' + ucxchat.room_route + '/' + ucxchat.display_name)
+      utils.push_history()
       console.log("Joined successfully", resp)
     })
     .receive("error", resp => { console.log("Unable to join", resp) })
