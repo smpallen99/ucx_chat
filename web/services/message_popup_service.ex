@@ -74,13 +74,15 @@ defmodule UcxChat.MessagePopupService do
     end
   end
 
-  def get_channels_by_pattern(_channel_id, _user_id, pattern) do
-    Channel.get_all_channels
+  def get_channels_by_pattern(_channel_id, user_id, pattern) do
+    user_id
+    |> Channel.get_authorized_channels
     |> where([c], like(c.name, ^pattern))
     |> order_by([c], asc: c.name)
     |> limit(5)
     |> select([c], {c.id, c.name})
     |> Repo.all
+    # |> Enum.filter(fn {id, name} -> UcxChat.Permission.has_permission?())
     |> Enum.map(fn {id, name} -> %{id: id, name: name, username: name} end)
   end
 

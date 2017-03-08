@@ -80,7 +80,7 @@ defmodule UcxChat.User do
     |> Enum.sort
   end
 
-  def has_role?(user, role, scope) do
+  def has_role?(user, role, scope \\ 0) do
     Enum.any?(user.roles, fn
       %{role: ^role, scope: ^scope} -> true
       _ -> false

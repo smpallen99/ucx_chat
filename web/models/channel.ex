@@ -1,7 +1,7 @@
 defmodule UcxChat.Channel do
   use UcxChat.Web, :model
 
-  alias UcxChat.Permission
+  alias UcxChat.{Permission, Subscription, User}
 
   require Logger
 
@@ -107,6 +107,19 @@ defmodule UcxChat.Channel do
 
   def get_all_public_channels do
     from c in @module, where: c.type == 0
+  end
+
+  def get_authorized_channels(user_id) do
+    user = UcxChat.ServiceHelpers.get_user!(user_id)
+    cond do
+      User.has_role?(user, "admin") ->
+        from c in @module, where: c.type == 0 or c.type == 1
+      User.has_role?(user, "user") ->
+        from c in @module,
+          left_join: s in Subscription, on: s.channel_id == c.id and s.user_id == ^user_id,
+          where: c.type == 0 or (c.type == 1 and not is_nil(s.id))
+      true -> from c in @module, where: false
+    end
   end
 
   def room_route(channel) do
