@@ -20,12 +20,12 @@ defmodule UcxChat.User do
 
     belongs_to :open, UcxChat.Channel, foreign_key: :open_id
 
-    has_many :roles, UcxChat.UserRole
-    has_many :subscriptions, UcxChat.Subscription
-    has_many :channels, through: [:subscriptions, :channel]
-    has_many :messages, UcxChat.Message
-    has_many :stared_messages, UcxChat.StaredMessage
-    has_many :owns, UcxChat.Channel, foreign_key: :user_id
+    has_many :roles, UcxChat.UserRole, on_delete: :delete_all
+    has_many :subscriptions, UcxChat.Subscription, on_delete: :nilify_all
+    has_many :channels, through: [:subscriptions, :channel], on_delete: :nilify_all
+    has_many :messages, UcxChat.Message, on_delete: :nilify_all
+    has_many :stared_messages, UcxChat.StaredMessage, on_delete: :nilify_all
+    has_many :owns, UcxChat.Channel, foreign_key: :user_id, on_delete: :nilify_all
 
     belongs_to :account, UcxChat.Account
     coherence_schema()

@@ -17,7 +17,7 @@ defmodule UcxChat.RoomChannel do
   ############
   # API
   # intercept ["lobby:room:update:name"]
-  intercept ["user:action", "room:state_change", "room:update:list"]
+  intercept ["user:action", "room:state_change", "room:update:list", "room:delete"]
 
   def user_join(nil), do: Logger.warn "join for nil username"
   def user_join(username, room) do
@@ -71,6 +71,9 @@ defmodule UcxChat.RoomChannel do
     {:noreply, socket}
   end
   def handle_out(ev = "room:update:list", msg, socket) do
+    {:noreply, socket}
+  end
+  def handle_out(ev = "room:delete", msg, socket) do
     {:noreply, socket}
   end
   def handle_out(ev = "lobby:" <> event, msg, socket) do

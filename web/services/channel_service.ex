@@ -83,6 +83,19 @@ defmodule UcxChat.ChannelService do
     end
   end
 
+  def delete_channel(socket, room, user_id) do
+    with channel when not is_nil(channel) <- Helpers.get_by(Channel, :name, room),
+         changeset <- Channel.changeset_delete(channel),
+         {:ok, _} <- Repo.delete(changeset) do
+      Logger.warn "deleting room #{room}"
+      Phoenix.Channel.broadcast socket, "room:delete", %{room: room, channel_id: channel.id}
+      Phoenix.Channel.broadcast socket, "reload", %{location: "/"}
+      {:ok, %{success: "The room has been deleted", reload: true}}
+    else
+      _ ->
+        {:error, %{error: "Problem deleting the channel"}}
+    end
+  end
 
   def do_roles(%{channel: %{id: ch_id, user_id: u_id} = channel}) do
     case Repo.insert(UserRole.changeset(%UserRole{}, %{user_id: u_id, role: "owner", scope: ch_id})) do

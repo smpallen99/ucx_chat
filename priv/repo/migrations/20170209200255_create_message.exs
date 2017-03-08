@@ -5,11 +5,11 @@ defmodule UcxChat.Repo.Migrations.CreateMessage do
     create table(:messages) do
       add :body, :text
       add :type, :string, size: 2, default: ""
-      add :edited_id, references(:users, on_delete: :nothing)
+      add :edited_id, references(:users, on_delete: :nilify_all)
       add :sequential, :boolean, default: false, null: false
       add :system, :boolean, default: false, null: false
-      add :user_id, references(:users, on_delete: :nothing)
-      add :channel_id, references(:channels, on_delete: :nothing)
+      add :user_id, references(:users, on_delete: :nilify_all)
+      add :channel_id, references(:channels, on_delete: :delete_all)
       add :expire_at, :utc_datetime
       add :timestamp, :string
 

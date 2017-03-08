@@ -15,8 +15,8 @@ defmodule UcxChat.Channel do
     field :archived, :boolean, default: false
     field :blocked, :boolean, default: false
     field :description, :string
-    has_many :subscriptions, UcxChat.Subscription
-    has_many :users, through: [:subscriptions, :user]
+    has_many :subscriptions, UcxChat.Subscription, on_delete: :delete_all
+    has_many :users, through: [:subscriptions, :user], on_delete: :nilify_all
     has_many :stared_messages, UcxChat.StaredMessage
     has_many :messages, UcxChat.Message
     belongs_to :owner, UcxChat.User, foreign_key: :user_id
@@ -49,6 +49,11 @@ defmodule UcxChat.Channel do
     #   other -> other
     # end
     do_changeset(struct, user, %{field => value})
+  end
+
+  def changeset_delete(struct, params \\ %{}) do
+    struct
+    |> cast(params, @fields)
   end
 
   def blocked_changeset(struct, blocked) when blocked in [true, false] do

@@ -4,8 +4,8 @@ defmodule UcxChat.Repo.Migrations.CreateDirect do
   def change do
     create table(:directs) do
       add :users, :string
-      add :user_id, references(:users, on_delete: :nothing)
-      add :channel_id, references(:channels, on_delete: :nothing)
+      add :user_id, references(:users, on_delete: :nilify_all)
+      add :channel_id, references(:channels, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
       # timestamps()

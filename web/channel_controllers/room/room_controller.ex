@@ -47,6 +47,11 @@ defmodule UcxChat.RoomChannelController do
     {:reply, resp, socket}
   end
 
+  def delete(%{assigns: assigns} = socket, params) do
+    resp = ChannelService.delete_channel(socket, params["room"], assigns.user_id)
+    {:reply, resp, socket}
+  end
+
   # def command(socket, %{"command" => "set-owner", "username" => username}) do
   #   Logger.warn "RoomChannelController: command: set-owner, username: #{inspect username}"
 

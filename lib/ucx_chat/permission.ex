@@ -111,6 +111,10 @@ defmodule UcxChat.Permission do
     delete_match {@perms_key, permission, role}
   end
 
+  def room_type(0), do: "c"
+  def room_type(1), do: "p"
+  def room_type(2), do: "d"
+
   defp insert(tuple) do
     :ets.insert @table_name, tuple
   end

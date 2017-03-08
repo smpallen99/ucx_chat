@@ -1,5 +1,6 @@
 import * as cc from "./chat_channel"
 import toastr from 'toastr'
+import sweetAlert from "./sweetalert.min"
 import * as utils from './utils'
 
 // export function init() {
@@ -57,6 +58,35 @@ $(document).ready(function() {
     .receive("ok", resp => {
       stop_loading_animation()
         toastr.success('Room ' + name + ' updated successfully.')
+    })
+  })
+  $('body').on('click', '.channel-settings nav button.delete', function(e) {
+    sweetAlert({
+      title: "Are you sure?",
+      text: "Deleting a room will delete all messages posted within this room.\nThis cannot be undone.",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#DD6B55",
+      confirmButtonText: "Yes, delete it!",
+      closeOnConfirm: false
+    },
+    function(){
+      cc.delete_('/room/' + ucxchat.room)
+        .receive("ok", resp => {
+          if (resp.success) {
+            toastr.success(resp.success)
+          }
+          swal({
+              title: 'Deleted',
+              text: "The room has be deleted",
+              type: 'success',
+              timer: 1000,
+              showConfirmButton: false,
+          })
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
     })
   })
 })

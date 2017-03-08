@@ -209,8 +209,9 @@ defmodule UcxChat.FlexBarService do
   def get_render_args(event, user_id, channel_id, message_id, opts \\ %{})
 
   def get_render_args("Info", user_id, channel_id, _, _)  do
+    current_user = Helpers.get_user! user_id
     channel = Helpers.get_channel(channel_id)
-    [channel: settings_form_fields(channel, user_id)]
+    [channel: settings_form_fields(channel, user_id), current_user: current_user, channel_type: channel.type]
   end
 
   def get_render_args("User Info", user_id, channel_id, _, _)  do

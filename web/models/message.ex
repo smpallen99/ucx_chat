@@ -17,7 +17,7 @@ defmodule UcxChat.Message do
     belongs_to :channel, UcxChat.Channel
     belongs_to :edited_by, UcxChat.User, foreign_key: :edited_id
 
-    has_many :stars, UcxChat.StaredMessage
+    has_many :stars, UcxChat.StaredMessage, on_delete: :delete_all
 
     field :is_groupable, :boolean, virtual: true
     field :t, :string, virtual: true

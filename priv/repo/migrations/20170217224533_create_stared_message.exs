@@ -3,7 +3,7 @@ defmodule UcxChat.Repo.Migrations.CreateStaredMessage do
 
   def change do
     create table(:stared_messages) do
-      add :user_id, references(:users, on_delete: :delete_all)
+      add :user_id, references(:users, on_delete: :nilify_all)
       add :message_id, references(:messages, on_delete: :delete_all)
       add :channel_id, references(:channels, on_delete: :delete_all)
 

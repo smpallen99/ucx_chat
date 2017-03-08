@@ -287,6 +287,11 @@ function start_room_channel(typing) {
   chan.on('code:update', resp => {
     utils.code_update(resp)
   })
+  chan.on('reload', msg => {
+    let loc = msg.location
+    if (!loc) { loc = "/" }
+    window.location = loc
+  })
 
 
   if (!window.flexbar) {

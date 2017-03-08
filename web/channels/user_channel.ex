@@ -296,6 +296,17 @@ defmodule UcxChat.UserChannel do
     {:noreply, socket}
   end
 
+  def handle_info(%Broadcast{topic: _, event: "room:delete" = event, payload: payload}, %{assigns: assigns} = socket) do
+    debug event, payload
+    room = payload.room
+    if Enum.any?(socket.assigns[:subscribed], &(&1 == room)) do
+      update_rooms_list(socket)
+      {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
+    else
+      {:noreply, socket}
+    end
+  end
+
   def handle_info({:flex, :open, ch, tab, nil, params} = msg, socket) do
     debug inspect(msg), "nil"
     resp = FlexBarService.handle_flex_callback(:open, ch, tab, nil, socket, params)
