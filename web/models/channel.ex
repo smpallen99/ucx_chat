@@ -14,6 +14,7 @@ defmodule UcxChat.Channel do
     field :read_only, :boolean, default: false
     field :archived, :boolean, default: false
     field :blocked, :boolean, default: false
+    field :default, :boolean, default: false
     field :description, :string
     has_many :subscriptions, UcxChat.Subscription, on_delete: :delete_all
     has_many :users, through: [:subscriptions, :user], on_delete: :nilify_all
@@ -24,7 +25,7 @@ defmodule UcxChat.Channel do
     timestamps(type: :utc_datetime)
   end
 
-  @fields ~w(archived name type topic read_only blocked user_id description)a
+  @fields ~w(archived name type topic read_only blocked default user_id description)a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

@@ -85,6 +85,19 @@ defmodule UcxChat.AdminService do
     {:reply, {:ok, %{html: html, title: "User Info"}}, socket}
   end
 
+  def handle_in(ev = "flex:room-info", %{"name" => name} = params, socket) do
+    debug ev, params
+    assigns = socket.assigns
+    current_user = Helpers.get_user!(assigns.user_id)
+    channel = Helpers.get_by!(Channel, :name, name)
+    html =
+      "room_info.html"
+      |> AdminView.render(channel: channel, current_user: current_user, can_edit: true, editing: %{})
+      |> safe_to_string
+
+    {:reply, {:ok, %{html: html, title: "User Info"}}, socket}
+  end
+
   def handle_in(ev = "flex:action:" <> action, %{"username" => username} = params, socket) do
     resp = case Helpers.get_by(User, :username, username, preload: [:roles, :account]) do
       nil ->

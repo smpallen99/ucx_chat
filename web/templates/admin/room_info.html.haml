@@ -1,0 +1,108 @@
+- channel = @channel
+- editing = @editing
+- import UcxChat.Channel, only: [direct?: 1]
+.content
+  .list-view.channel-settings
+    .title
+      %h2= ~g(Room_Info)
+    %form
+      %ul.list.clearfix
+        - if !direct? channel do
+          %li
+            %label= ~g(Name)
+            %div
+              - if editing[:name] do
+                %input.content-background-color.editing(type="text" name="channel[name]" value="#{channel.name}")
+                %button.button.cancel(type="button")= ~g(Cancel)
+                %button.button.primary.save(type="button")= ~g(Save)
+              - else
+                %span
+                  = channel.name
+                  - if @can_edit do
+                    %i.icon-pencil(data-edit="name")
+        %li
+          %label= ~g(Topic)
+          %div
+            - if editing[:topic] do
+              %input. type="text" name="roomTopic" value="{{roomTopic}}" class="content-background-color editing" />
+              %input.content-background-color.editing(type="text" name="channel[topic]" value="#{channel.topic}")
+              %button.button.cancel(type="button")= ~g(Cancel)
+              %button.button.primary.save(type="button")= ~g(Save)
+            - else
+              %span
+                = channel.topic
+                - if @can_edit do
+                  %i.icon-pencil(data-edit="topic")
+        - if !direct? channel do
+          %li
+            %label= ~g(Type)
+            %div
+              - if editing[:type] do
+                %label
+                  %input.editing(type="radio" name="channel[type]" value="0" checked="#{channel.type == 0}")
+                  = ~g(Channel)
+                %label
+                  %input.editing(type="radio" name="channel[type]" value="1" checked="#{channel.type == 1}")
+                  = ~g(Private Group)
+                %button.button.cancel(type="button")= ~g(Cancel)
+                %button.button.primary.save(type="button")= ~g(Save)
+              - else
+                %span
+                  # = {{roomTypeDescription}}{{#if canEdit}} <i class="icon-pencil" data-edit="roomType"></i>{{/if}}</span>
+        - if !direct? channel do
+          %li
+            %label= ~g(Room archivation state)
+            %div
+              - if editing[:activation_state] do
+                %label
+                  %input.editing(type="radio" name="channel[activation_state]" value="true" checked="false")
+                  = ~g(Room archivation state false)
+                %button.button.cancel(type="button")= ~g(Cancel)
+                %button.button.primary.save(type="button")= ~g(Save)
+              - else
+                %span
+                  = ~g(State)
+                  - if @can_edit do
+                    %i.icon-pencil(data-edit="activation_state")
+        - if !direct? channel do
+          %li
+            %label= ~g(Read only channel)
+            %div
+              - if editing[:read_only] do
+                %label
+                  %input.editing(type="radio" name="channel[read_only]" value="true" checked="#{channel.read_only}")
+                  = ~g(True)
+                %label
+                  %input.editing(type="radio" name="channel[read_only]" value="false" checked="#{!channel.read_only}")
+                  = ~g(False)
+                %button.button.cancel(type="button")= ~g(Cancel)
+                %button.button.primary.save(type="button")= ~g(Save)
+              - else
+                %span
+                  = ~g(Read only)
+                  - if @can_edit do
+                    %i.icon-pencil(data-edit="read_only")
+        - if !direct? channel do
+          %li
+            %label= ~g(Default)
+            %div
+              - if editing[:default] do
+                %label
+                  %input.editing(type="radio" name="channel[default]" value="true" checked="#{channel.default}")
+                  = ~g(True)
+                %label
+                  %input.editing(type="radio" name="channel[default]" value="false" checked="#{!channel.default}")
+                  = ~g(False)
+                %button.button.cancel(type="button")= ~g(Cancel)
+                %button.button.primary.save(type="button")= ~g(Save)
+              - else
+                %span
+                  = ~g(Default)
+                  - if @can_edit do
+                    %i.icon-pencil(data-edit="default")
+    - if has_permission? @current_user, "delete-" <> Permission.room_type(channel.type) do
+      %nav
+        %button.button.danger.delete
+          %span
+            %i.icon-trash
+            = ~g(Delete)
