@@ -1,10 +1,30 @@
 import toastr from 'toastr'
+import * as cc from './chat_channel'
+import RoomManager from './room_manager'
 
 class SideNav {
   constructor() {
-    this.register_events()
+    this.register_events(this)
   }
-  register_events() {
+
+  more_channels() {
+    console.log('cliecked more channels')
+    userchan.push('side_nav:more_channels')
+      .receive("ok", resp => {
+         $('.flex-nav section').html(resp.html).parent().removeClass('animated-hidden')
+         $('.arrow').toggleClass('close', 'bottom')
+      })
+  }
+  channel_link_click(elem) {
+    let name = elem.attr('href').replace('/channels/', '')
+    console.log('channel link click', name)
+    RoomManager.open_room(name, name, function() {
+      $('.flex-nav').addClass('animated-hidden')
+      $('.arrow').toggleClass('close', 'bottom')
+    })
+  }
+
+  register_events(_this) {
     $('body').on('click', 'span.arrow.close', function(e) {
       e.preventDefault()
       $('.flex-nav header').click()
@@ -83,6 +103,16 @@ class SideNav {
             toastr.error(resp.error)
           }
         })
+    })
+    $('body').on('click', 'button.more-channels', function(e) {
+      e.preventDefault()
+      _this.more_channels()
+      return false
+    })
+    $('body').on('click', 'a.channel-link', function(e) {
+      e.preventDefault()
+      _this.channel_link_click($(this))
+      return false
     })
     // $('button.status').on('click', function(e) {
     //   console.log('clicked status change', $(this).data('status'))

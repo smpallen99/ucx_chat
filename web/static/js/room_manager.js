@@ -79,16 +79,16 @@ class RoomManager {
       if (debug) { console.log('clicked a.open-room', e, $(this), $(this).attr('data-room')) }
       // roomchan.push("room:open", {user_id: ucxchat.user_id, display_name: $(this).attr('data-name'), room: $(this).attr('data-room'), old_room: ucxchat.room})
       //   .receive("ok", resp => { RoomManager.render_room(resp) })
-
-      cc.get("/room/" + $(this).attr('data-room'), {display_name: $(this).attr('data-name'), room: ucxchat.room})
-        .receive("ok", resp => {
-          console.log('open room response', resp)
-          if (resp.redirect) {
-            window.location = resp.redirect
-          } else {
-            RoomManager.render_room(resp)
-          }
-        })
+      RoomManager.open_room($(this).attr('data-room'), $(this).attr('data-name'))
+      // cc.get("/room/" + $(this).attr('data-room'), {display_name: $(this).attr('data-name'), room: ucxchat.room})
+      //   .receive("ok", resp => {
+      //     console.log('open room response', resp)
+      //     if (resp.redirect) {
+      //       window.location = resp.redirect
+      //     } else {
+      //       RoomManager.render_room(resp)
+      //     }
+      //   })
     })
     $('body').on('click', 'a.toggle-favorite', e => {
       if (debug) { console.log('click a.toggle-favorite') }
@@ -297,6 +297,19 @@ class RoomManager {
       });
       return false
     })
+  }
+
+  static open_room(room, display_name, callback) {
+    cc.get("/room/" + room, {display_name: display_name, room: ucxchat.room})
+      .receive("ok", resp => {
+        console.log('open room response', resp)
+        if (resp.redirect) {
+          window.location = resp.redirect
+        } else {
+          RoomManager.render_room(resp)
+        }
+        if (callback) { callback() }
+      })
   }
 }
 

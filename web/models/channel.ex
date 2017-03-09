@@ -1,7 +1,7 @@
 defmodule UcxChat.Channel do
   use UcxChat.Web, :model
 
-  alias UcxChat.{Permission, Subscription, User}
+  alias UcxChat.{Repo, Permission, Subscription, User}
 
   require Logger
 
@@ -129,6 +129,28 @@ defmodule UcxChat.Channel do
     end
   end
 
+  def get_all_channels(user_id) when is_integer(user_id) do
+    user_id
+    |> UcxChat.ServiceHelpers.get_user!
+    |> get_all_channels
+  end
+
+  # all puplic and
+  # privates that I'm subscribed too
+  # and all channels I own
+  def get_all_channels(%User{id: user_id} = user) do
+    cond do
+      User.has_role?(user, "admin") ->
+        from c in @module, where: c.type == 0 or c.type == 1, preload: [:subscriptions]
+      User.has_role?(user, "user") ->
+        from c in @module,
+          left_join: s in Subscription, on: s.channel_id == c.id and s.user_id == ^user_id,
+          where: c.type == 0 or (c.type == 1 and s.user_id == ^user_id) or c.user_id == ^user_id
+          # where: (c.type == 0 or (c.type == 1 and not is_nil(s.id))) and not s.hidden # or c.user_id == ^user_id)
+      true -> from c in @module, where: false
+    end
+  end
+
   def room_route(channel) do
     case channel.type do
       ch when ch in [0,1] -> "channels"
@@ -137,5 +159,17 @@ defmodule UcxChat.Channel do
   end
   def direct?(channel) do
     channel.type == 2
+  end
+
+  def subscription_status(%{subscriptions: subs} = channel, user_id) when is_list(subs) do
+    Enum.reduce subs, {false, false}, fn
+      %{user_id: ^user_id, hidden: hidden}, _acc -> {true, hidden}
+      _, acc -> acc
+    end
+  end
+  def subscription_status(channel, user_id) do
+    channel
+    |> Repo.preload([:subscriptions])
+    |> subscription_status(user_id)
   end
 end

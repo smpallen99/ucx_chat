@@ -12,7 +12,8 @@
     border-style: solid;
 
     &::placeholder {
-      color: mix($color, $bg, 75%);
+      // color: mix($color, $bg, 75%);
+      color: #fff;
     }
 
     &[disabled] {

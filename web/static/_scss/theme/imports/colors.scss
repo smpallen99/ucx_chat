@@ -263,7 +263,8 @@ $transparent-lightest: rgba(255, 255, 255, 0.6);
   }
 
   &::placeholder {
-    color: $transparent-lighter;
+    // color: $transparent-lighter;
+    color: #fff;
   }
 }
 
@@ -555,7 +556,7 @@ a:hover {
   }
 
   input,
-  nav select,
+  select,
   textarea {
     color: #fff;
     background-color: transparent;

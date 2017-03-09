@@ -13,4 +13,13 @@ defmodule UcxChat.SideNavService do
     |> Phoenix.HTML.safe_to_string
   end
 
+  def render_more_channels(user_id) do
+    user = Helpers.get_user! user_id
+    channels = ChannelService.get_side_nav_rooms(user)
+
+    "list_combined_flex.html"
+    |> UcxChat.SideNavView.render(channels: channels, current_user: user)
+    |> Phoenix.HTML.safe_to_string
+  end
+
 end

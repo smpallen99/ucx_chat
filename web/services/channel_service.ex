@@ -110,6 +110,10 @@ defmodule UcxChat.ChannelService do
   ##################
   #
 
+  def get_side_nav_rooms(%User{id: id} = user) do
+    user |> Channel.get_all_channels |> Repo.all
+  end
+
   @doc """
   Get the side_nav data used in the side_nav templates
   """
@@ -854,6 +858,7 @@ defmodule UcxChat.ChannelService do
   def get_templ(:direct), do: "direct_messages.html"
   def get_templ(_), do: "channels.html"
 
+  def get_icon(%Channel{type: type}), do: get_icon(type)
   def get_icon(0), do: "icon-hash"
   def get_icon(1), do: "icon-lock"
   def get_icon(2), do: "icon-at"
