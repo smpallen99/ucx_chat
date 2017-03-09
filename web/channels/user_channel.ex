@@ -148,7 +148,9 @@ defmodule UcxChat.UserChannel do
   @links ~w(preferences profile)
   def handle_in(ev = "account_link:click:" <> link, params, socket) when link in @links do
     debug ev, params
-    html = Helpers.render(AccountView, "account_#{link}.html")
+    user = Helpers.get_user(socket.assigns.user_id)
+    account_cs = Account.changeset(user.account, %{})
+    html = Helpers.render(AccountView, "account_#{link}.html", user: user, account_changeset: account_cs)
     push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
     {:noreply, socket}
   end

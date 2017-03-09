@@ -4,7 +4,7 @@ import RoomManager from './room_manager'
 
 class SideNav {
   constructor() {
-    this.register_events(this)
+    this.register_events()
   }
 
   more_channels() {
@@ -24,17 +24,17 @@ class SideNav {
     })
   }
 
-  register_events(_this) {
-    $('body').on('click', 'span.arrow.close', function(e) {
+  register_events() {
+    $('body')
+    .on('click', 'span.arrow.close', (e) => {
       e.preventDefault()
       $('.flex-nav header').click()
     })
-    $('span.arrow').on('click', function(e) {
+    .on('click', 'span.arrow', (e) => {
       e.preventDefault()
       $('.side-nav .account-box').click()
     })
-    // $('aside.side-nav > span.arrow').on('click', function() {
-    $('.side-nav .account-box').on('click', function(e) {
+    .on('click', '.side-nav .account-box', (e) => {
       e.preventDefault()
       let elem = $('aside.side-nav span.arrow')
       if (elem.hasClass('top')) {
@@ -45,26 +45,25 @@ class SideNav {
         SideNav.show_account_box_menu()
       }
     })
-
-    $('button#logout').on('click', function(e) {
+    .on('click', 'button#logout', (e) => {
       e.preventDefault()
       window.location.href = "/logout"
     })
-    $('button.account-link').on('click', function(e) {
+    .on('click', 'button.account-link', (e) => {
       e.preventDefault()
       $('.main-content-cache').html($('.main-content').html())
-      userchan.push('side_nav:open', {page: $(this).attr('id')})
+      userchan.push('side_nav:open', {page: $(e.currentTarget).attr('id')})
         .receive("ok", resp => {
           $('.flex-nav section').html(resp.html)
         })
       $('div.flex-nav').removeClass('animated-hidden')
       $('aside.side-nav span.arrow').removeClass('top').addClass('close')
     })
-    $('nav.options button.status').on('click', function(e) {
+    .on('click', 'nav.options button.status', (e) =>  {
       e.preventDefault()
-      systemchan.push('status:set:' + $(this).data('status'), {})
+      systemchan.push('status:set:' + $(e.currentTarget).data('status'), {})
     })
-    $('body').on('click', '.flex-nav header', function(e) {
+    .on('click', '.flex-nav header', (e) => {
       e.preventDefault()
       userchan.push('side_nav:close', {})
       console.log('.flex-nav header clicked')
@@ -74,17 +73,17 @@ class SideNav {
       $('.main-content-cache').html('')
       SideNav.hide_account_box_menu()
     })
-    $('body').on('click', '.account-link', function(e) {
+    .on('click', '.account-link', e => {
       e.preventDefault()
-      userchan.push('account_link:click:' + $(this).data('link'), {})
+      userchan.push('account_link:click:' + $(e.currentTarget).data('link'), {})
     })
-    $('body').on('click', '.admin-link', function(e) {
+    .on('click', '.admin-link', e => {
       e.preventDefault()
-      userchan.push('admin_link:click:' + $(this).data('link'), {})
+      userchan.push('admin_link:click:' + $(e.currentTarget).data('link'), {})
     })
-    $('body').on('submit', '#account-preferences-form', function(e) {
+    .on('submit', '#account-preferences-form', e => {
       e.preventDefault()
-      userchan.push('account:preferences:save', $(this).serializeArray())
+      userchan.push('account:preferences:save', $(e.currentTarget).serializeArray())
         .receive("ok", resp => {
           if (resp.success) {
             toastr.success(resp.success)
@@ -93,14 +92,14 @@ class SideNav {
           }
         })
     })
-    $('body').on('click', 'button.more-channels', function(e) {
+    .on('click', 'button.more-channels', e =>  {
       e.preventDefault()
-      _this.more_channels()
+      this.more_channels()
       return false
     })
-    $('body').on('click', 'a.channel-link', function(e) {
+    .on('click', 'a.channel-link', e => {
       e.preventDefault()
-      _this.channel_link_click($(this))
+      this.channel_link_click($(e.currentTarget))
       return false
     })
     // $('button.status').on('click', function(e) {
