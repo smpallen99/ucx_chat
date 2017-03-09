@@ -166,20 +166,20 @@ class RoomManager {
       let username = $(this).parent().attr('data-username')
       e.preventDefault()
       sweetAlert({
-        title: "Are you sure?",
-        text: "The user wont be able to type in " + ucxchat.room,
+        title: gettext.are_you_sure,
+        text: gettext.the_user_wont_able_type + ' ' + ucxchat.room,
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Yes, mute user!",
+        confirmButtonText: gettext.yes_mute_user,
         closeOnConfirm: false
       },
       function(){
         cc.put("/room/mute-user/" + username)
           .receive("ok", resp => {
             swal({
-                title: 'Muted',
-                text: "The user has been muted in " + ucxchat.room,
+                title: gettext.muted,
+                text: gettext.the_user_wont_able_type + ' ' + ucxchat.room,
                 type: 'success',
                 timer: 2000,
                 showConfirmButton: false,
@@ -194,8 +194,8 @@ class RoomManager {
       let username = $(this).parent().attr('data-username')
       e.preventDefault()
       sweetAlert({
-        title: "Are you sure?",
-        text: "The user will be removed from " + ucxchat.room,
+        title: gettext.are_you_sure,
+        text: gettext.the_user_will_be_removed_from + ' ' + ucxchat.room,
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
@@ -206,8 +206,8 @@ class RoomManager {
         cc.put("/room/remove-user/" + username)
           .receive("ok", resp => {
             swal({
-                title: 'Removed',
-                text: "The user has been removed from " + ucxchat.room,
+                title: gettext.removed,
+                text: gettext.the_user_was_remove_from + ' ' + ucxchat.room,
                 type: 'success',
                 timer: 2000,
                 showConfirmButton: false,
@@ -231,12 +231,12 @@ class RoomManager {
       let room = $(this).closest('.open-room').data('room')
       console.log('cliecked open-room', room)
       sweetAlert({
-        title: "Are you sure?",
-        text: 'Are you sure you want to hide the room "' + room + '"?',
+        title: gettext.are_you_sure,
+        text: gettext.are_you_sure_you_want_to_hide_the_room + ' "' + room + '"?',
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Yes, hide it!",
+        confirmButtonText: gettext.yes_hide_it,
         closeOnConfirm: false
       },
       function(){
@@ -261,20 +261,20 @@ class RoomManager {
       let room = $(this).closest('.open-room').data('room')
       console.log('cliecked leave-room', room)
       sweetAlert({
-        title: "Are you sure?",
-        text: 'Are you sure you want to leave the room "' + room + '"?',
+        title: gettext.are_you_sure,
+        text: gettext.are_you_sure_leave_the_room + ' "' + room + '"?',
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Yes, leave it!",
+        confirmButtonText: gettext.yes_leave_it,
         closeOnConfirm: false
       },
       function(){
         cc.put("/room/leave/" + room)
           .receive("ok", resp => {
             swal({
-                title: 'Left the room',
-                text: "You have left the room " + ucxchat.room,
+                title: gettext.left_the_room,
+                text: gettext.you_have_left_the_room + " " + ucxchat.room,
                 type: 'success',
                 timer: 500,
                 showConfirmButton: false,

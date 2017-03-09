@@ -65,7 +65,6 @@ class AdminFlexBar {
             if (resp.code_update) {
               utils.code_update(resp.code_update)
             }
-
           })
           .receive("error", resp => {
             if (resp.error) { toastr.error(resp.error) }
@@ -73,17 +72,17 @@ class AdminFlexBar {
         break
       case 'delete':
         sweet.warning(
-          'Deleting a user will delete all messages from that user as well. This cannot be undone.',
-          'Yes, delete it!',
+          gettext.deleting_user_delete_messages,
+          gettext.yes_delete_it,
           function() {
             userchan.push('admin:flex:action:' + action, {username: username})
               .receive("ok", resp => {
                 if (resp.success) { toastr.success(resp.success) }
-                sweet.warning_confirmation('Deleted', 'The user has been deleted', 2000)
+                sweet.warning_confirmation(gettext.deleted, gettext.the_user_has_been_deleted, 2000)
               })
               .receive("error", resp => {
                 if (resp.error) { toastr.error(resp.error) }
-                sweet.warning_confirmation('Not Deleted', 'The user was not deleted', 2000)
+                sweet.warning_confirmation(gettext.not_deleted, gettext.the_user_was_not_deleted, 2000)
               })
         })
         break

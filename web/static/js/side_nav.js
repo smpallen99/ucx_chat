@@ -60,17 +60,6 @@ class SideNav {
       $('div.flex-nav').removeClass('animated-hidden')
       $('aside.side-nav span.arrow').removeClass('top').addClass('close')
     })
-    // $('button#admin').on('click', function(e) {
-    //   console.log('clicked admin....')
-    //   e.preventDefault()
-    //   $('.main-content-cache').html($('.main-content').html())
-    //   userchan.push('side_nav:open', {page: "admin"})
-    //     .receive("ok", resp => {
-    //       $('.flex-nav section').html(resp.html)
-    //     })
-    //   $('div.flex-nav').removeClass('animated-hidden')
-    //   $('aside.side-nav span.arrow').removeClass('top').addClass('close')
-    // })
     $('nav.options button.status').on('click', function(e) {
       e.preventDefault()
       systemchan.push('status:set:' + $(this).data('status'), {})

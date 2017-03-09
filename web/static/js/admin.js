@@ -12,7 +12,7 @@ class Admin {
     let save = $('button.save')
     if (save.attr('disabled') == 'disabled') {
       save.removeAttr('disabled')
-      save.parent().prepend('<button class="button danger discard"><i class="icon-send"></i><span>Cancel</span></button>')
+      save.parent().prepend(`<button class="button danger discard"><i class="icon-send"></i><span>${gettext.cancel}</span></button>`)
       this.modified = true
     }
   }

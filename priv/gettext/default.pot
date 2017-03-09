@@ -1,0 +1,676 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: web/services/admin_service.ex:104
+msgid " does not exist."
+msgstr ""
+
+#: web/views/flex_bar_view.ex:25
+msgid " users"
+msgstr ""
+
+#: web/views/admin_view.ex:131
+msgid "ACTIVATE"
+msgstr ""
+
+#: web/templates/flex_bar/user_edit.html.haml:9
+msgid "Add User"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:32
+msgid "Add bad words to the blacklist"
+msgstr ""
+
+#: web/templates/side_nav/list_combined_flex.html.haml:14
+#: web/templates/side_nav/list_combined_flex.html.haml:31
+msgid "All"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:24
+msgid "Allow Message Deleting"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:20
+msgid "Allow Message Editing"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:50
+msgid "Allow Message Pinning"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:53
+msgid "Allow Message Snippeting"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:51
+msgid "Allow Message Staring"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:31
+msgid "Allow Message bad words filtering"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:50
+msgid "Allow messages to be pinned to any of the channels."
+msgstr ""
+
+#: web/templates/master/main.html.haml:26
+msgid "Are you sure?"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:59
+msgid "AutoLinker"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:62
+msgid "AutoLinker 'www' URLs"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:65
+msgid "AutoLinker Email"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:66
+msgid "AutoLinker Phone"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:61
+msgid "AutoLinker Scheme:// URLs"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:60
+msgid "AutoLinker Strip Prefix"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:63
+msgid "AutoLinker TLD URLs"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:64
+msgid "AutoLinker URL Regular Expression"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:26
+msgid "Block Message Deleting After (n) Minutes"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:22
+msgid "Block Message Editing After (n) Minutes"
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:26
+msgid "Body Font Family"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:14
+#: web/templates/admin/room_info.html.haml:32
+#: web/templates/admin/room_info.html.haml:56
+#: web/templates/admin/room_info.html.haml:74
+#: web/templates/admin/room_info.html.haml:99
+#: web/templates/admin/room_info.html.haml:124
+#: web/templates/flex_bar/user_edit.html.haml:62
+msgid "Cancel"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:50 web/views/admin_view.ex:108
+msgid "Channel"
+msgstr ""
+
+#: web/templates/admin/rooms.html.eex:23
+#: web/templates/side_nav/list_combined_flex.html.haml:3
+msgid "Channels"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:41
+msgid "Comma-separated list of hosts or CIDR addresses, eg. localhost, 127.0.0.1, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:40
+msgid "Comma-separated list of usernames to disable the embedded link previews."
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:18
+msgid "Content"
+msgstr ""
+
+#: web/templates/flex_bar/user_card.html.haml:32
+msgid "Created at"
+msgstr ""
+
+#: web/views/admin_view.ex:129
+msgid "DEACTIVATE"
+msgstr ""
+
+#: web/views/admin_view.ex:140
+msgid "DELETE"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:43
+msgid "Date Format"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:113
+#: web/templates/admin/room_info.html.haml:128
+#: web/templates/admin/rooms.html.eex:38
+msgid "Default"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:143
+#: web/templates/flex_bar/channel_settings.html.haml:20
+msgid "Delete"
+msgstr ""
+
+#: web/views/admin_view.ex:110
+msgid "Direct Message"
+msgstr ""
+
+#: web/templates/admin/rooms.html.eex:24
+msgid "Direct Messages"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:40
+msgid "Disable Embed for Users"
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:31
+msgid "Display Roles"
+msgstr ""
+
+#: web/templates/coherence/session/new.html.eex:48
+msgid "E-MetroTel's UCx"
+msgstr ""
+
+#: web/views/admin_view.ex:136
+msgid "EDIT"
+msgstr ""
+
+#: web/templates/admin/users.html.eex:36
+#: web/templates/flex_bar/user_edit.html.haml:19
+msgid "Email"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:41
+msgid "Embed Ignored Hosts"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:39
+msgid "Embed Link Previews"
+msgstr ""
+
+#: web/templates/admin/general.html.haml:21
+msgid "Enable Favorite Rooms"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:22
+#: web/templates/admin/message.html.haml:26
+msgid "Enter 0 to disable blocking."
+msgstr ""
+
+#: web/templates/admin/code_mirror.html.haml:28
+msgid "Exit Full Screen"
+msgstr ""
+
+#: web/templates/admin/slash_commands.html.haml:6 web/views/admin_view.ex:16
+msgid "Expand"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:97
+#: web/templates/admin/room_info.html.haml:122
+msgid "False"
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:25
+msgid "Fonts"
+msgstr ""
+
+#: web/templates/coherence/session/new.html.eex:40
+msgid "Forgot your password"
+msgstr ""
+
+#: web/templates/admin/code_mirror.html.haml:27
+msgid "Full Screen"
+msgstr ""
+
+#: web/templates/admin/admin_flex.html.haml:28
+#: web/templates/admin/general.html.haml:5
+msgid "General"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:37
+msgid "Grouping Period (in seconds)"
+msgstr ""
+
+#: web/templates/side_nav/list_combined_flex.html.haml:54
+#: web/templates/side_nav/list_combined_flex.html.haml:54
+msgid "Hidden"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:48
+msgid "Hide \"User Added\" messages"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:45
+msgid "Hide \"User Join\" messages"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:46
+msgid "Hide \"User Leave\" messages"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:49
+msgid "Hide \"User Muted / Unmuted\" messages"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:47
+msgid "Hide \"User Removed\" messages"
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:20
+msgid "Home Body"
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:19
+msgid "Home Title"
+msgstr ""
+
+#: web/templates/admin/admin_flex.html.haml:10
+#: web/templates/admin/info.html.haml:5
+msgid "Info"
+msgstr ""
+
+#: web/templates/flex_bar/user_edit.html.haml:50
+msgid "Join default channels"
+msgstr ""
+
+#: web/templates/side_nav/list_combined_flex.html.haml:13
+msgid "Joined"
+msgstr ""
+
+#: web/templates/flex_bar/user_card.html.haml:37
+msgid "Last Login"
+msgstr ""
+
+#: web/templates/side_nav/list_combined_flex.html.haml:25
+msgid "Last seen"
+msgstr ""
+
+#: web/templates/admin/admin_flex.html.haml:35
+#: web/templates/admin/layout.html.haml:5
+msgid "Layout"
+msgstr ""
+
+#: web/templates/side_nav/list_combined_flex.html.haml:44
+msgid "List of Channels"
+msgstr ""
+
+#: web/templates/coherence/session/new.html.eex:34
+msgid "Login"
+msgstr ""
+
+#: web/views/admin_view.ex:123
+msgid "MAKE ADMIN"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:34
+msgid "Maximum Allowed Message Size"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:33
+msgid "Maximum channel size for ALL message"
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:33
+msgid "Merge private groups with channels"
+msgstr ""
+
+#: web/templates/admin/admin_flex.html.haml:32
+#: web/templates/admin/message.html.haml:5
+msgid "Message"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:37
+msgid "Messages will be grouped with previous message if both are from the same user and the elapsed time was less than the informed time in seconds."
+msgstr ""
+
+#: web/templates/admin/rooms.html.eex:37
+msgid "Msgs"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:10
+#: web/templates/admin/rooms.html.eex:34 web/templates/admin/users.html.eex:34
+#: web/templates/flex_bar/user_edit.html.haml:11
+#: web/templates/side_nav/list_combined_flex.html.haml:20
+#: web/templates/side_nav/list_combined_flex.html.haml:24
+msgid "Name"
+msgstr ""
+
+#: web/templates/admin/permissions.html.eex:13
+msgid "New_role"
+msgstr ""
+
+#: web/templates/admin/permissions.html.eex:44
+msgid "Not_authorized"
+msgstr ""
+
+#: web/templates/side_nav/list_combined_flex.html.haml:21
+msgid "Number of messages"
+msgstr ""
+
+#: web/services/admin_service.ex:244
+msgid "Offline Users"
+msgstr ""
+
+#: web/services/admin_service.ex:243
+msgid "Online Users"
+msgstr ""
+
+#: web/views/flex_bar_view.ex:16
+msgid "Online: "
+msgstr ""
+
+#: web/templates/side_nav/list_combined_flex.html.haml:56
+#: web/templates/side_nav/list_combined_flex.html.haml:56
+msgid "Open"
+msgstr ""
+
+#: web/templates/flex_bar/user_edit.html.haml:30
+msgid "Password"
+msgstr ""
+
+#: web/templates/admin/admin_flex.html.haml:20
+msgid "Permissions"
+msgstr ""
+
+#: web/templates/admin/admin_flex_tab_bar.html.haml:6
+msgid "Please select a"
+msgstr ""
+
+#: web/templates/coherence/session/new.html.eex:34
+msgid "Please wait..."
+msgstr ""
+
+#: web/templates/side_nav/list_combined_flex.html.haml:33
+msgid "Private"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:54 web/views/admin_view.ex:109
+msgid "Private Group"
+msgstr ""
+
+#: web/templates/admin/rooms.html.eex:25
+msgid "Private Groups"
+msgstr ""
+
+#: web/services/admin_service.ex:128
+msgid "Problem  making the an admin"
+msgstr ""
+
+#: web/services/admin_service.ex:156
+msgid "Problem activating User"
+msgstr ""
+
+#: web/services/admin_service.ex:158
+msgid "Problem encountered. User is still activated"
+msgstr ""
+
+#: web/services/admin_service.ex:130
+msgid "Problem encountered. User is still an admin"
+msgstr ""
+
+#: web/templates/side_nav/list_combined_flex.html.haml:32
+msgid "Public"
+msgstr ""
+
+#: web/views/admin_view.ex:121
+msgid "REMOVE ADMIN"
+msgstr ""
+
+#: web/templates/admin/rooms.html.eex:28 web/templates/admin/users.html.eex:27
+msgid "RESULTS"
+msgstr ""
+
+#: web/templates/flex_bar/user_edit.html.haml:32
+msgid "Random"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:103
+msgid "Read only"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:88
+msgid "Read only channel"
+msgstr ""
+
+#: web/templates/admin/info.html.haml:19
+msgid "Refresh"
+msgstr ""
+
+#: web/templates/coherence/session/new.html.eex:37
+msgid "Register a new account"
+msgstr ""
+
+#: web/templates/flex_bar/user_edit.html.haml:37
+msgid "Require password change"
+msgstr ""
+
+#: web/views/admin_view.ex:37
+msgid "Reset"
+msgstr ""
+
+#: web/views/admin_view.ex:33
+msgid "Reset section settings"
+msgstr ""
+
+#: web/templates/flex_bar/user_edit.html.haml:43
+msgid "Role"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:67
+msgid "Room archivation state"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:72
+msgid "Room archivation state false"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:4
+msgid "Room_Info"
+msgstr ""
+
+#: web/templates/admin/admin_flex.html.haml:13
+#: web/templates/admin/rooms.html.eex:10
+msgid "Rooms"
+msgstr ""
+
+#: web/templates/admin/rooms.html.eex:28 web/templates/admin/users.html.eex:27
+msgid "SHOWING"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:15
+#: web/templates/admin/room_info.html.haml:33
+#: web/templates/admin/room_info.html.haml:57
+#: web/templates/admin/room_info.html.haml:75
+#: web/templates/admin/room_info.html.haml:100
+#: web/templates/admin/room_info.html.haml:125
+#: web/templates/flex_bar/user_edit.html.haml:65
+msgid "Save"
+msgstr ""
+
+#: web/templates/admin/general.html.haml:10
+#: web/templates/admin/layout.html.haml:10
+#: web/templates/admin/message.html.haml:10
+msgid "Save changes"
+msgstr ""
+
+#: web/templates/admin/admin_flex.html.haml:25
+#: web/templates/admin/rooms.html.eex:19 web/templates/admin/users.html.eex:19
+#: web/templates/side_nav/list_combined_flex.html.haml:38
+msgid "Search"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:42
+#: web/templates/admin/message.html.haml:43
+msgid "See also: Moment.js"
+msgstr ""
+
+#: web/templates/flex_bar/user_edit.html.haml:56
+msgid "Send welcome email"
+msgstr ""
+
+#: web/templates/admin/admin_flex.html.haml:23
+msgid "Settings"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:28
+msgid "Show Deleted Status"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:27
+msgid "Show Edited Status"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:36
+msgid "Show Formatting Tips"
+msgstr ""
+
+#: web/views/flex_bar_view.ex:11
+msgid "Showing: "
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:21
+msgid "Side Navigation Footer"
+msgstr ""
+
+#: web/templates/admin/general.html.haml:26
+msgid "Slash Commands (Chat Mode)"
+msgstr ""
+
+#: web/templates/admin/general.html.haml:25
+msgid "Slash Commands (Rooms Mode)"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:78
+msgid "State"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:42
+msgid "Time Format"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:27
+msgid "Topic"
+msgstr ""
+
+#: web/services/admin_service.ex:246
+msgid "Total Channels"
+msgstr ""
+
+#: web/services/admin_service.ex:248
+msgid "Total Direct Message Rooms"
+msgstr ""
+
+#: web/services/admin_service.ex:249
+msgid "Total Messages"
+msgstr ""
+
+#: web/services/admin_service.ex:250
+msgid "Total Messages in Channels"
+msgstr ""
+
+#: web/services/admin_service.ex:247
+msgid "Total Private Groups"
+msgstr ""
+
+#: web/services/admin_service.ex:245
+msgid "Total Rooms"
+msgstr ""
+
+#: web/services/admin_service.ex:242
+msgid "Total Users"
+msgstr ""
+
+#: web/services/admin_service.ex:252
+msgid "Total in Direct Messages"
+msgstr ""
+
+#: web/services/admin_service.ex:251
+msgid "Total in Private Groups"
+msgstr ""
+
+#: web/views/flex_bar_view.ex:21
+msgid "Total: "
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:93
+#: web/templates/admin/room_info.html.haml:118
+msgid "True"
+msgstr ""
+
+#: web/templates/admin/room_info.html.haml:45
+#: web/templates/admin/rooms.html.eex:35
+msgid "Type"
+msgstr ""
+
+#: web/templates/admin/info.html.haml:9
+msgid "UCx Chat"
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:34
+msgid "Use full name initials to generate default avatar"
+msgstr ""
+
+#: web/services/admin_service.ex:104
+msgid "User "
+msgstr ""
+
+#: web/templates/admin/layout.html.haml:30
+msgid "User Interface"
+msgstr ""
+
+#: web/services/admin_service.ex:156
+msgid "User has been activated"
+msgstr ""
+
+#: web/services/admin_service.ex:158
+msgid "User has been deactivated"
+msgstr ""
+
+#: web/services/admin_service.ex:130
+msgid "User is no longer an admin"
+msgstr ""
+
+#: web/services/admin_service.ex:128
+msgid "User is now an admin"
+msgstr ""
+
+#: web/templates/admin/users.html.eex:35
+#: web/templates/flex_bar/user_edit.html.haml:15
+msgid "Username"
+msgstr ""
+
+#: web/templates/admin/admin_flex.html.haml:16
+#: web/templates/admin/rooms.html.eex:36 web/templates/admin/users.html.eex:10
+msgid "Users"
+msgstr ""
+
+#: web/templates/flex_bar/user_edit.html.haml:25
+msgid "Verified"
+msgstr ""
+
+#: web/templates/admin/message.html.haml:39
+msgid "Whether embedded link previews are enabled or not when a user posts a link to a website."
+msgstr ""
+
+#: web/templates/admin/rooms.html.eex:15 web/templates/admin/users.html.eex:15
+#: web/templates/flex_bar/user_edit.html.haml:2
+msgid "You are not authorized to view this page"
+msgstr ""

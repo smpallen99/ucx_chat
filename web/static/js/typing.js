@@ -46,18 +46,21 @@ class Typing {
     let len = list.length
     let prepend = ""
     if (len > 1) {
-      if (self_typing)
-        prepend = " are also typing"
-      else
-        prepend = " are typing"
+      if (self_typing) {
+        prepend = " " + gettext.are_also_typing
+      } else {
+        prepend = " " + gettext.are_typing
+      }
     } else if (len == 0) {
       $('form.message-form .users-typing').html('')
       return
     } else {
-      if (self_typing)
-        prepend = " is also typing"
-      else
-        prepend = " is typing"
+      if (self_typing) {
+        prepend = " " + gettext.is_also_typing
+      }
+      else {
+        prepend = " " + gettext.is_typing
+      }
     }
 
     $('form.message-form .users-typing').html("<strong>" + list.join(", ") + "</strong>" + prepend)

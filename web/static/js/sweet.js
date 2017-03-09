@@ -2,7 +2,7 @@ import sweetAlert from "./sweetalert.min"
 
 export function warning(text, confirm_text, confirm_callback) {
   sweetAlert({
-    title: "Are you sure?",
+    title: gettext.are_you_sure,
     text: text,
     type: "warning",
     showCancelButton: true,

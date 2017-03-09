@@ -30,20 +30,20 @@ $(document).ready(function() {
         })
     } else if (data_id == "delete-message") {
       sweetAlert({
-        title: "Are you sure?",
-        text: "You will not be able to recover this message!",
+        title: gettext.are_you_sure,
+        text: gettext.you_will_not_be_able_to_recover_this_message,
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Yes, delete it!",
+        confirmButtonText: gettext.yes_delete_it,
         closeOnConfirm: false
       },
       function(){
         cc.push("message_cog:" + data_id, {message_id: message_id})
           .receive("ok", resp => {
             swal({
-                title: 'Deleted!',
-                text: "Your entry has been deleted.",
+                title: gettext.deleted,
+                text: gettext.your_entry_has_been_deleted,
                 type: 'success',
                 timer: 1500,
                 showConfirmButton: false,

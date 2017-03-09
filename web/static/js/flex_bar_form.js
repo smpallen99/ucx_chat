@@ -62,12 +62,12 @@ $(document).ready(function() {
   })
   $('body').on('click', '.channel-settings nav button.delete', function(e) {
     sweetAlert({
-      title: "Are you sure?",
-      text: "Deleting a room will delete all messages posted within this room.\nThis cannot be undone.",
+      title: gettext.are_you_sure,
+      text: gettext.deleting_room_cannot_undone,
       type: "warning",
       showCancelButton: true,
       confirmButtonColor: "#DD6B55",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: gettext.yes_delete_it,
       closeOnConfirm: false
     },
     function(){
@@ -77,8 +77,8 @@ $(document).ready(function() {
             toastr.success(resp.success)
           }
           swal({
-              title: 'Deleted',
-              text: "The room has be deleted",
+              title: gettext.deleted,
+              text: gettext.the_room_has_be_deleted,
               type: 'success',
               timer: 1000,
               showConfirmButton: false,
