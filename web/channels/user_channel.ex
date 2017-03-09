@@ -300,6 +300,7 @@ defmodule UcxChat.UserChannel do
       true ->
         nil
     end
+    UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     {:noreply, socket}
   end
 

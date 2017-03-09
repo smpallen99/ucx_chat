@@ -1,0 +1,50 @@
+-# - for room_type <- @chatd.room_types do
+-# - if room_type[:can_show_room] do
+-# = render room_type[:template_name], rooms: room_type[:rooms], account: @chatd.user.account
+%header.primary-background-color
+  %div
+    %h4= ~g(Channels)
+.content.primary-background-color
+  .wrapper
+    .flex-control
+      .search
+        %form.search-form(role="form")
+          .input-line.search
+            %select.c-select#show
+              %option.primary-background-color(value="joined" selected="")=~g(Joined)
+              %option.primary-background-color(value="all" selected="")= ~g(All)
+            %i.icon-comment.secondary-font-color
+          .input-line.search
+            %select.c-select#sort-channels
+              %option.primary-background-color(value="name" selected="")= ~g(Name)
+              %option.primary-background-color(value="msgs" selected="")= ~g(Number of messages)
+            %select.c-select#sort-subscriptions(style="display: none")
+              %option.primary-background-color(value="name" selected="")= ~g(Name)
+              %option.primary-background-color(value="ls" selected="")= ~g(Last seen)
+            %i.icon-sort-alt-up.secondary-font-color
+          .input-line.search
+            %select.c-select#channel-type
+              %option.primary-background-color(value="all" selected="")= ~g(All)
+              %option.primary-background-color(value="public" selected="")= ~g(Public)
+              %option.primary-background-color(value="private" selected="")= ~g(Private)
+            %i.icon-lock.secondary-font-color
+          .input-line.search
+            %input.search#channel-search(type="text" placeholder="#{~g(Search)}" autocomplete="off")
+            %i.icon-search.secondary-font-color
+    %h4= ~g(List of Channels)
+    %ul
+      - for channel <- @channels do
+        - {subscribed?, hidden?} = UcxChat.Channel.subscription_status(channel, @current_user.id)
+        %li
+          %a.channel-link(href="/channels/#{channel.name}")
+            %i(class="#{UcxChat.ChannelService.get_icon(channel.type)}")
+            = channel.name
+            %span.opt.fixed
+              - if subscribed? do
+                - if hidden? do
+                  %i.icon-eye-off(title="#{~g(Hidden)}" aria-label="#{~g(Hidden)}"></i>
+                - else
+                  %i.icon-eye(title="#{~g(Open)}" aria-label="#{~g(Open)}")
+    - if false do
+      .load-more
+        {{> loading}}

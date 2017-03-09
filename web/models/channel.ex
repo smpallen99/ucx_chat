@@ -44,11 +44,6 @@ defmodule UcxChat.Channel do
     do_changeset(struct, user, %{type: type})
   end
   def changeset_settings(struct, user, [{field, value}]) do
-    # value = case value do
-    #   "true" -> true
-    #   "false" -> false
-    #   other -> other
-    # end
     do_changeset(struct, user, %{field => value})
   end
 
@@ -77,11 +72,6 @@ defmodule UcxChat.Channel do
       _ ->
         add_error(changeset, :user, "permission denied")
     end
-    # if has_permission(user, params) do
-    #   {:ok, multi}
-    # else
-    #   error(multi, :user_id, "You don't have permission for this operation")
-    # end
   end
 
   defp has_permission?(user, %{type: 1}), do: Permission.has_permission?(user, "create-p")
@@ -146,7 +136,6 @@ defmodule UcxChat.Channel do
         from c in @module,
           left_join: s in Subscription, on: s.channel_id == c.id and s.user_id == ^user_id,
           where: c.type == 0 or (c.type == 1 and s.user_id == ^user_id) or c.user_id == ^user_id
-          # where: (c.type == 0 or (c.type == 1 and not is_nil(s.id))) and not s.hidden # or c.user_id == ^user_id)
       true -> from c in @module, where: false
     end
   end
@@ -157,6 +146,7 @@ defmodule UcxChat.Channel do
       _ -> "direct"
     end
   end
+
   def direct?(channel) do
     channel.type == 2
   end
