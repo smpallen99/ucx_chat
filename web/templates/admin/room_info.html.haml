@@ -48,12 +48,14 @@
                 %button.button.primary.save(type="button")= ~g(Save)
               - else
                 %span
-                  # = {{roomTypeDescription}}{{#if canEdit}} <i class="icon-pencil" data-edit="roomType"></i>{{/if}}</span>
+                  = admin_type_label(channel)
+                  - if @can_edit do
+                    %i.icon-pencil(data-edit="type")
         - if !direct? channel do
           %li
-            %label= ~g(Room archivation state)
+            %label= ~g(State)
             %div
-              - if editing[:activation_state] do
+              - if editing[:archived] do
                 %label
                   %input.editing(type="radio" name="channel[activation_state]" value="true" checked="false")
                   = ~g(Room archivation state false)
@@ -61,9 +63,9 @@
                 %button.button.primary.save(type="button")= ~g(Save)
               - else
                 %span
-                  = ~g(State)
+                  = admin_state_label(channel)
                   - if @can_edit do
-                    %i.icon-pencil(data-edit="activation_state")
+                    %i.icon-pencil(data-edit="archived")
         - if !direct? channel do
           %li
             %label= ~g(Read only channel)
@@ -79,7 +81,7 @@
                 %button.button.primary.save(type="button")= ~g(Save)
               - else
                 %span
-                  = ~g(Read only)
+                  = admin_label(channel.read_only)
                   - if @can_edit do
                     %i.icon-pencil(data-edit="read_only")
         - if !direct? channel do
@@ -97,7 +99,7 @@
                 %button.button.primary.save(type="button")= ~g(Save)
               - else
                 %span
-                  = ~g(Default)
+                  = admin_label(channel.default)
                   - if @can_edit do
                     %i.icon-pencil(data-edit="default")
     - if has_permission? @current_user, "delete-" <> Permission.room_type(channel.type) do

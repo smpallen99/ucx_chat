@@ -139,4 +139,21 @@ defmodule UcxChat.AdminView do
   def render_user_action_button(user, "delete") do
     render "user_action_buttons.html", opts: %{type: :danger, action: "delete", icon: :trash, label: ~g(DELETE)}
   end
+
+  def admin_type_label(%{type: 0}), do: ~g(Channel)
+  def admin_type_label(%{type: 1}), do: ~g(Private Group)
+  def admin_type_label(%{type: 2}), do: ~g(Direct Message)
+
+  def admin_state_label(%{archived: true}), do: ~g(Archived)
+  def admin_state_label(_), do: ~g(Active)
+
+  def admin_label(channel, field) do
+    channel
+    |> Map.get(field)
+    |> do_admin_label
+  end
+  def admin_label(item), do: do_admin_label(item)
+
+  defp do_admin_label(true), do: ~g(True)
+  defp do_admin_label(false), do: ~g(False)
 end
