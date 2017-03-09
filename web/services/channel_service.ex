@@ -7,7 +7,7 @@ defmodule UcxChat.ChannelService do
 
   alias UcxChat.{
     Settings, User, Repo, Channel, Subscription, MessageService, User,
-    ChatDat, Direct, Mute, UserChannel, UserRole, Permission
+    ChatDat, Direct, Mute, UserChannel, UserRole, Permission, SideNavService
   }
   alias UcxChat.ServiceHelpers, as: Helpers
   alias Ecto.Multi
@@ -87,7 +87,7 @@ defmodule UcxChat.ChannelService do
     with channel when not is_nil(channel) <- Helpers.get_by(Channel, :name, room),
          changeset <- Channel.changeset_delete(channel),
          {:ok, _} <- Repo.delete(changeset) do
-      Logger.warn "deleting room #{room}"
+      Logger.debug "deleting room #{room}"
       Phoenix.Channel.broadcast socket, "room:delete", %{room: room, channel_id: channel.id}
       Phoenix.Channel.broadcast socket, "reload", %{location: "/"}
       {:ok, %{success: "The room has been deleted", reload: true}}
@@ -114,11 +114,40 @@ defmodule UcxChat.ChannelService do
     user |> Channel.get_all_channels |> Repo.all
   end
 
+  def build_active_room(%Channel{} = channel) do
+    %{
+      active: true,
+      alert: false,
+      archived: channel.archived,
+      can_leave: false,
+      channel_id: channel.id,
+      channel_type: channel.type,
+      display_name: channel.name,
+      hidden: false,
+      name: channel.name,
+      room_icon: get_icon(channel.type),
+      type: room_type(channel.type),
+      unread: false,
+      user_status: "offline"
+    }
+  end
+
+  def unhide_current_channel(%{channel_id: channel_id} = cc, channel_id) do
+    Logger.debug "unhiding channel name: #{inspect cc.channel.name}"
+    unhide_subscription(cc)
+  end
+  def unhide_current_channel(cc, _channel_id), do: cc
+
   @doc """
   Get the side_nav data used in the side_nav templates
   """
   # def get_side_nav(%User{id: id}, channel_id), do: get_side_nav(id, channel_id)
   def get_side_nav(%User{id: id} = user, channel_id) do
+    channel = if channel_id do
+      Helpers.get(Channel, channel_id) || %Channel{}
+    else
+      %Channel{}
+    end
     chat_mode = user.account.chat_mode
     rooms =
       user
@@ -131,6 +160,12 @@ defmodule UcxChat.ChannelService do
         type = get_chan_type(cc.type, chan.type)
         {display_name, user_status} = get_channel_display_name(type, chan, id)
         unread = if cc.unread == 0, do: false, else: cc.unread
+        cc = unhide_current_channel(cc, channel_id)
+        if cc.hidden do
+          Logger.error "hidden id: #{inspect cc.channel_id}, channel_id: #{inspect channel_id}, name: #{inspect cc.channel.name}"
+        else
+          Logger.error "not hidden id: #{inspect cc.channel_id}, channel_id: #{inspect channel_id}, name: #{inspect cc.channel.name}"
+        end
         # Logger.warn "get_side_nav type: #{inspect type}, display_name: #{inspect display_name}"
         # IEx.pry
         %{
@@ -143,8 +178,7 @@ defmodule UcxChat.ChannelService do
     rooms = Enum.reject rooms, fn %{channel_type: chan_type, hidden: hidden} ->
       chat_mode && (chan_type in [0,1]) or hidden
     end
-    active_room = Enum.find(rooms, &(&1[:active]))
-    Logger.debug "get_side_nav active_room: #{inspect active_room}"
+    active_room = Enum.find(rooms, &(&1[:active])) || build_active_room(channel)
 
     room_map = Enum.reduce rooms, %{}, fn room, acc ->
       put_in acc, [room[:channel_id]], room
@@ -180,10 +214,6 @@ defmodule UcxChat.ChannelService do
           other -> other
         end
       end)
-
-    # IEx.pry
-    # Logger.warn "get_side_nav room_types 2: #{inspect room_types}"
-    # Logger.warn "get_side_nav room_map 2: #{inspect room_map}"
 
     %{room_types: room_types, room_map: room_map, rooms: [], active_room: active_room}
   end
@@ -223,19 +253,29 @@ defmodule UcxChat.ChannelService do
     "/" <> Channel.room_route(channel) <> "/" <> display_name
   end
 
+  defp unhide_subscription(subscription) do
+    subscription
+    |> Subscription.changeset(%{hidden: false})
+    |> Repo.update!
+  end
+
   def open_room(user_id, room, _old_room, display_name) do
-    # Logger.debug "open_room user_id: #{inspect user_id}, room: #{inspect room}, old_room: #{inspect old_room}"
-    # user =
-    #   User
-    #   |> where([c], c.id == ^user_id)
-    #   |> preload([:account, :roles])
-    #   |> Repo.one!
+    # Logger.warn "ChannelService.open_room room: #{inspect room}, display_name: #{inspect display_name}"
     user = Helpers.get_user!(user_id)
 
-    channel =
-      Channel
-      |> where([c], c.name == ^room)
-      |> Repo.one!
+    channel = Helpers.get_by! Channel, :name, room, preload: [:subscriptions]
+
+    # {subscribed, hidden} = Channel.subscription_status(channel, user.id)
+
+    # channel = if hidden do
+    #   Enum.find(channel.subscriptions, &(&1.user_id == user.id and &1.channel_id == channel.id))
+    #   |> Subscription.changeset(%{hidden: false})
+    #   |> Repo.update
+
+    #   Helpers.get_by! Channel, :name, room, preload: [:subscriptions]
+    # else
+    #   channel
+    # end
 
     user
     |> User.changeset(%{open_id: channel.id})
@@ -252,12 +292,16 @@ defmodule UcxChat.ChannelService do
       "messages_header.html"
       |> UcxChat.MasterView.render(chatd: chatd)
       |> Phoenix.HTML.safe_to_string
+
+    side_nav_html = SideNavService.render_rooms_list(channel.id, user_id )
+
     %{
       display_name: display_name,
       room_title: room,
       channel_id: channel.id,
       box_html: box_html,
       header_html: header_html,
+      side_nav_html: side_nav_html,
       room_route: Channel.room_route(channel)
     }
   end
@@ -480,7 +524,7 @@ defmodule UcxChat.ChannelService do
     |> Repo.update
     |> case do
       {:ok, _} ->
-        Logger.warn "archiving... #{id}"
+        Logger.debug "archiving... #{id}"
         Subscription
         |> where([s], s.channel_id == ^id)
         |> Repo.update_all(set: [hidden: true])
@@ -503,7 +547,7 @@ defmodule UcxChat.ChannelService do
     |> Repo.update
     |> case do
       {:ok, _} ->
-        Logger.warn "unarchiving... #{id}"
+        Logger.debug "unarchiving... #{id}"
         Subscription
         |> where([s], s.channel_id == ^id)
         |> Repo.update_all(set: [hidden: false])
@@ -656,7 +700,7 @@ defmodule UcxChat.ChannelService do
       {:ok, msg} ->
         notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, string)
         Phoenix.Channel.broadcast socket, "user:action", %{action: "owner", user_id: user.id}
-        Logger.warn "#{inspect action} #{user.id} by #{user_id}...."
+        Logger.debug "#{inspect action} #{user.id} by #{user_id}...."
         {:ok, msg}
       error ->
         Logger.error "user_command error #{inspect error}"
@@ -670,7 +714,7 @@ defmodule UcxChat.ChannelService do
       {:ok, msg} ->
         notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, string)
         Phoenix.Channel.broadcast socket, "user:action", %{action: "moderator", user_id: user.id}
-        Logger.warn "#{inspect action} #{user.id} by #{user_id}...."
+        Logger.debug "#{inspect action} #{user.id} by #{user_id}...."
         {:ok, msg}
       error ->
         Logger.error "user_command error #{inspect error}"
@@ -683,7 +727,7 @@ defmodule UcxChat.ChannelService do
       {:ok, msg} ->
         notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, "removed by")
         Phoenix.Channel.broadcast socket, "user:action", %{action: "removed", user_id: user.id}
-        Logger.warn "#{inspect :remove_user} #{user.id} by #{user_id}...."
+        Logger.debug "#{inspect :remove_user} #{user.id} by #{user_id}...."
         {:ok, msg}
       error ->
         Logger.error "user_command error #{inspect error}"

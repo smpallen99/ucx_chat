@@ -46,7 +46,6 @@ defmodule UcxChat.UserChannel do
 
   def handle_out("room:join" = ev, msg, socket) do
     %{room: room} = msg
-    debug ev, msg, "assigns: #{inspect socket.assigns}"
     UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     update_rooms_list(socket)
     {:noreply, subscribe([room], socket)}
@@ -369,6 +368,7 @@ defmodule UcxChat.UserChannel do
   end
 
   defp update_rooms_list(%{assigns: assigns} = socket) do
+    debug "", inspect(assigns)
     html = SideNavService.render_rooms_list(assigns[:channel_id], assigns[:user_id])
     push socket, "update:rooms", %{html: html}
     socket

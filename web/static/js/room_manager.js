@@ -15,13 +15,15 @@ class RoomManager {
   static render_room(resp) {
     if (debug) { console.log('render_room', resp) }
     $('.room-link').removeClass("active")
-    if (debug) { console.log('room:render', resp) }
     $('.messages-box').html(resp.box_html)
     $('.messages-container .fixed-title h2').html(resp.header_html)
     ucxchat.channel_id = resp.channel_id
     ucxchat.room = resp.room_title
     ucxchat.display_name = resp.display_name
     ucxchat.room_route = resp.room_route
+    if (resp.side_nav_html) {
+      $('aside .rooms-list').html(resp.side_nav_html)
+    }
     $('.room-title').html(ucxchat.display_name)
     $('.link-room-' + ucxchat.room).addClass("active")
     Messages.scroll_bottom()
