@@ -36,7 +36,7 @@ defmodule UcxChat.Channel do
     |> validate_permission(user)
     |> validate_required([:name, :user_id])
     |> validate_format(:name, ~r/^[a-z0-9\.\-_]+$/i)
-    |> validate_length(:name, min: 2, max: 25)
+    |> validate_length(:name, min: 2, max: 50)
   end
 
   def changeset_settings(struct, user, [{"private", value}]) do

@@ -33,6 +33,7 @@
               <tr class="admin-table-row">
                 <th class="content-background-color border-component-color" width="30%"><%= ~g(Name) %></th>
                 <th class="content-background-color border-component-color" width="20%"><%= ~g(Type) %></th>
+                <th class="content-background-color border-component-color" width="20%"><%= ~g(State) %></th>
                 <th class="content-background-color border-component-color" width="20%"><%= ~g(Users) %></th>
                 <th class="content-background-color border-component-color" width="10%"><%= ~g(Msgs) %></th>
                 <th class="content-background-color border-component-color" width="20%"><%= ~g(Default) %></th>
@@ -43,9 +44,10 @@
               <tr class="room-info row-link" data-name="<%= room.name %>">
                 <td class="border-component-color"><%= room.name %></td>
                 <td class="border-component-color"><%= room_type room.type %></td>
+                <td class="border-component-color"><%= admin_state_label room %></td>
                 <td class="border-component-color"><%= room.subscriptions |> length %></td>
                 <td class="border-component-color"><%= room.messages |> length %></td>
-                <td class="border-component-color"><%= false %></td>
+                <td class="border-component-color"><%= admin_label room.default %></td>
               </tr>
               <% end %>
             </tbody>
