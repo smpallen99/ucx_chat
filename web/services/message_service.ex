@@ -133,7 +133,7 @@ defmodule UcxChat.MessageService do
   end
 
   def encode_mentions(body) do
-    re = ~r/(^|\s|\.|\!|:|,|\?)@([a-zA-Z0-9_-]*)/
+    re = ~r/(^|\s|\!|:|,|\?)@([\.a-zA-Z0-9_-]*)/
     if (list = Regex.scan(re, body)) != [] do
       Enum.reduce(list, {body, []}, fn [_, _, name], {body, acc} ->
         encode_mention(name, body, acc)

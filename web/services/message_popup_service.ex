@@ -10,7 +10,6 @@ defmodule UcxChat.MessagePopupService do
     users =
       msg["channel_id"]
       |> get_users_by_pattern(msg["user_id"], "%" <> pattern <> "%")
-      |> add_status
 
     if length(users) > 0 do
       data = users ++ [
@@ -92,11 +91,14 @@ defmodule UcxChat.MessagePopupService do
   def get_all_users(pattern, exclude, count) do
     User
     |> where([c], like(c.username, ^pattern) and not c.id in ^exclude)
+    |> join(:left, [c], r in assoc(c, :roles))
+    |> preload([c, r], [roles: c])
+    |> select([c], c)
     |> order_by([c], asc: c.username)
     |> limit(^count)
-    |> select([c], {c.id, c.username})
     |> Repo.all
-    |> Enum.map(fn {id, nn} -> %{id: id, username: nn, status: "online"} end)
+    |> Enum.reject(fn user -> User.has_role?(user, "bot", 0) end)
+    |> Enum.map(fn user -> %{id: user.id, username: user.username, status: PresenceAgent.get(user.id)} end)
   end
 
   def get_default_users(channel_id, user_id, pattern \\ "%") do
@@ -110,11 +112,14 @@ defmodule UcxChat.MessagePopupService do
 
     User
     |> where([c], like(c.username, ^pattern) and c.id in ^user_ids)
-    |> select([c], {c.id, c.username})
+    |> join(:left, [c], r in assoc(c, :roles))
+    |> preload([c, r], [roles: c])
+    |> select([c], c)
     |> Repo.all
+    |> Enum.reject(fn user -> User.has_role?(user, "bot", 0) end)
     |> Enum.reverse
     |> Enum.take(5)
-    |> Enum.map(fn {id, nn} -> %{username: nn, id: id, status: "online"} end)
+    |> Enum.map(fn user -> %{username: user.username, id: user.id, status: PresenceAgent.get(user.id)} end)
   end
 
   defp add_status(users) do
