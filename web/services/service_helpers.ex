@@ -82,6 +82,7 @@ defmodule UcxChat.ServiceHelpers do
   end
 
   def last_page(query, page_size \\ 150) do
+    page_size = 75
     count = count(query)
     offset = case count - page_size do
       offset when offset >= 0 -> offset

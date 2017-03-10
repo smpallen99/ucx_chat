@@ -1,8 +1,11 @@
 import * as cc from './chat_channel'
+import * as utils from './utils'
 
-const debug = false;
+const debug = true;
 
 const new_message_unread_time = 5000;
+const animation = `<div class="loading-animation"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>`
+const loadmore = `<li class="load-more">${animation}<li>`
 
 // Handle the first-unread banner and the unread-bar with the following algorithm
 // When the user's browser is not in focus (blur) and a new message comes in
@@ -134,17 +137,25 @@ class UnreadManager {
 
   scroll(e) {
     if (!this.isloading) {
-      // if ($('.messages-box .wrapper').scrollTop().valueOf() == 0) {
-      //   if (debug) { console.log('at the top...') }
-      //   cc.push('messages:load', {timestamp: $('li.message').first().attr('data-timestamp')})
-      //     .receive("ok", resp => {
-      //       if (debug) { console.log('got response back from loading', resp) }
-      //       $('.messages-box .wrapper ul').prepend(resp.html)
-      //       if (debug) { console.log('finished loading') }
-      //       this.isloading = false
-      //     })
-      //   return
-      // }
+      if ($('.messages-box .wrapper').scrollTop().valueOf() == 0) {
+        if (debug) { console.log('at the top...') }
+        let html = $('.messages-box .wrapper ul').html()
+        utils.page_loading()
+        $('.messages-box .wrapper ul').prepend(loadmore)
+        cc.push('messages:load', {timestamp: $('li.message').first().attr('data-timestamp')})
+        cc.get('/messages', {timestamp: $('li.message').first().attr('data-timestamp')})
+          .receive("ok", resp => {
+            if (debug) { console.log('got response back from loading', resp) }
+
+            $('.messages-box .wrapper ul')[0].innerHTML = resp.html + html
+            // $('.messages-box .wrapper ul').html(html)
+            // $('.messages-box .wrapper ul').prepend(resp.html)
+            if (debug) { console.log('finished loading') }
+            utils.remove_page_loading()
+            this.isloading = false
+          })
+        return
+      }
     }
     if (this.unread) {
        if (debug) { console.log('scrolling unread') }

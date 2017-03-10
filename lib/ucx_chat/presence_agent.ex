@@ -149,6 +149,14 @@ defmodule UcxChat.PresenceAgent do
     end
   end
 
+  def active?(user_id) when is_integer(user_id),
+    do: user_id |> to_string |> active?
+
+  def active?(user) do
+    not is_nil(Agent.get(@name, &Map.get(&1, user)))
+    # @name |> Agent.get(&Map.get(&1, user)) |> is_nil |> not
+  end
+
   def all do
     Agent.get @name, &(&1)
   end

@@ -105,6 +105,11 @@ defmodule UcxChat.RoomChannel do
     end
   end
 
+  def handle_in(ev = "messages:load", msg, socket) do
+    debug ev, msg
+    {:noreply, socket}
+  end
+
   def handle_in(ev = "flex_bar:click:" <> mod, msg, socket) do
     debug ev, msg
     resp = UcxChat.FlexBarService.handle_click(mod, msg)

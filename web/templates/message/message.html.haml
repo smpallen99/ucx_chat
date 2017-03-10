@@ -31,7 +31,7 @@
         %span.role-tag.background-info-font-color(data-role="#{tag}")= tag
     - if is_bot(@message) do
       %span.is-bot.background-info-font-color BOT
-    %span.time(title="{get_date_time(@message, @user)}")= get_time(@message, @user)
+    %span.time(title="#{get_date_time(@message, @user)}")= get_time(@message, @user)
     - if edited = edited(@message, @user) do
       %span.edited(title="edited at #{edited[:edit_time]} by #{edited[:edited_by]}")
         %i.icon-edit(aria-label="Edited")

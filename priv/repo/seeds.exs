@@ -119,7 +119,14 @@ users
   |> Repo.insert!
 end)
 
-add_messages = false
+chan_parts = ~w(biz sales tech foo home work product pbx phone iphone galaxy android slim user small big sand storm snow rain tv shows earth hail)
+for i <- 1..50 do
+  name = Enum.random(chan_parts) <> to_string(i) <> Enum.random(chan_parts)
+  user = Enum.random(users)
+  ChannelService.insert_channel!(%{name: name, user_id: user.id})
+end
+
+add_messages = true
 
 if add_messages do
   messages = [
@@ -155,6 +162,13 @@ if add_messages do
       |> Message.changeset(%{channel_id: ch_id, user_id: id, body: Enum.random(messages)})
       |> Repo.insert!
     end
+  end
+
+  for _ <- 0..500 do
+    id = Enum.random user_ids
+    %Message{}
+    |> Message.changeset(%{channel_id: ch1.id, user_id: id, body: Enum.random(messages)})
+    |> Repo.insert!
   end
 
   new_channel_users = [

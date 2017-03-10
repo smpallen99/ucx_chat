@@ -27,7 +27,7 @@ defmodule UcxChat.MessageChannelController do
       html = render_message(msg)
       push_message(socket, msg.id, user_id, html)
     else
-      {body, mentions} = encode_mentions(message)
+      {body, mentions} = encode_mentions(message, channel_id)
 
       message = create_message(body, user_id, channel_id, msg_params)
       create_mentions(mentions, message.id, message.channel_id)
@@ -44,18 +44,23 @@ defmodule UcxChat.MessageChannelController do
     channel_id = assigns[:channel_id]
     timestamp = params["timestamp"]
     # Logger.warn "timestamp: #{inspect timestamp}"
-    page_size = Application.get_env :ucx_chat, :page_size, 150
-    messages =
+    page_size = Application.get_env :ucx_chat, :page_size, 30
+    list =
       Message
       |> where([m], m.timestamp < ^timestamp and m.channel_id == ^channel_id)
       |> Helpers.last_page(page_size)
       |> preload([:user])
       |> Repo.all
+    Logger.warn "list size: #{inspect length list}"
+    messages =
+      list
       |> Enum.map(fn message ->
         UcxChat.MessageView.render("message.html", user: user, message: message)
         |> Phoenix.HTML.safe_to_string
       end)
       |> to_string
+    messages = String.replace(messages, "\n", "")
+    Logger.warn "html: #{messages}"
     {:reply, {:ok, %{html: messages}}, socket}
   end
 
