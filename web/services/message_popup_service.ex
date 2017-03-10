@@ -71,9 +71,10 @@ defmodule UcxChat.MessagePopupService do
     case length channel_users do
       max when max >= 5 -> channel_users
       size ->
-        exclude = [user_id|Enum.map(channel_users, &(&1[:id]))]
+        exclude = Enum.map(channel_users, &(&1[:id]))
         channel_users ++ get_all_users(pattern, exclude, 5 - size)
     end
+
   end
 
   def get_channels_by_pattern(_channel_id, user_id, pattern) do
