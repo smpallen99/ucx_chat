@@ -41,6 +41,8 @@ defmodule UcxChat.User do
     model
     |> cast(params, @all_params ++ coherence_fields())
     |> validate_required(@required)
+    |> validate_exclusion(:username, ~w(all here))
+    |> validate_format(:username, ~r/^[\.a-zA-Z0-9-_]+$/)
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:username)
     |> validate_coherence(params)

@@ -141,6 +141,14 @@ defmodule UcxChat.MessageService do
     end
   end
 
+  def encode_mention("all", body, acc) do
+
+  end
+
+  def encode_mention("here", body, acc) do
+
+  end
+
   def encode_mention(name, body, acc) do
     User
     |> where([c], c.username == ^name)

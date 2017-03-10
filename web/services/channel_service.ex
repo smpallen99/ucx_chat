@@ -81,8 +81,13 @@ defmodule UcxChat.ChannelService do
     channel_or_name
     |> Subscription.get(user_id)
     |> Repo.one
-    |> Subscription.changeset(%{open: state})
-    |> Repo.update
+    |> case do
+      nil -> nil
+      sub ->
+        sub
+        |> Subscription.changeset(%{open: state})
+        |> Repo.update
+    end
   end
 
   def get_unread(channel_id, user_id) do
@@ -99,21 +104,25 @@ defmodule UcxChat.ChannelService do
     channel_id
     |> Subscription.get(user_id)
     |> Repo.one
-    |> Subscription.changeset(%{unread: 0})
-    |> Repo.update
+    |> case do
+      nil -> nil
+      sub ->
+        sub
+        |> Subscription.changeset(%{unread: 0})
+        |> Repo.update
+    end
   end
 
   def increment_unread(channel_id, user_id) do
-    sub =
-      channel_id
-      |> Subscription.get(user_id)
-      |> Repo.one
-    unread = sub.unread + 1
-    sub
-    |> Subscription.changeset(%{unread: unread})
-    |> Repo.update
-
-    unread
+    with query <- Subscription.get(channel_id, user_id),
+         sub when not is_nil(sub) <- Repo.one(query),
+         unread <- sub.unread + 1,
+         changeset <- Subscription.changeset(sub, %{unread: unread}),
+         {:ok, _} <- Repo.update(changeset) do
+      unread
+    else
+      _ -> 0
+    end
   end
 
   def room_type(0), do: :public

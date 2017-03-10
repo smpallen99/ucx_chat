@@ -4,6 +4,7 @@ defmodule UcxChat.Repo.Migrations.CreateMention do
   def change do
     create table(:mentions) do
       add :unread, :boolean, default: true
+      add :all, :boolean, default: true
       add :user_id, references(:users, on_delete: :nilify_all)
       add :message_id, references(:messages, on_delete: :nilify_all)
       add :channel_id, references(:channels, on_delete: :nilify_all)

@@ -2,8 +2,10 @@ defmodule UcxChat.Mention do
   use UcxChat.Web, :model
 
   @mod __MODULE__
+
   schema "mentions" do
     field :unread, :boolean, default: true
+    field :all, :boolean, default: false
 
     belongs_to :user, UcxChat.User
     belongs_to :message, UcxChat.Message
@@ -19,7 +21,7 @@ defmodule UcxChat.Mention do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, @fields ++ [:unread])
+    |> cast(params, @fields ++ [:unread, :all])
     |> validate_required(@fields)
   end
 
