@@ -1,13 +1,16 @@
 defmodule UcxChat.MessagePopupService do
   require Logger
-  alias UcxChat.{Repo, User, Channel, Message, SlashCommands}
+  alias UcxChat.{Repo, User, Channel, Message, SlashCommands, PresenceAgent}
   # alias UcxChat.ServiceHelpers, as: Helpers
   import Ecto.Query
 
   def handle_in("get:users" <> _mod, msg) do
     Logger.debug "get:users, msg: #{inspect msg}"
     pattern = msg["pattern"] |> to_string
-    users = get_users_by_pattern(msg["channel_id"], msg["user_id"], "%" <> pattern <> "%")
+    users =
+      msg["channel_id"]
+      |> get_users_by_pattern(msg["user_id"], "%" <> pattern <> "%")
+      |> add_status
 
     if length(users) > 0 do
       data = users ++ [
@@ -112,5 +115,12 @@ defmodule UcxChat.MessagePopupService do
     |> Enum.reverse
     |> Enum.take(5)
     |> Enum.map(fn {id, nn} -> %{username: nn, id: id, status: "online"} end)
+  end
+
+  defp add_status(users) do
+    users
+    |> Enum.map(fn user ->
+      Map.put(user, :status, PresenceAgent.get(user.id))
+    end)
   end
 end
