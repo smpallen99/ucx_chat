@@ -20,6 +20,58 @@ defmodule UcxChat.ChannelService do
   @direct_message  2
   @stared_room     3
 
+  def create_subscription(%Channel{} = channel, user_id) do
+    %Subscription{}
+    |> Subscription.changeset(%{user_id: user_id, channel_id: channel.id})
+    |> Repo.insert
+  end
+
+  @doc """
+  Create a channel subscription
+
+  Creates the subscription but does not account the join
+  """
+  def create_subscription(channel_id, user_id) do
+    Channel
+    |> Helpers.get!(channel_id)
+    |> create_subscription(user_id)
+  end
+
+  def invite_user(%User{} = current_user, channel_id, user_id) do
+    current_user.id
+    |> invite_user(channel_id)
+    |> case do
+      {:ok, subs} ->
+        notify_user_action(current_user, user_id, channel_id, "added")
+        {:ok, subs}
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Create a channel subscription and announce the join if configured.
+  """
+  def join_channel(%Channel{} = channel, user_id) do
+    channel
+    |> create_subscription(user_id)
+    |> case do
+      {:ok, subs} ->
+        UserChannel.join_room(user_id, channel.name)
+        unless Settings.hide_user_join() do
+          broadcast_message("Has joined the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
+        end
+        {:ok, subs}
+      error ->
+        error
+    end
+  end
+  def join_channel(channel_id, user_id) do
+    Channel
+    |> Helpers.get!(channel_id)
+    |> join_channel(user_id)
+  end
+
   # def room_type(:public), do: @public_channel
   # def room_type(:private), do: @private_channel
   # def room_type(:direct), do: @direct_message
@@ -161,13 +213,6 @@ defmodule UcxChat.ChannelService do
         {display_name, user_status} = get_channel_display_name(type, chan, id)
         unread = if cc.unread == 0, do: false, else: cc.unread
         cc = unhide_current_channel(cc, channel_id)
-        if cc.hidden do
-          Logger.error "hidden id: #{inspect cc.channel_id}, channel_id: #{inspect channel_id}, name: #{inspect cc.channel.name}"
-        else
-          Logger.error "not hidden id: #{inspect cc.channel_id}, channel_id: #{inspect channel_id}, name: #{inspect cc.channel.name}"
-        end
-        # Logger.warn "get_side_nav type: #{inspect type}, display_name: #{inspect display_name}"
-        # IEx.pry
         %{
           active: active, unread: unread, alert: cc.alert, user_status: user_status,
           can_leave: true, archived: false, name: chan.name, hidden: cc.hidden,
@@ -602,13 +647,11 @@ defmodule UcxChat.ChannelService do
         user_command(socket, command, user, user_id, channel_id)
     end
   end
-
   def user_command(socket, :invite, %User{} = user, user_id, channel_id) do
-    user.id
-    |> invite_user(channel_id)
+    user
+    |> invite_user(channel_id, user_id)
     |> case do
       {:ok, _subs} ->
-        notify_user_action(user, user_id, channel_id, "added")
         {:ok, "User added"}
       {:error, _} ->
         {:error, "Problem inviting `#{user.username}` to this channel."}
@@ -941,15 +984,10 @@ defmodule UcxChat.ChannelService do
   end
 
   def add_user_to_channel(channel, user_id) do
-    %Subscription{}
-    |> Subscription.changeset(%{user_id: user_id, channel_id: channel.id})
-    |> Repo.insert
+    channel
+    |> join_channel(user_id)
     |> case do
       {:ok, _subs} ->
-        UserChannel.join_room(user_id, channel.name)
-        unless Settings.hide_user_join() do
-          broadcast_message("Has joined the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
-        end
         {:ok, "added"}
       result -> result
     end

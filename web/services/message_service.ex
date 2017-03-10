@@ -1,7 +1,7 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
   alias UcxChat.{Message, Repo, TypingAgent, User, Mention, Subscription,
-          Settings, MessageView, ChatDat, Channel}
+          Settings, MessageView, ChatDat, Channel, ChannelService}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -172,7 +172,14 @@ defmodule UcxChat.MessageService do
     subs =
       Subscription
       |> where([s], s.user_id == ^mention and s.channel_id == ^channel_id)
-      |> Repo.one!
+      |> Repo.one
+      |> case do
+        nil ->
+          {:ok, subs} = ChannelService.join_channel(channel_id, mention)
+          subs
+        subs ->
+          subs
+      end
 
     subs
     |> Subscription.changeset(%{unread: subs.unread + 1})
@@ -190,7 +197,14 @@ defmodule UcxChat.MessageService do
 
   def render_message_box(channel_id, user_id) do
     user = Helpers.get_user! user_id
-    channel = Helpers.get!(Channel, channel_id)
+    channel = case Helpers.get(Channel, channel_id) do
+      nil ->
+        Channel
+        |> first
+        |> Repo.one
+      channel ->
+        channel
+    end
     chatd = ChatDat.new(user, channel)
     MessageView.render("message_box.html", chatd: chatd, mb: MessageView.get_mb(chatd))
     |> Phoenix.HTML.safe_to_string
