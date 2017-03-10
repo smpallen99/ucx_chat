@@ -74,6 +74,16 @@ class RoomManager {
     $('.current-setting[data-edit="' + msg.field_name + '"]').html(msg.value)
     console.warn('RoomManager.update', msg)
   }
+  static room_mention(resp) {
+    let parent = `a.open-room[data-name="${resp.room}"]`
+    let elem = $(parent + ' span.unread')
+    console.log('room_manager', resp, elem)
+    if (elem.length == []) {
+      $(parent).prepend(`<span class="unread">${resp.unread}</span>`)
+    } else {
+      elem.text(resp.unread)
+    }
+  }
 
   register_events() {
     $('body').on('click', 'a.open-room', function(e) {
@@ -288,6 +298,18 @@ class RoomManager {
       });
       return false
     })
+
+    $(window).on('focus', () => {
+      RoomManager.clear_unread()
+      console.log('room_manager focus')
+    })
+  }
+
+  static clear_unread() {
+    setTimeout(function() {
+      let parent = `a.open-room[data-name="${ucxchat.room}"]`
+      $(parent + ' span.unread').remove()
+    }, 1000)
   }
 
   static open_room(room, display_name, callback) {

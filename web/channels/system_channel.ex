@@ -1,7 +1,7 @@
 defmodule UcxChat.SystemChannel do
   use Phoenix.Channel
   use UcxChat.ChannelApi
-  alias UcxChat.Presence
+  alias UcxChat.{Presence, UserChannel}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   # import Ecto.Query
@@ -67,6 +67,7 @@ defmodule UcxChat.SystemChannel do
         nil ->
           # Logger.warn "focus socket: #{inspect socket}"
           update_status socket, "online"
+          UserChannel.user_state(socket.assigns.user_id, "active")
           # Presence.update socket, socket.assigns.user_id, %{status: "online"}
           socket
         ref ->
@@ -88,6 +89,7 @@ defmodule UcxChat.SystemChannel do
   def handle_info(:blur_timeout, socket) do
     # Logger.warn "blur_timeout, socket: #{inspect socket}"
     update_status socket, "away"
+    UserChannel.user_state(socket.assigns.user_id, "idle")
     # Presence.update socket, socket.assigns.user_id, %{status: "away"}
     {:noreply, assign(socket, :blur_ref, nil)}
   end

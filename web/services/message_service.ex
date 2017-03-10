@@ -1,7 +1,7 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
   alias UcxChat.{Message, Repo, TypingAgent, User, Mention, Subscription,
-          Settings, MessageView, ChatDat, Channel, ChannelService}
+          Settings, MessageView, ChatDat, Channel, ChannelService, UserChannel}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -23,7 +23,6 @@ defmodule UcxChat.MessageService do
     Phoenix.Channel.push socket, "message:new", create_broadcast_message(id, user_id, html)
   end
 
-
   defp create_broadcast_message(id, user_id, html) do
     %{
       html: html,
@@ -33,7 +32,6 @@ defmodule UcxChat.MessageService do
   end
 
   def get_messages(channel_id, %{tz_offset: tz}) do
-    Logger.warn "get_messages ========================="
     Message
     |> where([m], m.channel_id == ^channel_id)
     |> Helpers.last_page
@@ -167,7 +165,7 @@ defmodule UcxChat.MessageService do
     %Mention{}
     |> Mention.changeset(%{user_id: mention, message_id: message_id, channel_id: channel_id})
     |> Repo.insert!
-    |> notify_mention
+    |> UserChannel.notify_mention
 
     subs =
       Subscription

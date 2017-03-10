@@ -77,11 +77,49 @@ defmodule UcxChat.ChannelService do
   # def room_type(:direct), do: @direct_message
   # def room_type(:stared), do: @stared_room
 
+  def set_subscription_state(channel_or_name, user_id, state) when state in [true, false] do
+    channel_or_name
+    |> Subscription.get(user_id)
+    |> Repo.one
+    |> Subscription.changeset(%{open: state})
+    |> Repo.update
+  end
+
+  def get_unread(channel_id, user_id) do
+    channel_id
+    |> Subscription.get(user_id)
+    |> Repo.one
+    |> case do
+      nil -> 0
+      sub -> sub.unread
+    end
+  end
+
+  def clear_unread(channel_id, user_id) do
+    channel_id
+    |> Subscription.get(user_id)
+    |> Repo.one
+    |> Subscription.changeset(%{unread: 0})
+    |> Repo.update
+  end
+
+  def increment_unread(channel_id, user_id) do
+    sub =
+      channel_id
+      |> Subscription.get(user_id)
+      |> Repo.one
+    unread = sub.unread + 1
+    sub
+    |> Subscription.changeset(%{unread: unread})
+    |> Repo.update
+
+    unread
+  end
+
   def room_type(0), do: :public
   def room_type(1), do: :private
   def room_type(2), do: :direct
   def room_type(3), do: :stared
-
 
   def room_type(:public), do: 0
   def room_type(:private), do: 1
@@ -304,23 +342,21 @@ defmodule UcxChat.ChannelService do
     |> Repo.update!
   end
 
-  def open_room(user_id, room, _old_room, display_name) do
+  def open_room(user_id, room, old_room, display_name) do
+    Logger.warn "open_room room: #{inspect room}, old_room: #{inspect old_room}"
     # Logger.warn "ChannelService.open_room room: #{inspect room}, display_name: #{inspect display_name}"
     user = Helpers.get_user!(user_id)
 
     channel = Helpers.get_by! Channel, :name, room, preload: [:subscriptions]
+    old_channel = Helpers.get_by! Channel, :name, old_room, preload: [:subscriptions]
 
     # {subscribed, hidden} = Channel.subscription_status(channel, user.id)
 
-    # channel = if hidden do
-    #   Enum.find(channel.subscriptions, &(&1.user_id == user.id and &1.channel_id == channel.id))
-    #   |> Subscription.changeset(%{hidden: false})
-    #   |> Repo.update
+    channel.id
+    |> set_subscription_state(user_id, true)
 
-    #   Helpers.get_by! Channel, :name, room, preload: [:subscriptions]
-    # else
-    #   channel
-    # end
+    old_room
+    |> set_subscription_state(user_id, false)
 
     user
     |> User.changeset(%{open_id: channel.id})

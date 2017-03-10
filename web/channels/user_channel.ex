@@ -8,6 +8,7 @@ defmodule UcxChat.UserChannel do
   alias Phoenix.Socket.Broadcast
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService}
   alias UcxChat.{AccountView, Account, AdminService, User, FlexBarView, MessageService, UserSocket}
+  alias UcxChat.{PresenceAgent, ChannelService}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -22,7 +23,14 @@ defmodule UcxChat.UserChannel do
     UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "room:leave", %{room: room, user_id: user_id})
   end
 
-  intercept ["room:join", "room:leave"]
+  def notify_mention(%{user_id: user_id, channel_id: channel_id}) do
+    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "room:mention", %{channel_id: channel_id, user_id: user_id})
+  end
+  def user_state(user_id, state) do
+    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "user:state", %{state: state})
+  end
+
+  intercept ["room:join", "room:leave", "room:mention", "user:state"]
 
   def join(CC.chan_user() <>  user_id, params, socket) do
     debug(CC.chan_user() <> user_id, params)
@@ -33,6 +41,7 @@ defmodule UcxChat.UserChannel do
       |> struct(assigns: Map.merge(new_assigns, socket.assigns))
       |> assign(:subscribed, socket.assigns[:subscribed] || [])
       |> assign(:flex, Flex.new())
+      |> assign(:user_state, "active")
     socket =
       Repo.all(from s in Subscription, where: s.user_id == ^user_id, preload: [:channel, {:user, :roles}])
       |> Enum.map(&(&1.channel.name))
@@ -57,6 +66,26 @@ defmodule UcxChat.UserChannel do
     socket.endpoint.unsubscribe(CC.chan_room <> room)
     update_rooms_list(socket)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
+  end
+  def handle_out("room:mention" = ev, msg, socket) do
+    push_room_mention(msg, socket)
+    {:noreply, socket}
+  end
+  def handle_out("user:state" = ev, msg, socket) do
+    {:noreply, handle_user_state(msg, socket)}
+  end
+
+  def handle_user_state(%{state: "idle"} = msg, socket) do
+    assign socket, :user_state, "idle"
+  end
+  def handle_user_state(%{state: "active"} = msg, socket) do
+    assign socket, :user_state, "active"
+  end
+
+  def push_room_mention(msg, socket) do
+    %{channel_id: channel_id} = msg
+    Process.send_after self(), {:update_mention, channel_id, socket.assigns.user_id}, 250
+    socket
   end
 
   ###############
@@ -332,6 +361,16 @@ defmodule UcxChat.UserChannel do
   def handle_info({:flex, :close, _ch, _tab, _, _params} = msg, socket) do
     debug inspect(msg), ""
     push socket, "flex:close", %{}
+    {:noreply, socket}
+  end
+
+  def handle_info({:update_mention, channel_id, user_id}, socket) do
+    channel = Helpers.get!(Channel, channel_id)
+    with [sub] <- Repo.all(Subscription.get(channel_id, user_id)),
+         open  <- Map.get(sub, :open),
+         false <- socket.assigns.user_state == "active" and open,
+         count <- ChannelService.get_unread(channel_id, user_id),
+      do: push(socket, "room:mention", %{room: channel.name, unread: count})
     {:noreply, socket}
   end
 

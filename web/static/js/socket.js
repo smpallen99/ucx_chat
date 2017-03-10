@@ -209,7 +209,9 @@ function start_user_channel() {
   chan.on("toastr:error", resp => {
     toastr.error(resp.message)
   })
-
+  chan.on("room:mention", resp => {
+    RoomManager.room_mention(resp)
+  })
 
   chan.join()
     .receive("ok", resp => { console.log('Joined user successfully', resp)})
@@ -301,7 +303,7 @@ function start_room_channel(typing) {
   }
   main.run()
   main.update_flexbar()
-
+  RoomManager.clear_unread()
 }
 
 // function checkVisible(elm, threshold, mode) {

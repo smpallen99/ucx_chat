@@ -1,6 +1,7 @@
 defmodule UcxChat.Mention do
   use UcxChat.Web, :model
 
+  @mod __MODULE__
   schema "mentions" do
     field :unread, :boolean, default: true
 
@@ -20,5 +21,11 @@ defmodule UcxChat.Mention do
     struct
     |> cast(params, @fields ++ [:unread])
     |> validate_required(@fields)
+  end
+
+  def count(channel_id, user_id) do
+    from m in @mod,
+      where: m.user_id == ^user_id and m.channel_id == ^channel_id,
+      select: count(m.id)
   end
 end
