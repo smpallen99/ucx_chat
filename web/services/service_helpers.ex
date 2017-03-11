@@ -81,8 +81,7 @@ defmodule UcxChat.ServiceHelpers do
     query |> select([m], count(m.id)) |> Repo.one
   end
 
-  def last_page(query, page_size \\ 150) do
-    page_size = 75
+  def last_page(query, page_size \\ 75) do
     count = count(query)
     offset = case count - page_size do
       offset when offset >= 0 -> offset

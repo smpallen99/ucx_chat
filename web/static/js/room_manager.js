@@ -14,7 +14,7 @@ class RoomManager {
     this.register_events()
   }
 
-  static render_room(resp) {
+  render_room(resp) {
     if (debug) { console.log('render_room', resp) }
     $('.room-link').removeClass("active")
     // $('.messages-box').html(resp.box_html)
@@ -29,11 +29,11 @@ class RoomManager {
     }
     $('.room-title').html(ucxchat.display_name)
     $('.link-room-' + ucxchat.room).addClass("active")
-    Messages.scroll_bottom()
+    utils.scroll_bottom()
     roomchan.leave()
     socket.restart_socket()
   }
-  static toggle_favorite() {
+  toggle_favorite() {
     if (debug) { console.log('toggle_favorite') }
     // roomchan.push("room:favorite", {user_id: ucxchat.user_id, channel_id: ucxchat.channel_id})
     cc.put("/room/favorite")
@@ -42,7 +42,7 @@ class RoomManager {
         $('aside .rooms-list').html(resp.side_nav_html)
       })
   }
-  static add_private(elem) {
+  add_private(elem) {
     let username = elem.parent().attr('data-username')
     if (debug) { console.log('pvt-msg button clicked...', username) }
     // roomchan.push("room:add-direct", {username: username, user_id: ucxchat.user_id, channel_id: ucxchat.channel_id})
@@ -62,7 +62,7 @@ class RoomManager {
         socket.restart_socket()
     })
   }
-  static update(msg) {
+  update(msg) {
     console.log('update...', msg)
     let fname = msg.field_name
     if ( fname == "topic"  || fname == "title") {
@@ -77,7 +77,7 @@ class RoomManager {
     $('.current-setting[data-edit="' + msg.field_name + '"]').html(msg.value)
     console.warn('RoomManager.update', msg)
   }
-  static room_mention(resp) {
+  room_mention(resp) {
     let parent = `a.open-room[data-name="${resp.room}"]`
     let elem = $(parent + ' span.unread')
     console.log('room_manager', resp, elem)
@@ -89,25 +89,25 @@ class RoomManager {
   }
 
   register_events() {
-    $('body').on('click', 'a.open-room', function(e) {
+    $('body').on('click', 'a.open-room', e => {
       e.preventDefault();
-      if (debug) { console.log('clicked a.open-room', e, $(this), $(this).attr('data-room')) }
+      if (debug) { console.log('clicked a.open-room', e, $(e.currentTarget), $(e.currentTarget).attr('data-room')) }
       utils.page_loading()
       $('.main-content').html(utils.loading_animation())
-      RoomManager.open_room($(this).attr('data-room'), $(this).attr('data-name'))
+      this.open_room($(e.currentTarget).attr('data-room'), $(e.currentTarget).attr('data-name'))
     })
-    $('body').on('click', 'a.toggle-favorite', e => {
+    .on('click', 'a.toggle-favorite', e => {
       if (debug) { console.log('click a.toggle-favorite') }
       e.preventDefault();
-      RoomManager.toggle_favorite()
+      this.toggle_favorite()
     })
-    $('body').on('click', '.button.pvt-msg', function(e) {
+    .on('click', '.button.pvt-msg', e => {
       if (debug) { console.log('click .button.pvt-msg') }
       e.preventDefault();
-      RoomManager.add_private($(this))
+      this.add_private(e.currentTarget)
     })
-    $('body').on('click', 'button.set-owner', function(e) {
-      let username = $(this).parent().attr('data-username')
+    .on('click', 'button.set-owner', e => {
+      let username = $(e.currentTarget).parent().attr('data-username')
       e.preventDefault()
       cc.put("/room/set-owner/" + username)
         .receive("ok", resp => {
@@ -116,8 +116,8 @@ class RoomManager {
           toastr.error(resp.error)
         })
     })
-    $('body').on('click', 'button.unset-owner', function(e) {
-      let username = $(this).parent().attr('data-username')
+    .on('click', 'button.unset-owner', e => {
+      let username = $(e.currentTarget).parent().attr('data-username')
       e.preventDefault()
       cc.put("/room/unset-owner/" + username)
         .receive("ok", resp => {
@@ -126,8 +126,8 @@ class RoomManager {
           toastr.error(resp.error)
         })
     })
-    $('body').on('click', 'button.set-moderator', function(e) {
-      let username = $(this).parent().attr('data-username')
+    .on('click', 'button.set-moderator', e => {
+      let username = $(e.currentTarget).parent().attr('data-username')
       e.preventDefault()
       cc.put("/room/set-moderator/" + username)
         .receive("ok", resp => {
@@ -139,8 +139,8 @@ class RoomManager {
           toastr.error(resp.error)
         })
     })
-    $('body').on('click', 'button.unset-moderator', function(e) {
-      let username = $(this).parent().attr('data-username')
+    .on('click', 'button.unset-moderator', e => {
+      let username = $(e.currentTarget).parent().attr('data-username')
       e.preventDefault()
       cc.put("/room/unset-moderator/" + username)
         .receive("ok", resp => {
@@ -149,8 +149,8 @@ class RoomManager {
           toastr.error(resp.error)
         })
     })
-    $('body').on('click', 'button.unmute-user', function(e) {
-      let username = $(this).parent().attr('data-username')
+    .on('click', 'button.unmute-user', e => {
+      let username = $(e.currentTarget).parent().attr('data-username')
       e.preventDefault()
       cc.put("/room/unmute-user/" + username)
         .receive("ok", resp => {
@@ -159,8 +159,8 @@ class RoomManager {
           toastr.error(resp.error)
         })
     })
-    $('body').on('click', 'button.unblock-user', function(e) {
-      let username = $(this).parent().attr('data-username')
+    .on('click', 'button.unblock-user', e => {
+      let username = $(e.currentTarget).parent().attr('data-username')
       e.preventDefault()
       cc.put("/room/unblock-user/" + username)
         .receive("ok", resp => {
@@ -169,8 +169,8 @@ class RoomManager {
           toastr.error(resp.error)
         })
     })
-    $('body').on('click', 'button.block-user', function(e) {
-      let username = $(this).parent().attr('data-username')
+    .on('click', 'button.block-user', e => {
+      let username = $(e.currentTarget).parent().attr('data-username')
       e.preventDefault()
       cc.put("/room/block-user/" + username)
         .receive("ok", resp => {
@@ -179,8 +179,8 @@ class RoomManager {
           toastr.error(resp.error)
         })
     })
-    $('body').on('click', 'button.mute-user', function(e) {
-      let username = $(this).parent().attr('data-username')
+    .on('click', 'button.mute-user', e => {
+      let username = $(e.currentTarget).parent().attr('data-username')
       e.preventDefault()
       sweetAlert({
         title: gettext.are_you_sure,
@@ -207,8 +207,8 @@ class RoomManager {
           })
       });
     })
-    $('body').on('click', 'button.remove-user', function(e) {
-      let username = $(this).parent().attr('data-username')
+    .on('click', 'button.remove-user', e => {
+      let username = $(e.currentTarget).parent().attr('data-username')
       e.preventDefault()
       sweetAlert({
         title: gettext.are_you_sure,
@@ -235,7 +235,7 @@ class RoomManager {
           })
       });
     })
-    $('body').on('click', 'button.join', function(e) {
+    .on('click', 'button.join', e => {
       cc.put("/room/join/" + ucxchat.username)
         .receive("ok", resp => {
         })
@@ -243,10 +243,10 @@ class RoomManager {
           toastr.error(resp.error)
         })
     })
-    $('body').on('click', 'a.open-room i.hide-room', function(e) {
+    .on('click', 'a.open-room i.hide-room', e => {
       e.preventDefault()
-      let room = $(this).closest('.open-room').data('room')
-      console.log('cliecked open-room', room)
+      let room = $(e.currentTarget).closest('.open-room').data('room')
+      // console.log('cliecked open-room', room)
       sweetAlert({
         title: gettext.are_you_sure,
         text: gettext.are_you_sure_you_want_to_hide_the_room + ' "' + room + '"?',
@@ -273,9 +273,9 @@ class RoomManager {
       });
       return false
     })
-    $('body').on('click', 'a.open-room i.leave-room', function(e) {
+    .on('click', 'a.open-room i.leave-room', e => {
       e.preventDefault()
-      let room = $(this).closest('.open-room').data('room')
+      let room = $(e.currentTarget).closest('.open-room').data('room')
       console.log('cliecked leave-room', room)
       sweetAlert({
         title: gettext.are_you_sure,
@@ -308,31 +308,41 @@ class RoomManager {
       let target = $(e.currentTarget)
       let room = target.data('channel')
       console.log('clicked channel link', room)
-      RoomManager.open_room(room, room)
+      this.open_room(room, room)
       return false
     })
+    // .on('scroll', '.messages-box .wrapper', _.throttle(() => {
+    $('.messages-box .wrapper').on('scroll', _.throttle((e) => {
+      if (utils.is_scroll_bottom()) {
+        console.log('scroller scrolling at bottom' )
+      } else {
+        console.log('scroller keep scrolling ' )
+      }
+    }, 150))
 
     $(window).on('focus', () => {
-      RoomManager.clear_unread()
+      this.clear_unread()
       console.log('room_manager focus')
     })
+
   }
 
-  static clear_unread() {
+
+  clear_unread() {
     setTimeout(function() {
       let parent = `a.open-room[data-name="${ucxchat.room}"]`
       $(parent + ' span.unread').remove()
     }, 1000)
   }
 
-  static open_room(room, display_name, callback) {
+  open_room(room, display_name, callback) {
     cc.get("/room/" + room, {display_name: display_name, room: ucxchat.room})
       .receive("ok", resp => {
         console.log('open room response', resp)
         if (resp.redirect) {
           window.location = resp.redirect
         } else {
-          RoomManager.render_room(resp)
+          this.render_room(resp)
         }
         if (callback) { callback() }
         utils.remove_page_loading()

@@ -178,6 +178,35 @@ class UnreadManager {
             this.isloading = false
           })
         return
+      } else if (utils.is_scroll_bottom()) {
+        // console.log('reached the bottom')
+        if (this.has_more_next) {
+          let html = $('.messages-box .wrapper ul').html()
+          let ts = $('.messages-box li[data-timestamp]').last().data('timestamp')
+          let pos_elem = $('.messages-box li[data-timestamp]').last().attr('id')
+          utils.page_loading()
+
+          cc.get('/messages/previous', {timestamp: ts})
+            .receive("ok", resp => {
+
+              $('.messages-box .wrapper ul')[0].innerHTML = html + resp.html
+
+              scroll_to($('#' + pos_elem), 400)
+              $('li.load-more').remove()
+              if (resp.has_more_next) {
+                $('.jump-recent').addClass('not')
+                $('.messages-box .wrapper ul').append(loadmore)
+              } else {
+                $('.jump-recent').removeClass('not')
+              }
+
+              utils.remove_page_loading()
+            })
+
+        } else {
+           $('.jump-recent').hasClass('not')
+        }
+        $('.jump-recent').addClass('not')
       }
     }
     if (this.unread) {

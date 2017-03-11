@@ -62,6 +62,15 @@ defmodule UcxChat.ChannelRouter do
     apply(UcxChat.MessageChannelController, :create, [socket, params])
   end
 
+  def match(:get, socket, ["messages", "surrounding"], params) do
+    apply(UcxChat.MessageChannelController, :surrounding, [socket, params])
+  end
+  def match(:get, socket, ["messages", "last"], params) do
+    apply(UcxChat.MessageChannelController, :last, [socket, params])
+  end
+  def match(:get, socket, ["messages", "previous"], params) do
+    apply(UcxChat.MessageChannelController, :previous, [socket, params])
+  end
   def match(:get, socket, ["messages"], params) do
     apply(UcxChat.MessageChannelController, :index, [socket, params])
   end

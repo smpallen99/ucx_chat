@@ -18,7 +18,7 @@ class SideNav {
   channel_link_click(elem) {
     let name = elem.attr('href').replace('/channels/', '')
     console.log('channel link click', name)
-    RoomManager.open_room(name, name, function() {
+    roomManager.open_room(name, name, function() {
       $('.flex-nav').addClass('animated-hidden')
       $('.arrow').toggleClass('close', 'bottom')
     })

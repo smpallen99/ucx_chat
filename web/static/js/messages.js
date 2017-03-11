@@ -54,7 +54,8 @@ class Messages {
             $('.messages-box').children('.wrapper').children('ul').children(':last-child').find('pre').each(function(i, block) {
               hljs.highlightBlock(block)
             })
-            Messages.scroll_bottom()
+            utils.scroll_bottom()
+            console.log('got response from send message')
           }
         })
 
@@ -65,7 +66,7 @@ class Messages {
         .receive("ok", resp => {
           if (resp.html) {
             $('.messages-box .wrapper > ul').append(resp.html)
-            Messages.scroll_bottom()
+            utils.scroll_bottom()
           }
         })
 

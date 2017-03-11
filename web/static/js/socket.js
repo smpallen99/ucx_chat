@@ -84,10 +84,11 @@ $(document).ready(function() {
   let ucxchat = window.ucxchat
   let typing = new Typing(ucxchat.typing)
 
-  new RoomManager()
+  window.roomManager = new RoomManager()
   new SideNav()
   new Admin()
   new AdminFlexBar()
+  new MessageCog()
 
   socket.connect()
   // $(".input-message-container .inner-left-toolbar").emoji.emojioneArea();
@@ -212,7 +213,7 @@ function start_user_channel() {
     toastr.error(resp.message)
   })
   chan.on("room:mention", resp => {
-    RoomManager.room_mention(resp)
+    roomManager.room_mention(resp)
   })
 
   chan.join()
@@ -270,7 +271,7 @@ function start_room_channel(typing) {
   })
 
   chan.on("room:update", msg => {
-    RoomManager.update(msg)
+    roomManager.update(msg)
   })
 
   chan.on("toastr:success", resp => {
@@ -304,7 +305,7 @@ function start_room_channel(typing) {
   }
   main.run()
   main.update_flexbar()
-  RoomManager.clear_unread()
+  roomManager.clear_unread()
   unread.new_room()
 
 }

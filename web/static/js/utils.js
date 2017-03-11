@@ -43,10 +43,18 @@ export function scroll_bottom() {
   myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
 }
 
+export function is_scroll_bottom() {
+  let mypanel = $('.messages-box .wrapper')
+  return mypanel.scrollTop() + mypanel.innerHeight() + 1 >= myPanel[0].scrollHeight
+}
+
 export function empty_string(string) {
   return /^\s*$/.test(string)
 }
 
+export function loadmore() {
+  return `<li class="load-more"></li>`
+}
 export function loading_animation() {
   return `
     <div class='loading-animation'>
@@ -127,6 +135,7 @@ export function push_history() {
 export function replace_history() {
   history.replaceState(history.state, ucxchat.display_name, '/' + ucxchat.room_route + '/' + ucxchat.display_name)
 }
+
 
 window.pl = page_loading
 window.rpl = remove_page_loading

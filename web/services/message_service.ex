@@ -34,6 +34,22 @@ defmodule UcxChat.MessageService do
     }
   end
 
+  def get_surrounding_messages(timestamp, %{tz_offset: tz}) do
+    message = Helpers.get_by(Message, :timestamp, timestamp, preload: [:user, :edited_by])
+    before_q = from m in Message,
+      where: m.inserted_at < ^(message.inserted_at),
+      order_by: [desc: :inserted_at],
+      limit: 50,
+      preload: [:user, :edited_by]
+    after_q = from m in Message,
+      where: m.inserted_at > ^(message.inserted_at),
+      limit: 50,
+      preload: [:user, :edited_by]
+
+    Enum.reverse(Repo.all(before_q)) ++ [message|Repo.all(after_q)]
+    |> new_days(tz || 0, [])
+  end
+
   def get_messages(channel_id, %{tz_offset: tz}) do
     Message
     |> where([m], m.channel_id == ^channel_id)
@@ -50,10 +66,22 @@ defmodule UcxChat.MessageService do
            first_msg when not is_nil(first_msg) <- first_message(channel_id) do
         first.id != first_msg.id
       else
-        res ->
-          false
+        res -> false
       end
-    %{has_more: has_more, can_preview: true, has_more_next: false, is_loading: false}
+      has_more_next =
+        with last when not is_nil(last) <- List.last(messages),
+             last_msg when not is_nil(last_msg) <- last_message(channel_id) do
+          last.id != last_msg.id
+        else
+          res -> true
+        end
+    %{
+      has_more: has_more, has_more_next: has_more_next, can_preview: true
+    }
+  end
+
+  def messages_info_into(messages, channel_id, params) do
+    messages |> get_messages_info(channel_id) |> Enum.into(params)
   end
 
   defp new_days([h|t], tz, []), do: new_days(t, tz, [Map.put(h, :new_day, true)])

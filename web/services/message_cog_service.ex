@@ -1,8 +1,16 @@
 defmodule UcxChat.MessageCogService do
   require Logger
-  alias UcxChat.{Repo, Message, MessageView, StaredMessage, PinnedMessage}
+  alias UcxChat.{
+    Repo, Message, MessageView, StaredMessage, PinnedMessage, FlexBarView
+  }
   alias UcxChat.ServiceHelpers, as: Helpers
   import Ecto.Query
+
+  def handle_in("open", %{"flex_tab" => true} = msg, _) do
+    html = FlexBarView.render("flex_cog.html")
+    |> Phoenix.HTML.safe_to_string
+    {nil, %{html: html}}
+  end
 
   def handle_in("open", %{"user_id" => user_id, "channel_id" => channel_id} = msg, _) do
     id = get_message_id msg["message_id"]
@@ -71,6 +79,10 @@ defmodule UcxChat.MessageCogService do
     Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li.message#" <> msg["message_id"], action: "remove"}
     {nil, %{}}
   end
+
+  # def handle_in("jump-to-message", msg, _) do
+  #   {nil, %{}}
+  # end
 
   defp get_message_id("message-" <> id) do
     String.to_integer id
