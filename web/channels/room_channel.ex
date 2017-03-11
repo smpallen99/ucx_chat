@@ -107,6 +107,7 @@ defmodule UcxChat.RoomChannel do
 
   def handle_in(ev = "messages:load", msg, socket) do
     debug ev, msg
+
     {:noreply, socket}
   end
 

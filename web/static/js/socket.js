@@ -304,6 +304,7 @@ function start_room_channel(typing) {
   main.run()
   main.update_flexbar()
   RoomManager.clear_unread()
+  unread.new_room()
 }
 
 // function checkVisible(elm, threshold, mode) {

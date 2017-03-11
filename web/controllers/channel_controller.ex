@@ -43,8 +43,13 @@ defmodule UcxChat.ChannelController do
 
     messages = MessageService.get_messages(channel.id, user)
     Logger.warn "message count #{length messages}"
-    chatd = ChatDat.new(user, channel, messages)
 
+    chatd =
+      user
+      |> ChatDat.new(channel, messages)
+      |> ChatDat.get_messages_info
+
+    Logger.warn "controller messages_info: #{inspect chatd.messages_info}"
     conn
     |> put_view(UcxChat.MasterView)
     |> render("main.html", chatd: chatd)

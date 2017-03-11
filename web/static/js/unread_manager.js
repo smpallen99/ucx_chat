@@ -5,7 +5,10 @@ const debug = true;
 
 const new_message_unread_time = 5000;
 const animation = `<div class="loading-animation"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>`
-const loadmore = `<li class="load-more">${animation}<li>`
+const loadmore = `<li class="load-more"></li>`
+
+const start_conversation = `<li class="start color-info-font-color">${gettext.start_of_conversation}</li>`
+
 
 // Handle the first-unread banner and the unread-bar with the following algorithm
 // When the user's browser is not in focus (blur) and a new message comes in
@@ -22,6 +25,8 @@ class UnreadManager {
       this.unread_list = [];
       this.new_message_ref = undefined;
       this.is_loading = false
+      this.has_more = false
+      this.throttle = undefined
     }
   }
 
@@ -135,23 +140,40 @@ class UnreadManager {
     }
   }
 
-  scroll(e) {
-    if (!this.isloading) {
+  new_room() {
+    this.has_more = $('.messages-box li.load-more').length > 0
+    bind_scroller()
+  }
+
+  scroll() {
+    if (!this.isloading && this.has_more) {
       if ($('.messages-box .wrapper').scrollTop().valueOf() == 0) {
-        if (debug) { console.log('at the top...') }
         let html = $('.messages-box .wrapper ul').html()
+        let pos_elem = $('.messages-box .wrapper ul li[id]').first().attr('id')
+
         utils.page_loading()
-        $('.messages-box .wrapper ul').prepend(loadmore)
-        cc.push('messages:load', {timestamp: $('li.message').first().attr('data-timestamp')})
+
+        $('.messages-box .wrapper ul li.load-more').html(animation)
+
+        // cc.push('messages:load', {timestamp: $('li.message').first().attr('data-timestamp')})
         cc.get('/messages', {timestamp: $('li.message').first().attr('data-timestamp')})
           .receive("ok", resp => {
             if (debug) { console.log('got response back from loading', resp) }
 
             $('.messages-box .wrapper ul')[0].innerHTML = resp.html + html
-            // $('.messages-box .wrapper ul').html(html)
-            // $('.messages-box .wrapper ul').prepend(resp.html)
-            if (debug) { console.log('finished loading') }
+
+            if (debug) { console.log('finished loading', pos_elem) }
+
+            scroll_to($('#' + pos_elem), -80)
             utils.remove_page_loading()
+
+            if (!resp.has_more) {
+              $('.messages-box .wrapper ul').children().first().addClass('new-day')
+              $('.messages-box .wrapper ul').prepend(start_conversation)
+            } else {
+              $('li.load-more').remove()
+              $('.messages-box .wrapper ul').prepend(loadmore)
+            }
             this.isloading = false
           })
         return
@@ -186,6 +208,31 @@ class UnreadManager {
 var unread = new UnreadManager()
 window.unread = unread;
 
+function bind_scroller() {
+  $('.messages-box .wrapper').bind('scroll', function(e) {
+    // if (debug) { console.log('scrolling....') }
+    unread.scroll()
+    // if (unread.throttle == undefined) {
+    //   console.log('call scroll')
+    //   this.throttle = setTimeout(() => {
+    //     this.throttle = undefined
+    //     unread.scroll()
+    //   }, 500)
+    //   unread.scroll()
+    // }
+  })
+}
+
+function scroll_to(elem, offset = 0) {
+  let msgbox = $('.messages-box .wrapper')
+  let valof = msgbox.scrollTop().valueOf()
+  let offtop = msgbox.offset().top
+  let item_top = elem.offset().top
+  let val = msgbox.scrollTop().valueOf() + item_top - msgbox.offset().top + offset
+  $('.messages-box .wrapper').scrollTop(val)
+}
+window.scroll_to = scroll_to
+
 $(document).ready(function() {
   $(window).on('focus', () => {
     unread.has_focus = true;
@@ -197,10 +244,11 @@ $(document).ready(function() {
     if (debug) { console.log('blur') }
   })
 
-  $('.messages-box .wrapper').scroll(function(e) {
-    // if (debug) { console.log('scrolling....') }
-    unread.scroll(e)
-  })
+  bind_scroller()
+  // $('.messages-box .wrapper').scroll(function(e) {
+  //   // if (debug) { console.log('scrolling....') }
+  //   unread.scroll(e)
+  // })
 
   $('body').on('click', 'button.jump-to', function() {
     if (debug) { console.log('jumpto', $('.first-unread').offset().top) }
@@ -217,6 +265,7 @@ $(document).ready(function() {
     }, 1500);
     // $('.first-unread').get(0).scrollIntoView();
   })
+
 
   $('body').on('click', 'button.mark-read', function() {
     unread.remove_unread_class();

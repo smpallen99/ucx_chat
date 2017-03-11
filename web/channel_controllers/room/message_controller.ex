@@ -1,7 +1,7 @@
 defmodule UcxChat.MessageChannelController do
   use UcxChat.Web, :channel_controller
 
-  alias UcxChat.{TypingAgent, User, Message, ChannelService, Channel}
+  alias UcxChat.{TypingAgent, User, Message, ChannelService, Channel, MessageService}
   alias UcxChat.ServiceHelpers, as: Helpers
   import UcxChat.MessageService
   # import Phoenix.Channel
@@ -52,16 +52,17 @@ defmodule UcxChat.MessageChannelController do
       |> preload([:user])
       |> Repo.all
     Logger.warn "list size: #{inspect length list}"
-    messages =
+    info = MessageService.get_messages_info list, channel_id
+    messages_html =
       list
       |> Enum.map(fn message ->
         UcxChat.MessageView.render("message.html", user: user, message: message)
         |> Phoenix.HTML.safe_to_string
       end)
       |> to_string
-    messages = String.replace(messages, "\n", "")
-    Logger.warn "html: #{messages}"
-    {:reply, {:ok, %{html: messages}}, socket}
+    messages_html = String.replace(messages_html, "\n", "")
+    # Logger.warn "html: #{messages_html}"
+    {:reply, {:ok, %{html: messages_html, has_more: info.has_more}}, socket}
   end
 
   def update(%{assigns: assigns} = socket, params) do

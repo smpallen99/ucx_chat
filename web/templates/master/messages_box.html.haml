@@ -1,3 +1,4 @@
+- info = @chatd.messages_info
 .ticks-bar
 %button.new-message.background-primary-action-color.color-content-background-color.not
   %i.icon-down-big
@@ -6,20 +7,21 @@
   %button
     Jump to recent messages
     %i.icon-level-down
-- unless can_preview() do
+- unless info[:can_preview] do
   .content.room-not-found.error-color
     %div
       You must join to view messages in this channel
 %div(class="wrapper #{has_more_next(:has_more_next)} #{hide_username(@chatd.user)} #{hide_avatar(@chatd.user)}")
   %ul(aria-live="polite")
-    - if can_preview() do
-      - if has_more() do
+    - if info[:can_preview] do
+      -# Logger.warn "messages_info #{inspect info}"
+      - if info[:has_more] do
         %li.load-more
-          -if is_loading() do
+          -if info[is_loading] do
             = get_loading()
       - else
         %li.start.color-info-font-color
-          Start of conversation
+          = ~g(Start of conversation)
     - for message <- @chatd.messages do
       = render UcxChat.MessageView, "message.html", user: @chatd.user, message: message
     - #{{#each messagesHistory}}

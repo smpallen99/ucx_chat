@@ -1,10 +1,12 @@
 defmodule UcxChat.ChatDat do
-  alias UcxChat.{Repo, Channel, User}
+  alias UcxChat.{Repo, Channel, User, MessageService}
   alias UcxChat.ServiceHelpers, as: Helpers
+
+  require Logger
 
   defstruct user: nil, room_types: [], settings: %{}, rooms: [],
             channel: nil, messages: nil, room_map: %{}, active_room: %{},
-            status: "offline", room_route: "channels"
+            status: "offline", room_route: "channels", messages_info: %{}
 
   def new(user, channel, messages \\ [])
   def new(%User{roles: %Ecto.Association.NotLoaded{}} = user, %Channel{} = channel, messages) do
@@ -48,6 +50,21 @@ defmodule UcxChat.ChatDat do
       active_room: 0,
       room_route: "home"
     }
+  end
+
+  def get_messages_info(chatd) do
+    case chatd.channel do
+      %Channel{id: id} ->
+        value = MessageService.get_messages_info(chatd.messages, id)
+        Logger.warn "chatd value: value: #{inspect value}"
+        set(chatd, :messages_info, value)
+      _ ->
+        chatd
+    end
+  end
+
+  def set(chatd, field, value) do
+    struct chatd, [{field, value}]
   end
 
   def favorite_room?(%__MODULE__{} = chatd, channel_id) do

@@ -43,6 +43,19 @@ defmodule UcxChat.MessageService do
     |> new_days(tz || 0, [])
   end
 
+  def get_messages_info(messages, channel_id) do
+    has_more =
+      with [first|_] <- messages,
+           _ <- Logger.warn("get_messages_info 2"),
+           first_msg when not is_nil(first_msg) <- first_message(channel_id) do
+        first.id != first_msg.id
+      else
+        res ->
+          false
+      end
+    %{has_more: has_more, can_preview: true, has_more_next: false, is_loading: false}
+  end
+
   defp new_days([h|t], tz, []), do: new_days(t, tz, [Map.put(h, :new_day, true)])
   defp new_days([h|t], tz, [last|_] = acc) do
     dt1 = Timex.shift(h.inserted_at, hours: tz)
@@ -70,6 +83,13 @@ defmodule UcxChat.MessageService do
     Message
     |> where([m], m.channel_id == ^channel_id)
     |> last
+    |> Repo.one
+  end
+
+  def first_message(channel_id) do
+    Message
+    |> where([m], m.channel_id == ^channel_id)
+    |> first
     |> Repo.one
   end
 

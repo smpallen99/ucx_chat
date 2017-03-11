@@ -28,6 +28,7 @@ class RoomManager {
     $('.link-room-' + ucxchat.room).addClass("active")
     Messages.scroll_bottom()
     roomchan.leave()
+    unread.new_room()
     socket.restart_socket()
   }
   static toggle_favorite() {

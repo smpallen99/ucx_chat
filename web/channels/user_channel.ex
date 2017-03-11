@@ -62,7 +62,7 @@ defmodule UcxChat.UserChannel do
   def handle_out("room:leave" = ev, msg, socket) do
     %{room: room} = msg
     debug ev, msg, "assigns: #{inspect socket.assigns}"
-    UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
+    # UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     socket.endpoint.unsubscribe(CC.chan_room <> room)
     update_rooms_list(socket)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}

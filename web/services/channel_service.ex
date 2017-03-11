@@ -372,7 +372,11 @@ defmodule UcxChat.ChannelService do
     |> Repo.update!
 
     messages = MessageService.get_messages(channel.id, user)
-    chatd = ChatDat.new user, channel, messages
+    chatd =
+      user
+      |> ChatDat.new(channel, messages)
+      |> ChatDat.get_messages_info
+
     box_html =
       "messages_box.html"
       |> UcxChat.MasterView.render(chatd: chatd)
