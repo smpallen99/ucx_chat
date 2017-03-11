@@ -75,7 +75,7 @@ end
 # u0 = User.changeset(%User{}, %{name: "UCxBot", username: "UCxBot", type: "b"}) |> UcxChat.Repo.insert!
 u0 = create_user.("Bot", "bot@example.com", "test", :bot)
 u1 = create_user.("Admin", "steve.pallen@emetrotel.com", "test", true)
-u2 = create_user.("Steve Pallen", "smpallen99@gmail.com", "test", false)
+u2 = create_user.("Steve Pallen", "smpallen99@gmail.com", "test", true)
 u3 = create_user.("Merilee Lackey", "smpallen99@yahoo.com", "test", false)
 
 users =

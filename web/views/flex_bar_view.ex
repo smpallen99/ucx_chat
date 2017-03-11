@@ -82,6 +82,15 @@ defmodule UcxChat.FlexBarView do
     ]
   end
 
+  def get_user_card_class(%{admin: true}) do
+    "user-view"
+  end
+  def get_user_card_class(user_info) do
+    hidden = hidden_on_nil(user_info[:user_mode], "animated-")
+    "user-view animated #{hidden}"
+    "user-view animated"
+  end
+
   # %li.text
   #   %label Name
   #   .setting-block

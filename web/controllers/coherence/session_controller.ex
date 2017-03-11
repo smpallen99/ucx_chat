@@ -13,6 +13,7 @@ defmodule UcxChat.Coherence.SessionController do
   alias Coherence.ControllerHelpers, as: Helpers
   alias Coherence.{ConfirmableService}
   import Coherence.TrackableService
+  import UcxChat.Gettext
 
   plug :layout_view, view: Coherence.SessionView
   plug :redirect_logged_in when action in [:new, :create]
@@ -77,7 +78,7 @@ defmodule UcxChat.Coherence.SessionController do
     password = params["session"]["password"]
     user = Config.repo.one(from u in user_schema, where: field(u, ^login_field) == ^login)
     lockable? = user_schema.lockable?
-    if user != nil and user_schema.checkpw(password, Map.get(user, Config.password_hash)) do
+    if user != nil and user.active and user_schema.checkpw(password, Map.get(user, Config.password_hash)) do
       if ConfirmableService.confirmed?(user) || ConfirmableService.unconfirmed_access?(user) do
         unless lockable? and user_schema.locked?(user) do
           conn = if lockable? && user.locked_at do
@@ -113,11 +114,12 @@ defmodule UcxChat.Coherence.SessionController do
       conn
       |> track_failed_login(user, user_schema.trackable_table?)
       |> failed_login(user, lockable?)
+      |> put_view(Coherence.SessionView)
+      |> put_layout("app.html")
       |> put_status(401)
       |> render(:new, [{login_field, login}, remember: rememberable_enabled?()])
     end
   end
-
 
   @doc """
   Logout the user.
@@ -142,6 +144,7 @@ defmodule UcxChat.Coherence.SessionController do
 
   @flash_invalid "Incorrect #{Config.login_field} or password."
   @flash_locked "Maximum Login attempts exceeded. Your account has been locked."
+  @flash_inactive gettext("Account is inactive")
 
   defp log_lockable_update({:error, changeset}) do
     lockable_failure changeset
@@ -167,7 +170,11 @@ defmodule UcxChat.Coherence.SessionController do
           |> track_lock(user, user.__struct__.trackable_table?)
         {new_conn, @flash_locked, %{locked_at: Ecto.DateTime.utc}}
       else
-        {conn, @flash_invalid, %{}}
+        if user.active do
+          {conn, @flash_invalid, %{}}
+        else
+          {conn, @flash_inactive, %{}}
+        end
       end
 
     Helpers.changeset(:session, user.__struct__, user, Map.put(params, :failed_attempts, attempts))

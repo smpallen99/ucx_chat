@@ -78,6 +78,7 @@ let render = (presences) => {
 }
 // end of presence stuff
 
+
 $(document).ready(function() {
 
   let ucxchat = window.ucxchat
@@ -94,6 +95,7 @@ $(document).ready(function() {
   $('textarea.message-form-text').focus()
 
   console.log('socket...', socket)
+
   start_system_channel()
   start_user_channel()
   start_room_channel(typing)
@@ -297,7 +299,6 @@ function start_room_channel(typing) {
     window.location = loc
   })
 
-
   if (!window.flexbar) {
     flexbar.init_flexbar()
   }
@@ -305,6 +306,7 @@ function start_room_channel(typing) {
   main.update_flexbar()
   RoomManager.clear_unread()
   unread.new_room()
+
 }
 
 // function checkVisible(elm, threshold, mode) {

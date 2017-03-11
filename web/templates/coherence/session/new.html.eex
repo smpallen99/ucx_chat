@@ -1,6 +1,25 @@
 <br \>
+<style>
+  body { background-color: #04436A; }
+  .alert { width: 520px; margin: auto;}
+  .alert.alert-danger {
+    width: 520px;
+    margin: auto;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+  }
+</style>
 <% require Logger %>
 <% Logger.warn inspect(@conn.private[:phoenix_flash]) %>
+<% flash = @conn.private[:phoenix_flash] %>
+<%= unless flash == %{} do %>
+  <%= if error = flash["error"] do %>
+    <div class="alert alert-danger" role="alert">
+      <%= error %>
+    </div>
+  <% end %>
+<% end %>
 <%= form_for @conn, session_path(@conn, :create), [id: "login-card", as: :session, class: "content-background-color color-primary-font-color"], fn f  -> %>
   <input type="hidden" name="tz-offset" id="tz-offset">
   <% login_field = Coherence.Config.login_field %>

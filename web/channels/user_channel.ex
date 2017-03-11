@@ -96,6 +96,12 @@ defmodule UcxChat.UserChannel do
     {:noreply, socket}
   end
 
+  def handle_in("flex:open:User Info" = ev, params, socket) do
+    debug ev, params, "assigns: #{inspect socket.assigns}"
+    args = %{"args" => %{"templ" => "users_list.html", "username" => "steve.pallen"}}
+    {:noreply, open_flex_item(socket, "User Info", args)}
+  end
+
   def handle_in("flex:open:" <> tab = ev, params, socket) do
     debug ev, params, "assigns: #{inspect socket.assigns}"
     {:noreply, toggle_flex(socket, tab, params)}
@@ -354,7 +360,6 @@ defmodule UcxChat.UserChannel do
   def handle_info({:flex, :open, ch, tab, args, params} = msg, socket) do
     debug inspect(msg), "args"
     resp = FlexBarService.handle_flex_callback(:open, ch, tab, args[tab], socket, params)
-    debug "resp: #{inspect resp}", ""
     push socket, "flex:open", Enum.into([title: tab], resp)
     {:noreply, socket}
   end
