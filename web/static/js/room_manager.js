@@ -311,7 +311,6 @@ class RoomManager {
       this.open_room(room, room)
       return false
     })
-    // .on('scroll', '.messages-box .wrapper', _.throttle(() => {
     $('.messages-box .wrapper').on('scroll', _.throttle((e) => {
       if (utils.is_scroll_bottom()) {
         console.log('scroller scrolling at bottom' )
