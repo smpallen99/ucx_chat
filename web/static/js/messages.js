@@ -2,6 +2,7 @@ import UnreadManager from "./unread_manager"
 import * as cc from "./chat_channel"
 import hljs from "highlight.js"
 import * as utils from "./utils"
+import * as main from "./main"
 
 const debug = false;
 
@@ -19,6 +20,7 @@ class Messages {
     if (ucxchat.user_id == msg.user_id) {
       if (debug) { console.log('adding own to', msg.id, $('#' + msg.id)) }
       $('#' + msg.id).addClass("own")
+      main.run()
     }
 
     unread.new_message(msg.id)

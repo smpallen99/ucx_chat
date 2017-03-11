@@ -49,7 +49,7 @@ defmodule UcxChat.MessageChannelController do
       Message
       |> where([m], m.timestamp < ^timestamp and m.channel_id == ^channel_id)
       |> Helpers.last_page(page_size)
-      |> preload([:user])
+      |> preload([:user, :edited_by])
       |> Repo.all
     Logger.warn "list size: #{inspect length list}"
     info = MessageService.get_messages_info list, channel_id

@@ -143,10 +143,12 @@ class UnreadManager {
   new_room() {
     this.has_more = $('.messages-box li.load-more').length > 0
     bind_scroller()
+    this.updateMentionsMarksOfRoom()
   }
 
   scroll() {
     if (!this.isloading && this.has_more) {
+      this.updateMentionsMarksOfRoom()
       if ($('.messages-box .wrapper').scrollTop().valueOf() == 0) {
         let html = $('.messages-box .wrapper ul').html()
         let pos_elem = $('.messages-box .wrapper ul li[id]').first().attr('id')
@@ -155,7 +157,6 @@ class UnreadManager {
 
         $('.messages-box .wrapper ul li.load-more').html(animation)
 
-        // cc.push('messages:load', {timestamp: $('li.message').first().attr('data-timestamp')})
         cc.get('/messages', {timestamp: $('li.message').first().attr('data-timestamp')})
           .receive("ok", resp => {
             if (debug) { console.log('got response back from loading', resp) }
@@ -201,6 +202,25 @@ class UnreadManager {
     } else {
        // if (debug) { console.log('scrolling no unread') }
     }
+  }
+
+  updateMentionsMarksOfRoom() {
+    let dom = document
+
+    let ticksBar = $(dom).find('.ticks-bar')
+    $(dom).find('.ticks-bar > .tick').remove()
+
+    let scrollTop = $(dom).find('.messages-box > .wrapper').scrollTop() - 50
+    let totalHeight = $(dom).find('.messages-box > .wrapper > ul').height() + 40
+
+    $('.messages-box .mention-link-me').each((index, item) => {
+      let topOffset = $(item).offset().top + scrollTop
+      let percent = 100 / totalHeight * topOffset
+      if ($(item).hasClass('mention-link-all'))
+        ticksBar.append('<div class="tick background-attention-color" style="top: '+percent+'%;"></div>')
+      else
+        ticksBar.append('<div class="tick background-primary-action-color" style="top: '+percent+'%;"></div>')
+    })
   }
 
 }
