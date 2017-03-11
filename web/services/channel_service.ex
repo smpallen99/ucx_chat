@@ -262,9 +262,9 @@ defmodule UcxChat.ChannelService do
         cc = unhide_current_channel(cc, channel_id)
         %{
           active: active, unread: unread, alert: cc.alert, user_status: user_status,
-          can_leave: true, archived: false, name: chan.name, hidden: cc.hidden,
+          can_leave: chan.type != 2, archived: false, name: chan.name, hidden: cc.hidden,
           room_icon: get_icon(chan.type), channel_id: chan.id, channel_type: chan.type,
-          type: type, can_leave: true, display_name: display_name
+          type: type, display_name: display_name
         }
       end)
     rooms = Enum.reject rooms, fn %{channel_type: chan_type, hidden: hidden} ->
