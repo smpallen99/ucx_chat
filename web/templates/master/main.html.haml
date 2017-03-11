@@ -4,8 +4,7 @@
     = # connection status
   .main-content.content-background-color(style="transform: translateX(0px);")
     = #{{#if modal}}main-modal{{/if}}">
-    .room-container
-      = render "room.html", chatd: @chatd, conn: @conn
+    = render "room.html", chatd: @chatd, conn: @conn
 
   %div.main-content-cache.hidden
   = render UcxChat.SideNavView, "show.html", conn: @conn, chatd: @chatd
@@ -17,4 +16,5 @@
     username: '<%= @chatd.user.username %>',user_id: <%= @chatd.user.id %>, display_name: '<%= @chatd.active_room[:display_name] %>'};
   let myPanel = $('.messages-box .wrapper')
   myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
+
 

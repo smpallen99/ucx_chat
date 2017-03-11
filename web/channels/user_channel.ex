@@ -239,7 +239,7 @@ defmodule UcxChat.UserChannel do
   def handle_info(%Broadcast{topic: _, event: "room:update:name" = event, payload: payload}, socket) do
     debug event, payload
     push socket, event, payload
-    socket.endpoint.unsubscribe(CC.chan_room <> payload[:old_name])
+    # socket.endpoint.unsubscribe(CC.chan_room <> payload[:old_name])
     {:noreply, assign(socket, :subscribed, [payload[:new_name] | List.delete(socket.assigns[:subscribed], payload[:old_name])])}
   end
   def handle_info(%Broadcast{topic: _, event: "room:update:list" = event, payload: payload}, socket) do
@@ -330,7 +330,7 @@ defmodule UcxChat.UserChannel do
       true ->
         nil
     end
-    UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
+    # UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     {:noreply, socket}
   end
 

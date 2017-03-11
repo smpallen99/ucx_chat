@@ -26,7 +26,7 @@ const default_settings = {
       args: [{key: "username"}], // attr is optional for override -  attr: "data-username"}],
       triggers: [
         {action: "click", class: "button.user.user-card-message"},
-        {action: "click", class: ".mention-link"},
+        {action: "click", class: ".mention-link:not([data-channel])"},
         {action: "click", class: "li.user-card-room button"},
         {function: custom_show_switch_user}
       ]

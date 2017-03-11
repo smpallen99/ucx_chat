@@ -154,60 +154,62 @@ defmodule UcxChat.MessageService do
   end
 
   def encode_mentions(body, channel_id) do
+    body
+    |> encode_user_mentions(channel_id)
+    |> encode_channel_mentions
+  end
+
+  def encode_channel_mentions({body, acc}) do
+    re = ~r/(^|\s|\!|:|,|\?)#([\.a-zA-Z0-9_-]*)/
+    body = if (list = Regex.scan(re, body)) != [] do
+      Enum.reduce(list, body, fn [_, _, name], body ->
+        encode_channel_mention(name, body)
+      end)
+    else
+      body
+    end
+    {body, acc}
+  end
+
+  def encode_channel_mention(name, body) do
+    Channel
+    |> where([c], c.name == ^name)
+    |> Repo.one
+    |> do_encode_channel_mention(name, body)
+  end
+
+  def do_encode_channel_mention(nil, _, body), do: body
+  def do_encode_channel_mention(channel, name, body) do
+    name_link = " <a class='mention-link' data-channel='#{name}'>##{name}</a> "
+    String.replace body, ~r/(^|\s|\.|\!|:|,|\?)##{name}[\.\!\?\,\:\s]*/, name_link
+  end
+
+  def encode_user_mentions(body, channel_id) do
     re = ~r/(^|\s|\!|:|,|\?)@([\.a-zA-Z0-9_-]*)/
     if (list = Regex.scan(re, body)) != [] do
       Enum.reduce(list, {body, []}, fn [_, _, name], {body, acc} ->
-        encode_mention(name, body, channel_id, acc)
+        encode_user_mention(name, body, channel_id, acc)
       end)
     else
       {body, []}
     end
   end
 
-  # def encode_mention("all", body, channel_id, acc) do
-  #   Logger.warn "encode_mention all"
-  #   query = from s in Subscription,
-  #     join: u in User, on: s.user_id == u.id,
-  #     where: s.channel_id == ^channel_id,
-  #     select: u
-  #   users =
-  #     query
-  #     |> Repo.all
-  #   list =
-  #     users
-  #     |> Enum.reduce({body, acc}, fn user, {body, acc} ->
-  #       do_encode_mention(user, "all", body, channel_id, acc)
-  #     end)
-
-  #   list
-  # end
-
-  # def encode_mention("here", body, channel_id, acc) do
-  #   query = from s in Subscription,
-  #     where: s.channel_id == ^channel_id,
-  #     join: u in User,
-  #     select: u
-
-  #   query
-  #   |> Repo.all
-  #   |> Enum.reduce(acc, fn user, acc ->
-  #     if PresenceAgent.active? user do
-  #       do_encode_mention(user, "here", body, channel_id, acc)
-  #     else
-  #       acc
-  #     end
-  #   end)
-  # end
-
-  def encode_mention(name, body, channel_id, acc) do
+  def encode_user_mention(name, body, channel_id, acc) do
     User
     |> where([c], c.username == ^name)
     |> Repo.one
-    |> do_encode_mention(name, body, channel_id, acc)
+    |> do_encode_user_mention(name, body, channel_id, acc)
   end
 
-  def do_encode_mention(nil, _, body, _, acc), do: {body, acc}
-  def do_encode_mention(user, name, body, channel_id, acc) do
+  def do_encode_user_mention(nil, name, body, _, acc) when name in ~w(all here) do
+    name_link =
+      " <a class='mention-link mention-link-me mention-link-#{name} background-attention-color' >@#{name}</a> "
+    body = String.replace body, ~r/(^|\s|\.|\!|:|,|\?)@#{name}[\.\!\?\,\:\s]*/, name_link
+    {body, [{nil, name}|acc]}
+  end
+  def do_encode_user_mention(nil, _, body, _, acc), do: {body, acc}
+  def do_encode_user_mention(user, name, body, channel_id, acc) do
     name_link = " <a class='mention-link' data-username='#{user.username}'>@#{name}</a> "
     body = String.replace body, ~r/(^|\s|\.|\!|:|,|\?)@#{name}[\.\!\?\,\:\s]*/, name_link
     {body, [{user.id, name}|acc]}
@@ -219,6 +221,7 @@ defmodule UcxChat.MessageService do
     create_mentions(mentions, message_id, channel_id)
   end
 
+  def create_mention({nil, _}, _, _), do: nil
   def create_mention({mention, name}, message_id, channel_id) do
     {all, nm} = if name in ~w(all here), do: {true, name}, else: {false, nil}
     %Mention{}

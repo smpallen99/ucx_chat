@@ -377,13 +377,17 @@ defmodule UcxChat.ChannelService do
       |> ChatDat.new(channel, messages)
       |> ChatDat.get_messages_info
 
-    box_html =
-      "messages_box.html"
-      |> UcxChat.MasterView.render(chatd: chatd)
-      |> Phoenix.HTML.safe_to_string
+    # box_html =
+    #   "messages_box.html"
+    #   |> UcxChat.MasterView.render(chatd: chatd)
+    #   |> Phoenix.HTML.safe_to_string
 
-    header_html =
-      "messages_header.html"
+    # header_html =
+    #   "messages_header.html"
+    #   |> UcxChat.MasterView.render(chatd: chatd)
+    #   |> Phoenix.HTML.safe_to_string
+    html =
+      "room.html"
       |> UcxChat.MasterView.render(chatd: chatd)
       |> Phoenix.HTML.safe_to_string
 
@@ -393,8 +397,9 @@ defmodule UcxChat.ChannelService do
       display_name: display_name,
       room_title: room,
       channel_id: channel.id,
-      box_html: box_html,
-      header_html: header_html,
+      html: html,
+      # box_html: box_html,
+      # header_html: header_html,
       side_nav_html: side_nav_html,
       room_route: Channel.room_route(channel)
     }

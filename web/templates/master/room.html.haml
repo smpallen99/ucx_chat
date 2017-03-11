@@ -1,44 +1,45 @@
-.dropzone
-  .dropzone-overlay.background-transparent-darkest.color-content-background-color
-    .background-transparent-darkest
-      - # {{_ "Drop_to_upload_file"}}
-  .main-content-flex
-    %section(class="messages-container flex-tab-main-content #{get_admin_class(@chatd.user)}" id="#{get_window_id(@chatd.channel)}" aria-label="Channel")
-      - unless embedded_version() do
-        %header.fixed-title.content-background-color.border-component-color
-          = render "burger.html"
-          %h2
-            = render "messages_header.html", chatd: @chatd
-      %div(class="container-bars #{container_bars_show(@chatd.channel)}")
-        - if unread = get_unread_data(@chatd.channel) do
-          - if unread[:since] do
-            - if unread[:count] do
-              .unread-bar.color-primary-action-color.background-component-color(style="display: none;")
-                %button.jump-to
-                  %span.jump-to-large Jump to first unread
-                  %span.jump-to-small Jump
-                %span.unread-count-since
-                  = unread[:count_span]
-                  = unread[:since]
-                %span.unread-count
-                  = unread[:count_span]
-                  = unread[:count]
-                %button.mark-read
-                  Mark as read
-        - for _upload <- get_uploading(@conn) do
-          %div(class="upload-progress color-primary-action-color background-component-color #{has_upload_error(@conn)}")
-            - if error = get_upload_error(@conn) do
-              .upload-progress-text
-                = error
-                %button close
-            - else
-              .upload-progress-progress(style="width: #{get_error_percentage(error)}%;")
-              .upload-progress-text
-                = "#{get_error_name(error)}... #{get_error_percentage(error)}%"
-                %button cancel
-      %div(class="messages-box #{message_box_selectable()} #{view_mode(@chatd.user)}" style="height: calc(100% - 131px);")
-        = render "messages_box.html", chatd: @chatd
-      %footer.footer.border-component-color
-        = render UcxChat.MessageView, "message_box.html", chatd: @chatd, mb: get_mb(@chatd)
-    = render "flex_tab_bar.html", chatd: @chatd
+.room-container
+  .dropzone
+    .dropzone-overlay.background-transparent-darkest.color-content-background-color
+      .background-transparent-darkest
+        - # {{_ "Drop_to_upload_file"}}
+    .main-content-flex
+      %section(class="messages-container flex-tab-main-content #{get_admin_class(@chatd.user)}" id="#{get_window_id(@chatd.channel)}" aria-label="Channel")
+        - unless embedded_version() do
+          %header.fixed-title.content-background-color.border-component-color
+            = render "burger.html"
+            %h2
+              = render "messages_header.html", chatd: @chatd
+        %div(class="container-bars #{container_bars_show(@chatd.channel)}")
+          - if unread = get_unread_data(@chatd.channel) do
+            - if unread[:since] do
+              - if unread[:count] do
+                .unread-bar.color-primary-action-color.background-component-color(style="display: none;")
+                  %button.jump-to
+                    %span.jump-to-large Jump to first unread
+                    %span.jump-to-small Jump
+                  %span.unread-count-since
+                    = unread[:count_span]
+                    = unread[:since]
+                  %span.unread-count
+                    = unread[:count_span]
+                    = unread[:count]
+                  %button.mark-read
+                    Mark as read
+          - for _upload <- get_uploading(@chatd) do
+            %div(class="upload-progress color-primary-action-color background-component-color #{has_upload_error(@conn)}")
+              - if error = get_upload_error(@chatd) do
+                .upload-progress-text
+                  = error
+                  %button close
+              - else
+                .upload-progress-progress(style="width: #{get_error_percentage(error)}%;")
+                .upload-progress-text
+                  = "#{get_error_name(error)}... #{get_error_percentage(error)}%"
+                  %button cancel
+        %div(class="messages-box #{message_box_selectable()} #{view_mode(@chatd.user)}" style="height: calc(100% - 131px);")
+          = render "messages_box.html", chatd: @chatd
+        %footer.footer.border-component-color
+          = render UcxChat.MessageView, "message_box.html", chatd: @chatd, mb: get_mb(@chatd)
+      = render "flex_tab_bar.html", chatd: @chatd
 

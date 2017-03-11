@@ -6,17 +6,20 @@ import sweetAlert from "./sweetalert.min"
 import toastr from 'toastr'
 
 const debug = true;
+const animation = `<div class="loading-animation"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>`
 
 class RoomManager {
   constructor() {
+    // $('body').off('click', '.mention-link[data-channel]')
     this.register_events()
   }
 
   static render_room(resp) {
     if (debug) { console.log('render_room', resp) }
     $('.room-link').removeClass("active")
-    $('.messages-box').html(resp.box_html)
-    $('.messages-container .fixed-title h2').html(resp.header_html)
+    // $('.messages-box').html(resp.box_html)
+    // $('.messages-container .fixed-title h2').html(resp.header_html)
+    $('.main-content').html(resp.html)
     ucxchat.channel_id = resp.channel_id
     ucxchat.room = resp.room_title
     ucxchat.display_name = resp.display_name
@@ -89,6 +92,8 @@ class RoomManager {
     $('body').on('click', 'a.open-room', function(e) {
       e.preventDefault();
       if (debug) { console.log('clicked a.open-room', e, $(this), $(this).attr('data-room')) }
+      utils.page_loading()
+      $('.main-content').html(utils.loading_animation())
       RoomManager.open_room($(this).attr('data-room'), $(this).attr('data-name'))
     })
     $('body').on('click', 'a.toggle-favorite', e => {
@@ -298,6 +303,14 @@ class RoomManager {
       });
       return false
     })
+    .on('click', '.mention-link[data-channel]', (e) => {
+      e.preventDefault()
+      let target = $(e.currentTarget)
+      let room = target.data('channel')
+      console.log('clicked channel link', room)
+      RoomManager.open_room(room, room)
+      return false
+    })
 
     $(window).on('focus', () => {
       RoomManager.clear_unread()
@@ -322,6 +335,7 @@ class RoomManager {
           RoomManager.render_room(resp)
         }
         if (callback) { callback() }
+        utils.remove_page_loading()
       })
   }
 }
