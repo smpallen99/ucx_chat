@@ -77,6 +77,10 @@ export function loading_animation() {
 export function page_loading() {
 
   let stylesheet = `<style>
+    #initial-page-loading .loading-animation {
+      background: linear-gradient(to top, #022235, #04436A);
+      z-index: 1000;
+    }
     .loading-animation {
       top: 0;
       right: 0;
@@ -87,7 +91,6 @@ export function page_loading() {
       position: absolute;
       justify-content: center;
       text-align: center;
-      background-color: white !important;
       z-index: 100;
     }
     .loading-animation > div {

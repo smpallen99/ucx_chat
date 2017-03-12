@@ -79,8 +79,15 @@ let render = (presences) => {
 }
 // end of presence stuff
 
+// $('body').prepend(`<div id="initial-page-loading" style="background-color: #04436A;" class="page-loading">${utils.loading_animation()}</div>`)
+// utils.page_loading()
 
 $(document).ready(function() {
+
+  setTimeout(() => {
+    $('#initial-page-loading').remove()
+    utils.remove_page_loading()
+  }, 1000)
 
   let ucxchat = window.ucxchat
   let typing = new Typing(ucxchat.typing)
@@ -154,12 +161,12 @@ $(document).ready(function() {
     return true
   })
 
-
-
   $('body').on('restart-socket', () => {
     start_room_channel(typing)
   })
 
+  $('#initial-page-loading').remove()
+  utils.remove_page_loading()
 })
 
 function start_system_channel() {

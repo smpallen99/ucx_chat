@@ -237,7 +237,7 @@ class RoomManager {
     this.updateMentionsMarksOfRoom()
   }
 
-  register_events() {
+  bind_history_manager_scroll_event() {
     $('.messages-box .wrapper').bind('scroll', _.throttle((e) => {
       if (!roomHistoryManager.isLoading && (roomHistoryManager.hasMore || roomHistoryManager.hasMoreNext)) {
         if (roomHistoryManager.hasMore && e.currentTarget.scrollTop == 0)
@@ -246,6 +246,43 @@ class RoomManager {
           roomHistoryManager.getMoreNext
       }
     }, 200))
+  }
+
+  scroll_to(elem, offset = 0) {
+    let msgbox = $('.messages-box .wrapper')
+    let valof = msgbox.scrollTop().valueOf()
+    let offtop = msgbox.offset().top
+    let item_top = elem.offset().top
+    let val = msgbox.scrollTop().valueOf() + item_top - msgbox.offset().top + offset
+    $('.messages-box .wrapper').scrollTop(val)
+    // $('.messages-box .wrapper').animate({
+    //   scrollTop: val
+    // }, 1000);
+  }
+
+  clear_unread() {
+    setTimeout(function() {
+      let parent = `a.open-room[data-name="${ucxchat.room}"]`
+      $(parent + ' span.unread').remove()
+    }, 1000)
+  }
+
+  open_room(room, display_name, callback) {
+    cc.get("/room/" + room, {display_name: display_name, room: ucxchat.room})
+      .receive("ok", resp => {
+        console.log('open room response', resp)
+        if (resp.redirect) {
+          window.location = resp.redirect
+        } else {
+          this.render_room(resp)
+          this.bind_history_manager_scroll_event()
+        }
+        if (callback) { callback() }
+        utils.remove_page_loading()
+      })
+  }
+  register_events() {
+    this.bind_history_manager_scroll_event()
 
     $(window).on('focus', () => {
       this.clear_unread()
@@ -572,38 +609,6 @@ class RoomManager {
   //      // if (debug) { console.log('scrolling no unread') }
   //   }
   // }
-  scroll_to(elem, offset = 0) {
-    let msgbox = $('.messages-box .wrapper')
-    let valof = msgbox.scrollTop().valueOf()
-    let offtop = msgbox.offset().top
-    let item_top = elem.offset().top
-    let val = msgbox.scrollTop().valueOf() + item_top - msgbox.offset().top + offset
-    $('.messages-box .wrapper').scrollTop(val)
-    // $('.messages-box .wrapper').animate({
-    //   scrollTop: val
-    // }, 1000);
-  }
-
-  clear_unread() {
-    setTimeout(function() {
-      let parent = `a.open-room[data-name="${ucxchat.room}"]`
-      $(parent + ' span.unread').remove()
-    }, 1000)
-  }
-
-  open_room(room, display_name, callback) {
-    cc.get("/room/" + room, {display_name: display_name, room: ucxchat.room})
-      .receive("ok", resp => {
-        console.log('open room response', resp)
-        if (resp.redirect) {
-          window.location = resp.redirect
-        } else {
-          this.render_room(resp)
-        }
-        if (callback) { callback() }
-        utils.remove_page_loading()
-      })
-  }
 }
 
 export default RoomManager;

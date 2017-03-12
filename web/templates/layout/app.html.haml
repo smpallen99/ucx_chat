@@ -1,6 +1,7 @@
 !!! 5
 %html.js.no-touch.cssanimations.csstransitions.csscalc.noscroll(lang="en")
   %head
+    = render "initial_loading.html"
     %meta(charset="utf-8")
     %meta(http-equiv="X-UA-Compatible" content="IE=edge")
     %meta(name="viewport" content="width=device-width, initial-scale=1")
@@ -18,13 +19,13 @@
     - #%link(rel="stylesheet" text="text/css" class="__meteor-css" href="https://cdn-demo.rocket.chat/theme.css?263177fe48fc50f8f3a293f71d82a13449ab1e69")
     -# %script(src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous")
     %script(src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous")
-
+    %style body { background-color: #04436A; }
   %body.global-font-family.color-primary-font-color
-    -# #initial-page-loading.page-loading
-    -#   .loading-animation
-    -#     .bounce1
-    -#     .bounce2
-    -#     .bounce3
+    #initial-page-loading.page-loading
+      .loading-animation
+        .bounce1
+        .bounce2
+        .bounce3
     = render @view_module, @view_template, assigns
   = render "translations.html"
   %script(src='#{static_path(@conn, "/js/app.js")}')
