@@ -43,6 +43,11 @@ export function scroll_bottom() {
   myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
 }
 
+export function getScrollBottom() {
+  let mypanel = $('.messages-box .wrapper')
+  return myPanel[0].scrollHeight - myPanel.height()
+}
+
 export function is_scroll_bottom() {
   let mypanel = $('.messages-box .wrapper')
   return mypanel.scrollTop() + mypanel.innerHeight() + 1 >= myPanel[0].scrollHeight
@@ -50,6 +55,11 @@ export function is_scroll_bottom() {
 
 export function empty_string(string) {
   return /^\s*$/.test(string)
+}
+
+export function loadmore_with_animation() {
+  let d = document.createElement('li')
+  return $(d).addClass('load-more').html(loading_animation())
 }
 
 export function loadmore() {
@@ -77,6 +87,8 @@ export function page_loading() {
       position: absolute;
       justify-content: center;
       text-align: center;
+      background-color: white !important;
+      z-index: 100;
     }
     .loading-animation > div {
       width: 10px;

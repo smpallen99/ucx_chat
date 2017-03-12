@@ -33,51 +33,8 @@ class MessageCog {
             $(e.currentTarget).parent().append(resp.html)
           })
       })
-      .on('click', 'li.jump-to-message', e => {
-        e.preventDefault()
-        let ct = e.currentTarget
-        console.log('....', $(ct).closest('li.message'))
-        let ts = $(ct).closest('li.message').data('timestamp')
-        console.warn('ts', ts)
-        let target = $('.messages-box li[data-timestamp="' + ts + '"]')
-        if (target.offset()) {
-          console.log("jump-to found an offset")
-          scroll_to(target, -400)
-          this.close_cog($(ct))
-        } else {
-          console.log("jump-to need to load some messages")
-          utils.page_loading()
-          $('.messages-box .wrapper ul li.load-more').html(utils.loading_animation())
-          cc.get('/messages/surrounding', {timestamp: ts})
-            .receive("ok", resp => {
-              $('.messages-box .wrapper ul')[0].innerHTML = resp.html
-              let pos_elem = $(`.messages-box li[data-timestamp="${ts}"]`).attr('id')
-              scroll_to($('#' + pos_elem), -200)
-              if (resp.has_more_next) {
-                $('.jump-recent').removeClass('not')
-                $('.messages-box .wrapper ul').append(utils.loadmore())
-              }
-              utils.remove_page_loading()
-              this.close_cog($(ct))
-              this.update_state(resp)
-            })
-        }
-        return false
-      })
       .on('click', '.message-dropdown-close', e => {
         this.close_cog($(e.currentTarget))
-      })
-      .on('click', '.jump-recent', e => {
-        utils.page_loading()
-        $('.messages-box .wrapper ul li.load-more').html(utils.loading_animation())
-        cc.get('/messages/last')
-          .receive("ok", resp => {
-            $('.messages-box .wrapper ul')[0].innerHTML = resp.html
-            utils.remove_page_loading()
-            utils.scroll_bottom()
-            this.close_cog($(e.currentTarget))
-            this.update_state(resp)
-          })
       })
       .on('click', '.messages-box .message-action', e => {
         let ct = e.currentTarget

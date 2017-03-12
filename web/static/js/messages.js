@@ -23,7 +23,7 @@ class Messages {
       main.run()
     }
 
-    unread.new_message(msg.id)
+    roomManager.new_message(msg.id)
   }
   static update_message(msg) {
     $('#' + msg.id).replaceWith(msg.html)
@@ -87,7 +87,7 @@ class Messages {
           }
         })
 
-      unread.remove_unread()
+      roomManager.remove_unread()
     }
 
     $('.message-form-text').val('')

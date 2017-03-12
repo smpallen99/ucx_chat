@@ -14,6 +14,7 @@ import MessageCog from "./message_cog"
 import SideNav from "./side_nav"
 import Admin from "./admin"
 import AdminFlexBar from "./admin_flex_bar"
+import RoomHistoryManager from "./room_history_manager"
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
@@ -85,10 +86,14 @@ $(document).ready(function() {
   let typing = new Typing(ucxchat.typing)
 
   window.roomManager = new RoomManager()
+  window.scroll_to = roomManager.scroll_to
+
+  window.roomHistoryManager = new RoomHistoryManager()
+
   new SideNav()
   new Admin()
   new AdminFlexBar()
-  new MessageCog()
+  window.messageCog = new MessageCog()
 
   socket.connect()
   // $(".input-message-container .inner-left-toolbar").emoji.emojioneArea();
@@ -306,7 +311,7 @@ function start_room_channel(typing) {
   main.run()
   main.update_flexbar()
   roomManager.clear_unread()
-  unread.new_room()
+  roomManager.new_room()
 
 }
 
