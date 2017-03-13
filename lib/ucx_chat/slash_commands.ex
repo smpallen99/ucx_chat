@@ -1,5 +1,6 @@
 defmodule UcxChat.SlashCommands do
   import Phoenix.HTML.Tag
+  use UcxChat.Gettext
 
   @default_count 10
 
@@ -17,28 +18,28 @@ defmodule UcxChat.SlashCommands do
   }
 
   @command_data [
-    %{command: "join", args: "#channel", description: "Join the given channel"},
-    %{command: "archive", args: "#channel", description: "Archive"},
-    %{command: "kick", args: "@username", description: "Remove someone from the room"},
-    %{command: "lennyface", args: "your message (optional)", description: "Displays ( ͡° ͜ʖ ͡°) after your message"},
-    %{command: "leave", args: "", description: "Leave the current channel"},
-    %{command: "gimme", args: "your message (optional)", description: "Displays ༼ つ ◕_◕ ༽つ before your message"},
-    %{command: "create", args: "#channel", description: "Create a new channel"},
-    %{command: "invite", args: "@username", description: "invite one user to join this channel"},
-    %{command: "invite-all-to", args: "#room", description: "Invite all users from this channel to join [#channel]"},
-    %{command: "invite-all-from", args: "#room", description: "Invite all users from [#channel] to join this channel"},
-    %{command: "msg", args: "@username <message>", description: "Direct message someone"},
-    %{command: "part", args: "", description: "Leave the current channel"},
-    %{command: "unarchive", args: "#channel", description: "Unarchive"},
-    %{command: "tableflip", args: "your message (optional)", description: "Displays (╯°□°）╯︵ ┻━┻"},
-    %{command: "topic", args: "Topic message", description: "Set topic"},
-    %{command: "mute", args: "@username", description: "Mute someone in the room"},
-    %{command: "me", args: "your message", description: "Display action text"},
-    %{command: "open", args: "room name", description: "Opens a channel, group or direct message"},
-    %{command: "unflip", args: "your message (optional)", description: "Displays ┬─┬﻿ ノ( ゜-゜ノ)"},
-    %{command: "shrug", args: "your message (optional)", description: "Displays ¯\_(ツ)_/¯ after your message"},
-    %{command: "unmute", args: "@username", description: "Unmute someone in the room"},
-    %{command: "unhide", args: "#channel", description: "Unhide a hidden channel"}
+    %{command: "join", args: "#channel", description: ~g"Join the given channel"},
+    %{command: "archive", args: "#channel", description: ~g"Archive"},
+    %{command: "kick", args: "@username", description: ~g"Remove someone from the room"},
+    %{command: "lennyface", args: ~g"your message (optional)", description: ~g"Displays ( ͡° ͜ʖ ͡°) after your message"},
+    %{command: "leave", args: "", description: ~g"Leave the current channel"},
+    %{command: "gimme", args: ~g"your message (optional)", description: ~g"Displays ༼ つ ◕_◕ ༽つ before your message"},
+    %{command: "create", args: "#channel", description: ~g"Create a new channel"},
+    %{command: "invite", args: "@username", description: ~g"invite one user to join this channel"},
+    %{command: "invite-all-to", args: "#room", description: ~g"Invite all users from this channel to join [#channel]"},
+    %{command: "invite-all-from", args: "#room", description: ~g"Invite all users from [#channel] to join this channel"},
+    %{command: "msg", args: "@username <message>", description: ~g"Direct message someone"},
+    %{command: "part", args: "", description: ~g"Leave the current channel"},
+    %{command: "unarchive", args: "#channel", description: ~g"Unarchive"},
+    %{command: "tableflip", args: ~g"your message (optional)", description: ~g"Displays (╯°□°）╯︵ ┻━┻"},
+    %{command: "topic", args: ~g"Topic message", description: ~g"Set topic"},
+    %{command: "mute", args: "@username", description: ~g"Mute someone in the room"},
+    %{command: "me", args: ~g"your message", description: ~g"Display action text"},
+    %{command: "open", args: ~g"room name", description: ~g"Opens a channel, group or direct message"},
+    %{command: "unflip", args: ~g"your message (optional)", description: ~g"Displays ┬─┬﻿ ノ( ゜-゜ノ)"},
+    %{command: "shrug", args: ~g"your message (optional)", description: ~g"Displays ¯\_(ツ)_/¯ after your message"},
+    %{command: "unmute", args: "@username", description: ~g"Unmute someone in the room"},
+    %{command: "unhide", args: "#channel", description: ~g"Unhide a hidden channel"}
   ]
 
   @command_map @command_data |> Enum.reduce(%{}, fn %{command: command} = map, acc -> Map.put(acc, command, map) end)
