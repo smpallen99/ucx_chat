@@ -1,6 +1,7 @@
 defmodule UcxChat.UserChannel do
   use Phoenix.Channel
   use UcxChat.ChannelApi
+  use UcxChat.Web, :channel
   # alias UcxChat.Presence
 
   import Ecto.Query
@@ -172,9 +173,9 @@ defmodule UcxChat.UserChannel do
       |> Repo.update
       |> case do
         {:ok, _account} ->
-          {:ok, %{success: "Account updated successfully"}}
+          {:ok, %{success: ~g"Account updated successfully"}}
         {:error, _cs} ->
-          {:ok, %{error: "There a problem updating your account."}}
+          {:ok, %{error: ~g"There a problem updating your account."}}
       end
     {:reply, resp, socket}
   end
@@ -204,7 +205,7 @@ defmodule UcxChat.UserChannel do
           push socket, "window:reload", %{}
           {:ok, %{}}
         {:error, _} ->
-          {:error, %{error: "There was a problem switching modes"}}
+          {:error, %{error: ~g"There was a problem switching modes"}}
       end
     {:reply, resp, socket}
   end

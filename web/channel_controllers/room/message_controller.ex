@@ -19,7 +19,7 @@ defmodule UcxChat.MessageChannelController do
 
 
     if ChannelService.user_muted? user_id, channel_id do
-      sys_msg = create_system_message(channel_id, "You have been muted and cannot speak in this room")
+      sys_msg = create_system_message(channel_id, ~g"You have been muted and cannot speak in this room")
       html = render_message(sys_msg)
       push_message(socket, sys_msg.id, user_id, html)
 

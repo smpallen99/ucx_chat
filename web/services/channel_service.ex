@@ -2,6 +2,8 @@ defmodule UcxChat.ChannelService do
   @moduledoc """
   Helper functions used by the controller, channel, and model for Channels
   """
+  use UcxChat.Web, :service
+
   import Phoenix.HTML.Tag, only: [content_tag: 3, content_tag: 2]
   import Ecto.Query
 
@@ -59,7 +61,7 @@ defmodule UcxChat.ChannelService do
       {:ok, subs} ->
         UserChannel.join_room(user_id, channel.name)
         unless Settings.hide_user_join() do
-          broadcast_message("Has joined the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
+          broadcast_message(~g"Has joined the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
         end
         {:ok, subs}
       error ->
@@ -189,10 +191,10 @@ defmodule UcxChat.ChannelService do
       Logger.debug "deleting room #{room}"
       Phoenix.Channel.broadcast socket, "room:delete", %{room: room, channel_id: channel.id}
       Phoenix.Channel.broadcast socket, "reload", %{location: "/"}
-      {:ok, %{success: "The room has been deleted", reload: true}}
+      {:ok, %{success: ~g"The room has been deleted", reload: true}}
     else
       _ ->
-        {:error, %{error: "Problem deleting the channel"}}
+        {:error, %{error: ~g"Problem deleting the channel"}}
     end
   end
 
@@ -515,7 +517,7 @@ defmodule UcxChat.ChannelService do
             Phoenix.Channel.broadcast socket, "user:action", %{action: "unhide", user_id: user_id, channel_id: channel_id}
             {:ok, ""}
           {:error, _} ->
-            {:error, "Could not unhide that room"}
+            {:error, ~g"Could not unhide that room"}
         end
     end
   end
@@ -532,7 +534,7 @@ defmodule UcxChat.ChannelService do
     |> Repo.one
     |> case do
       nil ->
-        {:error, "You are not subscribed to that room"}
+        {:error, ~g"You are not subscribed to that room"}
       subs ->
         subs
         |> Subscription.changeset(%{hidden: true})
@@ -542,24 +544,24 @@ defmodule UcxChat.ChannelService do
             Phoenix.Channel.broadcast socket, "user:action", %{action: "hide", user_id: user_id}
             {:ok, ""}
           {:error, _} ->
-            {:error, "Could not hide that room"}
+            {:error, ~g"Could not hide that room"}
         end
     end
   end
 
   def channel_command(socket, :create, name, user_id, channel_id) do
     if Helpers.get_by(Channel, :name, name) do
-      Helpers.response_message(channel_id, "The channel `##{name}` already exists.")
+      Helpers.response_message(channel_id, ~g"The channel " <> "`##{name}`" <> ~g" already exists.")
     else
       insert_channel(%{name: name, user_id: user_id})
       |>case do
         {:ok, channel} ->
           channel_command(socket, :join, channel, user_id, channel_id)
 
-          Helpers.response_message(channel_id, "Channel created successfully")
+          {:ok, ~g"Channel created successfully"}
 
         {:error, _} ->
-          Helpers.response_message(channel_id, "There was a problem creating `##{name}` channel.")
+          {:error, ~g"There was a problem creating " <> "`##{name}`" <> ~g" channel."}
       end
     end
   end
@@ -567,7 +569,7 @@ defmodule UcxChat.ChannelService do
   def channel_command(socket, :leave, name, user_id) do
     case Helpers.get_by(Channel, :name, name) do
       nil ->
-        {:error, "The channels does not exist"}
+        {:error, ~g"The channels does not exist"}
       channel ->
         channel_command(socket, :leave, channel, user_id, channel.id)
     end
@@ -577,7 +579,7 @@ defmodule UcxChat.ChannelService do
   def channel_command(socket, command, name, user_id, channel_id) when command in @channel_commands and is_binary(name) do
     case Helpers.get_by(Channel, :name, name) do
       nil ->
-        Helpers.response_message(channel_id, text: "The channel `##{name}` does not exists")
+        {:error, ~g"The channel " <> "`##{name}`" <> ~g" does not exists"}
       channel ->
         channel_command(socket, command, channel, user_id, channel_id)
     end
@@ -588,9 +590,9 @@ defmodule UcxChat.ChannelService do
     |> add_user_to_channel(user_id)
     |> case do
       {:ok, _subs} ->
-        {:ok, "You have joined the `#{channel.name}` channel."}
+        {:ok, ~g"You have joined the " <> "`#{channel.name}`" <> ~g" channel."}
       {:error, _} ->
-        {:error, "Problem joining `#{channel.name}` channel."}
+        {:error, ~g"Problem joining " <> "`#{channel.name}`" <> ~g" channel."}
     end
   end
 
@@ -600,16 +602,20 @@ defmodule UcxChat.ChannelService do
     |> remove_user_from_channel(user_id)
     |> case do
       nil ->
-        {:error, "Your not subscribed to the `#{channel.name}` channel."}
+        {:error, ~g"Your not subscribed to the " <> "`#{channel.name}`" <> ~g" channel."}
       _subs ->
-        {:ok, "You have left to the `#{channel.name}` channel."}
+        {:ok, ~g"You have left to the " <> "`#{channel.name}`" <> ~g" channel."}
     end
   end
 
-  def channel_command(socket, :open, %Channel{} = _channel, _user_id, channel_id) do
+  def channel_command(socket, :open, %Channel{name: name} = channel, _user_id, _channel_id) do
     # send open channel to the user
-    Helpers.response_message(channel_id, "That command is not yet supported")
-    %{}
+    # old_room = Helpers.get!(Channel, socket.assigns.channel_id) |> Map.get(:name)
+    # Logger.warn "old_room: #{inspect old_room}, channel: #{inspect channel}"
+    # open_room(socket.assigns[:user_id], old_room, name, name)
+    # Helpers.response_message(channel_id, "That command is not yet supported")
+    Phoenix.Channel.push socket, "room:open", %{room: name}
+    {:ok, %{}}
   end
 
   def channel_command(socket, :archive, %Channel{archived: true} = channel, _user_id, channel_id) do
@@ -628,15 +634,15 @@ defmodule UcxChat.ChannelService do
         |> where([s], s.channel_id == ^id)
         |> Repo.update_all(set: [hidden: true])
         Phoenix.Channel.broadcast! socket, "room:state_change", %{change: "archive"}
-        {:ok, "Channel with name `channel.name` has been archived successfully."}
+        {:ok, ~g"Channel with name " <> "`#{channel.name}`" <> ~g" has been archived successfully."}
       {:error, cs} ->
         Logger.warn "error archiving channel #{inspect cs.errors}"
-        {:error, "Channel with name `#{channel.name}` was not archived."}
+        {:error, ~g"Channel with name " <> "`#{channel.name}`" <> ~g" was not archived."}
     end
   end
 
   def channel_command(socket, :unarchive, %Channel{archived: false} = channel, _user_id, channel_id) do
-    {:error, "Channel with name `#{channel.name}` is not archived."}
+    {:error, ~g"Channel with name " <> "`#{channel.name}`" <> ~g" is not archived."}
   end
 
   def channel_command(socket, :unarchive, %Channel{id: id} = channel, user_id, channel_id) do
@@ -651,10 +657,10 @@ defmodule UcxChat.ChannelService do
         |> where([s], s.channel_id == ^id)
         |> Repo.update_all(set: [hidden: false])
         Phoenix.Socket.broadcast! socket, "room:state_change", %{change: "unarchive"}
-        {:ok, "Channel with name `#{channel.name}` has been unarchived successfully."}
+        {:ok, ~g"Channel with name " <> "`#{channel.name}`" <> ~g" has been unarchived successfully."}
       {:error, cs} ->
         Logger.warn "error unarchiving channel #{inspect cs.errors}"
-        {:erorr, "Channel with name `#{channel.name}` was not unarchived."}
+        {:erorr, ~g"Channel with name " <> "`#{channel.name}`" <> ~g" was not unarchived."}
     end
   end
 
@@ -670,7 +676,7 @@ defmodule UcxChat.ChannelService do
       invite_user(subs.user.id, to_channel)
     end)
 
-    Helpers.response_message(channel_id, "The users have been added.")
+    {:ok, "The users have been added."}
   end
 
   def channel_command(socket, :invite_all_from, %Channel{} = channel, _user_id, channel_id) do
@@ -685,7 +691,7 @@ defmodule UcxChat.ChannelService do
       invite_user(subs.user.id, to_channel)
     end)
 
-    Helpers.response_message(channel_id, "The users have been added.")
+    {:ok, ~g"The users have been added."}
   end
 
   ##################
@@ -696,7 +702,7 @@ defmodule UcxChat.ChannelService do
   def user_command(socket, command, name, user_id, channel_id) when command in @user_commands and is_binary(name) do
     case Helpers.get_by(User, :username, name) do
       nil ->
-        {:error, "The user `@#{name}` does not exists"}
+        {:error, ~g"The user " <> "`@#{name}`" <> ~g" does not exists"}
       user ->
         user_command(socket, command, user, user_id, channel_id)
     end
@@ -706,9 +712,9 @@ defmodule UcxChat.ChannelService do
     |> invite_user(channel_id, user_id)
     |> case do
       {:ok, _subs} ->
-        {:ok, "User added"}
+        {:ok, ~g"User added"}
       {:error, _} ->
-        {:error, "Problem inviting `#{user.username}` to this channel."}
+        {:error, ~g"Problem inviting " <> "`#{user.username}`" <> ~g" to this channel."}
     end
   end
 
@@ -718,10 +724,10 @@ defmodule UcxChat.ChannelService do
     |> remove_user_from_channel(user_id)
     |> case do
       nil ->
-        {:error, "User `#{user.username}` is not subscribed to this channel."}
+        {:error, ~g"User " <> "`#{user.username}`" <> ~g" is not subscribed to this channel."}
       _subs ->
         notify_user_action(user, user_id, channel_id, "removed")
-        {:ok, "User removed"}
+        {:ok, ~g"User removed"}
     end
   end
 
@@ -806,7 +812,7 @@ defmodule UcxChat.ChannelService do
   end
 
   def user_command(socket, action, %User{} = user, user_id, channel_id) when action in [:set_moderator, :unset_moderator] do
-    string = if action == :set_moderator, do: "was set moderator", else: "is no longer moderator"
+    string = if action == :set_moderator, do: ~g"was set moderator", else: ~g"is no longer moderator"
     case apply(__MODULE__, action, [user, user_id, channel_id]) do
       {:ok, msg} ->
         notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, string)
@@ -837,7 +843,7 @@ defmodule UcxChat.ChannelService do
   end
 
   def format_binary_msg(n1, n2, operation) do
-    "User <em class='username'>#{n1}</em> #{operation} by <em class='username'>#{n2}</em>."
+    ~g"User" <> " <em class='username'>#{n1}</em> " <> Gettext.gettext(UcxChat.Gettext, operation) <> " " <> ~g"by" <> " <em class='username'>#{n2}</em>."
   end
 
   defp notify_user_action2(socket, user, user_id, channel_id, fun) do
@@ -866,9 +872,9 @@ defmodule UcxChat.ChannelService do
     |> case do
       {:error, _cs} ->
         # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
-        {:error, "Could not block user"}
+        {:error, ~g"Could not block user"}
       _ ->
-        {:ok, "blocked"}
+        {:ok, ~g"blocked"}
     end
   end
 
@@ -881,9 +887,9 @@ defmodule UcxChat.ChannelService do
     |> case do
       {:error, _cs} ->
         # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
-        {:error, "Could not unblock user"}
+        {:error, ~g"Could not unblock user"}
       _ ->
-        {:ok, "unblocked"}
+        {:ok, ~g"unblocked"}
     end
   end
 
@@ -895,9 +901,9 @@ defmodule UcxChat.ChannelService do
       |> case do
         {:error, _cs} ->
           # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
-          {:error, "User `@" <> user.username <> "` already muted."}
+          {:error, ~g"User" <> " `@" <> user.username <> "` " <>  ~g"already muted."}
         mute ->
-          {:ok, "muted"}
+          {:ok, ~g"muted"}
       end
     else
       {:error, :no_permission}
@@ -912,10 +918,10 @@ defmodule UcxChat.ChannelService do
       |> case do
         nil ->
           # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " is not muted.")}
-          {:error, "User `@" <> user.username <> "` is not muted."}
+          {:error, ~g"User" <> " `@" <> user.username <> "` " <> ~g"is not muted."}
         mute ->
           Repo.delete mute
-          {:ok, "unmuted"}
+          {:ok, ~g"unmuted"}
       end
     else
       {:error, :no_permission}
@@ -929,7 +935,7 @@ defmodule UcxChat.ChannelService do
     |> case do
       {:error, _cs} ->
         # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
-        {:error, "Could not add role to user."}
+        {:error, ~g"Could not add role to user."}
       user_role ->
         {:ok, user_role}
     end
@@ -942,7 +948,7 @@ defmodule UcxChat.ChannelService do
       |> Enum.find(&(&1.user_id == id))
       |> remove_role
     else
-      {:error, "This is the last owner. Please set a new owner before removing this one."}
+      {:error, ~g"This is the last owner. Please set a new owner before removing this one."}
     end
   end
 
@@ -953,7 +959,7 @@ defmodule UcxChat.ChannelService do
     |> case do
       {:error, _cs} ->
         # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
-        {:error, "Could not add user as moderator."}
+        {:error, ~g"Could not add user as moderator."}
       user_role ->
         {:ok, user_role}
     end
@@ -970,12 +976,12 @@ defmodule UcxChat.ChannelService do
     if length(owners) > 0 do
       case remove_user_from_channel(channel, id) do
         nil ->
-          {:error, "User is not a member of this room."}
+          {:error, ~g"User is not a member of this room."}
         _ ->
           {:ok, ""}
       end
     else
-      {:error, "You are the last owner. Please set a new owner before leaving this room."}
+      {:error, ~g"You are the last owner. Please set a new owner before leaving this room."}
     end
   end
 
@@ -985,7 +991,7 @@ defmodule UcxChat.ChannelService do
   end
 
   def remove_role(nil) do
-    {:error, "Role not found"}
+    {:error, ~g"Role not found"}
   end
   def remove_role(user_role) do
     Repo.delete! user_role
@@ -1033,7 +1039,7 @@ defmodule UcxChat.ChannelService do
           broadcast_message("Has left the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
         end
         Logger.error "remove .... subs: #{inspect subs}"
-        {:ok, "removed"}
+        {:ok, ~g"removed"}
     end
   end
 
@@ -1042,7 +1048,7 @@ defmodule UcxChat.ChannelService do
     |> join_channel(user_id)
     |> case do
       {:ok, _subs} ->
-        {:ok, "added"}
+        {:ok, ~g"added"}
       result -> result
     end
   end

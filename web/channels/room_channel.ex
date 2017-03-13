@@ -4,6 +4,7 @@ defmodule UcxChat.RoomChannel do
   """
   use Phoenix.Channel
   use UcxChat.ChannelApi
+  use UcxChat.Web, :channel
 
   import Ecto.Query
 
@@ -100,7 +101,7 @@ defmodule UcxChat.RoomChannel do
     if authorized? socket, String.split(pattern, "/"), params, ucxchat, user do
       UcxChat.ChannelRouter.route(socket, pattern, params, ucxchat)
     else
-      push socket, "toastr:error", %{message: "You are not authorized!"}
+      push socket, "toastr:error", %{message: ~g"You are not authorized!"}
       {:noreply, socket}
     end
   end

@@ -1,4 +1,5 @@
 defmodule UcxChat.MessagePopupService do
+  use UcxChat.Web, :service
   require Logger
   alias UcxChat.{Repo, User, Channel, Message, SlashCommands, PresenceAgent}
   # alias UcxChat.ServiceHelpers, as: Helpers
@@ -13,10 +14,10 @@ defmodule UcxChat.MessagePopupService do
 
     if length(users) > 0 do
       data = users ++ [
-        %{system: true, username: "all", name: "Notify all in this room", id: "all"},
-        %{system: true, username: "here", name: "Notify active users in this room", id: "here"}
+        %{system: true, username: "all", name: ~g"Notify all in this room", id: "all"},
+        %{system: true, username: "here", name: ~g"Notify active users in this room", id: "here"}
       ]
-      chatd = %{open: true, title: "People", data: data, templ: "popup_user.html"}
+      chatd = %{open: true, title: ~g"People", data: data, templ: "popup_user.html"}
 
       html =
         "popup.html"
@@ -35,7 +36,7 @@ defmodule UcxChat.MessagePopupService do
     channels = get_channels_by_pattern(msg["channel_id"], msg["user_id"], "%" <> pattern <> "%")
 
     if length(channels) > 0 do
-      chatd = %{open: true, title: "Channels", data: channels, templ: "popup_channel.html"}
+      chatd = %{open: true, title: ~g"Channels", data: channels, templ: "popup_channel.html"}
 
       html =
         "popup.html"

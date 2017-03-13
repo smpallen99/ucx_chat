@@ -32,7 +32,6 @@ defmodule UcxChat.UserSocket do
       {:error, _} -> :error
       {:ok, %{assigns: %{user_id: user_id}} = socket} ->
         {user_id, username} = User.user_id_and_username(user_id) |> Repo.one
-        # user_id = Repo.get!(User, user_id) |> Map.get(:user_id)
         {
           :ok,
           socket

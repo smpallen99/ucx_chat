@@ -22,8 +22,7 @@ defmodule UcxChat.Web do
       alias UcxChat.{Repo, RoomChannel, UserChannel, Settings}
       alias UcxChat.ServiceHelpers, as: Helpers
       require UcxChat.SharedView
-      import UcxChat.SharedView, only: [sigil_g: 2]
-      import UcxChat.Gettext
+      use UcxChat.Gettext
       import Phoenix.HTML, only: [safe_to_string: 1]
     end
   end
@@ -31,6 +30,7 @@ defmodule UcxChat.Web do
   def model do
     quote do
       use Ecto.Schema
+      use UcxChat.Gettext
 
       import Ecto
       import Ecto.Changeset
@@ -46,6 +46,7 @@ defmodule UcxChat.Web do
       import Ecto.Query
       alias UcxChat.Settings
       use UcxChat.Utils
+      use UcxChat.Gettext
 
     end
   end
@@ -59,7 +60,7 @@ defmodule UcxChat.Web do
       import Ecto.Query
 
       import UcxChat.Router.Helpers
-      import UcxChat.Gettext
+      use UcxChat.Gettext
       alias UcxChat.Settings
     end
   end
@@ -80,7 +81,7 @@ defmodule UcxChat.Web do
       import Phoenix.HTML.Tag
       import UcxChat.Router.Helpers
       import UcxChat.ErrorHelpers
-      import UcxChat.Gettext
+      use UcxChat.Gettext
       import UcxChat.SharedView
       require UcxChat.SharedView
       alias UcxChat.Permission
@@ -100,7 +101,7 @@ defmodule UcxChat.Web do
       alias UcxChat.{Repo, Settings}
       import Ecto
       import Ecto.Query
-      import UcxChat.Gettext
+      use UcxChat.Gettext
     end
   end
 

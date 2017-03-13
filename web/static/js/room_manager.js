@@ -235,6 +235,11 @@ class RoomManager {
     this.has_more = $('.messages-box li.load-more').length > 0
     // bind_scroller()
     this.updateMentionsMarksOfRoom()
+    roomchan.on('room:open', resp => {
+      utils.page_loading()
+      $('.main-content').html(utils.loading_animation())
+      this.open_room(resp.room, resp.room)
+    })
   }
 
   bind_history_manager_scroll_event() {
@@ -281,6 +286,7 @@ class RoomManager {
         utils.remove_page_loading()
       })
   }
+
   register_events() {
     this.bind_history_manager_scroll_event()
 
@@ -565,7 +571,6 @@ class RoomManager {
       messageCog.close_cog($(e.currentTarget))
       roomHistoryManager.getRecent()
     })
-
   }
 
   update_state(resp) {

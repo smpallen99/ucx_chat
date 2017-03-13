@@ -121,9 +121,4 @@ defmodule UcxChat.SharedView do
       gettext(unquote(text), unquote(opts))
     end
   end
-  defmacro sigil_g(text, _) do
-    quote do
-      gettext(unquote(text))
-    end
-  end
 end

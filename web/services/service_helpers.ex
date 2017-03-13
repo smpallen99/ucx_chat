@@ -1,4 +1,5 @@
 defmodule UcxChat.ServiceHelpers do
+  use UcxChat.Web, :service
   alias UcxChat.{Repo, Channel, User, Subscription, MessageService, User}
 
   import Ecto.Query
@@ -111,9 +112,9 @@ defmodule UcxChat.ServiceHelpers do
     min = to_string(min) |> String.pad_leading(2, "0")
     {hr, meridan} =
       case hr do
-        hr when hr < 12 -> {hr, " AM"}
-        hr when hr == 12 -> {hr, " PM"}
-        hr -> {hr - 12, " PM"}
+        hr when hr < 12 -> {hr, ~g" AM"}
+        hr when hr == 12 -> {hr, ~g" PM"}
+        hr -> {hr - 12, ~g" PM"}
       end
     to_string(hr) <> ":" <> min <> meridan
   end
@@ -124,18 +125,18 @@ defmodule UcxChat.ServiceHelpers do
   end
   def format_date_time(%DateTime{} = dt), do: dt |> DateTime.to_naive |> format_date_time
 
-  def month(1), do: "January"
-  def month(2), do: "February"
-  def month(3), do: "March"
-  def month(4), do: "April"
-  def month(5), do: "May"
-  def month(6), do: "June"
-  def month(7), do: "July"
-  def month(8), do: "August"
-  def month(9), do: "September"
-  def month(10), do: "October"
-  def month(11), do: "November"
-  def month(12), do: "December"
+  def month(1), do: ~g"January"
+  def month(2), do: ~g"February"
+  def month(3), do: ~g"March"
+  def month(4), do: ~g"April"
+  def month(5), do: ~g"May"
+  def month(6), do: ~g"June"
+  def month(7), do: ~g"July"
+  def month(8), do: ~g"August"
+  def month(9), do: ~g"September"
+  def month(10), do: ~g"October"
+  def month(11), do: ~g"November"
+  def month(12), do: ~g"December"
 
   def response_message(channel_id, body) do
     # body = UcxChat.MessageView.render("message_response_body.html", message: message)
@@ -216,7 +217,7 @@ defmodule UcxChat.ServiceHelpers do
   end
 
   def show_sweet_dialog(socket, opts) do
-    header = if opts[:confirm], do: opts[:header] || "Are you sure?"
+    header = if opts[:confirm], do: opts[:header] || ~g"Are you sure?"
     opts = Map.put(opts, :header, header)
 
     html = UcxChat.MasterView.render("sweet.html", opts: Map.put(opts, :show, true))

@@ -22,10 +22,10 @@ defmodule UcxChat.AdminService do
       |> Repo.update
       |> case do
         {:ok, _} ->
-          {:ok, %{success: "General settings updated successfully"}}
+          {:ok, %{success: ~g"General settings updated successfully"}}
         {:error, cs} ->
           Logger.error "problem updating general: #{inspect cs}"
-          {:ok, %{error: "There a problem updating your settings."}}
+          {:ok, %{error: ~g"There a problem updating your settings."}}
       end
     {:reply, resp, socket}
   end
@@ -43,10 +43,10 @@ defmodule UcxChat.AdminService do
       |> Repo.update
       |> case do
         {:ok, _} ->
-          {:ok, %{success: "Message settings updated successfully"}}
+          {:ok, %{success: ~g"Message settings updated successfully"}}
         {:error, cs} ->
           Logger.error "problem updating Message settings: #{inspect cs}"
-          {:ok, %{error: "There a problem updating your settings."}}
+          {:ok, %{error: ~g"There a problem updating your settings."}}
       end
     {:reply, resp, socket}
   end
@@ -64,10 +64,10 @@ defmodule UcxChat.AdminService do
       |> Repo.update
       |> case do
         {:ok, _} ->
-          {:ok, %{success: "Layout settings updated successfully"}}
+          {:ok, %{success: ~g"Layout settings updated successfully"}}
         {:error, cs} ->
           Logger.error "problem updating Layout settings: #{inspect cs}"
-          {:ok, %{error: "There a problem updating your settings."}}
+          {:ok, %{error: ~g"There a problem updating your settings."}}
       end
     {:reply, resp, socket}
   end

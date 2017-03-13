@@ -4,14 +4,14 @@ defmodule UcxChat.FlexAdminService do
 
   def default_settings("user") do
     [
-      %{title: "Invite Users", icon: "paper-plane", display: "", templ: ""},
-      %{title: "Add User", icon: "plus", display: "", templ: ""},
-      %{title: "User Info", icon: "user", display: "", templ: "user_card.html"},
+      %{title: ~g"Invite Users", icon: "paper-plane", display: "", templ: ""},
+      %{title: ~g"Add User", icon: "plus", display: "", templ: ""},
+      %{title: ~g"User Info", icon: "user", display: "", templ: "user_card.html"},
     ]
   end
   def default_settings("room") do
     [
-      %{title: "Room Info", icon: "info-circled", display: "", templ: ""},
+      %{title: ~g"Room Info", icon: "info-circled", display: "", templ: ""},
     ]
   end
 

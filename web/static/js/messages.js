@@ -35,7 +35,7 @@ class Messages {
       // if (debug) { console.log('adding own to', msg.id, $('#' + msg.id)) }
       $('#' + msg.id).addClass("own")
     }
-    unread.new_message(msg.id)
+    roomManager.new_message(msg.id)
   }
   static scroll_bottom() {
     let mypanel = $('.messages-box .wrapper')
@@ -70,7 +70,7 @@ class Messages {
           }
         })
 
-      unread.remove_unread()
+      roomManager.remove_unread()
 
     } else if (!utils.empty_string(msg)) {
       // roomchan.push("message", {message: msg, user_id: user, room: ucxchat.room, username: ucxchat.username,
