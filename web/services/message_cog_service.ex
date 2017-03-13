@@ -6,7 +6,7 @@ defmodule UcxChat.MessageCogService do
   alias UcxChat.ServiceHelpers, as: Helpers
   import Ecto.Query
 
-  def handle_in("open", %{"flex_tab" => true} = msg, _) do
+  def handle_in("open", %{"flex_tab" => true}, _) do
     html = FlexBarView.render("flex_cog.html")
     |> Phoenix.HTML.safe_to_string
     {nil, %{html: html}}
@@ -70,9 +70,9 @@ defmodule UcxChat.MessageCogService do
     |> Repo.delete!
     {"update:pinned", %{}}
   end
-  def handle_in("edit-message", %{"user_id" => _user_id, "channel_id" => _channel_id} = msg, socket) do
+  # def handle_in("edit-message", %{"user_id" => _user_id, "channel_id" => _channel_id}, _socket) do
 
-  end
+  # end
   def handle_in("delete-message", %{"user_id" => _user_id, "channel_id" => _channel_id} = msg, socket) do
     message = Helpers.get Message, get_message_id(msg["message_id"])
     Repo.delete message

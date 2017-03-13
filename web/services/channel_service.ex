@@ -4,7 +4,7 @@ defmodule UcxChat.ChannelService do
   """
   use UcxChat.Web, :service
 
-  import Phoenix.HTML.Tag, only: [content_tag: 3, content_tag: 2]
+  # import Phoenix.HTML.Tag, only: [content_tag: 2]
   import Ecto.Query
 
   alias UcxChat.{
@@ -17,10 +17,10 @@ defmodule UcxChat.ChannelService do
   require Logger
   require IEx
 
-  @public_channel  0
-  @private_channel 1
-  @direct_message  2
-  @stared_room     3
+  # @public_channel  0
+  # @private_channel 1
+  # @direct_message  2
+  # @stared_room     3
 
   def create_subscription(%Channel{} = channel, user_id) do
     %Subscription{}
@@ -184,7 +184,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def delete_channel(socket, room, user_id) do
+  def delete_channel(socket, room, _user_id) do
     with channel when not is_nil(channel) <- Helpers.get_by(Channel, :name, room),
          changeset <- Channel.changeset_delete(channel),
          {:ok, _} <- Repo.delete(changeset) do
@@ -211,7 +211,7 @@ defmodule UcxChat.ChannelService do
   ##################
   #
 
-  def get_side_nav_rooms(%User{id: id} = user) do
+  def get_side_nav_rooms(%User{} = user) do
     user |> Channel.get_all_channels |> Repo.all
   end
 
@@ -359,7 +359,7 @@ defmodule UcxChat.ChannelService do
     user = Helpers.get_user!(user_id)
 
     channel = Helpers.get_by! Channel, :name, room, preload: [:subscriptions]
-    old_channel = Helpers.get_by! Channel, :name, old_room, preload: [:subscriptions]
+    # old_channel = Helpers.get_by! Channel, :name, old_room, preload: [:subscriptions]
 
     # {subscribed, hidden} = Channel.subscription_status(channel, user.id)
 
@@ -566,7 +566,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(socket, :leave, name, user_id) do
+  def channel_command(socket, :leave, name, user_id, _) do
     case Helpers.get_by(Channel, :name, name) do
       nil ->
         {:error, ~g"The channels does not exist"}
@@ -585,7 +585,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(socket, :join, %Channel{} = channel, user_id, channel_id) do
+  def channel_command(_socket, :join, %Channel{} = channel, user_id, _channel_id) do
     channel
     |> add_user_to_channel(user_id)
     |> case do
@@ -596,8 +596,8 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(socket, :leave, %Channel{} = channel, user_id, channel_id) do
-    Logger.error ".... channel.name: #{inspect channel.name}, user_id: #{inspect user_id}, channel.id: #{inspect channel.id}"
+  def channel_command(_socket, :leave, %Channel{} = channel, user_id, _channel_id) do
+    # Logger.error ".... channel.name: #{inspect channel.name}, user_id: #{inspect user_id}, channel.id: #{inspect channel.id}"
     channel
     |> remove_user_from_channel(user_id)
     |> case do
@@ -608,7 +608,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(socket, :open, %Channel{name: name} = channel, _user_id, _channel_id) do
+  def channel_command(socket, :open, %Channel{name: name} = _channel, _user_id, _channel_id) do
     # send open channel to the user
     # old_room = Helpers.get!(Channel, socket.assigns.channel_id) |> Map.get(:name)
     # Logger.warn "old_room: #{inspect old_room}, channel: #{inspect channel}"
@@ -618,11 +618,11 @@ defmodule UcxChat.ChannelService do
     {:ok, %{}}
   end
 
-  def channel_command(socket, :archive, %Channel{archived: true} = channel, _user_id, channel_id) do
+  def channel_command(_socket, :archive, %Channel{archived: true} = channel, _user_id, channel_id) do
     Helpers.response_message(channel_id, "Channel with name `#{channel.name}` is already archived.")
   end
 
-  def channel_command(socket, :archive, %Channel{id: id} = channel, user_id, channel_id) do
+  def channel_command(socket, :archive, %Channel{id: id} = channel, user_id, _channel_id) do
     user = Helpers.get_user! user_id
     channel
     |> Channel.do_changeset(user, %{archived: true})
@@ -641,11 +641,11 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(socket, :unarchive, %Channel{archived: false} = channel, _user_id, channel_id) do
+  def channel_command(_socket, :unarchive, %Channel{archived: false} = channel, _user_id, _channel_id) do
     {:error, ~g"Channel with name " <> "`#{channel.name}`" <> ~g" is not archived."}
   end
 
-  def channel_command(socket, :unarchive, %Channel{id: id} = channel, user_id, channel_id) do
+  def channel_command(socket, :unarchive, %Channel{id: id} = channel, user_id, _channel_id) do
     user = Helpers.get_user! user_id
     channel
     |> Channel.do_changeset(user, %{archived: false})
@@ -656,7 +656,7 @@ defmodule UcxChat.ChannelService do
         Subscription
         |> where([s], s.channel_id == ^id)
         |> Repo.update_all(set: [hidden: false])
-        Phoenix.Socket.broadcast! socket, "room:state_change", %{change: "unarchive"}
+        Phoenix.Channel.broadcast socket, "room:state_change", %{change: "unarchive"}
         {:ok, ~g"Channel with name " <> "`#{channel.name}`" <> ~g" has been unarchived successfully."}
       {:error, cs} ->
         Logger.warn "error unarchiving channel #{inspect cs.errors}"
@@ -664,7 +664,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(socket, :invite_all_to, %Channel{} = channel, _user_id, channel_id) do
+  def channel_command(_socket, :invite_all_to, %Channel{} = channel, _user_id, channel_id) do
     to_channel = Helpers.get(Channel, channel.id).id
     from_channel = channel_id
 
@@ -679,7 +679,7 @@ defmodule UcxChat.ChannelService do
     {:ok, "The users have been added."}
   end
 
-  def channel_command(socket, :invite_all_from, %Channel{} = channel, _user_id, channel_id) do
+  def channel_command(_socket, :invite_all_from, %Channel{} = channel, _user_id, channel_id) do
     from_channel = Helpers.get(Channel, channel.id).id
     to_channel = channel_id
 
@@ -707,7 +707,7 @@ defmodule UcxChat.ChannelService do
         user_command(socket, command, user, user_id, channel_id)
     end
   end
-  def user_command(socket, :invite, %User{} = user, user_id, channel_id) do
+  def user_command(_socket, :invite, %User{} = user, user_id, channel_id) do
     user
     |> invite_user(channel_id, user_id)
     |> case do
@@ -718,7 +718,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def user_command(socket, :kick, %User{} = user, user_id, channel_id) do
+  def user_command(_socket, :kick, %User{} = user, user_id, channel_id) do
     Channel
     |> Helpers.get!(channel_id)
     |> remove_user_from_channel(user_id)
@@ -741,7 +741,7 @@ defmodule UcxChat.ChannelService do
         # unless Settings.hide_user_muted() do
         #   notify_user_action2 socket, user, user_id, channel_id, &format_binary_msg(&1, &2, "muted")
         # end
-        Phoenix.channel.broadcast! socket, "room:state_change", %{change: "block"}
+        Phoenix.Channel.broadcast socket, "room:state_change", %{change: "block"}
         Phoenix.Channel.broadcast socket, "user:action", %{action: "block", user_id: user.id}
         # Logger.warn "mute #{user.id} by #{user_id}...."
         {:ok, msg}
@@ -838,7 +838,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def user_command(socket, action, %User{} = user, user_id, channel_id) do
+  def user_command(_socket, action, %User{}, _user_id, _channel_id) do
     raise "user command unknown action #{inspect action}"
   end
 
@@ -851,20 +851,20 @@ defmodule UcxChat.ChannelService do
     body = fun.(user.username, owner.username)
     broadcast_message2(socket, body, user_id, channel_id, system: true)
   end
-  defp notify_user_action(user, user_id, channel_id, action) do
-    owner = Helpers.get(User, user_id)
-    t1 = content_tag :em do
-     user.username
-    end
-    t2 = content_tag :em do
-     owner.username
-    end
+  defp notify_user_action(_user, _user_id, _channel_id, _action) do
+    # owner = Helpers.get(User, user_id)
+    # t1 = content_tag :em do
+    #  user.username
+    # end
+    # t2 = content_tag :em do
+    #  owner.username
+    # end
     # broadcast_message(body, room, user_id, channel_id)
     #Helpers.response_message(channel_id, text: "User ", tag: t1, text: " #{action} by ", tag: t2, text: ".")
   end
 
-  def block_user(%{id: id} = user, user_id, channel_id) do
-    user = Helpers.get_user! user_id
+  def block_user(%{id: _id}, _user_id, channel_id) do
+    # user = Helpers.get_user! user_id
     Channel
     |> Helpers.get!(channel_id)
     |> Channel.blocked_changeset(true)
@@ -878,8 +878,8 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def unblock_user(%{id: id} = user, user_id, channel_id) do
-    user = Helpers.get_user! user_id
+  def unblock_user(_user, _user_id, channel_id) do
+    # user = Helpers.get_user! user_id
     Channel
     |> Helpers.get!(channel_id)
     |> Channel.blocked_changeset(false)
@@ -902,7 +902,7 @@ defmodule UcxChat.ChannelService do
         {:error, _cs} ->
           # {:error, Helpers.response_message(channel_id, text: "User ", code: "@" <> user.username, text: " already muted.")}
           {:error, ~g"User" <> " `@" <> user.username <> "` " <>  ~g"already muted."}
-        mute ->
+        _mute ->
           {:ok, ~g"muted"}
       end
     else
@@ -928,7 +928,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def set_owner(%{id: id} = user, _user_id, channel_id) do
+  def set_owner(%{id: id} = _user, _user_id, channel_id) do
     %UserRole{}
     |> UserRole.changeset(%{user_id: id, role: "owner", scope: channel_id})
     |> Repo.insert
@@ -941,7 +941,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def unset_owner(%{id: id} = user, _user_id, channel_id) do
+  def unset_owner(%{id: id}, _user_id, channel_id) do
     owners = Repo.all(from r in UserRole, where: r.role == "owner" and  r.scope == ^channel_id)
     if length(owners) > 1 do
       owners
@@ -952,7 +952,7 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def set_moderator(%{id: id} = user, _user_id, channel_id) do
+  def set_moderator(%{id: id}, _user_id, channel_id) do
     %UserRole{}
     |> UserRole.changeset(%{user_id: id, role: "moderator", scope: channel_id})
     |> Repo.insert
@@ -965,12 +965,12 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def unset_moderator(%{id: id} = user, _user_id, channel_id) do
+  def unset_moderator(%{id: id}, _user_id, channel_id) do
     Repo.one(from r in UserRole, where: r.user_id == ^id and r.role == "moderator" and  r.scope == ^channel_id)
     |> remove_role
   end
 
-  def remove_user(%{id: id} = user, _user_id, channel_id) do
+  def remove_user(%{id: id}, _user_id, channel_id) do
     channel = Repo.get Channel, channel_id
     owners = Repo.all(from r in UserRole, where: r.user_id != ^id and r.role == "owner" and  r.scope == ^channel_id)
     if length(owners) > 0 do

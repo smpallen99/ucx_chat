@@ -17,7 +17,7 @@ defmodule UcxChat.PresenceAgent do
   require Logger
 
   @name __MODULE__
-  @audit_secs 120
+  # @audit_secs 120
 
   def start_link do
     # spawn fn ->

@@ -4,7 +4,7 @@
 # a written license agreement with E-MetroTel.
 
 defmodule Ucx.Dets do
-  @defmodule """
+  @moduledoc """
   Wrapper around the mdse dets table
   """
   @name :chat_dets
@@ -23,7 +23,7 @@ defmodule Ucx.Dets do
   Open the mdse dets table
   """
   def open_file do
-    :dets.open_file name, [auto_save: 30000]
+    :dets.open_file name(), [auto_save: 30000]
   end
 
   @doc """
@@ -35,7 +35,7 @@ defmodule Ucx.Dets do
     * [] or default if given
   """
   def lookup(key, default \\ []) do
-    case :dets.lookup name, key do
+    case :dets.lookup name(), key do
       [] ->
         default
       [{_, value}] ->
@@ -50,37 +50,37 @@ defmodule Ucx.Dets do
   Insert a the value give a key
   """
   def insert(key, value) do
-    :dets.insert name, {key, value}
+    :dets.insert name(), {key, value}
   end
 
   @doc """
   Insert a tuple
   """
   def insert(tuple) do
-    :dets.insert name, tuple
+    :dets.insert name(), tuple
   end
 
   @doc """
   Deletes an entry
   """
   def delete(key) do
-    :dets.delete name, key
-    :dets.sync name
+    :dets.delete name(), key
+    :dets.sync name()
   end
 
   @doc """
   Deletes all entries
   """
   def delete_all do
-    :dets.delete_all_objects name
-    :dets.sync name
+    :dets.delete_all_objects name()
+    :dets.sync name()
   end
 
   @doc """
   Return the complete date base
   """
   def all do
-    :dets.match name, :"$1"
+    :dets.match name(), :"$1"
   end
 
   @doc """
@@ -90,18 +90,18 @@ defmodule Ucx.Dets do
     match {key, value}
   end
   def match(tuple) when is_tuple(tuple) do
-    :dets.match name, tuple
+    :dets.match name(), tuple
   end
 
   @doc """
   Deletes matching entries
   """
   def match_delete(pattern) when is_tuple(pattern) do
-    :dets.match_delete name, pattern
+    :dets.match_delete name(), pattern
   end
 
   def match_delete(key, value) do
-    match_delete name, {key, value}
+    match_delete name(), {key, value}
   end
 
 end

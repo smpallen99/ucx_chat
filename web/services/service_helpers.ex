@@ -16,7 +16,7 @@ defmodule UcxChat.ServiceHelpers do
     get_user(assigns[:user_id])
   end
 
-  def get_user(id, opts \\ []) do
+  def get_user(id, _opts \\ []) do
     Repo.one(from u in User, where: u.id == ^id, preload: [:account, :roles])
   end
 
@@ -225,8 +225,8 @@ defmodule UcxChat.ServiceHelpers do
     Phoenix.Channel.push socket, "sweet:open", %{html: html}
   end
 
-  def hide_sweet_dialog(socket) do
+  # def hide_sweet_dialog(socket) do
 
-  end
+  # end
 
 end

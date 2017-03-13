@@ -6,8 +6,8 @@ defmodule UcxChat.TypingChannelController do
 
   require Logger
 
-  @module __MODULE__
-  @module_name inspect(@module)
+  # @module __MODULE__
+  # @module_name inspect(@module)
 
   def create(%{assigns: %{channel_id: channel_id, user_id: user_id, username: username, room: room}} = socket, _params) do
     # Logger.warn "#{@module_name} create params: #{inspect params}, socket: #{inspect socket}"

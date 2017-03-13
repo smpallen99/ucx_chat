@@ -30,7 +30,7 @@ defmodule UcxChat.Router do
 
   scope "/", UcxChat do
     pipe_through :browser
-    coherence_routes
+    coherence_routes()
   end
 
   scope "/", UcxChat do
@@ -47,7 +47,7 @@ defmodule UcxChat.Router do
     pipe_through :protected
 
     get "/avatar/:username", AvatarController, :show
-    get "/", HomeController, :index
+    get "/", ChannelController, :index
     get "/home", HomeController, :index
     get "/channels/:name", ChannelController, :show
     get "/direct/:name", ChannelController, :direct

@@ -1,7 +1,7 @@
 defmodule UcxChat.ChannelRouter do
   use ChannelRouter
 
-  @module __MODULE__
+  # @module __MODULE__
 
   def match(:post, socket, ["typing"], params) do
     # module and action are build by the post macro

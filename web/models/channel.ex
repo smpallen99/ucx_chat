@@ -62,7 +62,6 @@ defmodule UcxChat.Channel do
 
   def validate_permission(%{changes: changes, data: data} = changeset, user) do
     # Logger.warn "validate_permission: changeset: #{inspect changeset}, type: #{inspect changeset.data.type}"
-    changeset
     cond do
       changes[:type] != nil -> has_permission?(user, changes)
       true -> has_permission?(user, data)
@@ -151,7 +150,7 @@ defmodule UcxChat.Channel do
     channel.type == 2
   end
 
-  def subscription_status(%{subscriptions: subs} = channel, user_id) when is_list(subs) do
+  def subscription_status(%{subscriptions: subs} = _channel, user_id) when is_list(subs) do
     Enum.reduce subs, {false, false}, fn
       %{user_id: ^user_id, hidden: hidden}, _acc -> {true, hidden}
       _, acc -> acc

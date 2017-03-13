@@ -3,7 +3,7 @@ defmodule UcxChat.AvatarController do
   import UcxChat.AvatarService
 
   def show(conn, %{"username" => username}) do
-    xml = UcxChat.AvatarService.avatar_initials(username)
+    # xml = UcxChat.AvatarService.avatar_initials(username)
     conn
     |> put_layout(:none)
     |> put_resp_content_type("image/svg+xml")

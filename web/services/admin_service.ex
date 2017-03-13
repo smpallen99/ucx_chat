@@ -98,7 +98,7 @@ defmodule UcxChat.AdminService do
     {:reply, {:ok, %{html: html, title: "User Info"}}, socket}
   end
 
-  def handle_in(ev = "flex:action:" <> action, %{"username" => username} = params, socket) do
+  def handle_in("flex:action:" <> action, %{"username" => username} = params, socket) do
     resp = case Helpers.get_by(User, :username, username, preload: [:roles, :account]) do
       nil ->
         {:error, %{error: ~g(User ) <> username <> ~g( does not exist.)}}
@@ -108,12 +108,12 @@ defmodule UcxChat.AdminService do
     {:reply, resp, socket}
   end
 
-  def handle_in(ev = "flex:row-info", %{"name" => name} = params, socket) do
+  def handle_in(ev = "flex:row-info", params, socket) do
     debug ev, params
     {:noreply, socket}
   end
 
-  defp flex_action("edit-user", user, username, params, socket) do
+  defp flex_action("edit-user", user, _username, _params, socket) do
     current_user = Helpers.get_user socket.assigns.user_id
     html =
       "admin_edit_user.html"
@@ -122,7 +122,7 @@ defmodule UcxChat.AdminService do
     {:ok, %{html: html, title: "Edit User"}}
   end
 
-  defp flex_action(action, user, username, params, socket) when action in ~w(make-admin remove-admin) do
+  defp flex_action(action, user, _username, _params, _socket) when action in ~w(make-admin remove-admin) do
     [role1, role2, success, error] =
       if action == "make-admin" do
         ["user", "admin", ~g(User is now an admin), ~g(Problem  making the an admin)]
@@ -150,8 +150,8 @@ defmodule UcxChat.AdminService do
     end
   end
 
-  defp flex_action(action, user, username, params, socket) when action in ~w(activate deactivate) do
-    res = [active, success, error] =
+  defp flex_action(action, user, _username, _params, _socket) when action in ~w(activate deactivate) do
+    [active, success, error] =
       if action == "activate" do
         [true, ~g(User has been activated), ~g(Problem activating User)]
       else
@@ -209,20 +209,13 @@ defmodule UcxChat.AdminService do
       |> mod.changeset(%{})
     [user: user, changeset: cs]
   end
-  defp get_args("users" = view, user) do
-    view_a = String.to_atom view
-    mod = Module.concat Config, String.capitalize(view)
-    # cs =
-    #   Config
-    #   |> Repo.one
-    #   |> Map.get(view_a)
-    #   |> mod.changeset(%{})
+  defp get_args("users", user) do
     users = Repo.all(User)
     [user: user, users: users]
   end
-  defp get_args("rooms" = view, user) do
-    view_a = String.to_atom view
-    mod = Module.concat Config, String.capitalize(view)
+  defp get_args("rooms", user) do
+    # view_a = String.to_atom view
+    # mod = Module.concat Config, String.capitalize(view)
     rooms = Repo.all(from c in Channel, preload: [:subscriptions, :messages])
     [user: user, rooms: rooms]
   end

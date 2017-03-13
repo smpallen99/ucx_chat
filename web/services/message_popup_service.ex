@@ -124,10 +124,10 @@ defmodule UcxChat.MessagePopupService do
     |> Enum.map(fn user -> %{username: user.username, id: user.id, status: PresenceAgent.get(user.id)} end)
   end
 
-  defp add_status(users) do
-    users
-    |> Enum.map(fn user ->
-      Map.put(user, :status, PresenceAgent.get(user.id))
-    end)
-  end
+  # defp add_status(users) do
+  #   users
+  #   |> Enum.map(fn user ->
+  #     Map.put(user, :status, PresenceAgent.get(user.id))
+  #   end)
+  # end
 end

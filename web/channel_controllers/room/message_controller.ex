@@ -1,7 +1,7 @@
 defmodule UcxChat.MessageChannelController do
   use UcxChat.Web, :channel_controller
 
-  alias UcxChat.{TypingAgent, User, Message, ChannelService, Channel, MessageService}
+  alias UcxChat.{User, Message, ChannelService, Channel, MessageService}
   alias UcxChat.ServiceHelpers, as: Helpers
   import UcxChat.MessageService
   # import Phoenix.Channel
@@ -13,7 +13,7 @@ defmodule UcxChat.MessageChannelController do
     message = params["message"]
     user_id = assigns[:user_id]
     channel_id = assigns[:channel_id]
-    room = assigns[:room]
+    # room = assigns[:room]
     channel = Helpers.get!(Channel, channel_id)
     msg_params = if Channel.direct?(channel), do: %{type: "d"}, else: %{}
 
@@ -71,11 +71,11 @@ defmodule UcxChat.MessageChannelController do
     channel_id = assigns[:channel_id]
     timestamp = params["timestamp"]
     # Logger.warn "timestamp: #{inspect timestamp}"
-    page_size = Application.get_env :ucx_chat, :page_size, 30
+    page_size = Application.get_env :ucx_chat, :page_size, 75
     list =
       Message
       |> where([m], m.timestamp > ^timestamp and m.channel_id == ^channel_id)
-      |> limit(75)
+      |> limit(^page_size)
       |> preload([:user, :edited_by])
       |> Repo.all
     Logger.warn "list size: #{inspect length list}"
@@ -116,11 +116,11 @@ defmodule UcxChat.MessageChannelController do
     {:reply, {:ok, MessageService.messages_info_into(list, channel_id, %{html: messages_html})}, socket}
   end
 
-  def last(%{assigns: assigns} = socket, params) do
+  def last(%{assigns: assigns} = socket, _params) do
     user = Helpers.get(User, assigns[:user_id])
     # Logger.warn "MessageService.handle_in load msg: #{inspect msg}, user: #{inspect user}"
     channel_id = assigns[:channel_id]
-    timestamp = params["timestamp"]
+    # timestamp = params["timestamp"]
     # Logger.warn "timestamp: #{inspect timestamp}"
     list = MessageService.get_messages(channel_id, user)
     Logger.warn "list size: #{inspect length list}"

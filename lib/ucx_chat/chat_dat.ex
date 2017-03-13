@@ -36,7 +36,7 @@ defmodule UcxChat.ChatDat do
     new(user, channel, messages)
   end
   def new(user) do
-    %{room_types: room_types, rooms: rooms, room_map: room_map, active_room: ar} =
+    %{room_types: room_types, rooms: rooms, room_map: room_map, active_room: _ar} =
       UcxChat.ChannelService.get_side_nav(user, nil)
     status = UcxChat.PresenceAgent.get user.id
     %__MODULE__{

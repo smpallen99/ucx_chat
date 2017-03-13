@@ -1,5 +1,5 @@
 defmodule UcxChat.UserService do
-  alias UcxChat.ServiceHelpers, as: Helpers
+  # alias UcxChat.ServiceHelpers, as: Helpers
   alias UcxChat.{Repo, User}
 
   def total_users_count do

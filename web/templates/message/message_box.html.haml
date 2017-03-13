@@ -14,7 +14,7 @@
           - if @mb[:show_file_upload?] do
             .message-buttons.file
               %i.icon-attach.file
-              %input{type: "file", accept: file_upload_allowed_media_types()}
+              %input(type="file" accept="#{file_upload_allowed_media_types()}")
 
           - if @mb[:show_sandstorm?] do
             .message-buttons.sandstorm-offer

@@ -8,8 +8,8 @@ defmodule UcxChat.UserChannel do
 
   alias Phoenix.Socket.Broadcast
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService}
-  alias UcxChat.{AccountView, Account, AdminService, User, FlexBarView, MessageService, UserSocket}
-  alias UcxChat.{PresenceAgent, ChannelService}
+  alias UcxChat.{AccountView, Account, AdminService, FlexBarView, UserSocket}
+  alias UcxChat.{ChannelService}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -54,7 +54,7 @@ defmodule UcxChat.UserChannel do
   ###############
   # Outgoing Incoming Messages
 
-  def handle_out("room:join" = ev, msg, socket) do
+  def handle_out("room:join", msg, socket) do
     %{room: room} = msg
     UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     update_rooms_list(socket)
@@ -68,18 +68,18 @@ defmodule UcxChat.UserChannel do
     update_rooms_list(socket)
     {:noreply, assign(socket, :subscribed, List.delete(socket.assigns[:subscribed], room))}
   end
-  def handle_out("room:mention" = ev, msg, socket) do
+  def handle_out("room:mention", msg, socket) do
     push_room_mention(msg, socket)
     {:noreply, socket}
   end
-  def handle_out("user:state" = ev, msg, socket) do
+  def handle_out("user:state", msg, socket) do
     {:noreply, handle_user_state(msg, socket)}
   end
 
-  def handle_user_state(%{state: "idle"} = msg, socket) do
+  def handle_user_state(%{state: "idle"}, socket) do
     assign socket, :user_state, "idle"
   end
-  def handle_user_state(%{state: "active"} = msg, socket) do
+  def handle_user_state(%{state: "active"}, socket) do
     assign socket, :user_state, "active"
   end
 
@@ -304,7 +304,7 @@ defmodule UcxChat.UserChannel do
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "removed"} = payload}, %{assigns: assigns} = socket) do
     debug event, payload, "assigns: #{inspect assigns}"
-    current_user = Helpers.get_user! assigns.user_id
+    # current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
     if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
       debug event, payload, "removed open"
@@ -341,7 +341,7 @@ defmodule UcxChat.UserChannel do
     {:noreply, socket}
   end
 
-  def handle_info(%Broadcast{topic: _, event: "room:delete" = event, payload: payload}, %{assigns: assigns} = socket) do
+  def handle_info(%Broadcast{topic: _, event: "room:delete" = event, payload: payload}, socket) do
     debug event, payload
     room = payload.room
     if Enum.any?(socket.assigns[:subscribed], &(&1 == room)) do

@@ -17,7 +17,7 @@
       -# Logger.warn "messages_info #{inspect info}"
       - if info[:has_more] do
         %li.load-more
-          -if info[is_loading] do
+          -if info[:is_loading] do
             = get_loading()
       - else
         %li.start.color-info-font-color

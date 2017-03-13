@@ -9,10 +9,10 @@ defmodule UcxChat.SlashCommandChannelController do
 
   require Logger
 
-  @commands [
-    "join", "archive", "kick", "lennyface", "leave", "gimme", "create", "invite",
-    "invite-all-to", "invite-all-from", "msg", "part", "unarchive", "tableflip",
-    "topic", "mute", "me", "open", "unflip", "shrug", "unmute", "unhide"]
+  # @commands [
+  #   "join", "archive", "kick", "lennyface", "leave", "gimme", "create", "invite",
+  #   "invite-all-to", "invite-all-from", "msg", "part", "unarchive", "tableflip",
+  #   "topic", "mute", "me", "open", "unflip", "shrug", "unmute", "unhide"]
 
   def execute(socket, %{"command" => command, "args" => args}) do
     # Logger.warn "SlashCommandsService.execute params: #{inspect params}"

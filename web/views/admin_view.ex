@@ -132,11 +132,11 @@ defmodule UcxChat.AdminView do
     end
   end
 
-  def render_user_action_button(user, "edit") do
+  def render_user_action_button(_user, "edit") do
     render "user_action_buttons.html", opts: %{type: :primary, action: "edit-user", icon: :edit, label: ~g(EDIT)}
   end
 
-  def render_user_action_button(user, "delete") do
+  def render_user_action_button(_user, "delete") do
     render "user_action_buttons.html", opts: %{type: :danger, action: "delete", icon: :trash, label: ~g(DELETE)}
   end
 

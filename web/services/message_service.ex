@@ -2,7 +2,7 @@ defmodule UcxChat.MessageService do
   import Ecto.Query
 
   alias UcxChat.{
-    Message, Repo, TypingAgent, User, Mention, Subscription, PresenceAgent,
+    Message, Repo, TypingAgent, User, Mention, Subscription,
     Settings, MessageView, ChatDat, Channel, ChannelService, UserChannel
   }
   alias UcxChat.ServiceHelpers, as: Helpers
@@ -66,14 +66,14 @@ defmodule UcxChat.MessageService do
            first_msg when not is_nil(first_msg) <- first_message(channel_id) do
         first.id != first_msg.id
       else
-        res -> false
+        _res -> false
       end
       has_more_next =
         with last when not is_nil(last) <- List.last(messages),
              last_msg when not is_nil(last_msg) <- last_message(channel_id) do
           last.id != last_msg.id
         else
-          res -> true
+          _res -> true
         end
     %{
       has_more: has_more, has_more_next: has_more_next, can_preview: true
@@ -207,7 +207,7 @@ defmodule UcxChat.MessageService do
   end
 
   def do_encode_channel_mention(nil, _, body), do: body
-  def do_encode_channel_mention(channel, name, body) do
+  def do_encode_channel_mention(_channel, name, body) do
     name_link = " <a class='mention-link' data-channel='#{name}'>##{name}</a> "
     String.replace body, ~r/(^|\s|\.|\!|:|,|\?)##{name}[\.\!\?\,\:\s]*/, name_link
   end
@@ -237,7 +237,7 @@ defmodule UcxChat.MessageService do
     {body, [{nil, name}|acc]}
   end
   def do_encode_user_mention(nil, _, body, _, acc), do: {body, acc}
-  def do_encode_user_mention(user, name, body, channel_id, acc) do
+  def do_encode_user_mention(user, name, body, _channel_id, acc) do
     name_link = " <a class='mention-link' data-username='#{user.username}'>@#{name}</a> "
     body = String.replace body, ~r/(^|\s|\.|\!|:|,|\?)@#{name}[\.\!\?\,\:\s]*/, name_link
     {body, [{user.id, name}|acc]}
@@ -279,9 +279,9 @@ defmodule UcxChat.MessageService do
     {message, render_message(message)}
   end
 
-  defp notify_mention(_mention) do
-    # have to figure out if we need to have another socket for this?
-  end
+  # defp notify_mention(_mention) do
+  #   # have to figure out if we need to have another socket for this?
+  # end
 
   def render_message_box(channel_id, user_id) do
     user = Helpers.get_user! user_id

@@ -2,7 +2,7 @@ defmodule UcxChat.User do
   @moduledoc false
   use UcxChat.Web, :model
   use Coherence.Schema
-  alias UcxChat.User
+  # alias UcxChat.User
 
   @mod __MODULE__
 

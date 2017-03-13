@@ -41,7 +41,7 @@ defmodule UcxChat.FlexBarService do
   def handle_flex_callback(:open, _ch, tab, nil, socket, _params) do
     user_id = socket.assigns[:user_id]
     channel_id = socket.assigns[:channel_id]
-    case default_settings[String.to_atom(tab)][:templ] do
+    case default_settings()[String.to_atom(tab)][:templ] do
       nil -> %{}
       templ ->
         html =
@@ -56,7 +56,7 @@ defmodule UcxChat.FlexBarService do
     # IEx.pry
     user_id = socket.assigns[:user_id]
     channel_id = socket.assigns[:channel_id]
-    case default_settings[String.to_atom(tab)][:templ] do
+    case default_settings()[String.to_atom(tab)][:templ] do
       nil -> %{}
       templ ->
         html =
@@ -404,7 +404,7 @@ defmodule UcxChat.FlexBarService do
   end
 
   def visible_tab_names do
-    default_settings
+    default_settings()
     |> Enum.filter_map(&(elem(&1, 1)[:hidden] != true), &(to_string elem(&1, 0)))
   end
 

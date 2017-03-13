@@ -1,5 +1,5 @@
 defmodule UcxChat.Flex do
-  @mod __MODULE__
+  # @mod __MODULE__
 
   @default_callbacks %{}
 

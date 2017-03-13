@@ -18,10 +18,10 @@
           <div class="input-line search">
             <input type="text" id="users-filter" placeholder="<%= ~g(Search) %>" dir="auto">
             <i class="icon-search secondary-font-color"></i>
-            <%= unless :isReady do %>
-              <i class="icon-spin secondary-font-color"></i>
-            <% end %>
-          </div>
+              <%# unless :isReady do %>
+                <%# <i class="icon-spin secondary-font-color"></i> %>
+              <%# end %>
+            </div>
         </form>
         <div class="results">
           <%= ~g(SHOWING) %> <b><%= @users |> length %></b> <%= ~g(RESULTS) %>

@@ -73,10 +73,10 @@ defmodule UcxChat.RoomChannel do
     debug ev, msg
     {:noreply, socket}
   end
-  def handle_out(ev = "room:update:list", msg, socket) do
+  def handle_out("room:update:list", _msg, socket) do
     {:noreply, socket}
   end
-  def handle_out(ev = "room:delete", msg, socket) do
+  def handle_out("room:delete", _msg, socket) do
     {:noreply, socket}
   end
   def handle_out(ev = "lobby:" <> event, msg, socket) do
@@ -163,7 +163,7 @@ defmodule UcxChat.RoomChannel do
     # Logger.warn "authorized? pattern: #{inspect pattern}, params: #{inspect params}, ucxchat: #{inspect ucxchat}"
     Permission.has_permission? user, "edit-room", ucxchat["assigns"]["channel_id"]
   end
-  defp authorized?(_socket, pattern = ["room", command, username], _params, ucxchat, user) when command in @room_commands do
+  defp authorized?(_socket, _pattern = ["room", command, _username], _params, ucxchat, user) when command in @room_commands do
     Permission.has_permission? user, command, ucxchat["assigns"]["channel_id"]
   end
 
