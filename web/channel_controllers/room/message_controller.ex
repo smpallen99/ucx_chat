@@ -9,7 +9,7 @@ defmodule UcxChat.MessageChannelController do
   require Logger
 
   def create(%{assigns: assigns} = socket, params) do
-    Logger.warn "++++ socket: #{inspect socket}"
+    # Logger.warn "++++ socket: #{inspect socket}"
     message = params["message"]
     user_id = assigns[:user_id]
     channel_id = assigns[:channel_id]
@@ -51,7 +51,7 @@ defmodule UcxChat.MessageChannelController do
       |> Helpers.last_page(page_size)
       |> preload([:user, :edited_by])
       |> Repo.all
-    Logger.warn "list size: #{inspect length list}"
+    # Logger.warn "list size: #{inspect length list}"
     # info = MessageService.get_messages_info list, channel_id
     messages_html =
       list
@@ -78,7 +78,7 @@ defmodule UcxChat.MessageChannelController do
       |> limit(^page_size)
       |> preload([:user, :edited_by])
       |> Repo.all
-    Logger.warn "list size: #{inspect length list}"
+    # Logger.warn "list size: #{inspect length list}"
     # info = MessageService.get_messages_info list, channel_id
     messages_html =
       list

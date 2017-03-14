@@ -58,6 +58,7 @@ defmodule UcxChat.UserChannel do
     %{room: room} = msg
     UserSocket.push_message_box(socket, socket.assigns.channel_id, socket.assigns.user_id)
     update_rooms_list(socket)
+    clear_unreads(room, socket)
     {:noreply, subscribe([room], socket)}
   end
   def handle_out("room:leave" = ev, msg, socket) do
@@ -77,9 +78,14 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_user_state(%{state: "idle"}, socket) do
+    debug "idle", ""
+    push socket, "focus:change", %{state: false, msg: "idle"}
     assign socket, :user_state, "idle"
   end
   def handle_user_state(%{state: "active"}, socket) do
+    debug "active", ""
+    push socket, "focus:change", %{state: true, msg: "active"}
+    clear_unreads(socket)
     assign socket, :user_state, "active"
   end
 
@@ -253,6 +259,20 @@ defmodule UcxChat.UserChannel do
     debug event, payload
     {:noreply, update_rooms_list(socket)}
   end
+  def handle_info(%Broadcast{topic: "room:" <> room, event: "message:new" = event, payload: payload}, socket) do
+    debug event, inspect(socket.assigns)
+    assigns = socket.assigns
+    user_id = assigns.user_id
+    if room in assigns.subscribed do
+      channel = Helpers.get_by(Channel, :name, room)
+      Logger.warn "in the room ... #{assigns.user_id}, room: #{inspect room}"
+      unless channel.id == assigns.channel_id and assigns.user_state != "idle" do
+        Logger.warn "updating unreads"
+        update_has_unread(channel, socket)
+      end
+    end
+    {:noreply, socket}
+  end
 
   def handle_info(%Broadcast{topic: _, event: "user:action" = event, payload: %{action: "owner"} = payload}, %{assigns: assigns} = socket) do
     debug event, payload
@@ -419,4 +439,27 @@ defmodule UcxChat.UserChannel do
     socket
   end
 
+  defp clear_unreads(socket) do
+    Channel
+    |> Helpers.get(socket.assigns.channel_id)
+    |> Map.get(:name)
+    |> clear_unreads(socket)
+  end
+
+  defp clear_unreads(room, %{assigns: assigns} = socket) do
+    Logger.warn ""
+    ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, false)
+    push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-unread", action: "removeClass"}
+    push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-alert", action: "removeClass"}
+  end
+
+  defp update_has_unread(%{id: channel_id, name: room}, %{assigns: assigns} = socket) do
+    has_unread = ChannelService.get_has_unread(channel_id, assigns.user_id)
+    Logger.warn "has_unread: #{inspect has_unread}"
+    unless has_unread do
+      ChannelService.set_has_unread(channel_id, assigns.user_id, true)
+      push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-unread", action: "addClass"}
+      push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-alert", action: "addClass"}
+    end
+  end
 end

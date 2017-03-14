@@ -227,6 +227,14 @@ function start_user_channel() {
   chan.on("room:mention", resp => {
     roomManager.room_mention(resp)
   })
+  // chan.on('focus:change', resp => {
+  //   console.log('focus:change 1', resp)
+  //   // if (resp.state) {
+  //   //   this.focus = true
+  //   // } else {
+  //   //   this.focus = false
+  //   // }
+  // })
 
   chan.join()
     .receive("ok", resp => { console.log('Joined user successfully', resp)})

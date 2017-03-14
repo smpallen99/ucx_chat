@@ -8,6 +8,7 @@ defmodule UcxChat.Repo.Migrations.CreateSubscription do
       add :open, :boolean, default: false
       add :alert, :boolean, default: false
       add :hidden, :boolean, default: false
+      add :has_unread, :boolean, default: false
       add :ls, :utc_datetime                     # last seen
       add :f, :boolean, default: false          # favorite
       add :unread, :integer, default: 0

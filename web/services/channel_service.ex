@@ -127,6 +127,26 @@ defmodule UcxChat.ChannelService do
     end
   end
 
+  def get_has_unread(channel_id, user_id) do
+    case Subscription.get(channel_id, user_id) |> Repo.one do
+      nil ->
+        raise "Subscription for channel: #{channel_id}, user: #{user_id} not found"
+      %{has_unread: unread} ->
+        unread
+    end
+  end
+
+  def set_has_unread(channel_id, user_id, value \\ true) do
+    case Subscription.get(channel_id, user_id) |> Repo.one do
+      nil ->
+        {:error, :not_found}
+      subs ->
+        subs
+        |> Subscription.changeset(%{has_unread: value})
+        |> Repo.update
+    end
+  end
+
   def room_type(0), do: :public
   def room_type(1), do: :private
   def room_type(2), do: :direct

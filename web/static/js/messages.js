@@ -10,9 +10,11 @@ class Messages {
 
   static new_message(msg) {
     let html = msg.html
+
+    let at_bottom = roomManager.at_bottom
+
     $('.messages-box .wrapper > ul').append(html)
 
-    this.scroll_bottom()
     $('.messages-box').children('.wrapper').children('ul').children(':last-child').find('pre').each(function(i, block) {
       hljs.highlightBlock(block)
     })
@@ -23,7 +25,12 @@ class Messages {
       main.run()
     }
 
-    roomManager.new_message(msg.id)
+    if (at_bottom || msg.user_id == ucxchat.user_id) {
+      utils.scroll_bottom()
+    }
+
+    if (msg.user_id != ucxchat.user_id)
+      roomManager.new_message(msg.id, msg.user_id)
   }
   static update_message(msg) {
     $('#' + msg.id).replaceWith(msg.html)
