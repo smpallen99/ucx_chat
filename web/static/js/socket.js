@@ -8,7 +8,6 @@ import {Socket, Presence} from "phoenix"
 import Messages from "./messages"
 import Typing from "./typing"
 import RoomManager from "./room_manager"
-import UnreadManager from "./unread_manager"
 import MessagePopup from "./message_popup"
 import MessageCog from "./message_cog"
 import SideNav from "./side_nav"
@@ -23,7 +22,7 @@ import hljs from "highlight.js"
 import toastr from 'toastr'
 import * as sweet from "./sweetalert.min"
 import * as utils from "./utils"
-
+window.moment = require('moment');
 const chan_user = "user:"
 const chan_room = "room:"
 const chan_system = "system:"
@@ -327,6 +326,7 @@ function start_room_channel(typing) {
   main.update_flexbar()
   roomManager.clear_unread()
   roomManager.new_room()
+  roomHistoryManager.scroll_new_window()
 
 }
 

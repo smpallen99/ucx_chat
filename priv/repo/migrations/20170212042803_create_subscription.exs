@@ -12,6 +12,7 @@ defmodule UcxChat.Repo.Migrations.CreateSubscription do
       add :ls, :utc_datetime                     # last seen
       add :f, :boolean, default: false          # favorite
       add :unread, :integer, default: 0
+      add :scroll_top, :integer, default: 0
       add :channel_id, references(:channels, on_delete: :delete_all)
       add :user_id, references(:users, on_delete: :nilify_all)
 

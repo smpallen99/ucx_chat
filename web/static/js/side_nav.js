@@ -23,8 +23,40 @@ class SideNav {
       $('.arrow').toggleClass('close', 'bottom')
     })
   }
+  bind_scroll_event() {
+    $('.rooms-list').bind('scroll', _.throttle((e) => {
+      let list = $('.rooms-list')
+      if (!list) return
+
+      let listOffset = list.offset()
+      let listHeight = list.height()
+
+      let showTop = false
+      let showBottom = false
+      $('li.has-alert').each((i,item) => {
+        console.log('item', item)
+        if ($(item).offset().top < listOffset.top - $(item).height() + 20)
+          showTop = true
+
+        if ($(item).offset().top > listOffset.top + listHeight - 20)
+          showBottom = true
+      })
+      if (showTop) {
+        $('.top-unread-rooms').removeClass('hidden')
+      } else {
+        $('.top-unread-rooms').addClass('hidden')
+      }
+
+      if (showBottom) {
+        $('.bottom-unread-rooms').removeClass('hidden')
+      } else {
+        $('.bottom-unread-rooms').addClass('hidden')
+      }
+    }, 200))
+  }
 
   register_events() {
+    this.bind_scroll_event()
     $('body')
     .on('click', 'span.arrow.close', (e) => {
       e.preventDefault()

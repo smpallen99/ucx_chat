@@ -9,7 +9,7 @@ defmodule UcxChat.UserChannel do
   alias Phoenix.Socket.Broadcast
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService}
   alias UcxChat.{AccountView, Account, AdminService, FlexBarView, UserSocket}
-  alias UcxChat.{ChannelService}
+  alias UcxChat.{ChannelService, SubscriptionService}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -233,6 +233,19 @@ defmodule UcxChat.UserChannel do
   def handle_in(ev = "flex:member-list:" <> action, params, socket) do
     debug ev, params
     FlexBarService.handle_in action, params, socket
+  end
+
+  def handle_in(ev = "update:scrollTop", %{"value" => value } = params, %{assigns: assigns} = socket) do
+    debug ev, params
+    SubscriptionService.update(assigns.channel_id, assigns.user_id, %{scroll_top: value})
+    {:noreply, socket}
+  end
+  def handle_in(ev = "get:scrollTop", %{"value" => value } = params, %{assigns: assigns} = socket) do
+    res = case SubscriptionService.get assigns.channel_id, assigns.user_id, :scroll_top do
+      :error -> {:error, %{}}
+      value -> {:ok, value}
+    end
+    {:reply, res, socket}
   end
 
   # default unknown handler

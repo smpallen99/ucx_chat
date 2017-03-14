@@ -17,7 +17,7 @@ class MessageCog {
   register_events() {
     $(document).ready(() => {
       $('body').on('click','.messages-box i.message-cog', e => {
-        let id = $(this).closest('li.message').attr('id')
+        let id = $(e.currentTarget).closest('li.message').attr('id')
         console.log('message cog clicked...', id)
         cc.push('message_cog:open', {message_id: id})
           .receive("ok", resp => {

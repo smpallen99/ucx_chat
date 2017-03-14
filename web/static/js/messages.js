@@ -1,4 +1,3 @@
-import UnreadManager from "./unread_manager"
 import * as cc from "./chat_channel"
 import hljs from "highlight.js"
 import * as utils from "./utils"
@@ -29,8 +28,7 @@ class Messages {
       utils.scroll_bottom()
     }
 
-    if (msg.user_id != ucxchat.user_id)
-      roomManager.new_message(msg.id, msg.user_id)
+    roomManager.new_message(msg.id, msg.user_id)
   }
   static update_message(msg) {
     $('#' + msg.id).replaceWith(msg.html)

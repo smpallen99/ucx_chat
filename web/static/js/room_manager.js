@@ -13,20 +13,17 @@ const container = '.messages-box .wrapper ul'
 
 class RoomManager {
   constructor() {
-    // $('body').off('click', '.mention-link[data-channel]')
     this.register_events()
     this.view_elem = $('.messages-box .wrapper')[0];
     if (this.view_elem) {
       this.rect = this.view_elem.getBoundingClientRect()
       this.focus = false
-      this.unread = ucxchat.unread;
-      this.unread_list = [];
-      this.new_message_ref = undefined;
+      this.unread = ucxchat.unread
+      this.unread_list = []
+      this.new_message_ref = undefined
       this.at_bottom = true
       this.new_message_button = false
-
-      // this.is_loading = false
-      // this.has_more = false
+      this.unread_timer_ref = undefined
     }
   }
 
@@ -46,8 +43,6 @@ class RoomManager {
   render_room(resp) {
     if (debug) { console.log('render_room', resp) }
     $('.room-link').removeClass("active")
-    // $('.messages-box').html(resp.box_html)
-    // $('.messages-container .fixed-title h2').html(resp.header_html)
     $('.main-content').html(resp.html)
     ucxchat.channel_id = resp.channel_id
     ucxchat.room = resp.room_title
@@ -64,7 +59,6 @@ class RoomManager {
   }
   toggle_favorite() {
     if (debug) { console.log('toggle_favorite') }
-    // roomchan.push("room:favorite", {user_id: ucxchat.user_id, channel_id: ucxchat.channel_id})
     cc.put("/room/favorite")
       .receive("ok", resp => {
         $('.messages-container .fixed-title h2').html(resp.messages_html)
@@ -74,7 +68,6 @@ class RoomManager {
   add_private(elem) {
     let username = elem.parent().attr('data-username')
     if (debug) { console.log('pvt-msg button clicked...', username) }
-    // roomchan.push("room:add-direct", {username: username, user_id: ucxchat.user_id, channel_id: ucxchat.channel_id})
     cc.put("direct/" + username)
       .receive("ok", resp => {
         $('.messages-container .fixed-title h2').html(resp.messages_html)
@@ -83,7 +76,6 @@ class RoomManager {
         ucxchat.room = resp.room
         ucxchat.display_name = resp.display_name
         ucxchat.room_route = resp.room_route
-        // flex_bar.close_flex_tab()
         if ($('section.flex-tab').parent().hasClass('opened')) {
           $('section.flex-tab').html('').parent().removeClass('opened')
         }
@@ -92,7 +84,7 @@ class RoomManager {
     })
   }
   update(msg) {
-    console.log('update...', msg)
+    if(debug) { console.log('update...', msg) }
     let fname = msg.field_name
     if ( fname == "topic"  || fname == "title") {
       $('.room-' + fname).html(msg.value)
@@ -104,12 +96,11 @@ class RoomManager {
     }
 
     $('.current-setting[data-edit="' + msg.field_name + '"]').html(msg.value)
-    console.warn('RoomManager.update', msg)
   }
   room_mention(resp) {
     let parent = `a.open-room[data-name="${resp.room}"]`
     let elem = $(parent + ' span.unread')
-    console.log('room_manager', resp, elem)
+    if (debug) { console.log('room_manager', resp, elem) }
     if (elem.length == []) {
       $(parent).prepend(`<span class="unread">${resp.unread}</span>`)
     } else {
@@ -117,10 +108,14 @@ class RoomManager {
     }
   }
 
+  message_box_focus() {
+    $('.input-messgae').focus()
+  }
+
   updateMentionsMarksOfRoom() {
     let dom = document
-
     let ticksBar = $(dom).find('.ticks-bar')
+
     $(dom).find('.ticks-bar > .tick').remove()
 
     let scrollTop = $(dom).find('.messages-box > .wrapper').scrollTop() - 50
@@ -158,8 +153,6 @@ class RoomManager {
     let bar = $('.unread-bar')
     if (bar.length > 0) {
       bar.hide()
-      this.unread = false
-      this.unread_list = []
     }
   }
 
@@ -187,27 +180,31 @@ class RoomManager {
     }
   }
 
+  set_unread(id) {
+    $('.first-unread').removeClass('first-unread').removeClass('first-unread-opaque')
+    $('#' + id).addClass('first-unread')
+    $('li.link-room-'+ucxchat.room).addClass('has-unread').addClass('has-alert')
+    this.is_unread = true;
+  }
+
   new_message(id, user_id) {
     if (user_id != ucxchat.user_id) {
-      if (!this.focus && !this.is_unread) {
-        $('#' + id)
-          .addClass('first-unread')
-          .addClass('first-unread-opaque');
-        this.is_unread = true;
+      if (!this.focus && !this.unread) {
+        this.set_unread(id)
       }
 
-      if (!this.unread && !this.focus && !this.new_message_ref && !this.has_first_unread()) {
-        // this.new_message_ref = setTimeout(this.new_message_timeout, new_message_unread_time, this, id)
-      }
       if (this.unread || this.new_message_ref) {
         if (debug) { console.log('new_message pushing id') }
         this.unread_list.push(id)
       } else {
         if (debug) { console.log('new_message not pushing id') }
       }
-      if (!this.new_message_button) {
+      if (!this.new_message_button && !this.at_bottom) {
         this.add_new_message_button()
       }
+    } else {
+      if ($('.first-unread').length > 0)
+        this.clear_all_unreads()
     }
   }
 
@@ -221,19 +218,6 @@ class RoomManager {
     $('button.new-message').addClass('not')
   }
 
-
-  new_message_timeout(caller, id) {
-    if (caller.new_message_ref) {
-      $('#' + id)
-        .addClass('first-unread')
-        .addClass('first-unread-opaque');
-
-      caller.is_unread = true;
-      caller.new_message_ref = undefined;
-      caller.push_channel('unread:set', {message_id: id})
-    }
-  }
-
   push_channel(message, args={}) {
     setTimeout(function() {
       cc.push(message, args)
@@ -244,8 +228,7 @@ class RoomManager {
     if (debug) { console.log('remove_unread') }
     if (this.is_first_unread_visible() || !this.unread) {
       if (debug) { console.log('remove_unread removeing...') }
-      this.remove_unread_class();
-      this.unread = false;
+      this.clear_unread()
     }
   }
 
@@ -253,25 +236,25 @@ class RoomManager {
     if (this.has_first_unread()) {
       $('.first-unread').removeClass('first-unread first-unread-opaque')
       this.push_channel('unread:clear')
+      this.unread = false
     }
   }
 
   new_room() {
     this.has_more = $('.messages-box li.load-more').length > 0
     // bind_scroller()
+    roomHistoryManager.new_room(ucxchat.room)
     this.updateMentionsMarksOfRoom()
     roomchan.on('room:open', resp => {
       utils.page_loading()
       $('.main-content').html(utils.loading_animation())
       this.open_room(resp.room, resp.room)
-
       if (resp.state) {
         this.focus = true
       } else {
         this.focus = false
       }
     })
-
   }
 
   bind_history_manager_scroll_event() {
@@ -292,13 +275,17 @@ class RoomManager {
 
         if (this.is_first_unread_visible()) {
           if (debug) { console.log('hiding unread_bar') }
-
-          if ($('.unread-bar').is(':visible')) {
-            this.hide_unread_bar()
-          }
+            if ($('.unread-bar').is(':visible')) {
+              this.hide_unread_bar()
+              this.clear_unread()
+            }
         } else {
+          if (this.unread_timer_ref) {
+            clearTimeout(this.unread_timer_ref)
+            this.unread_timer_ref = undefined
+          }
           let count = this.count_unread()
-          if (!$('.unread-bar').is(':visible')) {
+          if ($('.first-unread').length > 0 && !$('.unread-bar').is(':visible')) {
             $('.unread-bar').show()
             if (debug) { console.log('show unread bar') }
           } else {
@@ -307,8 +294,6 @@ class RoomManager {
           $('.unread-cnt').html(count)
           if (debug) { console.log('count', count) }
         }
-      } else {
-         // if (debug) { console.log('scrolling no unread') }
       }
     }, 200))
   }
@@ -320,22 +305,45 @@ class RoomManager {
     let item_top = elem.offset().top
     let val = msgbox.scrollTop().valueOf() + item_top - msgbox.offset().top + offset
     $('.messages-box .wrapper').scrollTop(val)
-    // $('.messages-box .wrapper').animate({
-    //   scrollTop: val
-    // }, 1000);
   }
 
   clear_unread() {
-    setTimeout(function() {
-      let parent = `a.open-room[data-name="${ucxchat.room}"]`
-      $(parent + ' span.unread').remove()
-    }, 1000)
+    if (!this.unread_timer_ref) {
+      this.unread_timer_ref = setTimeout(() => {
+        this.clear_navbar()
+        this.clear_unread_state()
+        $('.first-unread').addClass('first-unread-opaque')
+      }, 2000)
+    }
   }
+
+  clear_all_unreads() {
+    this.remove_new_message_button()
+    this.remove_unread_class()
+    this.clear_navbar()
+    this.clear_unread_state()
+    $('.first-unread').removeClass('first-unread first-unread-opaque')
+  }
+
+  clear_unread_state() {
+    this.unread = false;
+    this.unread_list = [];
+    if (this.unread_timer_ref) {
+      clearTimeout(this.unread_timer_ref)
+      this.unread_timer_ref = undefined
+    }
+  }
+
+  clear_navbar() {
+    let parent = `a.open-room[data-name="${ucxchat.room}"]`
+    $(parent + ' span.unread').remove()
+    $('li.link-room-' + ucxchat.room).removeClass('has-alert').removeClass('has-unread')
+  }
+
 
   open_room(room, display_name, callback) {
     cc.get("/room/" + room, {display_name: display_name, room: ucxchat.room})
       .receive("ok", resp => {
-        console.log('open room response', resp)
         if (resp.redirect) {
           window.location = resp.redirect
         } else {
@@ -351,18 +359,15 @@ class RoomManager {
     this.bind_history_manager_scroll_event()
 
     $(window).on('focus', () => {
+      if (debug) { console.log('room_manager focus') }
       this.clear_unread()
-      console.log('room_manager focus')
-    })
-    .on('focus', () => {
-      this.has_focus = true;
+      this.has_focus = true
       systemchan.push('state:focus')
-      if (debug) { console.log('focus') }
     })
     .on('blur', () => {
       this.has_focus = false;
       systemchan.push('state:blur')
-      if (debug) { console.log('blur') }
+      if (debug) { console.log('room_manager blur') }
     })
 
     $('body').on('click', 'a.open-room', e => {
@@ -538,10 +543,6 @@ class RoomManager {
             if (resp.redirect) {
               window.location = resp.redirect
             }
-            // swal({
-            //     timer: 1,
-            //     showConfirmButton: false,
-            // })
           })
           .receive("error", resp => {
             toastr.error(resp.error)
@@ -552,7 +553,6 @@ class RoomManager {
     .on('click', 'a.open-room i.leave-room', e => {
       e.preventDefault()
       let room = $(e.currentTarget).closest('.open-room').data('room')
-      console.log('cliecked leave-room', room)
       sweetAlert({
         title: gettext.are_you_sure,
         text: gettext.are_you_sure_leave_the_room + ' "' + room + '"?',
@@ -583,7 +583,6 @@ class RoomManager {
       e.preventDefault()
       let target = $(e.currentTarget)
       let room = target.data('channel')
-      console.log('clicked channel link', room)
       this.open_room(room, room)
       return false
     })
@@ -599,8 +598,7 @@ class RoomManager {
       if (debug) { console.log('going to scroll to', valof, first_top, offtop, val) }
       $('.messages-box .wrapper').animate({
         scrollTop: val
-      }, 1500);
-      // $('.first-unread').get(0).scrollIntoView();
+      }, 1000);
     })
     .on('click', 'button.mark-read', () => {
       this.remove_unread_class();
@@ -610,29 +608,32 @@ class RoomManager {
       let val = myPanel[0].scrollHeight - myPanel.height();
       $('.messages-box .wrapper').animate({
         scrollTop: val
-      }, 1500);
+      }, 1000);
+      setTimeout(() => {
+        this.message_box_focus()
+      }, 1000)
     })
     .on('click', 'li.jump-to-message', e => {
       e.preventDefault()
       let ct = e.currentTarget
-      console.log('....', $(ct).closest('li.message'))
       let ts = $(ct).closest('li.message').data('timestamp')
-      console.warn('ts', ts)
       let target = $('.messages-box li[data-timestamp="' + ts + '"]')
       if (target.offset()) {
-        console.log("jump-to found an offset")
         scroll_to(target, -400)
       } else {
         roomHistoryManager.getSurroundingMessages(ts)
       }
       messageCog.close_cog($(ct))
+      this.message_box_focus()
     })
     .on('click', '.jump-recent', e => {
       messageCog.close_cog($(e.currentTarget))
       roomHistoryManager.getRecent()
+      this.message_box_focus()
     })
     .on('click', 'button.new-message', e => {
       utils.scroll_bottom()
+      this.message_box_focus()
     })
   }
 

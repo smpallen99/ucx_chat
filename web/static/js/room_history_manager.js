@@ -11,9 +11,18 @@ class RoomHistoryManager {
     this.is_loading = false
     this.has_more = false
     this.has_more_next = false
+    this.scroll_pos = {}
+    this.current_room = undefined
+    this.scroll_window = undefined
+
+    setInterval(e => {
+      this.update_scroll_pos()
+    }, 1000)
+
     if ($(container).has('li.load-more').length > 0)
       this.has_more = true
   }
+
   get isLoading()   { return this.is_loading }
   get hasMore()     { return this.has_more }
   get hasMoreNext() { return this.has_more_next }
@@ -30,7 +39,6 @@ class RoomHistoryManager {
 
   get getMore() {
     if (debug) { console.log('roomHistoryManager.getMore()')}
-    // this.updateMentionsMarksOfRoom()
     let html = $('.messages-box .wrapper ul').html()
     let first_id = $('.messages-box .wrapper ul li[id]').first().attr('id')
 
@@ -91,8 +99,49 @@ class RoomHistoryManager {
       })
   }
 
+  new_room(room) {
+    this.current_room = room
+    this.is_loading = false
+    this.has_more = false
+    this.has_more_next = false
+  }
+
+  scroll_new_window() {
+    this.scroll_window = $(wrapper)[0]
+    if (!this.scroll_pos[this.current_room]) {
+      userchan.push("get:scrollTop", {room: this.current_room})
+        .receive("ok", resp => {
+          this.set_scroll_top("ok", resp)
+        })
+        .receive("error", resp => {
+          this.set_scroll_top("error", resp)
+        })
+    } else {
+      this.set_scroll_top("ok", {value: this.scroll_pos[this.current_room]})
+    }
+  }
+
+  set_scroll_top(code, resp) {
+    if (code == "ok") {
+      this.scroll_window = resp.value
+      this.scroll_pos[this.current_room] = resp.value
+    } else {
+      utils.scroll_bottom()
+    }
+  }
+
+  update_scroll_pos() {
+    if (this.scroll_window) {
+      let scrollTop = $(wrapper)[0].scrollTop
+      if ((scrollTop != this.scroll_pos[this.current_room])) {
+        this.scroll_pos[this.current_room] = scrollTop
+        userchan.push("update:scrollTop", {value: scrollTop})
+      }
+    }
+  }
+
   getSurroundingMessages(timestamp) {
-    console.log("jump-to need to load some messages", timestamp)
+    if (debug) { console.log("jump-to need to load some messages", timestamp) }
     this.is_loading = true
     utils.page_loading()
     $('.messages-box .wrapper ul li.load-more').html(utils.loading_animation())

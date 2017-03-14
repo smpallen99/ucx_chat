@@ -140,6 +140,7 @@ export function code_update(resp) {
   } else {
     $(resp.selector)[resp.action]()
   }
+  $('.input-message').focus()
   // $('body').trigger(event)
 }
 

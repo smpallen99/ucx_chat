@@ -3,14 +3,15 @@
     = render "account_box.html", chatd: @chatd
   - if Coherence.current_user(@conn) do
     = render "toolbar.html", conn: @conn
-    .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms.hidden
+    .unread-rooms.background-primary-action-color.color-primary-action-contrast.top-unread-rooms.hidden
       More unreads
       %i.icon-up-big
     .rooms-list(role="region" area-label="Channels")
       = render "rooms_list.html", chatd: @chatd
-    .presence-list.hidden
-      %ul#UserList.list-unstyled
-        %li Loading online users...
+      - if false do
+        .presence-list.hidden
+          %ul#UserList.list-unstyled
+            %li Loading online users...
     .unread-rooms.background-primary-action-color.color-primary-action-contrast.bottom-unread-rooms.hidden
       More_unreads
       %i.icon-down-big
