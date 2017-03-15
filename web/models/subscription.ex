@@ -7,7 +7,7 @@ defmodule UcxChat.Subscription do
   schema "subscriptions" do
     belongs_to :channel, UcxChat.Channel
     belongs_to :user, UcxChat.User
-    field :last_read, :integer
+    field :last_read, :string, default: ""
     field :type, :integer
     field :open, :boolean, default: false
     field :alert, :boolean, default: false
@@ -15,7 +15,7 @@ defmodule UcxChat.Subscription do
     field :has_unread, :boolean, default: false
     field :ls, :utc_datetime
     field :f, :boolean, default: false          # favorite
-    field :scroll_top, :integer, default: 0
+    field :current_message, :string, default: ""
     field :unread, :integer, default: 0
     timestamps(type: :utc_datetime)
   end
@@ -34,7 +34,7 @@ defmodule UcxChat.Subscription do
   # room => name: string, room_type: String, room_id: integer
 
   @fields ~w(channel_id user_id)a
-  @all_fields @fields ++ ~w(last_read type open alert ls f unread hidden has_unread scroll_top)a
+  @all_fields @fields ++ ~w(last_read type open alert ls f unread hidden has_unread current_message)a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

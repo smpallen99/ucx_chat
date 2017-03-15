@@ -3,6 +3,9 @@ defmodule UcxChat.SubscriptionService do
 
   alias UcxChat.{Subscription}
 
+  def update(%{channel_id: channel_id, user_id: user_id}, params),
+    do: __MODULE__.update(channel_id, user_id, params)
+
   def update(channel_id, user_id, params) do
     case get(channel_id, user_id) do
       nil ->

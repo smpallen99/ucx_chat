@@ -19,8 +19,11 @@ class RoomHistoryManager {
       this.update_scroll_pos()
     }, 1000)
 
-    if ($(container).has('li.load-more').length > 0)
+    console.log('roomHistoryManager.constructor', $(container).has('li.load-more'))
+    if ($(container).has('li.load-more').length > 0) {
+      console.log('length > 0')
       this.has_more = true
+    }
   }
 
   get isLoading()   { return this.is_loading }
@@ -34,6 +37,31 @@ class RoomHistoryManager {
     } else {
       $(wrapper).removeClass('has-more-next')
       $('.jump-recent').addClass('not')
+    }
+  }
+
+  get_bottom_message() {
+    let list = $(container + ' li[id]')
+    let box = $(wrapper)[0].getBoundingClientRect()
+    let found = list[list.length - 1]
+    list.each((i, item) => {
+      let msg_box = item.getBoundingClientRect()
+      if (msg_box.bottom == box.bottom || msg_box.top < box.bottom && msg_box.bottom > box.bottom) {
+        found = item
+      }
+    })
+    return found
+  }
+
+  scroll_to_message(ts) {
+    // console.log('ts', ts)
+    let target = $('.messages-box li[data-timestamp="' + ts + '"]')
+    // console.log('target', target)
+
+    if (target.offset()) {
+      scroll_to(target)
+    } else {
+      this.getSurroundingMessages(ts)
     }
   }
 
@@ -100,16 +128,17 @@ class RoomHistoryManager {
   }
 
   new_room(room) {
+    // console.log('new_room', room)
     this.current_room = room
     this.is_loading = false
-    this.has_more = false
-    this.has_more_next = false
+    // this.has_more = false
+    // this.has_more_next = false
   }
 
   scroll_new_window() {
     this.scroll_window = $(wrapper)[0]
     if (!this.scroll_pos[this.current_room]) {
-      userchan.push("get:scrollTop", {room: this.current_room})
+      userchan.push("get:currentMessage", {room: this.current_room})
         .receive("ok", resp => {
           this.set_scroll_top("ok", resp)
         })
@@ -123,19 +152,19 @@ class RoomHistoryManager {
 
   set_scroll_top(code, resp) {
     if (code == "ok") {
-      this.scroll_window = resp.value
-      this.scroll_pos[this.current_room] = resp.value
+      this.scroll_to_message(resp.value)
     } else {
       utils.scroll_bottom()
     }
   }
 
   update_scroll_pos() {
-    if (this.scroll_window) {
-      let scrollTop = $(wrapper)[0].scrollTop
-      if ((scrollTop != this.scroll_pos[this.current_room])) {
-        this.scroll_pos[this.current_room] = scrollTop
-        userchan.push("update:scrollTop", {value: scrollTop})
+    if (!this.is_loading && this.scroll_window && $(wrapper).length > 0) {
+      let current_message = this.bottom_message_ts()
+      if ((current_message != this.scroll_pos[this.current_room])) {
+        this.scroll_pos[this.current_room] = current_message
+        if (current_message && current_message != "")
+          userchan.push("update:currentMessage", {value: current_message})
       }
     }
   }
@@ -184,6 +213,10 @@ class RoomHistoryManager {
         this.has_more = true
         this.is_loading = false
       })
+  }
+  bottom_message_ts() {
+    let cm = this.get_bottom_message()
+    return cm.getAttribute('data-timestamp')
   }
 
   startGetMoreAnimation() {

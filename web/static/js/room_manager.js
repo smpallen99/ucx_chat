@@ -8,6 +8,8 @@ import toastr from 'toastr'
 const debug = true;
 const new_message_unread_time = 5000;
 const container = '.messages-box .wrapper ul'
+const wrapper = '.messages-box .wrapper'
+
 // const animation = `<div class="loading-animation"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>`
 // const loadmore = `<li class="load-more"></li>`
 
@@ -145,6 +147,7 @@ class RoomManager {
     return count;
   }
 
+
   has_first_unread() {
     return $('.first-unread').length > 0;
   }
@@ -198,6 +201,7 @@ class RoomManager {
         this.unread_list.push(id)
       } else {
         if (debug) { console.log('new_message not pushing id') }
+        this.send_last_read()
       }
       if (!this.new_message_button && !this.at_bottom) {
         this.add_new_message_button()
@@ -205,6 +209,7 @@ class RoomManager {
     } else {
       if ($('.first-unread').length > 0)
         this.clear_all_unreads()
+      this.send_last_read()
     }
   }
 
@@ -216,6 +221,12 @@ class RoomManager {
   remove_new_message_button() {
     this.new_message_button = false
     $('button.new-message').addClass('not')
+  }
+
+  send_last_read() {
+    let ts = $(container + ' li[id]:last').data('timestamp')
+    console.warn("send_last_read ts", ts)
+    userchan.push('last_read', {last_read: ts})
   }
 
   push_channel(message, args={}) {
@@ -278,6 +289,7 @@ class RoomManager {
             if ($('.unread-bar').is(':visible')) {
               this.hide_unread_bar()
               this.clear_unread()
+              this.send_last_read()
             }
         } else {
           if (this.unread_timer_ref) {
@@ -299,11 +311,15 @@ class RoomManager {
   }
 
   scroll_to(elem, offset = 0) {
+    let offst = offset
     let msgbox = $('.messages-box .wrapper')
     let valof = msgbox.scrollTop().valueOf()
     let offtop = msgbox.offset().top
     let item_top = elem.offset().top
-    let val = msgbox.scrollTop().valueOf() + item_top - msgbox.offset().top + offset
+    if (offset == 0) {
+      offst = -$(msgbox).height() + elem.height() - 5
+    }
+    let val = msgbox.scrollTop().valueOf() + item_top - msgbox.offset().top + offst
     $('.messages-box .wrapper').scrollTop(val)
   }
 

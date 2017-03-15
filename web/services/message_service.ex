@@ -2,8 +2,9 @@ defmodule UcxChat.MessageService do
   import Ecto.Query
 
   alias UcxChat.{
-    Message, Repo, TypingAgent, User, Mention, Subscription,
-    Settings, MessageView, ChatDat, Channel, ChannelService, UserChannel
+    Message, Repo, TypingAgent, User, Mention, Subscription, AppConfig,
+    Settings, MessageView, ChatDat, Channel, ChannelService, UserChannel,
+    SubscriptionService
   }
   alias UcxChat.ServiceHelpers, as: Helpers
 
@@ -56,6 +57,40 @@ defmodule UcxChat.MessageService do
     |> Helpers.last_page
     |> preload([:user, :edited_by])
     |> Repo.all
+    |> new_days(tz || 0, [])
+  end
+
+  def get_room_messages(channel_id, %{id: user_id} = user) do
+    page_size = AppConfig.page_size()
+    case SubscriptionService.get(channel_id, user_id) do
+      %{current_message: ""} -> nil
+      %{current_message: cm} ->
+        cnt1 = Repo.one from m in Message,
+          where: m.channel_id == ^channel_id and m.timestamp >= ^cm,
+          select: count(m.id)
+        if cnt1 > page_size, do: cm, else: nil
+      _ -> nil
+    end
+    |> case do
+      nil ->
+        get_messages(channel_id, user)
+      ts ->
+        get_messsages_ge_ts(channel_id, user, ts)
+    end
+  end
+
+  def get_messsages_ge_ts(channel_id, %{tz_offset: tz}, ts) do
+    before_q = from m in Message,
+      where: m.timestamp < ^ts,
+      order_by: [desc: :inserted_at],
+      limit: 25,
+      preload: [:user, :edited_by]
+
+    after_q = from m in Message,
+      where: m.channel_id == ^channel_id and m.timestamp >= ^ts,
+      preload: [:user, :edited_by]
+
+    Enum.reverse(Repo.all before_q) ++ Repo.all(after_q)
     |> new_days(tz || 0, [])
   end
 

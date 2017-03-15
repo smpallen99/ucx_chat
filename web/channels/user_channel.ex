@@ -235,17 +235,23 @@ defmodule UcxChat.UserChannel do
     FlexBarService.handle_in action, params, socket
   end
 
-  def handle_in(ev = "update:scrollTop", %{"value" => value } = params, %{assigns: assigns} = socket) do
+  def handle_in(ev = "update:currentMessage", %{"value" => value } = params, %{assigns: assigns} = socket) do
     debug ev, params
-    SubscriptionService.update(assigns.channel_id, assigns.user_id, %{scroll_top: value})
+    SubscriptionService.update(assigns.channel_id, assigns.user_id, %{current_message: value})
     {:noreply, socket}
   end
-  def handle_in(ev = "get:scrollTop", %{"value" => value } = params, %{assigns: assigns} = socket) do
-    res = case SubscriptionService.get assigns.channel_id, assigns.user_id, :scroll_top do
+  def handle_in(ev = "get:currentMessage", params, %{assigns: assigns} = socket) do
+    debug ev, params
+    res = case SubscriptionService.get assigns.channel_id, assigns.user_id, :current_message do
       :error -> {:error, %{}}
-      value -> {:ok, value}
+      value -> {:ok, %{value: value}}
     end
     {:reply, res, socket}
+  end
+  def handle_in(ev = "last_read", params, %{assigns: assigns} = socket) do
+    debug ev, params
+    SubscriptionService.update assigns, %{last_read: params["last_read"]}
+    {:noreply, socket}
   end
 
   # default unknown handler
@@ -272,13 +278,13 @@ defmodule UcxChat.UserChannel do
     debug event, payload
     {:noreply, update_rooms_list(socket)}
   end
-  def handle_info(%Broadcast{topic: "room:" <> room, event: "message:new" = event, payload: payload}, socket) do
+  def handle_info(%Broadcast{topic: "room:" <> room, event: "message:new" = event, payload: _payload}, socket) do
     debug event, inspect(socket.assigns)
     assigns = socket.assigns
     user_id = assigns.user_id
     if room in assigns.subscribed do
       channel = Helpers.get_by(Channel, :name, room)
-      Logger.warn "in the room ... #{assigns.user_id}, room: #{inspect room}"
+      Logger.warn "in the room ... #{user_id}, room: #{inspect room}"
       unless channel.id == assigns.channel_id and assigns.user_state != "idle" do
         Logger.warn "updating unreads"
         update_has_unread(channel, socket)

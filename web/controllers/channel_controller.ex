@@ -41,7 +41,7 @@ defmodule UcxChat.ChannelController do
 
     UcxChat.PresenceAgent.load user.id
 
-    messages = MessageService.get_messages(channel.id, user)
+    messages = MessageService.get_room_messages(channel.id, user)
     Logger.warn "message count #{length messages}"
 
     chatd =
