@@ -738,15 +738,15 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def user_command(_socket, :kick, %User{} = user, user_id, channel_id) do
+  def user_command(socket, :kick, %User{} = user, user_id, channel_id) do
     Channel
     |> Helpers.get!(channel_id)
-    |> remove_user_from_channel(user_id)
+    |> remove_user_from_channel(user.id)
     |> case do
       nil ->
         {:error, ~g"User " <> "`#{user.username}`" <> ~g" is not subscribed to this channel."}
       _subs ->
-        notify_user_action(user, user_id, channel_id, "removed")
+        notify_user_action2(socket, user, user_id, channel_id, &format_binary_msg(&1, &2, "removed"))
         {:ok, ~g"User removed"}
     end
   end
