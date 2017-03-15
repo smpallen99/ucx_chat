@@ -65,6 +65,18 @@ class RoomHistoryManager {
     }
   }
 
+  fix_new_days() {
+    let list = $(container + ' li[id]')
+    let last = list.length - 1
+    for (let i = 0; i < last - 1; i++) {
+      let item = list[i]
+      if ($(item).hasClass('new-day') && i > 0) {
+        if ($(item).data('date') == $(list[i - 1]).data('date'))
+          $('#' + $(item).attr('id')).removeClass('new-day')
+      }
+    }
+  }
+
   get getMore() {
     if (debug) { console.log('roomHistoryManager.getMore()')}
     let html = $('.messages-box .wrapper ul').html()
@@ -87,6 +99,8 @@ class RoomHistoryManager {
 
         scroll_to($('#' + first_id), -80)
         utils.remove_page_loading()
+
+        this.fix_new_days()
 
         if (!resp.has_more) {
           $(container).children().first().addClass('new-day')
