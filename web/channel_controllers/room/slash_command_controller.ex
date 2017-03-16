@@ -90,8 +90,6 @@ defmodule UcxChat.SlashCommandChannelController do
     end
     Helpers.broadcast_message(body, user_id, channel_id)
     :noreply
-    # message = MessageService.create_message(body, user_id, channel_id)
-    # {:ok, %{html: MessageService.render_message(message)}}
   end
 
   def handle_channel_command(socket, :leave = command, _args, user_id, channel_id) do
@@ -156,8 +154,6 @@ defmodule UcxChat.SlashCommandChannelController do
 
   defp notify_room_update(socket, command, target, response) when command in ~w(archive unarchive)a do
     Logger.warn "command: #{inspect command}, channel_id: #{inspect target.id}, response: #{inspect response}"
-    # Phoenix.Channel.broadcast! socket, "room:state_change", %{change: "#{command}", channel_id: channel_id}
-    # Phoenix.Channel.broadcast! socket, "room:update:list", %{}
     socket.endpoint.broadcast! CC.chan_room <> target.name, "room:state_change", %{change: "#{command}", channel_id: target.id}
     socket.endpoint.broadcast! CC.chan_room <> target.name, "room:update:list", %{}
 

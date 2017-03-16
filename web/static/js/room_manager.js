@@ -88,7 +88,7 @@ class RoomManager {
   update(msg) {
     if(debug) { console.log('update...', msg) }
     let fname = msg.field_name
-    if ( fname == "topic"  || fname == "title") {
+    if ( fname == "topic"  || fname == "title" || fname == "description") {
       $('.room-' + fname).html(msg.value)
     } else if (fname == "name") {
       $('.room-title').html(msg.value)
@@ -96,8 +96,10 @@ class RoomManager {
       ucxchat.display_name = msg.value
       utils.replace_history()
     }
+    setTimeout(() => {
+      $('span.current-setting[data-edit="' + fname + '"]').text(msg.value)
+    }, 100)
 
-    $('.current-setting[data-edit="' + msg.field_name + '"]').html(msg.value)
   }
   room_mention(resp) {
     let parent = `a.open-room[data-name="${resp.room}"]`
