@@ -14,7 +14,9 @@ defmodule UcxChat.ChannelRouter do
 
   def match(:put, socket, ["slashcommand", command], params) do
     params = Map.put(params, "command", command)
-    apply(UcxChat.SlashCommandChannelController, :execute, [socket, params])
+    # can? socket, :execute, params, fn ->
+      apply(UcxChat.SlashCommandChannelController, :execute, [socket, params])
+    # end
   end
 
   # get "/room/:room_id", RoomChannelController, :show

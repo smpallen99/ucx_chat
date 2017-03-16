@@ -14,6 +14,14 @@ defmodule UcxChat.MessageService do
   # def broadcast_message(id, channel_id, user_id, html) do
   #   channel = Helpers.get
   # end
+  def broadcast_system_message(channel_id, user_id, body) do
+    channel = Helpers.get(Channel, channel_id)
+    message = create_system_message(channel_id, body)
+    html = render_message message
+    resp = create_broadcast_message(message.id, channel.name, html)
+    UcxChat.Endpoint.broadcast! CC.chan_room <> channel.name, "message:new", resp
+  end
+
   def broadcast_message(id, room, user_id, html, event \\ "new")
   def broadcast_message(id, room, user_id, html, event) when is_binary(room) do
     UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:" <> event, create_broadcast_message(id, user_id, html)
@@ -35,15 +43,21 @@ defmodule UcxChat.MessageService do
     }
   end
 
-  def get_surrounding_messages(timestamp, %{tz_offset: tz}) do
-    message = Helpers.get_by(Message, :timestamp, timestamp, preload: [:user, :edited_by])
+  def get_surrounding_messages(channel_id, "", user) do
+    get_messages channel_id, user
+  end
+  def get_surrounding_messages(channel_id, timestamp, %{tz_offset: tz}) do
+    message = Repo.one from m in Message,
+      where: m.timestamp == ^timestamp and m.channel_id == ^channel_id,
+      preload: [:user, :edited_by]
+
     before_q = from m in Message,
-      where: m.inserted_at < ^(message.inserted_at),
+      where: m.inserted_at < ^(message.inserted_at) and m.channel_id == ^channel_id,
       order_by: [desc: :inserted_at],
       limit: 50,
       preload: [:user, :edited_by]
     after_q = from m in Message,
-      where: m.inserted_at > ^(message.inserted_at),
+      where: m.inserted_at > ^(message.inserted_at) and m.channel_id == ^channel_id,
       limit: 50,
       preload: [:user, :edited_by]
 

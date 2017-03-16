@@ -55,9 +55,11 @@ defmodule UcxChat.UserSocket do
   def id(socket), do: "users_socket:#{socket.assigns.user_id}"
 
   def push_message_box(socket, channel_id, user_id) do
-    Logger.warn "push_message_box #{channel_id}, #{user_id}, socket.assigns: #{inspect socket.assigns}"
-    html = MessageService.render_message_box(channel_id, user_id)
-    Phoenix.Channel.push socket, "code:update", %{html: html, selector: ".room-container footer.footer", action: "html"}
+    # if channel_id == assigns.channel_id do
+      Logger.warn "push_message_box #{channel_id}, #{user_id}, socket.assigns: #{inspect socket.assigns}"
+      html = MessageService.render_message_box(channel_id, user_id)
+      Phoenix.Channel.push socket, "code:update", %{html: html, selector: ".room-container footer.footer", action: "html"}
+    # end
   end
 
   def push_rooms_list_update(socket, channel_id, user_id) do

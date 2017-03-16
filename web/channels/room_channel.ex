@@ -61,7 +61,7 @@ defmodule UcxChat.RoomChannel do
 
   def handle_out(ev = "room:state_change", msg, %{assigns: assigns} = socket) do
     debug ev, msg, "assigns: #{inspect assigns}"
-    channel_id = assigns[:channel_id] || msg[:channel_id]
+    channel_id = msg[:channel_id] || assigns[:channel_id] #  || msg[:channel_id]
     if channel_id do
       UserSocket.push_message_box(socket, channel_id, assigns.user_id)
     end

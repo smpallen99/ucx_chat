@@ -54,6 +54,7 @@ class RoomHistoryManager {
   }
 
   scroll_to_message(ts) {
+    console.log('scroll_to_message', ts)
     // console.log('ts', ts)
     let target = $('.messages-box li[data-timestamp="' + ts + '"]')
     // console.log('target', target)
@@ -152,14 +153,18 @@ class RoomHistoryManager {
   scroll_new_window() {
     this.scroll_window = $(wrapper)[0]
     if (!this.scroll_pos[this.current_room]) {
+      console.log('scroll_new_window this.current_room', this.current_room)
       userchan.push("get:currentMessage", {room: this.current_room})
         .receive("ok", resp => {
+          console.warn('scroll_new_window ok resp', resp)
           this.set_scroll_top("ok", resp)
         })
         .receive("error", resp => {
+          console.warn('scroll_new_window err resp', resp)
           this.set_scroll_top("error", resp)
         })
     } else {
+      console.warn('scroll_new_window else this', this)
       this.set_scroll_top("ok", {value: this.scroll_pos[this.current_room]})
     }
   }

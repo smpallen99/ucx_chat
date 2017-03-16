@@ -242,7 +242,8 @@ defmodule UcxChat.UserChannel do
   end
   def handle_in(ev = "get:currentMessage", params, %{assigns: assigns} = socket) do
     debug ev, params
-    res = case SubscriptionService.get assigns.channel_id, assigns.user_id, :current_message do
+    channel = Helpers.get_by Channel, :name, params["room"]
+    res = case SubscriptionService.get channel.id, assigns.user_id, :current_message do
       :error -> {:error, %{}}
       value -> {:ok, %{value: value}}
     end
@@ -278,8 +279,8 @@ defmodule UcxChat.UserChannel do
     debug event, payload
     {:noreply, update_rooms_list(socket)}
   end
-  def handle_info(%Broadcast{topic: "room:" <> room, event: "message:new" = event, payload: _payload}, socket) do
-    debug event, inspect(socket.assigns)
+  def handle_info(%Broadcast{topic: "room:" <> room, event: "message:new" = event, payload: payload}, socket) do
+    debug event, payload, inspect(socket.assigns)
     assigns = socket.assigns
     user_id = assigns.user_id
     if room in assigns.subscribed do

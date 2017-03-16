@@ -2,6 +2,7 @@ defmodule UcxChat.RoomSettingChannelController do
   use UcxChat.Web, :channel_controller
 
   import Phoenix.Channel
+  import UcxChat.NotifierService
 
   alias UcxChat.{Subscription, FlexBarView, Channel, FlexBarService, ChannelService}
   alias UcxChat.ServiceHelpers, as: Helpers
@@ -29,12 +30,14 @@ defmodule UcxChat.RoomSettingChannelController do
   def update(%{assigns: assigns} = socket, params) do
     # Logger.warn "RoomSettingChannelController assigns: #{inspect assigns}, params: #{inspect params}"
     user = Helpers.get_user! socket
-    Channel
-    |> Helpers.get(assigns[:channel_id])
-    |> Channel.changeset_settings(user, [{params["field_name"], params["value"]}])
-    |> Repo.update
+    channel = Helpers.get(Channel, assigns[:channel_id])
+
+    socket
+    |> update_field(channel, params)
     |> case do
-      {:ok, channel} ->
+      {:ok, _channel} ->
+        # Logger.warn "... params: #{inspect params}"
+        # notify_action(socket, get_action(params), channel.name, user, channel.id)
         update_archive_hidden(channel, params["field_name"], params["value"])
         field = FlexBarService.get_setting_form_field(params["field_name"], channel, assigns[:user_id])
         html = FlexBarView.flex_form_input(field[:type], field)
@@ -78,6 +81,15 @@ defmodule UcxChat.RoomSettingChannelController do
 
   end
 
+  def update_field(%{assigns: assigns} = socket, channel, %{"field_name" => "archived", "value" => true}) do
+    ChannelService.channel_command(socket, :archive, channel, assigns.user_id, channel.id)
+  end
+  def update_field(%{assigns: assigns} = socket, channel, %{"field_name" => "archived"}) do
+    ChannelService.channel_command(socket, :unarchive, channel, assigns.user_id, channel.id)
+  end
+  # def update_field(%{assigns: assigns} = socket, channel, %{"field_name" => "read_only") do
+  # end
+
   def update_archive_hidden(%{id: id} = channel, "archived", value) do
     value = if value == true, do: true, else: false
     Subscription
@@ -86,5 +98,9 @@ defmodule UcxChat.RoomSettingChannelController do
     channel
   end
   def update_archive_hidden(channel, _type, _value), do: channel
+
+  defp get_action(%{"field_name" => "archived", "value" => true}), do: :archive
+  defp get_action(%{"field_name" => "archived"}), do: :unarchive
+  defp get_action(_), do: nil
 
 end

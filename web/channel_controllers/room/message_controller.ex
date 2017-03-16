@@ -98,7 +98,7 @@ defmodule UcxChat.MessageChannelController do
     channel_id = assigns[:channel_id]
     timestamp = params["timestamp"]
     # Logger.warn "timestamp: #{inspect timestamp}"
-    list = MessageService.get_surrounding_messages(timestamp, user)
+    list = MessageService.get_surrounding_messages(channel_id, timestamp, user)
     # Logger.warn "list size: #{inspect length list}"
     # for message <- list do
     #   Logger.warn "id: #{message.id}, timestamp #{message.timestamp}"

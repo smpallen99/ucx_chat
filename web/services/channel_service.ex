@@ -6,6 +6,7 @@ defmodule UcxChat.ChannelService do
 
   # import Phoenix.HTML.Tag, only: [content_tag: 2]
   import Ecto.Query
+  import UcxChat.NotifierService
 
   alias UcxChat.{
     Settings, User, Repo, Channel, Subscription, MessageService, User,
@@ -61,7 +62,9 @@ defmodule UcxChat.ChannelService do
       {:ok, subs} ->
         UserChannel.join_room(user_id, channel.name)
         unless Settings.hide_user_join() do
-          broadcast_message(~g"Has joined the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
+          # here
+          # broadcast_message(~g"Has joined the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
+          # notify_action(socket, :join, channel.name, user_id, channel.id)
         end
         {:ok, subs}
       error ->
@@ -642,18 +645,20 @@ defmodule UcxChat.ChannelService do
     Helpers.response_message(channel_id, "Channel with name `#{channel.name}` is already archived.")
   end
 
-  def channel_command(socket, :archive, %Channel{id: id} = channel, user_id, _channel_id) do
+  def channel_command(socket, :archive, %Channel{id: id} = channel, user_id, channel_id) do
     user = Helpers.get_user! user_id
     channel
     |> Channel.do_changeset(user, %{archived: true})
     |> Repo.update
     |> case do
       {:ok, _} ->
-        Logger.debug "archiving... #{id}"
+        Logger.warn "archiving... #{id}, channel_id: #{inspect channel_id}, channel_name: #{channel.name}"
         Subscription
         |> where([s], s.channel_id == ^id)
         |> Repo.update_all(set: [hidden: true])
-        Phoenix.Channel.broadcast! socket, "room:state_change", %{change: "archive"}
+        notify_action(socket, :archive, channel, user)
+        # notify_user_action2(socket, user, user_id, id, &format_binary_msg(&1, &2, "archived"))
+        # Phoenix.Channel.broadcast! socket, "room:state_change", %{change: "archive"}
         {:ok, ~g"Channel with name " <> "`#{channel.name}`" <> ~g" has been archived successfully."}
       {:error, cs} ->
         Logger.warn "error archiving channel #{inspect cs.errors}"
@@ -672,11 +677,14 @@ defmodule UcxChat.ChannelService do
     |> Repo.update
     |> case do
       {:ok, _} ->
-        Logger.debug "unarchiving... #{id}"
+        Logger.warn "unarchiving... #{id}"
         Subscription
         |> where([s], s.channel_id == ^id)
         |> Repo.update_all(set: [hidden: false])
-        Phoenix.Channel.broadcast socket, "room:state_change", %{change: "unarchive"}
+        # Phoenix.Channel.broadcast socket, "room:state_change", %{change: "unarchive"}
+        # notify_action(socket, :unarchive, channel.name, user, channel.id)
+        notify_action(socket, :unarchive, channel, user)
+        # notify_user_action2(socket, user, user_id, id, &format_binary_msg(&1, &2, "unarchived"))
         {:ok, ~g"Channel with name " <> "`#{channel.name}`" <> ~g" has been unarchived successfully."}
       {:error, cs} ->
         Logger.warn "error unarchiving channel #{inspect cs.errors}"
@@ -865,8 +873,9 @@ defmodule UcxChat.ChannelService do
   def format_binary_msg(n1, n2, operation) do
     ~g"User" <> " <em class='username'>#{n1}</em> " <> Gettext.gettext(UcxChat.Gettext, operation) <> " " <> ~g"by" <> " <em class='username'>#{n2}</em>."
   end
+  # def notify_action(socket, action, resource, owner_id, channel_id)
 
-  defp notify_user_action2(socket, user, user_id, channel_id, fun) do
+  def notify_user_action2(socket, user, user_id, channel_id, fun) do
     owner = Helpers.get(User, user_id)
     body = fun.(user.username, owner.username)
     broadcast_message2(socket, body, user_id, channel_id, system: true)
@@ -1035,10 +1044,10 @@ defmodule UcxChat.ChannelService do
   # def get_icon(:stared), do: "icon-hash"
   # def get_icon(:direct), do: "icon-at"
 
-  def broadcast_message(body, room, user_id, channel_id, opts \\ []) do
-    {message, html} = MessageService.create_and_render(body, user_id, channel_id, opts)
-    MessageService.broadcast_message(message.id, room, user_id, html)
-  end
+  # def broadcast_message(body, room, user_id, channel_id, opts \\ []) do
+  #   {message, html} = MessageService.create_and_render(body, user_id, channel_id, opts)
+  #   MessageService.broadcast_message(message.id, room, user_id, html)
+  # end
 
   def broadcast_message2(socket, body, user_id, channel_id, opts \\ []) do
     {message, html} = MessageService.create_and_render(body, user_id, channel_id, opts)
@@ -1056,7 +1065,8 @@ defmodule UcxChat.ChannelService do
         Repo.delete! subs
         UserChannel.leave_room(user_id, channel.name)
         unless Settings.hide_user_leave() do
-          broadcast_message("Has left the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
+          # here
+          # broadcast_message("Has left the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
         end
         Logger.error "remove .... subs: #{inspect subs}"
         {:ok, ~g"removed"}
