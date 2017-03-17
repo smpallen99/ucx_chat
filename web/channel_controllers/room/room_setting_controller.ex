@@ -2,7 +2,7 @@ defmodule UcxChat.RoomSettingChannelController do
   use UcxChat.Web, :channel_controller
 
   import Phoenix.Channel
-  import UcxChat.NotifierService
+  # import UcxChat.NotifierService
 
   alias UcxChat.{Subscription, FlexBarView, Channel, FlexBarService, ChannelService}
   alias UcxChat.ServiceHelpers, as: Helpers
@@ -91,7 +91,7 @@ defmodule UcxChat.RoomSettingChannelController do
   def update_field(%{assigns: assigns} = socket, channel, _user, %{"field_name" => "archived"}) do
     ChannelService.channel_command(socket, :unarchive, channel, assigns.user_id, channel.id)
   end
-  def update_field(%{assigns: assigns} = socket, channel, user, %{"field_name" => field_name, "value" => value}) do
+  def update_field(%{assigns: _assigns} = _socket, channel, user, %{"field_name" => field_name, "value" => value}) do
     channel
     |> Channel.changeset_settings(user, [{field_name, value}])
     |> Repo.update

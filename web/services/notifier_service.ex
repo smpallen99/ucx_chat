@@ -4,7 +4,7 @@ defmodule UcxChat.NotifierService do
 
   require Logger
 
-  alias UcxChat.{User, MessageService}
+  alias UcxChat.{MessageService}
 
   def notify_action(socket, action, channel, user) do
     do_notifier_action(socket, action, user, channel)

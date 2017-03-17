@@ -405,7 +405,7 @@ class RoomManager {
     .on('click', '.button.pvt-msg', e => {
       if (debug) { console.log('click .button.pvt-msg') }
       e.preventDefault();
-      this.add_private(e.currentTarget)
+      this.add_private($(e.currentTarget))
     })
     .on('click', 'button.set-owner', e => {
       let username = $(e.currentTarget).parent().attr('data-username')
