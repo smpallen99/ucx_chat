@@ -589,7 +589,8 @@ defmodule UcxChat.ChannelService do
     end
   end
 
-  def channel_command(socket, :leave, name, user_id, _) do
+  def channel_command(socket, :leave, name, user_id, _) when is_binary(name) do
+    Logger.warn "name: #{inspect name}"
     case Helpers.get_by(Channel, :name, name) do
       nil ->
         {:error, ~g"The channels does not exist"}
@@ -1068,7 +1069,6 @@ defmodule UcxChat.ChannelService do
           # here
           # broadcast_message("Has left the channel.", channel.name, user_id, channel.id, system: true, sequential: false)
         end
-        Logger.error "remove .... subs: #{inspect subs}"
         {:ok, ~g"removed"}
     end
   end

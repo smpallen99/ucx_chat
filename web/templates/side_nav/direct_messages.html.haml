@@ -1,12 +1,13 @@
 %h3(class="add-room#{is_active(@rooms)}")
   - if @account.chat_mode do
-    Recent
+    = ~g(Recent)
   - else
-    Direct Messages
+    = ~g(Direct Messages)
   %span.room-count-small= "(#{length @rooms})"
 %ul
   - if @rooms != [] do
     - for room <- @rooms do
       = render "chat_room_item.html", room: room
   - else
-    %p.empty No direct messages yet
+    %p.empty= ~g(No direct messages yet)
+%button.more.more-users.background-transparent-darker-hover= ~g(Start a conversation...)

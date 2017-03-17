@@ -38,10 +38,10 @@ defmodule UcxChat.Router do
     coherence_routes :protected
   end
 
-  scope "/", UcxChat do
-    pipe_through :browser
+  # scope "/", UcxChat do
+  #   pipe_through :browser
 
-  end
+  # end
 
   scope "/", UcxChat do
     pipe_through :protected

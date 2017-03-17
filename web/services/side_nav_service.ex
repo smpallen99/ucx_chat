@@ -1,4 +1,6 @@
 defmodule UcxChat.SideNavService do
+  use UcxChat.Web, :service
+
   alias UcxChat.ServiceHelpers, as: Helpers
   alias UcxChat.{ChatDat, Channel, ChannelService}
 
@@ -20,6 +22,18 @@ defmodule UcxChat.SideNavService do
     "list_combined_flex.html"
     |> UcxChat.SideNavView.render(channels: channels, current_user: user)
     |> Phoenix.HTML.safe_to_string
+  end
+
+  def render_more_users(user_id) do
+    user = Helpers.get_user! user_id
+    users = Repo.all from u in User,
+      left_join: d in Direct, on: u.id == d.user_id,
+      where: u.id != ^user_id,
+      select: {u, d.users}
+
+    # "list_combined_flex.html"
+    # |> UcxChat.SideNavView.render(channels: channels, current_user: user)
+    # |> Phoenix.HTML.safe_to_string
   end
 
 end

@@ -15,6 +15,14 @@ class SideNav {
          $('.arrow').toggleClass('close', 'bottom')
       })
   }
+  more_users() {
+    // console.log('cliecked more channels')
+    userchan.push('side_nav:more_users')
+      .receive("ok", resp => {
+         $('.flex-nav section').html(resp.html).parent().removeClass('animated-hidden')
+         $('.arrow').toggleClass('close', 'bottom')
+      })
+  }
   channel_link_click(elem) {
     let name = elem.attr('href').replace('/channels/', '')
     // console.log('channel link click', name)
@@ -144,6 +152,11 @@ class SideNav {
     .on('click', 'button.more-channels', e =>  {
       e.preventDefault()
       this.more_channels()
+      return false
+    })
+    .on('click', 'button.more-users', e =>  {
+      e.preventDefault()
+      this.more_users()
       return false
     })
     .on('click', 'a.channel-link', e => {

@@ -159,6 +159,13 @@ defmodule UcxChat.UserChannel do
     {:reply, {:ok, %{html: html}}, socket}
   end
 
+  def handle_in("side_nav:more_users" = ev, params, socket) do
+    debug ev, params
+
+    html = SideNavService.render_more_users(socket.assigns.user_id)
+    {:reply, {:ok, %{html: html}}, socket}
+  end
+
   def handle_in("side_nav:close" = ev, params, socket) do
     debug ev, params
 

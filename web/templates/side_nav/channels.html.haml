@@ -7,6 +7,6 @@
     - for room <- @rooms do
       = render "chat_room_item.html", room: room
   - else
-    %p.empty No_channels_yet
+    %p.empty= ~g(No channels yet)
 # - unless defer do
-%button.more.more-channels.background-transparent-darker-hover More_channels...
+%button.more.more-channels.background-transparent-darker-hover= ~g(More channels...)

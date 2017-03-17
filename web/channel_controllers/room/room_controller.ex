@@ -38,6 +38,7 @@ defmodule UcxChat.RoomChannelController do
   end
 
   def leave(%{assigns: assigns} = socket, params) do
+    Logger.warn "params: #{inspect params}"
     resp = case ChannelService.channel_command(socket, :leave, params["room"], assigns[:user_id], nil) do
       {:ok, _} ->
         {:ok, %{}}

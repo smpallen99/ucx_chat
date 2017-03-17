@@ -1,15 +1,15 @@
-# defmodule UcxChat.HomeController do
-#   use UcxChat.Web, :controller
-#   require Logger
-#   alias UcxChat.{ChatDat}
-#   alias UcxChat.ServiceHelpers, as: Helpers
-#   import Ecto.Query
+defmodule UcxChat.HomeController do
+  use UcxChat.Web, :controller
+  require Logger
+  alias UcxChat.{ChatDat}
+  alias UcxChat.ServiceHelpers, as: Helpers
+  import Ecto.Query
 
-#   def index(conn, _params) do
-#     user = Helpers.get_user!(Coherence.current_user(conn) |> Map.get(:id))
+  def index(conn, _params) do
+    user = Helpers.get_user!(Coherence.current_user(conn) |> Map.get(:id))
 
-#     chatd = ChatDat.new(user)
-#     render conn, "index.html", chatd: chatd
-#   end
+    chatd = ChatDat.new(user)
+    render conn, "index.html", chatd: chatd
+  end
 
-# end
+end
