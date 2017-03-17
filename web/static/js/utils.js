@@ -39,18 +39,18 @@ export function debounce(func, wait, immediate) {
 };
 
 export function scroll_bottom() {
-  let mypanel = $('.messages-box .wrapper')
-  myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
+  let elem = $('.messages-box .wrapper')[0]
+  elem.scrollTop = elem.scrollHeight - elem.clientHeight
 }
 
 export function getScrollBottom() {
-  let mypanel = $('.messages-box .wrapper')
-  return myPanel[0].scrollHeight - myPanel.height()
+  let elem = $('.messages-box .wrapper')[0]
+  return elem.scrollHeight - $(elem).innerHeight
 }
 
 export function is_scroll_bottom() {
-  let mypanel = $('.messages-box .wrapper')
-  return mypanel.scrollTop() + mypanel.innerHeight() + 1 >= myPanel[0].scrollHeight
+  let elem = $('.messages-box .wrapper')[0]
+  return elem.scrollTop + $(elem).innerHeight() + 1 >= elem.scrollHeight
 }
 
 export function empty_string(string) {

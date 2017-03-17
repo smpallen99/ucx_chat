@@ -19,7 +19,7 @@ class RoomHistoryManager {
       this.update_scroll_pos()
     }, 1000)
 
-    console.log('roomHistoryManager.constructor', $(container).has('li.load-more'))
+    // console.log('roomHistoryManager.constructor', $(container).has('li.load-more'))
     if ($(container).has('li.load-more').length > 0) {
       console.log('length > 0')
       this.has_more = true
@@ -76,6 +76,14 @@ class RoomHistoryManager {
           $('#' + $(item).attr('id')).removeClass('new-day')
       }
     }
+  }
+
+  cache_room() {
+    this.cached_scrollTop = $(wrapper)[0].scrollTop
+  }
+  restore_cached_room() {
+    $(wrapper)[0].scrollTop = this.cached_scrollTop
+    roomManager.bind_history_manager_scroll_event()
   }
 
   get getMore() {
@@ -153,27 +161,34 @@ class RoomHistoryManager {
   scroll_new_window() {
     this.scroll_window = $(wrapper)[0]
     if (!this.scroll_pos[this.current_room]) {
-      console.log('scroll_new_window this.current_room', this.current_room)
+      // console.log('scroll_new_window this.current_room', this.current_room)
       userchan.push("get:currentMessage", {room: this.current_room})
         .receive("ok", resp => {
-          console.warn('scroll_new_window ok resp', resp)
+          // console.warn('scroll_new_window ok resp', resp)
           this.set_scroll_top("ok", resp)
         })
         .receive("error", resp => {
-          console.warn('scroll_new_window err resp', resp)
+          // console.warn('scroll_new_window err resp', resp)
           this.set_scroll_top("error", resp)
         })
     } else {
-      console.warn('scroll_new_window else this', this)
+      // console.warn('scroll_new_window else this', this)
       this.set_scroll_top("ok", {value: this.scroll_pos[this.current_room]})
     }
   }
 
   set_scroll_top(code, resp) {
-    if (code == "ok") {
-      this.scroll_to_message(resp.value)
-    } else {
+    if (resp.value == "") {
+      let elem = $(container)
+      // console.log('set_scroll_top 1 value', resp, elem, elem.parent().scrollTop())
       utils.scroll_bottom()
+    } else {
+      console.log('set_scroll_top 2 value', resp)
+      if (code == "ok") {
+        this.scroll_to_message(resp.value)
+      } else {
+        utils.scroll_bottom()
+      }
     }
   }
 

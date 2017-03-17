@@ -7,6 +7,8 @@ defmodule UcxChat.Console do
   * ftab
   """
   alias UcxChat.UserAgent, as: CA
+    # import Ecto.Query
+  alias UcxChat.{Repo, Subscription}
 
 
   @doc """
@@ -19,4 +21,11 @@ defmodule UcxChat.Console do
   """
   def ftab(user_id, channel_id), do: CA.get_ftab(user_id, channel_id)
 
+  @doc """
+  Clear all last_read subscription fields
+  """
+  def clear_last_read do
+    Subscription
+    |> Repo.update_all(set: [last_read: "", current_message: ""])
+  end
 end

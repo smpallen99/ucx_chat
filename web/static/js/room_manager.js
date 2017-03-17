@@ -254,6 +254,7 @@ class RoomManager {
   }
 
   new_room() {
+    if (debug) { console.log('new_room', this)}
     this.has_more = $('.messages-box li.load-more').length > 0
     // bind_scroller()
     roomHistoryManager.new_room(ucxchat.room)
@@ -360,6 +361,7 @@ class RoomManager {
 
 
   open_room(room, display_name, callback) {
+    if (debug) { console.log('open_room', this) }
     cc.get("/room/" + room, {display_name: display_name, room: ucxchat.room})
       .receive("ok", resp => {
         if (resp.redirect) {

@@ -8,7 +8,7 @@ class SideNav {
   }
 
   more_channels() {
-    console.log('cliecked more channels')
+    // console.log('cliecked more channels')
     userchan.push('side_nav:more_channels')
       .receive("ok", resp => {
          $('.flex-nav section').html(resp.html).parent().removeClass('animated-hidden')
@@ -17,7 +17,7 @@ class SideNav {
   }
   channel_link_click(elem) {
     let name = elem.attr('href').replace('/channels/', '')
-    console.log('channel link click', name)
+    // console.log('channel link click', name)
     roomManager.open_room(name, name, function() {
       $('.flex-nav').addClass('animated-hidden')
       $('.arrow').toggleClass('close', 'bottom')
@@ -34,7 +34,7 @@ class SideNav {
       let showTop = false
       let showBottom = false
       $('li.has-alert').each((i,item) => {
-        console.log('item', item)
+        // console.log('item', item)
         if ($(item).offset().top < listOffset.top - $(item).height() + 20)
           showTop = true
 
@@ -55,25 +55,38 @@ class SideNav {
     }, 200))
   }
 
+  set_nav_top_icon(icon) {
+    // console.log('set_nav_top_icon', icon)
+    $('aside.side-nav span.arrow')
+      .removeClass('top')
+      .removeClass('bottom')
+      .removeClass('close')
+      .addClass(icon)
+  }
+
   register_events() {
     this.bind_scroll_event()
     $('body')
-    .on('click', 'span.arrow.close', (e) => {
-      e.preventDefault()
-      $('.flex-nav header').click()
-    })
     .on('click', 'span.arrow', (e) => {
+      // console.log('span.arrow click', e.currentTarget)
+      if ($(e.currentTarget).hasClass('close')) {
+        $('.flex-nav header').click()
+        this.set_nav_top_icon('bottom')
+      } else {
+        $('.side-nav .account-box').click()
+      }
       e.preventDefault()
-      $('.side-nav .account-box').click()
+      return false
     })
     .on('click', '.side-nav .account-box', (e) => {
       e.preventDefault()
       let elem = $('aside.side-nav span.arrow')
+      // console.log('.side-nav .account-box click', elem)
       if (elem.hasClass('top')) {
-        elem.removeClass('top').addClass('bottom')
+        this.set_nav_top_icon('bottom')
         SideNav.hide_account_box_menu()
-      } else {
-        elem.addClass('top').removeClass('bottom')
+      } else if (elem.hasClass('bottom')) {
+        this.set_nav_top_icon('top')
         SideNav.show_account_box_menu()
       }
     })
@@ -83,13 +96,14 @@ class SideNav {
     })
     .on('click', 'button.account-link', (e) => {
       e.preventDefault()
+      roomHistoryManager.cache_room()
       $('.main-content-cache').html($('.main-content').html())
       userchan.push('side_nav:open', {page: $(e.currentTarget).attr('id')})
         .receive("ok", resp => {
           $('.flex-nav section').html(resp.html)
         })
       $('div.flex-nav').removeClass('animated-hidden')
-      $('aside.side-nav span.arrow').removeClass('top').addClass('close')
+      this.set_nav_top_icon('close')
     })
     .on('click', 'nav.options button.status', (e) =>  {
       e.preventDefault()
@@ -98,11 +112,14 @@ class SideNav {
     .on('click', '.flex-nav header', (e) => {
       e.preventDefault()
       userchan.push('side_nav:close', {})
-      console.log('.flex-nav header clicked')
+      // console.log('.flex-nav header clicked')
       $('div.flex-nav').addClass('animated-hidden')
-      $('aside.side-nav span.arrow').removeClass('close').addClass('bottom')
-      $('.main-content').html($('.main-content-cache').html())
-      $('.main-content-cache').html('')
+      this.set_nav_top_icon('bottom')
+      if ($('.main-content-cache').html() != '') {
+        $('.main-content').html($('.main-content-cache').html())
+        $('.main-content-cache').html('')
+        roomHistoryManager.restore_cached_room()
+      }
       SideNav.hide_account_box_menu()
     })
     .on('click', '.account-link', e => {
@@ -130,6 +147,7 @@ class SideNav {
       return false
     })
     .on('click', 'a.channel-link', e => {
+      console.log('a.channel-link click', e)
       e.preventDefault()
       this.channel_link_click($(e.currentTarget))
       return false
