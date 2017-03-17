@@ -47,7 +47,7 @@ defmodule UcxChat.Router do
     pipe_through :protected
 
     get "/avatar/:username", AvatarController, :show
-    get "/", ChannelController, :index
+    get "/", HomeController, :index
     get "/home", HomeController, :index
     get "/channels/:name", ChannelController, :show
     get "/direct/:name", ChannelController, :direct

@@ -1,7 +1,7 @@
 defmodule UcxChat.ChannelController do
   use UcxChat.Web, :controller
 
-  alias UcxChat.{Channel, User, Direct}
+  alias UcxChat.{Channel, User, Direct, ChannelService}
 
   import Ecto.Query
 
@@ -42,14 +42,14 @@ defmodule UcxChat.ChannelController do
     UcxChat.PresenceAgent.load user.id
 
     messages = MessageService.get_room_messages(channel.id, user)
-    Logger.warn "message count #{length messages}"
+    # Logger.warn "message count #{length messages}"
 
     chatd =
       user
       |> ChatDat.new(channel, messages)
       |> ChatDat.get_messages_info
 
-    Logger.warn "controller messages_info: #{inspect chatd.messages_info}"
+    # Logger.warn "controller messages_info: #{inspect chatd.messages_info}"
     conn
     |> put_view(UcxChat.MasterView)
     |> render("main.html", chatd: chatd)
@@ -65,16 +65,24 @@ defmodule UcxChat.ChannelController do
 
   def direct(conn, %{"name" => name}) do
     user_id = Coherence.current_user(conn) |> Map.get(:id)
+    user_id
+    |> get_direct(name)
+    |> case do
+      nil ->
+        # create the direct and redirect
+        ChannelService.add_direct(name, user_id, nil)
+        direct = get_direct(user_id, name)
+        show(conn, direct.channel)
+      direct ->
+        show(conn, direct.channel)
+    end
+  end
+
+  defp get_direct(user_id, name) do
     (from d in Direct,
       where: d.user_id == ^user_id and like(d.users, ^"%#{name}%"),
       preload: [:channel])
     |> Repo.one
-    |> case do
-      nil ->
-        redirect(conn, to: "/")
-      direct ->
-        show(conn, direct.channel)
-    end
   end
 
 end

@@ -18,6 +18,7 @@ defmodule UcxChat.User do
     field :uri, :string
     field :status, :string, default: "offline", virtual: true
     field :active, :boolean, default: true
+    field :subscription_hidden, :boolean, virtual: true
 
     belongs_to :open, UcxChat.Channel, foreign_key: :open_id
 

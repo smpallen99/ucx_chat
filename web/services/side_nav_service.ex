@@ -2,7 +2,7 @@ defmodule UcxChat.SideNavService do
   use UcxChat.Web, :service
 
   alias UcxChat.ServiceHelpers, as: Helpers
-  alias UcxChat.{ChatDat, Channel, ChannelService}
+  alias UcxChat.{ChatDat, Channel, ChannelService, User, Direct, Subscription}
 
   def render_rooms_list(channel_id, user_id) do
     user = Helpers.get_user! user_id
@@ -26,14 +26,24 @@ defmodule UcxChat.SideNavService do
 
   def render_more_users(user_id) do
     user = Helpers.get_user! user_id
-    users = Repo.all from u in User,
-      left_join: d in Direct, on: u.id == d.user_id,
-      where: u.id != ^user_id,
-      select: {u, d.users}
+    users =
+      Repo.all(from u in User,
+        left_join: d in Direct, on: u.id == d.user_id and d.users == ^(user.username),
+        left_join: s in Subscription, on: s.user_id == ^user_id and s.channel_id == d.channel_id,
+        # left_join: c in Channel, on: c.id == d.channel_id,
+        where: u.id != ^user_id,
+        preload: [:roles],
+        select: {u, s})
+      |> Enum.reject(fn {user, _} -> User.has_role?(user, "bot") end)
+      |> Enum.map(fn
+        {user, nil} -> struct(user, subscription_hidden: nil)
+        {user, sub} -> struct(user, subscription_hidden: sub.hidden)
+      end)
 
-    # "list_combined_flex.html"
-    # |> UcxChat.SideNavView.render(channels: channels, current_user: user)
-    # |> Phoenix.HTML.safe_to_string
+
+    "list_users_flex.html"
+    |> UcxChat.SideNavView.render(users: users, current_user: user)
+    |> Phoenix.HTML.safe_to_string
   end
 
 end

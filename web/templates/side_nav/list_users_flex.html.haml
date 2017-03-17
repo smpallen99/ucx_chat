@@ -33,15 +33,14 @@
             %i.icon-search.secondary-font-color
     %h4= ~g(List of Users)
     %ul
-      - for channel <- @users do
-        - {subscribed?, hidden?} = UcxChat.Channel.subscription_status(channel, @current_user.id)
+      - for user <- @users do
         %li
-          %a.channel-link(href="/channels/#{channel.name}")
-            %i(class="#{UcxChat.ChannelService.get_icon(channel.type)}")
-            = channel.name
+          %a.direct-link(href="/direct/#{user.username}")
+            %i(class="icon-at")
+            = user.username
             %span.opt.fixed
-              - if subscribed? do
-                - if hidden? do
+              - unless is_nil user.subscription_hidden do
+                - if user.subscription_hidden do
                   %i.icon-eye-off(title="#{~g(Hidden)}" aria-label="#{~g(Hidden)}"></i>
                 - else
                   %i.icon-eye(title="#{~g(Open)}" aria-label="#{~g(Open)}")
