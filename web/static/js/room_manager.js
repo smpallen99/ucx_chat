@@ -70,20 +70,22 @@ class RoomManager {
   add_private(elem) {
     let username = elem.parent().attr('data-username')
     if (debug) { console.log('pvt-msg button clicked...', username) }
-    cc.put("direct/" + username)
-      .receive("ok", resp => {
-        $('.messages-container .fixed-title h2').html(resp.messages_html)
-        $('aside .rooms-list').html(resp.side_nav_html)
-        ucxchat.channel_id = resp.channel_id
-        ucxchat.room = resp.room
-        ucxchat.display_name = resp.display_name
-        ucxchat.room_route = resp.room_route
-        if ($('section.flex-tab').parent().hasClass('opened')) {
-          $('section.flex-tab').html('').parent().removeClass('opened')
-        }
-        roomchan.leave()
-        socket.restart_socket()
-    })
+    window.location = '/direct/' + username
+    // cc.put("direct/" + username)
+    //   .receive("ok", resp => {
+    //     window.location = '/direct/' + username
+    //     // $('.messages-container .fixed-title h2').html(resp.messages_html)
+    //     // $('aside .rooms-list').html(resp.side_nav_html)
+    //     // ucxchat.channel_id = resp.channel_id
+    //     // ucxchat.room = resp.room
+    //     // ucxchat.display_name = resp.display_name
+    //     // ucxchat.room_route = resp.room_route
+    //     // if ($('section.flex-tab').parent().hasClass('opened')) {
+    //     //   $('section.flex-tab').html('').parent().removeClass('opened')
+    //     // }
+    //     // roomchan.leave()
+    //     // socket.restart_socket()
+    // })
   }
   update(msg) {
     if(debug) { console.log('update...', msg) }
