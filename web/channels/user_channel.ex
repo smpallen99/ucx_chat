@@ -298,8 +298,10 @@ defmodule UcxChat.UserChannel do
     debug event, payload
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
+    channel = Helpers.get!(Channel, assigns.channel_id)
+    user_info = FlexBarService.user_info channel, view_mode: true
     if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
-      html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user)
+      html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user, user_info: user_info)
       push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
     end
     {:noreply, socket}
@@ -327,9 +329,11 @@ defmodule UcxChat.UserChannel do
     debug event, payload
     current_user = Helpers.get_user! assigns.user_id
     user = Helpers.get_user! payload.user_id
+    channel = Helpers.get!(Channel, assigns.channel_id)
     if Flex.open? assigns.flex, assigns.channel_id, "Members List" do
       # debug event, payload, action <> " open"
-      html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user)
+      user_info = FlexBarService.user_info channel, view_mode: true
+      html1 = Helpers.render(FlexBarView, "user_card_actions.html", current_user: current_user, channel_id: assigns.channel_id, user: user, user_info: user_info)
       push socket, "code:update", %{html: html1, selector: ~s(.user-view nav[data-username="#{user.username}"]), action: "html"}
 
       if action == "mute" do

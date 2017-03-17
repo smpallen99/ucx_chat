@@ -14,7 +14,7 @@ defmodule UcxChat.MessageService do
   # def broadcast_message(id, channel_id, user_id, html) do
   #   channel = Helpers.get
   # end
-  def broadcast_system_message(channel_id, user_id, body) do
+  def broadcast_system_message(channel_id, _user_id, body) do
     channel = Helpers.get(Channel, channel_id)
     message = create_system_message(channel_id, body)
     html = render_message message
