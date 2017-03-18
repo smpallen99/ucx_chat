@@ -117,6 +117,8 @@ defmodule UcxChat.SlashCommandChannelController do
         %{} = resp ->
           notify_room_update(socket, command, target_channel, {:ok, resp})
           # {:ok, resp}
+        {:ok, res} when res == %{} ->
+          {:ok, %{}}
         {:ok, res} ->
           Logger.warn "res: #{inspect res}"
           notify_room_update(socket, command, target_channel, {:ok, Helpers.response_message(channel_id, res)})
