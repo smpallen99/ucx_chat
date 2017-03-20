@@ -6,7 +6,7 @@
   = Admin.render_user_action_button(@user, "activate")
   = Admin.render_user_action_button(@user, "delete")
 - else
-  - unless @current_user.id == @user.id do
+  - unless @current_user.id == @user.id or @user_info[:direct] do
     %button.button.button-block.primary.pvt-msg
       %span
         %i.icon-chat

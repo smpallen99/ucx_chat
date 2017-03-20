@@ -79,11 +79,14 @@ class RoomHistoryManager {
   }
 
   cache_room() {
-    this.cached_scrollTop = $(wrapper)[0].scrollTop
+    if (ucxchat.channel_id)
+      this.cached_scrollTop = $(wrapper)[0].scrollTop
   }
   restore_cached_room() {
-    $(wrapper)[0].scrollTop = this.cached_scrollTop
-    roomManager.bind_history_manager_scroll_event()
+    if (ucxchat.channel_id) {
+      $(wrapper)[0].scrollTop = this.cached_scrollTop
+      roomManager.bind_history_manager_scroll_event()
+    }
   }
 
   get getMore() {

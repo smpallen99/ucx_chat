@@ -117,7 +117,8 @@ defmodule UcxChat.UserChannel do
   def handle_in("flex:open:User Info" = ev, params, socket) do
     debug ev, params, "assigns: #{inspect socket.assigns}"
     args = %{"args" => %{"templ" => "users_list.html", "username" => "steve.pallen"}}
-    {:noreply, open_flex_item(socket, "User Info", args)}
+    {:noreply, toggle_flex(socket, "User Info", args)}
+    # {:noreply, open_flex_item(socket, "User Info", args)}
   end
 
   def handle_in("flex:open:" <> tab = ev, params, socket) do

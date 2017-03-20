@@ -274,6 +274,9 @@ class RoomManager {
   }
 
   bind_history_manager_scroll_event() {
+    if (!ucxchat.channel_id) {
+      return false
+    }
     $('.messages-box .wrapper').bind('scroll', _.throttle((e) => {
       let at_bottom = e.currentTarget.scrollTop >= e.currentTarget.scrollHeight - e.currentTarget.clientHeight - 80
       this.at_bottom = at_bottom
