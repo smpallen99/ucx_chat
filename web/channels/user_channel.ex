@@ -227,7 +227,7 @@ defmodule UcxChat.UserChannel do
       |> Repo.update
       |> case do
         {:ok, _} ->
-          push socket, "window:reload", %{}
+          push socket, "window:reload", %{mode: mode}
           {:ok, %{}}
         {:error, _} ->
           {:error, %{error: ~g"There was a problem switching modes"}}

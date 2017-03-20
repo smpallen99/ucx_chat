@@ -213,7 +213,10 @@ function start_user_channel() {
     utils.code_update(resp)
   })
   chan.on('window:reload', resp => {
-    window.location.reload()
+    if (resp.mode == undefined || resp.mode == false)
+      window.location.reload()
+    else
+      window.location = '/home'
   })
 
   chan.on("toastr:success", resp => {
