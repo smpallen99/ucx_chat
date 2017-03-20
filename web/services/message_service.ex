@@ -323,6 +323,18 @@ defmodule UcxChat.MessageService do
     |> Repo.update!
   end
 
+  def update_direct_notices(%{type: 2, id: id} = channel, %{user_id: user_id} = message) do
+    Subscription
+    |> where([s], s.channel_id == ^id and s.user_id != ^user_id)
+    |> Repo.all
+    |> Enum.each(fn %{unread: unread} = sub ->
+      sub
+      |> Subscription.changeset(%{unread: unread + 1})
+      |> Repo.update!
+    end)
+  end
+  def update_direct_notices(_channel, _message), do: nil
+
   def create_and_render(body, user_id, channel_id, opts \\ []) do
     message = create_message(body, user_id, channel_id, Enum.into(opts, %{}))
     {message, render_message(message)}

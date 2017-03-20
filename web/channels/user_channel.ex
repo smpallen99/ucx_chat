@@ -31,7 +31,7 @@ defmodule UcxChat.UserChannel do
     UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "user:state", %{state: state})
   end
 
-  intercept ["room:join", "room:leave", "room:mention", "user:state"]
+  intercept ["room:join", "room:leave", "room:mention", "user:state", "direct:new"]
 
   def join(CC.chan_user() <>  user_id, params, socket) do
     debug(CC.chan_user() <> user_id, params)
@@ -76,6 +76,11 @@ defmodule UcxChat.UserChannel do
   def handle_out("user:state", msg, socket) do
     {:noreply, handle_user_state(msg, socket)}
   end
+  def handle_out("direct:new", msg, socket) do
+    %{room: room} = msg
+    update_rooms_list(socket)
+    {:noreply, subscribe([room], socket)}
+  end
 
   def handle_user_state(%{state: "idle"}, socket) do
     debug "idle", ""
@@ -92,6 +97,12 @@ defmodule UcxChat.UserChannel do
   def push_room_mention(msg, socket) do
     %{channel_id: channel_id} = msg
     Process.send_after self(), {:update_mention, channel_id, socket.assigns.user_id}, 250
+    socket
+  end
+
+  def push_update_direct_message(msg, socket) do
+    %{channel_id: channel_id} = msg
+    Process.send_after self(), {:update_direct_message, channel_id, socket.assigns.user_id}, 250
     socket
   end
 
@@ -293,7 +304,12 @@ defmodule UcxChat.UserChannel do
     if room in assigns.subscribed do
       channel = Helpers.get_by(Channel, :name, room)
       Logger.warn "in the room ... #{user_id}, room: #{inspect room}"
-      unless channel.id == assigns.channel_id and assigns.user_state != "idle" do
+      # unless channel.id == assigns.channel_id and assigns.user_state != "idle" do
+      if channel.id != assigns.channel_id or assigns.user_state == "idle" do
+        if channel.type == 2 do
+          Logger.warn "private channel ..."
+          push_update_direct_message(%{channel_id: channel.id}, socket)
+        end
         Logger.warn "updating unreads"
         update_has_unread(channel, socket)
       end
@@ -421,9 +437,22 @@ defmodule UcxChat.UserChannel do
     {:noreply, socket}
   end
 
-  def handle_info({:update_mention, channel_id, user_id}, socket) do
+  def handle_info({:update_mention, channel_id, user_id} = ev, socket) do
+    debug "upate_mention", ev
     channel = Helpers.get!(Channel, channel_id)
     with [sub] <- Repo.all(Subscription.get(channel_id, user_id)),
+         open  <- Map.get(sub, :open),
+         false <- socket.assigns.user_state == "active" and open,
+         count <- ChannelService.get_unread(channel_id, user_id),
+      do: push(socket, "room:mention", %{room: channel.name, unread: count})
+    {:noreply, socket}
+  end
+
+  def handle_info({:update_direct_message, channel_id, user_id} = ev, socket) do
+    debug "upate_direct_message", ev
+    channel = Helpers.get!(Channel, channel_id)
+    with [sub] <- Repo.all(Subscription.get(channel_id, user_id)),
+         _ <- Logger.warn("update_direct_message unread: #{sub.unread}"),
          open  <- Map.get(sub, :open),
          false <- socket.assigns.user_state == "active" and open,
          count <- ChannelService.get_unread(channel_id, user_id),
@@ -478,7 +507,7 @@ defmodule UcxChat.UserChannel do
   end
 
   defp clear_unreads(room, %{assigns: assigns} = socket) do
-    Logger.warn ""
+    # Logger.warn "room: #{inspect room}, assigns: #{inspect assigns}"
     ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, false)
     push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-unread", action: "removeClass"}
     push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-alert", action: "removeClass"}

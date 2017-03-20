@@ -13,6 +13,7 @@ defmodule UcxChat.ChannelService do
     ChatDat, Direct, Mute, UserChannel, UserRole, Permission, SideNavService
   }
   alias UcxChat.ServiceHelpers, as: Helpers
+  require UcxChat.ChatConstants, as: CC
   alias Ecto.Multi
 
   require Logger
@@ -512,6 +513,7 @@ defmodule UcxChat.ChannelService do
       |> Direct.changeset(%{users: user_names[user.id], user_id: user.id, channel_id: channel.id})
       |> Repo.insert!
     end
+    UcxChat.Endpoint.broadcast! CC.chan_user() <> to_string(user_dest.id), "direct:new", %{room: channel.name}
     channel
   end
 
@@ -573,7 +575,8 @@ defmodule UcxChat.ChannelService do
   end
 
   def channel_command(socket, :create, name, user_id, channel_id) do
-    if Helpers.get_by(Channel, :name, name) do
+    Logger.warn "name: #{inspect name}"
+    if is_map(name) do
       Helpers.response_message(channel_id, ~g"The channel " <> "`##{name}`" <> ~g" already exists.")
     else
       insert_channel(%{name: name, user_id: user_id})

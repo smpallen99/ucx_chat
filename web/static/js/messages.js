@@ -69,6 +69,7 @@ class Messages {
       let route = "/slashcommand/" + match[1]
       cc.put(route, {args: match[2].trim()})
         .receive("ok", resp => {
+          // console.log('slash command resp', resp )
           if (resp.html) {
             $('.messages-box .wrapper > ul').append(resp.html)
             utils.scroll_bottom()

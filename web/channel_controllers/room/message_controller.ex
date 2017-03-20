@@ -31,6 +31,7 @@ defmodule UcxChat.MessageChannelController do
 
       message = create_message(body, user_id, channel_id, msg_params)
       create_mentions(mentions, message.id, message.channel_id)
+      update_direct_notices(channel, message)
       message_html = render_message(message)
       broadcast_message(socket, message.id, message.user.id, message_html)
     end

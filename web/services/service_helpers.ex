@@ -37,18 +37,14 @@ defmodule UcxChat.ServiceHelpers do
   end
 
   def get_by!(model, field, value, opts \\ []) do
-    preload = opts[:preload] || []
     model
-    |> where([c], field(c, ^field) == ^value)
-    |> preload(^preload)
+    |> get_by_q(field, value, opts)
     |> Repo.one!
   end
 
   def get_by(model, field, value, opts \\ []) do
-    preload = opts[:preload] || []
     model
-    |> where([c], field(c, ^field) == ^value)
-    |> preload(^preload)
+    |> get_by_q(field, value, opts)
     |> Repo.one
   end
 
@@ -59,6 +55,18 @@ defmodule UcxChat.ServiceHelpers do
     |> Repo.one!
   end
 
+  def get_all_by(model, field, value, opts \\ []) do
+    model
+    |> get_by_q(field, value, opts)
+    |> Repo.all
+  end
+
+  defp get_by_q(model, field, value, opts \\ []) do
+    preload = opts[:preload] || []
+    model
+    |> where([c], field(c, ^field) == ^value)
+    |> preload(^preload)
+  end
 
   def get_channel_user(channel_id, user_id, opts \\ []) do
     preload = opts[:preload] || []

@@ -104,10 +104,10 @@ class RoomManager {
 
   }
   room_mention(resp) {
-    let parent = `a.open-room[data-name="${resp.room}"]`
+    let parent = `a.open-room[data-room="${resp.room}"]`
     let elem = $(parent + ' span.unread')
     if (debug) { console.log('room_manager', resp, elem) }
-    if (elem.length == []) {
+    if (elem.length == 0) {
       $(parent).prepend(`<span class="unread">${resp.unread}</span>`)
     } else {
       elem.text(resp.unread)
@@ -356,7 +356,7 @@ class RoomManager {
   }
 
   clear_navbar() {
-    let parent = `a.open-room[data-name="${ucxchat.room}"]`
+    let parent = `a.open-room[data-room="${ucxchat.room}"]`
     $(parent + ' span.unread').remove()
     $('li.link-room-' + ucxchat.room).removeClass('has-alert').removeClass('has-unread')
   }
