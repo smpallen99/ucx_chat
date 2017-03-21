@@ -1,18 +1,14 @@
 # UcxChat
 
-To start your Phoenix app:
+## Backup Database
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
-  * Install Node.js dependencies with `npm install`
-  * Start Phoenix endpoint with `mix phoenix.server`
+```bash
+mysqldump --add-drop-database --add-drop-table -u root --password=Gt5de3aq1 --databases ucx_chat_prod > ucx_chat.sql
+```
 
-Now you can visit [`localhost:4015`](http://localhost:4015) from your browser.
+## Restore Database
 
-## Running Tests
-
-  * Need to install `phantomjs`
-  * Run `phantomjs --wd`
-  * Then you can run tests with `mix test`
-
+```bash
+mysql -u root -pGt5de3aq1 < ucx_chat.sql
+```
 

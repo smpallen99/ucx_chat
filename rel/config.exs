@@ -40,8 +40,8 @@ end
 
 release :ucx_chat do
   set version: current_version(:ucx_chat)
-  set commands: [
-    "migrate": "rel/commands/migrate.sh"
-  ]
+  # set commands: [
+  #   "migrate": "rel/commands/migrate.sh"
+  # ]
 end
 

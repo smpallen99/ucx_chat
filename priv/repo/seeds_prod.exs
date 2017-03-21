@@ -58,7 +58,7 @@ end
 u0 = create_user.("Bot", "bot@example.com", "test", :bot)
 u1 = create_user.("Admin", "admin@spallen.com", "test", true)
 
-ch1 = ChannelService.insert_channel!(%{name: "general", user_id: u0.id, default: true})
+ch1 = ChannelService.insert_channel!(%{name: "general", user_id: u1.id, default: true})
 
 [ch1]
 |> Enum.each(fn ch ->
