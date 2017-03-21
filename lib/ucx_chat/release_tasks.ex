@@ -9,10 +9,12 @@ defmodule UcxChat.ReleaseTasks do
     UcxChat.Repo
   ]
 
+  @app :ucx_chat
+
   def seed do
     IO.puts "Loading myapp.."
     # Load the code for myapp, but don't start it
-    :ok = Application.load(:ucx_chat)
+    :ok = Application.load(@app)
 
     IO.puts "Starting dependencies.."
     # Start apps necessary for executing migrations
@@ -26,7 +28,8 @@ defmodule UcxChat.ReleaseTasks do
     Enum.each(@repos, &run_migrations_for/1)
 
     # Run the seed script if it exists
-    seed_script = Path.join([priv_dir(:ucx_chat), "repo", "seeds_prod.exs"])
+    seed_script = seed_path(@app)
+    # Path.join([priv_dir(:ucx_chat), "repo", "seeds_prod.exs"])
     if File.exists?(seed_script) do
       IO.puts "Running seed script.."
       Code.eval_file(seed_script)
@@ -41,7 +44,7 @@ defmodule UcxChat.ReleaseTasks do
 
   defp run_migrations_for(app) do
     IO.puts "Running migrations for #{app}"
-    Ecto.Migrator.run(app, migrations_path(app), :up, all: true)
+    Ecto.Migrator.run(app, migrations_path(@app), :up, all: true)
   end
 
   defp migrations_path(app), do: Path.join([priv_dir(app), "repo", "migrations"])
