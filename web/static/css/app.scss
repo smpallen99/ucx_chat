@@ -37,3 +37,26 @@ textarea.input-message::placeholder {
   font-weight: 400;
   font-family: icons;
 }
+.invite-users .outstanding {
+  padding-left: 20px;
+}
+.invite-users .outstanding h2 {
+  font-size: 18px;
+  line-height: 25px;
+  font-weight: 400;
+  padding-bottom: 10px;
+}
+.invite-users .outstanding button {
+  padding: 4px 8px;
+}
+.invite-users .outstanding li span {
+  margin-left: 15px;
+  font-size: 15px;
+  font-weight: 400;
+}
+.invite-users .outstanding li span .icon-verified {
+  color: green;
+}
+.invite-users .outstanding li {
+  padding-bottom: 5px;
+}

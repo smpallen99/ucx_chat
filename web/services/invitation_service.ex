@@ -34,4 +34,14 @@ defmodule UcxChat.InvitationService do
     end
   end
 
+  def resend(id) do
+    case Repo.get(Invitation, id) do
+      nil ->
+        {:error, ~g"Cound not find the Invitation"}
+      invitation ->
+        send_user_email :invitation, invitation,
+          UcxChat.Router.Helpers.invitation_url(UcxChat.Endpoint, :edit, invitation.token)
+        {:ok, ~g"Invitation resent."}
+    end
+  end
 end

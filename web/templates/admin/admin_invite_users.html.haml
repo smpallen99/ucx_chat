@@ -18,3 +18,15 @@
         %ul(style="margin: 5px 10px")
           - for email <- @invite_emails do
             %li(style="margin-top: 5px")= email
+      - if length(@pending_invitations) > 0 do
+        .about.clearfix(style="margin-top: 30px")
+        .outstanding
+          %h2= ~g(Outstanding Invitations)
+          %ul
+            - for invite <- @pending_invitations do
+              %li
+                %button.button.primary.resend(title="#{~g(Resend)}" data-email="#{invite.email}" data-id="#{invite.id}")
+                  %i.icon-mail
+                %span
+                  = invite.email
+

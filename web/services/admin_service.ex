@@ -91,7 +91,8 @@ defmodule UcxChat.AdminService do
     current_user = Helpers.get_user!(assigns.user_id)
     html =
       "admin_invite_users.html"
-      |> AdminView.render(user: current_user, channel_id: 0, user_info: %{admin: true}, invite_emails: [], error_emails: [])
+      |> AdminView.render(user: current_user, channel_id: 0, user_info: %{admin: true},
+         invite_emails: [], error_emails: [], pending_invitations: get_pending_invitations())
       |> safe_to_string
 
     # {:noreply, socket}
@@ -107,13 +108,15 @@ defmodule UcxChat.AdminService do
       {:ok, emails} ->
         html =
           "admin_invite_users.html"
-          |> AdminView.render(user: current_user, channel_id: 0, user_info: %{admin: true}, invite_emails: emails, error_emails: [])
+          |> AdminView.render(user: current_user, channel_id: 0, user_info: %{admin: true},
+             invite_emails: emails, error_emails: [], pending_invitations: get_pending_invitations())
           |> safe_to_string
         {:reply, {:ok, %{html: html, title: "Invite Users", success: ~g(Invitations sent successfully.)}}, socket}
       %{errors: errors, ok: emails} ->
         html =
           "admin_invite_users.html"
-          |> AdminView.render(user: current_user, channel_id: 0, user_info: %{admin: true}, invite_emails: emails, error_emails: errors)
+          |> AdminView.render(user: current_user, channel_id: 0, user_info: %{admin: true},
+             invite_emails: emails, error_emails: errors, pending_invitations: get_pending_invitations())
           |> safe_to_string
         {:reply, {:ok, %{html: html, title: "Invite Users", warning: ~g(Some of the Invitations were not send.)}}, socket}
 
@@ -336,5 +339,10 @@ defmodule UcxChat.AdminService do
       {:ok, inv} -> inv.email
       {:error, cs} -> cs.changes[:email]
     end
+  end
+
+  defp get_pending_invitations do
+    Coherence.Invitation
+    |> Repo.all
   end
 end

@@ -9,7 +9,7 @@ defmodule UcxChat.UserChannel do
   alias Phoenix.Socket.Broadcast
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService}
   alias UcxChat.{AccountView, Account, AdminService, FlexBarView, UserSocket, User}
-  alias UcxChat.{ChannelService, SubscriptionService}
+  alias UcxChat.{ChannelService, SubscriptionService, InvitationService}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -297,6 +297,14 @@ defmodule UcxChat.UserChannel do
     debug ev, params
     SubscriptionService.update assigns, %{last_read: params["last_read"]}
     {:noreply, socket}
+  end
+  def handle_in(ev = "invitation:resend", %{"email" => email, "id" => id} = params, socket) do
+    case InvitationService.resend(id) do
+      {:ok, message} ->
+        {:reply, {:ok, %{success: message}}, socket}
+      {:error, error} ->
+        {:reply, {:error, %{error: error}}, socket}
+    end
   end
 
   # default unknown handler

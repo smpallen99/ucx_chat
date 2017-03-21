@@ -144,6 +144,18 @@ class AdminFlexBar {
       .on('click', '.invite-users nav button.cancel', function(e) {
         flex.toggle_tab_container()
       })
+      .on('click', '.invite-users .outstanding button.resend', function(e) {
+        let email = $(e.currentTarget).data('email')
+        let id = $(e.currentTarget).data('id')
+        userchan.push('invitation:resend', {email: email, id: id})
+          .receive("ok", resp => {
+            if (resp.success) { toastr.success(resp.success) }
+            $(`button[data-email="${email}"]`).next().append('<i class="icon-verified"></i>')
+          })
+          .receive("error", resp => {
+            if (resp.error) { toastr.error(resp.error) }
+          })
+      })
   }
 }
 
