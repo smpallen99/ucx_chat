@@ -368,6 +368,12 @@ defmodule UcxChat.FlexBarService do
   end
 
   def default_settings do
+    switch_user =
+      if Application.get_env(:ucx_chat, :switch_user) && UcxChat.env() != :prod do
+        %{templ: "switch_user_list.html", args: %{}}
+      else
+        %{hidden: true}
+      end
     %{
       "IM Mode": %{},
       "Rooms Mode": %{},
@@ -399,7 +405,7 @@ defmodule UcxChat.FlexBarService do
       "Video Chat": %{hidden: true},
       "Snippeted Messages": %{},
       "Logout": %{function: "function() { window.location.href = '/logout'}" },
-      "Switch User": %{templ: "switch_user_list.html", args: %{}}
+      "Switch User": switch_user
     }
   end
 

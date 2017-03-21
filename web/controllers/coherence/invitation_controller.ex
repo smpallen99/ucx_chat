@@ -99,10 +99,19 @@ defmodule UcxChat.Coherence.InvitationController do
         |> redirect(to: logged_out_url(conn))
       invite ->
         user_schema = Config.user_schema
+        name = String.trim(invite.name)
+        {name, username} =
+          if String.contains? name, " " do
+            username = String.split(name, " ", trim: true) |> Enum.join(".") |> String.downcase
+            {name, username}
+          else
+            username = name
+            name = name |> String.split(".") |> Enum.map(&String.capitalize/1) |> Enum.join(" ")
+            {name, username}
+          end
         cs = Helpers.changeset(:invitation, user_schema, user_schema.__struct__,
-          %{email: invite.email, name: invite.name})
-        conn
-        |> render(:edit, changeset: cs, token: invite.token)
+          %{email: invite.email, username: username, name: name})
+        render(conn, :edit, changeset: cs, token: invite.token)
     end
   end
 

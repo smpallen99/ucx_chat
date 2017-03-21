@@ -1,6 +1,7 @@
 defmodule UcxChat.UserService do
+  use UcxChat.Web, :service
   # alias UcxChat.ServiceHelpers, as: Helpers
-  alias UcxChat.{Repo, User, Account}
+  alias UcxChat.{Repo, User, Account, Subscription, Channel}
   alias Ecto.Multi
 
   require Logger
@@ -33,16 +34,30 @@ defmodule UcxChat.UserService do
     |> Repo.delete
   end
 
-  def insert_user(params) do
+  def insert_user(params, opts \\ []) do
     multi =
       Multi.new
       |> Multi.insert(:account, Account.changeset(%Account{}, %{}))
-      |> Multi.run(:user, &do_insert_user(&1, params))
+      |> Multi.run(:user, &do_insert_user(&1, params, opts))
     Repo.transaction(multi)
   end
 
-  defp do_insert_user(%{account: %{id: id}}, params) do
+  defp do_insert_user(%{account: %{id: id}}, params, opts) do
     changeset = User.changeset(%User{}, Map.put(params, "account_id", id))
-    Repo.insert changeset
+    case Repo.insert changeset do
+      {:ok, user} ->
+        unless opts[:join_default_channels] == false do
+          (from c in Channel, where: c.default == true)
+          |> Repo.all
+          |> Enum.each(fn ch ->
+            %Subscription{}
+            |> Subscription.changeset(%{channel_id: ch.id, user_id: user.id})
+            |> Repo.insert!
+          end)
+        end
+        {:ok, user}
+      error ->
+        error
+    end
   end
 end

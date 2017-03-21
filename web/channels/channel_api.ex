@@ -23,7 +23,11 @@ defmodule UcxChat.ChannelApi do
       end
 
       if debug() do
-        Logger.info "%% " <> inspect(__MODULE__) <> ".#{unquote(name)} #{unquote(event)}: #{msg1}params: #{inspect unquote(params)}"
+        if UcxChat.env() == :prod do
+          Logger.debug "%% " <> inspect(__MODULE__) <> ".#{unquote(name)} #{unquote(event)}: #{msg1}params: #{inspect unquote(params)}"
+        else
+          Logger.info "%% " <> inspect(__MODULE__) <> ".#{unquote(name)} #{unquote(event)}: #{msg1}params: #{inspect unquote(params)}"
+        end
       end
     end
   end

@@ -28,9 +28,16 @@ defmodule UcxChat.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {UcxChat, []},
-     applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :mariaex, :coherence, :faker_elixir_octopus]]
+     applications: applications(Mix.env())]
+
   end
+
+  def applications(:prod), do: [
+    :phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
+    :phoenix_ecto, :mariaex, :coherence, :phoenix_haml, :hound
+  ]
+  def applications(_), do: applications(:prod) ++ [:faker_elixir_octopus]
+
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
