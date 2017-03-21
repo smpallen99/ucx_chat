@@ -36,7 +36,7 @@
       - for user <- @users do
         %li
           %a.direct-link(href="/direct/#{user.username}")
-            %i(class="icon-at")
+            %i(class="icon-at status-#{user.status}" data-status-name="#{user.username}")
             = user.username
             %span.opt.fixed
               - unless is_nil user.subscription_hidden do

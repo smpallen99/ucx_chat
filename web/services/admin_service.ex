@@ -77,6 +77,7 @@ defmodule UcxChat.AdminService do
     assigns = socket.assigns
     current_user = Helpers.get_user!(assigns.user_id)
     user = Helpers.get_by!(User, :username, name, preload: [:roles, :account])
+    user = struct(user, status: UcxChat.PresenceAgent.get(user.id))
     html =
       "user_card.html"
       |> FlexBarView.render(user: user, current_user: current_user, channel_id: 0, user_info: %{admin: true})

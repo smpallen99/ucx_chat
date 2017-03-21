@@ -49,7 +49,6 @@ let listBy = (user, {metas: metas, username: username}) => {
   console.log('listBy user', user, 'metas', metas)
   return {
     user: user,
-    // onlineAt: formatTimestamp(metas[0].online_at),
     username: metas[0].username,
     status: metas[0].status
   }
@@ -59,7 +58,7 @@ let userList = document.getElementById("UserList")
 
 function update_presence(elem, status) {
   if (typeof elem === "object" &&  elem.length > 0) {
-    elem.attr('class', elem.attr('class').replace(/ status-(.*)$/, ' status-' + status))
+    elem.attr('class', elem.attr('class').replace(/status-([a-z]+)/, 'status-' + status))
   }
 }
 
@@ -69,11 +68,9 @@ let render = (presences) => {
       let status = presence.status
       let elem = $(`.info[data-status-name="${presence.username}"]`)
       if (typeof elem === "object" &&  elem.length > 0) {
-        update_presence(elem, status)
         elem.children(':first-child').data('status', status)
       }
-      update_presence($(`a[data-room] i[data-status-name="${presence.username}"]`), status)
-      update_presence($(`li.user-card-room[data-status-name="${presence.username}"]`), status)
+      update_presence($(`[data-status-name="${presence.username}"]`), status)
     })
 }
 // end of presence stuff

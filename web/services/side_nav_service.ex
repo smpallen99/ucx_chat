@@ -6,7 +6,7 @@ defmodule UcxChat.SideNavService do
 
   def render_rooms_list(channel_id, user_id) do
     user = Helpers.get_user! user_id
-    channel = Helpers.get!(Channel, channel_id)
+    channel = if channel_id, do: Helpers.get(Channel, channel_id), else: nil
 
     chatd = ChatDat.new(user, channel)
 
@@ -36,10 +36,9 @@ defmodule UcxChat.SideNavService do
         select: {u, s})
       |> Enum.reject(fn {user, _} -> User.has_role?(user, "bot") end)
       |> Enum.map(fn
-        {user, nil} -> struct(user, subscription_hidden: nil)
-        {user, sub} -> struct(user, subscription_hidden: sub.hidden)
+        {user, nil} -> struct(user, subscription_hidden: nil, status: UcxChat.PresenceAgent.get(user.id))
+        {user, sub} -> struct(user, subscription_hidden: sub.hidden, status: UcxChat.PresenceAgent.get(user.id))
       end)
-
 
     "list_users_flex.html"
     |> UcxChat.SideNavView.render(users: users, current_user: user)
