@@ -34,7 +34,7 @@ defmodule UcxChat.Mixfile do
 
   def applications(:prod), do: [
     :phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-    :phoenix_ecto, :mariaex, :coherence, :phoenix_haml, :hound
+    :phoenix_ecto, :mariaex, :coherence, :phoenix_haml, :hound, :syslog
   ]
   def applications(_), do: applications(:prod) ++ [:faker_elixir_octopus]
 
@@ -62,6 +62,7 @@ defmodule UcxChat.Mixfile do
      {:faker_elixir_octopus, "~> 0.12.0", only: [:dev, :test]},
      {:hound, "~> 1.0"},
      {:distillery, "~> 1.2"},
+     {:syslog, github: "smpallen99/syslog"},
      {:cowboy, "~> 1.0", override: true}]
   end
 
