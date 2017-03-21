@@ -5,7 +5,8 @@
     - if @mb[:allowed_to_send?] do
       .message-input.border-component-color
         .input-message-container.content-background-color
-          %textarea.message-form-text.input-message.autogrow-short{dir: "auto", name: "msg", maxlength:@mb[:max_message_length], placeholder: "Message"}
+          - sym = @mb[:symbol]
+          %textarea.message-form-text.input-message.autogrow-short{dir: "auto", name: "msg", maxlength: @mb[:max_message_length], placeholder: "Message #{sym}"}
 
           .inner-left-toolbar
             - #%i.emoji-picker-icon.icon-people

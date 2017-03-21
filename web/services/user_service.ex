@@ -1,7 +1,7 @@
 defmodule UcxChat.UserService do
   use UcxChat.Web, :service
   # alias UcxChat.ServiceHelpers, as: Helpers
-  alias UcxChat.{Repo, User, Account, Subscription, Channel}
+  alias UcxChat.{Repo, User, Account, Subscription, Channel, UserRole}
   alias Ecto.Multi
 
   require Logger
@@ -46,6 +46,10 @@ defmodule UcxChat.UserService do
     changeset = User.changeset(%User{}, Map.put(params, "account_id", id))
     case Repo.insert changeset do
       {:ok, user} ->
+        %UserRole{}
+        |> UserRole.changeset(%{user_id: user.id, role: "user"})
+        |> Repo.insert!
+
         unless opts[:join_default_channels] == false do
           (from c in Channel, where: c.default == true)
           |> Repo.all

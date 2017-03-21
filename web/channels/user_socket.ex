@@ -31,14 +31,18 @@ defmodule UcxChat.UserSocket do
     case Coherence.verify_user_token(socket, token, &assign/3) do
       {:error, _} -> :error
       {:ok, %{assigns: %{user_id: user_id}} = socket} ->
-        {user_id, username} = User.user_id_and_username(user_id) |> Repo.one
-        {
-          :ok,
-          socket
-          |> assign(:user_id, user_id)
-          |> assign(:username, username)
-          |> assign(:tz_offset, tz_offset)
-        }
+        case User.user_id_and_username(user_id) |> Repo.one do
+          nil ->
+            :error
+          {user_id, username} ->
+            {
+              :ok,
+              socket
+              |> assign(:user_id, user_id)
+              |> assign(:username, username)
+              |> assign(:tz_offset, tz_offset)
+            }
+        end
     end
   end
 

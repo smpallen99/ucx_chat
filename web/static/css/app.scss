@@ -32,3 +32,8 @@
 .back-to-login {
   padding-top: 8px;
 }
+textarea.input-message::placeholder {
+  color: #bbb;
+  font-weight: 400;
+  font-family: icons;
+}

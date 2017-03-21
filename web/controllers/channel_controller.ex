@@ -64,17 +64,22 @@ defmodule UcxChat.ChannelController do
   end
 
   def direct(conn, %{"name" => name}) do
-    user_id = Coherence.current_user(conn) |> Map.get(:id)
-    user_id
-    |> get_direct(name)
-    |> case do
+    case UcxChat.ServiceHelpers.get_by User, :username, name do
       nil ->
-        # create the direct and redirect
-        ChannelService.add_direct(name, user_id, nil)
-        direct = get_direct(user_id, name)
-        show(conn, direct.channel)
-      direct ->
-        show(conn, direct.channel)
+        redirect conn, to: "/"
+      _ ->
+        user_id = Coherence.current_user(conn) |> Map.get(:id)
+        user_id
+        |> get_direct(name)
+        |> case do
+          nil ->
+            # create the direct and redirect
+            ChannelService.add_direct(name, user_id, nil)
+            direct = get_direct(user_id, name)
+            show(conn, direct.channel)
+          direct ->
+            show(conn, direct.channel)
+        end
     end
   end
 

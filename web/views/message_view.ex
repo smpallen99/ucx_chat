@@ -149,12 +149,13 @@ defmodule UcxChat.MessageView do
     read_only = channel.read_only
     archived = channel.archived
     can_join = !(private or read_only or blocked or archived)
-
+    nm = chatd.active_room[:display_name]
+    symbol = if channel.type == 2, do: "@" <> nm, else: "#" <> nm
     settings =
       [
         blocked?: blocked, read_only?: read_only, archived?: archived,
         allowed_to_send?: !(blocked or read_only or archived),
-        can_join?: can_join, subscribed?: subscribed,
+        can_join?: can_join, subscribed?: subscribed, symbol: symbol
       ]
       |> Enum.into(defaults)
 
