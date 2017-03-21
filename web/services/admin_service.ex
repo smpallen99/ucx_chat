@@ -102,7 +102,7 @@ defmodule UcxChat.AdminService do
     debug ev, params
     assigns = socket.assigns
     current_user = Helpers.get_user!(assigns.user_id)
-    emails = emails |> String.trim |> String.split(" ", trim: true)
+    emails = emails |> String.trim |> String.replace("\n", " ") |> String.split(" ", trim: true)
     case send_invitation_emails(current_user, emails) do
       {:ok, emails} ->
         html =
@@ -303,6 +303,7 @@ defmodule UcxChat.AdminService do
   end
 
   def send_invitation_emails(_current_user, emails) do
+    Logger.warn "emails: #{inspect emails}"
     Enum.reject(emails, fn email ->
       email
       |> String.trim

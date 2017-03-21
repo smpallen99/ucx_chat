@@ -64,24 +64,43 @@ defmodule UcxChat.ChannelController do
   end
 
   def direct(conn, %{"name" => name}) do
-    case UcxChat.ServiceHelpers.get_by User, :username, name do
-      nil ->
-        redirect conn, to: "/"
-      _ ->
-        user_id = Coherence.current_user(conn) |> Map.get(:id)
-        user_id
-        |> get_direct(name)
-        |> case do
-          nil ->
-            # create the direct and redirect
-            ChannelService.add_direct(name, user_id, nil)
-            direct = get_direct(user_id, name)
-            show(conn, direct.channel)
-          direct ->
-            show(conn, direct.channel)
-        end
+    with user when not is_nil(user) <- UcxChat.ServiceHelpers.get_by(User, :username, name),
+         user_id <- Coherence.current_user(conn) |> Map.get(:id),
+         false <- user.id == user_id do
+      user_id
+      |> get_direct(name)
+      |> case do
+        nil ->
+          # create the direct and redirect
+          ChannelService.add_direct(name, user_id, nil)
+          direct = get_direct(user_id, name)
+          show(conn, direct.channel)
+        direct ->
+          show(conn, direct.channel)
+      end
+    else
+      _ -> redirect conn, to: "/"
     end
   end
+  # def direct(conn, %{"name" => name}) do
+  #   case UcxChat.ServiceHelpers.get_by User, :username, name do
+  #     nil ->
+  #       redirect conn, to: "/"
+  #     user ->
+  #       user_id = Coherence.current_user(conn) |> Map.get(:id)
+  #       user_id
+  #       |> get_direct(name)
+  #       |> case do
+  #         nil ->
+  #           # create the direct and redirect
+  #           ChannelService.add_direct(name, user_id, nil)
+  #           direct = get_direct(user_id, name)
+  #           show(conn, direct.channel)
+  #         direct ->
+  #           show(conn, direct.channel)
+  #       end
+  #   end
+  # end
 
   defp get_direct(user_id, name) do
     (from d in Direct,

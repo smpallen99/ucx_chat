@@ -525,12 +525,14 @@ defmodule UcxChat.UserChannel do
     socket
   end
 
-  defp clear_unreads(socket) do
+  defp clear_unreads(%{assigns: %{channel_id: channel_id}} = socket) do
     Channel
-    |> Helpers.get(socket.assigns.channel_id)
+    |> Helpers.get(channel_id)
     |> Map.get(:name)
     |> clear_unreads(socket)
   end
+  defp clear_unreads(socket), do: socket
+
 
   defp clear_unreads(room, %{assigns: assigns} = socket) do
     # Logger.warn "room: #{inspect room}, assigns: #{inspect assigns}"

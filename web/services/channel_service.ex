@@ -461,6 +461,7 @@ defmodule UcxChat.ChannelService do
     user_dest = Helpers.get_by(User, :username, username)
 
     name = user_orig.username <> "__" <> username
+    Logger.warn "name: #{inspect name}"
     channel = case Helpers.get_by(Channel, :name, name) do
       %Channel{} = channel ->
         channel
