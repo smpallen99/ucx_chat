@@ -8,7 +8,7 @@ defmodule UcxChat.UserChannel do
 
   alias Phoenix.Socket.Broadcast
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService}
-  alias UcxChat.{AccountView, Account, AdminService, FlexBarView, UserSocket}
+  alias UcxChat.{AccountView, Account, AdminService, FlexBarView, UserSocket, User}
   alias UcxChat.{ChannelService, SubscriptionService}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
@@ -205,12 +205,33 @@ defmodule UcxChat.UserChannel do
     {:reply, resp, socket}
   end
 
+  def handle_in("account:profile:save" = ev, params, socket) do
+    debug ev, params, "assigns: #{inspect socket.assigns}"
+    params =
+      params
+      |> Helpers.normalize_form_params
+      |> Map.get("user")
+    resp =
+      socket
+      |> Helpers.get_user!
+      |> User.changeset(params)
+      |> Repo.update
+      |> case do
+        {:ok, _account} ->
+          {:ok, %{success: ~g"Profile updated successfully"}}
+        {:error, cs} ->
+          Logger.error "cs.errors: #{inspect cs.errors}"
+          {:ok, %{error: ~g"There a problem updating your profile."}}
+      end
+    {:reply, resp, socket}
+  end
   @links ~w(preferences profile)
   def handle_in(ev = "account_link:click:" <> link, params, socket) when link in @links do
     debug ev, params
     user = Helpers.get_user(socket.assigns.user_id)
+    user_cs = User.changeset(user, %{})
     account_cs = Account.changeset(user.account, %{})
-    html = Helpers.render(AccountView, "account_#{link}.html", user: user, account_changeset: account_cs)
+    html = Helpers.render(AccountView, "account_#{link}.html", user: user, account_changeset: account_cs, user_changeset: user_cs)
     push socket, "code:update", %{html: html, selector: ".main-content", action: "html"}
     {:noreply, socket}
   end
@@ -262,11 +283,15 @@ defmodule UcxChat.UserChannel do
   def handle_in(ev = "get:currentMessage", params, %{assigns: assigns} = socket) do
     debug ev, params
     channel = Helpers.get_by Channel, :name, params["room"]
-    res = case SubscriptionService.get channel.id, assigns.user_id, :current_message do
-      :error -> {:error, %{}}
-      value -> {:ok, %{value: value}}
+    if channel do
+      res = case SubscriptionService.get channel.id, assigns.user_id, :current_message do
+        :error -> {:error, %{}}
+        value -> {:ok, %{value: value}}
+      end
+      {:reply, res, socket}
+    else
+      {:noreply, socket}
     end
-    {:reply, res, socket}
   end
   def handle_in(ev = "last_read", params, %{assigns: assigns} = socket) do
     debug ev, params
@@ -516,7 +541,7 @@ defmodule UcxChat.UserChannel do
 
   defp update_has_unread(%{id: channel_id, name: room}, %{assigns: assigns} = socket) do
     has_unread = ChannelService.get_has_unread(channel_id, assigns.user_id)
-    Logger.warn "has_unread: #{inspect has_unread}"
+    # Logger.warn "has_unread: #{inspect has_unread}"
     unless has_unread do
       ChannelService.set_has_unread(channel_id, assigns.user_id, true)
       push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-unread", action: "addClass"}

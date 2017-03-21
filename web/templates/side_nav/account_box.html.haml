@@ -9,7 +9,8 @@
         %h4
           - id = @chatd.user.id
           = get_user_name(@chatd.user)
-          = " (#{id})"
+          - if Application.get_env :ucx_chat, :debug do
+            = " (#{id})"
   %nav.options.primary-background-color.animated-hidden
     .wrapper
       %button.status.online(data-status="online")

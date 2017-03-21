@@ -3,7 +3,6 @@ defmodule UcxChat.HomeController do
   require Logger
   alias UcxChat.{ChatDat}
   alias UcxChat.ServiceHelpers, as: Helpers
-  import Ecto.Query
 
   def index(conn, _params) do
     user = Helpers.get_user!(Coherence.current_user(conn) |> Map.get(:id))

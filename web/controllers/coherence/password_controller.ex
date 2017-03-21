@@ -17,12 +17,18 @@ defmodule UcxChat.Coherence.PasswordController do
   alias Coherence.ControllerHelpers, as: Helpers
   alias Coherence.TrackableService
 
-  plug :layout_view
+  plug :set_layout_view
   plug :redirect_logged_in when action in [:new, :create, :edit, :update]
 
   @type schema :: Ecto.Schema.t
   @type conn :: Plug.Conn.t
   @type params :: Map.t
+
+  def set_layout_view(conn, _ \\ []) do
+    conn
+    |> put_view(Coherence.PasswordView)
+    |> put_layout({Coherence.LayoutView, "app.html"})
+  end
 
   @doc """
   Render the recover password form.

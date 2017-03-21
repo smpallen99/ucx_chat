@@ -24,7 +24,7 @@ defmodule UcxChat.Account do
     field :new_message_notification, :string, default: "chime"
     field :chat_mode, :boolean, default: false
 
-    has_one :user, UcxChat.User
+    has_one :user, UcxChat.User, on_delete: :delete_all
 
     timestamps()
   end

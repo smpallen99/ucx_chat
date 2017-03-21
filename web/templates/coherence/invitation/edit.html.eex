@@ -1,6 +1,6 @@
 <br \>
-
-<%= form_for @changeset, invitation_path(@conn, :create_user), fn f  -> %>
+<% require Logger %>
+<%= form_for @changeset, invitation_path(@conn, :create_user), [id: "login-card", class: "content-background-color color-primary-font-color"], fn f  -> %>
 
   <%= if @changeset.action do %>
     <div class="alert alert-danger">
@@ -10,40 +10,54 @@
 
   <input type="hidden" name="token" value="<%= @token %>">
 
-  <div class="form-group">
-    <%= required_label f, :name, class: "control-label" %>
-    <%= text_input f, :name, class: "form-control", required: "" %>
-    <%= error_tag f, :name %>
-  </div>
-
-  <%= unless (login_field = Coherence.Config.login_field) == :email do %>
-    <div class="form-group">
-      <%= required_label f, login_field, class: "control-label" %>
-      <%= text_input f, login_field, class: "form-control", required: "" %>
-      <%= error_tag f, login_field %>
+  <div class="fields">
+    <center><strong>Register your account</strong></center>
+    <div class="input-line">
+      <%= required_label f, :name, class: "control-label" %>
+      <%= text_input f, :name, class: "form-control", required: "" %>
+      <%= error_tag f, :name %>
     </div>
-  <% end %>
 
-  <div class="form-group">
-    <%= required_label f, :email, class: "control-label" %>
-    <%= text_input f, :email, class: "form-control", required: "" %>
-    <%= error_tag f, :email %>
+    <%= unless (login_field = Coherence.Config.login_field) == :email do %>
+      <div class="input-line">
+        <%= required_label f, login_field, class: "control-label" %>
+        <%= text_input f, login_field, class: "form-control", required: "" %>
+        <%= error_tag f, login_field %>
+      </div>
+    <% end %>
+
+    <div class="input-line">
+      <%= required_label f, :email, class: "control-label" %>
+      <%= text_input f, :email, class: "form-control", required: "" %>
+      <%= error_tag f, :email %>
+    </div>
+
+    <div class="input-line">
+      <%= required_label f, :password, class: "control-label" %>
+      <%= password_input f, :password, class: "form-control", required: "" %>
+      <%= error_tag f, :password %>
+    </div>
+
+    <div class="input-line">
+      <%= required_label f, :password_confirmation, class: "control-label" %>
+      <%= password_input f, :password_confirmation, class: "form-control", required: "" %>
+      <%= error_tag f, :password_confirmation %>
+    </div>
   </div>
 
-  <div class="form-group">
-    <%= required_label f, :password, class: "control-label" %>
-    <%= password_input f, :password, class: "form-control", required: "" %>
-    <%= error_tag f, :password %>
-  </div>
 
-  <div class="form-group">
-    <%= required_label f, :password_confirmation, class: "control-label" %>
-    <%= password_input f, :password_confirmation, class: "form-control", required: "" %>
-    <%= error_tag f, :password_confirmation %>
   </div>
-
-  <div class="form-group">
-    <%= submit "Create", class: "btn btn-primary" %>
-    <%= link "Cancel", to: Coherence.Config.logged_out_url("/"), class: "btn" %>
+  <div class="submit">
+    <button data-loading-text="<%= ~g(Please wait...) %>" class="button primary login"><span><%= ~g(Register Account) %></span></button>
+  </div>
+  <div>
+    <button type="button" class="back-to-login"><%= ~g(Cancel) %></button>
   </div>
 <% end %>
+<script>
+  $(document).ready(function() {
+    $('body').on('click', 'button.back-to-login', function(e) {
+      window.location = '/'
+    })
+  })
+</script>

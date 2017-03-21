@@ -4,49 +4,64 @@
     %h2
       %span.room-title Profile
   .content
-    .rocket-form
-      %fieldset
-        .input-line
-          %label(for="realname") Name
-          %div
-            %input(type="text" name="realname" id="realname" value="{{realname}}")
-        .input-line
-          %label(for="username") Username
-          %div
-          -if allow_username_change() do
-            %input(type="text" name="username" id="username" value="{{username}}")
-          - else
-            %input(type="text" name="username" id="username" value="{{username}}" readonly="readonly" title="username Change Disabled")
-        .input-line
-          %label(for="email") Email
-          %div
-          -if email_verified() do
-            .right
-              %i.icon-ok.success-color(title="Email verified")
-          -if allow_email_change() do
-            %input(type="email" name="email" id="email" value="{{email}}")
-          - else
-            %input(type="email" name="email" id="email" value="{{email}}" readonly="readonly" title="emailChangeDisabled")
-          - unless email_verified() do
-            .text-right
-              %button.button#resend-verification-email  Resend verification email
-        .input-line
-          %label(for="password") New password
-          %div
-            -if allow_password_change() do
-              %input(type="password" name="password" id="password")
+    - form_for @user_changeset, "#", [id: "account-profile-form"], fn f ->
+      .rocket-form
+        %fieldset
+          .input-line
+            %label(for="realname") Name
+            %div
+              = text_input f, :name
+              -# %input(type="text" name="realname" id="realname" value="#{@user.name}")
+          .input-line
+            %label(for="username") Username
+            %div
+            -if allow_username_change() do
+              = text_input f, :username
+              -# %input(type="text" name="username" id="username" value="#{@user.username}")
             - else
-              %input(type="password" name="password" id="password" disabled readonly="readonly" title="passwordChangeDisabled" placeholder="passwordChangeDisabled")
-      %fieldset
-        - #{{> customFieldsForm hideFromForm=false formData=customFields}}
-      .submit
-        %button.button.primary.send
-          %i.icon-send
-          %span Save changes
-      .logoutOthers
-        %button.button.logout Logout Others
-      - if allow_delete_own_account() do
-        .delete-account.text-right
-          %button.button.danger.delete
-            %i.icon-trash
-            %span Delete my account
+              = text_input f, :username, title: "username Change Disabled", readonly: "readonly"
+              -# %input(type="text" name="username" id="username" value="#{@user.username}" readonly="readonly" title="username Change Disabled")
+          .input-line
+            %label(for="email") Email
+            %div
+            -if email_verified() do
+              .right
+                %i.icon-ok.success-color(title="Email verified")
+            -if allow_email_change() do
+              = text_input f, :email, type: :email
+              -# %input(type="email" name="email" id="email" value="#{@user.email}")
+            - else
+              = text_input f, :email, type: :email, title: "emailChangeDisabled", readonly: :readonly
+              -# %input(type="email" name="email" id="email" value="#{@user.email}" readonly="readonly" title="emailChangeDisabled")
+            - unless email_verified() do
+              .text-right
+                %button.button#resend-verification-email  Resend verification email
+          .input-line
+            %label(for="password") New password
+            %div
+              -if allow_password_change() do
+                = text_input f, :password, type: :password
+                -# %input(type="password" name="password" id="password")
+              - else
+                = text_input f, :password, type: :password, disabled: true, readonly: :readonly, title: "passwordChangeDisabled", placeholder: "passwordChangeDisabled"
+                -# %input(type="password" name="password" id="password" disabled readonly="readonly" title="passwordChangeDisabled" placeholder="passwordChangeDisabled")
+          .input-line
+            %label(for="password_confirmation") Password Confirmation
+            %div
+              -if allow_password_change() do
+                = text_input f, :password_confirmation, type: :password
+                - #%input(type="password" name="password_confirmation" id="password_confirmation")
+              - else
+                = text_input f, :password_confirmatin, type: :password, disabled: true, readonly: :readonly, title: "passwordChangeDisabled", placeholder: "passwordChangeDisabled"
+                -# %input(type="password" name="password_confirmation" id="password_confirmation" disabled readonly="readonly" title="passwordChangeDisabled" placeholder="passwordChangeDisabled")
+        %fieldset
+          - #{{> customFieldsForm hideFromForm=false formData=customFields}}
+        .submit
+          %button.button.primary.send
+            %i.icon-send
+            %span Save changes
+        - if allow_delete_own_account() do
+          .delete-account.text-right
+            %button.button.danger.delete
+              %i.icon-trash
+              %span Delete my account

@@ -108,9 +108,9 @@ defmodule UcxChat.RoomChannelController do
   @commands ~w(join)
   @command_list Enum.zip(@commands, ~w(join)a) |> Enum.into(%{})
 
-  def command(socket, %{"command" => command, "username" => username}) when command in @commands do
-    Logger.warn "RoomChannelController: item: #{inspect @command_list[command]}, command: #{command}, username: #{inspect username}, socket: #{inspect socket}"
-    user = Helpers.get_by! User, :username, username
+  def command(socket, %{"command" => command, "username" => _username}) when command in @commands do
+    # Logger.warn "RoomChannelController: item: #{inspect @command_list[command]}, command: #{command}, username: #{inspect username}, socket: #{inspect socket}"
+    # user = Helpers.get_by! User, :username, username
 
     # resp = case ChannelService.user_command(:unmute, user, socket.assigns.user_id, socket.assigns.channel_id) do
     resp = case ChannelService.channel_command(socket, @command_list[command], socket.assigns.room, socket.assigns.user_id, socket.assigns.channel_id) do

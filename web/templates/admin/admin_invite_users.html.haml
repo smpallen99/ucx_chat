@@ -1,0 +1,20 @@
+- if has_permission? @user, "view-user-administration" do
+  .content
+    .user-view.invite-users
+      .about.clearfix
+        %form.edit-form
+          %h3= ~g(Send invitation email)
+          .input-line
+            %label(for="inviteEmails")= ~g(You can send multiple email invitations at once.)
+            <textarea class="content-background-color" id="inviteEmails" rows="3" style="height: auto"><%= @error_emails %></textarea>
+      %nav
+        %button.button.button-block.cancel
+          %span= ~g(Cancel)
+        %button.button.button-block.primary.send(data-loading-text="#{~g(Please_wait)}")
+          %span= ~g(Send)
+      - if length(@invite_emails) > 0 do
+        .about.clearfix(style="margin-top: 30px")
+        %p(style="color: #51a351")= ~g(You have successfully sent an invitation email to the following addresses:)
+        %ul(style="margin: 5px 10px")
+          - for email <- @invite_emails do
+            %li(style="margin-top: 5px")= email

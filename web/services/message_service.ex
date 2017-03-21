@@ -323,7 +323,7 @@ defmodule UcxChat.MessageService do
     |> Repo.update!
   end
 
-  def update_direct_notices(%{type: 2, id: id} = channel, %{user_id: user_id} = message) do
+  def update_direct_notices(%{type: 2, id: id}, %{user_id: user_id}) do
     Subscription
     |> where([s], s.channel_id == ^id and s.user_id != ^user_id)
     |> Repo.all

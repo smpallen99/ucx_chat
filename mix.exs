@@ -54,6 +54,7 @@ defmodule UcxChat.Mixfile do
      {:excoveralls, "~> 0.5.1", only: :test, app: false},
      {:faker_elixir_octopus, "~> 0.12.0", only: [:dev, :test]},
      {:hound, "~> 1.0"},
+     {:distillery, "~> 1.2"},
      {:cowboy, "~> 1.0", override: true}]
   end
 

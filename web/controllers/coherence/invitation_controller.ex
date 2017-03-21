@@ -19,7 +19,13 @@ defmodule UcxChat.Coherence.InvitationController do
 
   plug Coherence.ValidateOption, :invitable
   plug :scrub_params, "user" when action in [:create_user]
-  plug :layout_view
+  plug :set_layout_view
+
+  def set_layout_view(conn, _ \\ []) do
+    conn
+    |> put_view(Coherence.InvitationView)
+    |> put_layout({Coherence.LayoutView, "app.html"})
+  end
 
   @type schema :: Ecto.Schema.t
   @type conn :: Plug.Conn.t
@@ -119,15 +125,16 @@ defmodule UcxChat.Coherence.InvitationController do
         |> put_flash(:error, "Invalid Invitation. Please contact the site administrator.")
         |> redirect(to: logged_out_url(conn))
       invite ->
-        changeset = Helpers.changeset(:invitation, user_schema, user_schema.__struct__, params["user"])
-        case repo.insert changeset do
+        case UcxChat.UserService.insert_user(params["user"]) do
           {:ok, user} ->
+            # Logger.warn "user: #{inspect user}"
             repo.delete invite
             conn
             |> send_confirmation(user, user_schema)
             |> redirect(to: logged_out_url(conn))
-          {:error, changeset} ->
-            render conn, "edit.html", changeset: changeset, token: token
+          {:error, :user, error, _} ->
+            # Logger.warn "error: #{inspect error}"
+            render conn, "edit.html", changeset: error, token: token
         end
     end
   end

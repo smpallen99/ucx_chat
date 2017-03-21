@@ -253,7 +253,8 @@ class RoomHistoryManager {
   }
   bottom_message_ts() {
     let cm = this.get_bottom_message()
-    return cm.getAttribute('data-timestamp')
+    if (cm)
+      return cm.getAttribute('data-timestamp')
   }
 
   startGetMoreAnimation() {

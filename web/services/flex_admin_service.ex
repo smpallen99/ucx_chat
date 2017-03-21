@@ -4,7 +4,7 @@ defmodule UcxChat.FlexAdminService do
 
   def default_settings("user") do
     [
-      %{title: ~g"Invite Users", icon: "paper-plane", display: "", templ: ""},
+      %{title: ~g"Invite Users", icon: "paper-plane", display: "", templ: "admin_invite_users.html"},
       %{title: ~g"Add User", icon: "plus", display: "", templ: ""},
       %{title: ~g"User Info", icon: "user", display: "", templ: "user_card.html"},
     ]
@@ -38,7 +38,7 @@ defmodule UcxChat.FlexAdminService do
 
     # user = Helpers.get_user_by_name(direct.users, [:roles, :account])
     # user_info = user_info(channel, direct: true)
-    [user: user, current_user: current_user, channel_id: 0]
+    [user: user, current_user: current_user, channel_id: 0, invite_email: []]
   end
 
   # def user_info(opts \\ []) do

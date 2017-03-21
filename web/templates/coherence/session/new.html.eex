@@ -71,5 +71,11 @@
 <script>
   $(document).ready(function() {
     $('#tz-offset').val(`${new Date().getTimezoneOffset() / -60}`)
+    $('body').on('click', 'button.register', function(e) {
+      window.location = "/register/new"
+    })
+    $('body').on('click', 'button.forgot-password', function(e) {
+      window.location = '/passwords/new'
+    })
   })
 </script>

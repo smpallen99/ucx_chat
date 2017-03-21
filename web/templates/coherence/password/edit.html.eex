@@ -1,25 +1,34 @@
 <br \>
 
-<h3>Create a New Password</h3>
-
-<%= form_for @changeset, password_path(@conn, :update, @changeset.data), [as: :password], fn f  -> %>
+<%= form_for @changeset, password_path(@conn, :update, @changeset.data), [id: "login-card", as: :password, class: "content-background-color color-primary-font-color"], fn f  -> %>
 
   <%= hidden_input f, :reset_password_token %>
 
-  <div class="form-group">
-    <%= required_label f, :password, class: "control-label" %>
-    <%= password_input f, :password, class: "form-control", required: "" %>
-    <%= error_tag f, :password %>
+  <div class="fields">
+    <div class="input-line">
+      <%= required_label f, :password, class: "control-label" %>
+      <%= password_input f, :password, class: "form-control", required: "" %>
+      <%= error_tag f, :password %>
+    </div>
+
+    <div class="input-line">
+      <%= required_label f, :password_confirmation, class: "control-label" %>
+      <%= password_input f, :password_confirmation, class: "form-control", required: "" %>
+      <%= error_tag f, :password_confirmation %>
+    </div>
   </div>
 
-  <div class="form-group">
-    <%= required_label f, :password_confirmation, class: "control-label" %>
-    <%= password_input f, :password_confirmation, class: "form-control", required: "" %>
-    <%= error_tag f, :password_confirmation %>
+  <div class="submit">
+    <button data-loading-text="<%= ~g(Please wait...) %>" class="button primary login"><span><%= ~g(Update password) %></span></button>
   </div>
-
-  <div class="form-group">
-    <%= submit "Update Password", class: "btn btn-primary" %>
-    <%= link "Cancel", to: Coherence.Config.logged_out_url("/"), class: "btn" %>
+  <div>
+    <button type="button" class="back-to-login"><%= ~g(Cancel) %></button>
   </div>
 <% end %>
+<script>
+  $(document).ready(function() {
+    $('body').on('click', 'button.back-to-login', function(e) {
+      window.location = '/'
+    })
+  })
+</script>

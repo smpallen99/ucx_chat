@@ -149,6 +149,17 @@ class SideNav {
           }
         })
     })
+    .on('submit', '#account-profile-form', e => {
+      e.preventDefault()
+      userchan.push('account:profile:save', $(e.currentTarget).serializeArray())
+        .receive("ok", resp => {
+          if (resp.success) {
+            toastr.success(resp.success)
+          } else if (resp.error) {
+            toastr.error(resp.error)
+          }
+        })
+    })
     .on('click', 'button.more-channels', e =>  {
       e.preventDefault()
       this.more_channels()

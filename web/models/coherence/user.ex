@@ -50,6 +50,10 @@ defmodule UcxChat.User do
     |> cast_assoc(:roles)
   end
 
+  def changeset(model, params, _) do
+    changeset model, params
+  end
+
   def total_count do
     from u in @mod, select: count(u.id)
   end
