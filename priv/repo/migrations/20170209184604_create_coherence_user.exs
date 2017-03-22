@@ -7,6 +7,7 @@ defmodule UcxChat.Repo.Migrations.CreateCoherenceUser do
 
       add :username, :string
       add :alias, :string
+      add :avatar_url, :string
 
       # add :admin, :boolean, default: false
 

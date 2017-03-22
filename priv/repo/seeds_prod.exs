@@ -37,10 +37,14 @@ end
 create_user = fn name, email, password, admin ->
   username = create_username.(name)
   account = %Account{} |> Account.changeset(%{}) |> Repo.insert!
+  params = %{
+    username: username, account_id: account.id, name: name, email: email,
+    password: password, password_confirmation: password
+  }
+  params = if admin == :bot, do: Map.put(params, :avatar_url, "/images/hubot.png"), else: params
   user =
     %User{}
-    |> User.changeset(%{username: username, account_id: account.id, name: name, email: email,
-        password: password, password_confirmation: password})
+    |> User.changeset(params)
     |> Repo.insert!
   role_name = case admin do
     true -> "admin"

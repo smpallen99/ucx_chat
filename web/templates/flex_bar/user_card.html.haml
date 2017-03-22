@@ -6,7 +6,10 @@
     .about.clearfix
       .thumb
         .avatar
-          .avatar-image(style='background-image:url(/avatar/#{@user.username});')
+          - if @user.avatar_url do
+            .avatar-image(style='background-image:url(#{@user.avatar_url});')
+          - else
+            .avatar-image(style='background-image:url(/avatar/#{@user.username});')
       .info
         %h3(title="#{@user.username}")
           %i(class="status-#{@user.status}" data-status-name="#{@user.username}")

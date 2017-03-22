@@ -7,7 +7,10 @@
     - else
       %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
         .avatar
-          .avatar-image(style='background-image:url(/avatar/#{username});')
+          - if @user.avatar_url do
+            .avatar-image(style='background-image:url(#{@user.avatar_url});')
+          - else
+            .avatar-image(style='background-image:url(/avatar/#{username});')
   - else
     - if emoji = emoji(@message) do
       %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
@@ -16,7 +19,10 @@
     - else
       %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
         .avatar
-          .avatar-image(style='background-image:url(/avatar/#{username});')
+          - if @user.avatar_url do
+            .avatar-image(style='background-image:url(#{@user.avatar_url});')
+          - else
+            .avatar-image(style='background-image:url(/avatar/#{username});')
   - if alias? = alias?(@message) do
     %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{username}" tabindex="1")
       = alias?
@@ -37,7 +43,10 @@
         %i.icon-edit(aria-label="Edited")
         %button.thumb.thumb-small.user-card-message(data-username="#{edited[:edited_by]}" tabindex="1")
           .avatar
-            .avatar-image(style='background-image:url(/avatar/#{username});')
+            - if @user.avatar_url do
+              .avatar-image(style='background-image:url(#{@user.avatar_url});')
+            - else
+              .avatar-image(style='background-image:url(/avatar/#{username});')
     - if is_private(@message) do
       %span.private Only you can see this message
     %div(class="message-cog-container #{hide_cog(@message)}")

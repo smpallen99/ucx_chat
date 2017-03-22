@@ -42,7 +42,8 @@
                 <td class="border-component-color">
                   <div class="user-image status-<%= get_status(user) %>" data-status-name="<%= user.username %>">
                     <div class="avatar">
-                      <div class="avatar-image" style="background-image:url(/avatar/<%= user.username %>);"></div>
+                      <% avatar = if user.avatar_url, do: user.avatar_url, else: "/avatar/#{user.username}" %>
+                      <div class="avatar-image" style="background-image:url(<%= avatar %>);"></div>
                     </div>
                   </div>
                 </td>

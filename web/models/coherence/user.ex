@@ -10,6 +10,7 @@ defmodule UcxChat.User do
     field :name, :string
     field :email, :string
     field :username, :string
+    field :avatar_url, :string
     # field :admin, :boolean, default: false
     field :tz_offset, :integer
     field :alias, :string
@@ -35,7 +36,7 @@ defmodule UcxChat.User do
     timestamps()
   end
 
-  @all_params ~w(name email username account_id tz_offset alias chat_status tag_line uri open_id active)a
+  @all_params ~w(name email username account_id tz_offset alias chat_status tag_line uri open_id active avatar_url)a
   @required  ~w(name email username account_id)a
 
   def changeset(model, params \\ %{}) do
