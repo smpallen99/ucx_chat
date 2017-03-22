@@ -41,7 +41,6 @@ defmodule UcxChat.FlexBarService do
   end
 
   def handle_in(ev = "notifications_form:edit", params, socket) do
-    Logger.warn "#{ev} params: #{inspect params}"
     args = [notification: socket.assigns.notification, editing: params["field"]]
     html =
       "notifications.html"
@@ -51,7 +50,6 @@ defmodule UcxChat.FlexBarService do
   end
 
   def handle_in(ev = "notifications_form:cancel", params, socket) do
-    Logger.warn "#{ev} params: #{inspect params}"
     html =
       "notifications.html"
       |> FlexBarView.render([notification: socket.assigns.notification, editing: ""])
@@ -61,7 +59,6 @@ defmodule UcxChat.FlexBarService do
   end
 
   def handle_in(ev = "notifications_form:save", params, socket) do
-    Logger.warn "#{ev} params: #{inspect params}"
     notify = socket.assigns.notification
     params =
       params
@@ -71,6 +68,7 @@ defmodule UcxChat.FlexBarService do
       end)
     case AccountService.update_notification notify, params do
       {:ok, notify} ->
+        Phoenix.Channel.push(socket, "toastr:success", %{message: ~g(Setting was successfully updated.)})
         html =
           "notifications.html"
           |> FlexBarView.render([notification: notify, editing: ""])
@@ -78,12 +76,11 @@ defmodule UcxChat.FlexBarService do
         {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, nil) |> assign(:notification, notify)}
       {:error, cs} ->
         Logger.warn "error cs: #{inspect cs}"
-        {:noreply, socket}
+        {:reply, {:error, %{error: ~g(There was a problem updating that setting)}}, socket}
     end
   end
 
   def handle_flex_callback(:open, _ch, "Notifications" = tab, nil, socket, _params) do
-    Logger.warn "flex callback open0 tab: #{inspect tab}"
     user_id = socket.assigns[:user_id]
     channel_id = socket.assigns[:channel_id]
     case default_settings()[String.to_atom(tab)][:templ] do
@@ -98,7 +95,6 @@ defmodule UcxChat.FlexBarService do
     end
   end
   def handle_flex_callback(:open, _ch, tab, nil, socket, _params) do
-    Logger.warn "flex callback open1 tab: #{inspect tab}"
     user_id = socket.assigns[:user_id]
     channel_id = socket.assigns[:channel_id]
     case default_settings()[String.to_atom(tab)][:templ] do
@@ -112,9 +108,6 @@ defmodule UcxChat.FlexBarService do
     end
   end
   def handle_flex_callback(:open, _ch, tab, args, socket, _params) do
-    Logger.warn "flex callback open2 tab: #{inspect tab}"
-    # require IEx
-    # IEx.pry
     user_id = socket.assigns[:user_id]
     channel_id = socket.assigns[:channel_id]
     case default_settings()[String.to_atom(tab)][:templ] do
@@ -286,7 +279,6 @@ defmodule UcxChat.FlexBarService do
         notification -> notification
       end
 
-    # Logger.warn "account: #{inspect account}"
     [notification: notification, editing: nil]
   end
 

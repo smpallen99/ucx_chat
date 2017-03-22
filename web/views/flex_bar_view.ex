@@ -98,6 +98,19 @@ defmodule UcxChat.FlexBarView do
     end
   end
 
+  def radio_tag(schema, field, id, text, opts \\ []) do
+    name = opts[:name] || field
+    checked = if Map.get(schema, field) == id, do: [checked: :true], else: []
+    content_tag :label do
+      [
+        tag(:input, [type: :radio, name: name, value: id] ++ checked),
+        text
+      ]
+    end
+  end
+              #   = radio_tag(settings, :desktop, id, text)
+              # %label
+              #   %input(type="radio" name="desktopNotifications" value="all" checked="{{$eq desktopNotifications 'all'}}")= ~g"All_messages"
   # def notification_radio_group(data, field, option) do
   #   settings = data[:settings]
   #   checked = if []

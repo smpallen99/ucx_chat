@@ -18,9 +18,9 @@ defmodule UcxChat.AccountService do
   end
 
   def update_notification(notification, params) do
-    cs = Notification.changeset(notification, params)
-    Logger.warn "cs: #{inspect cs}, params: #{inspect params}"
-    Repo.update cs
+    notification
+    |> Notification.changeset(params)
+    |> Repo.update
   end
 
 end
