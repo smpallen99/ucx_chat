@@ -1,9 +1,11 @@
 defmodule UcxChat.FlexBarService do
   # import Ecto.Query
   use UcxChat.Web, :service
+  import UcxChat.UserChannel
+  import Phoenix.Socket, only: [assign: 3]
 
   alias UcxChat.{Repo, FlexBarView, User, Mention, StaredMessage, PinnedMessage,
-    UserAgent, Permission, Direct, Channel}
+    UserAgent, Permission, Direct, Channel, Notification, AccountService}
   # alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -38,7 +40,65 @@ defmodule UcxChat.FlexBarService do
     {:reply, {:ok, %{html: html, selector: ".list-view ul.lines", action: "append"}}, socket}
   end
 
+  def handle_in(ev = "notifications_form:edit", params, socket) do
+    Logger.warn "#{ev} params: #{inspect params}"
+    args = [notification: socket.assigns.notification, editing: params["field"]]
+    html =
+      "notifications.html"
+      |> FlexBarView.render(args)
+      |> Phoenix.HTML.safe_to_string
+    {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, params["field"])}
+  end
+
+  def handle_in(ev = "notifications_form:cancel", params, socket) do
+    Logger.warn "#{ev} params: #{inspect params}"
+    html =
+      "notifications.html"
+      |> FlexBarView.render([notification: socket.assigns.notification, editing: ""])
+      |> Phoenix.HTML.safe_to_string
+
+    {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, nil)}
+  end
+
+  def handle_in(ev = "notifications_form:save", params, socket) do
+    Logger.warn "#{ev} params: #{inspect params}"
+    notify = socket.assigns.notification
+    params =
+      params
+      |> Enum.reduce(%{"settings" => %{"id" => notify.settings.id}}, fn %{"name" => name, "value" => value}, acc ->
+        "notification[settings][" <> name = name
+        put_in acc, ["settings", String.replace(name, "]", "")], value
+      end)
+    case AccountService.update_notification notify, params do
+      {:ok, notify} ->
+        html =
+          "notifications.html"
+          |> FlexBarView.render([notification: notify, editing: ""])
+          |> Phoenix.HTML.safe_to_string
+        {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, nil) |> assign(:notification, notify)}
+      {:error, cs} ->
+        Logger.warn "error cs: #{inspect cs}"
+        {:noreply, socket}
+    end
+  end
+
+  def handle_flex_callback(:open, _ch, "Notifications" = tab, nil, socket, _params) do
+    Logger.warn "flex callback open0 tab: #{inspect tab}"
+    user_id = socket.assigns[:user_id]
+    channel_id = socket.assigns[:channel_id]
+    case default_settings()[String.to_atom(tab)][:templ] do
+      nil -> %{}
+      templ ->
+        [{:notification, notify} | _] = args = get_render_args(tab, user_id, channel_id, nil)
+        html =
+          templ
+          |> FlexBarView.render(args)
+          |> Phoenix.HTML.safe_to_string
+        %{html: html, notification: notify}
+    end
+  end
   def handle_flex_callback(:open, _ch, tab, nil, socket, _params) do
+    Logger.warn "flex callback open1 tab: #{inspect tab}"
     user_id = socket.assigns[:user_id]
     channel_id = socket.assigns[:channel_id]
     case default_settings()[String.to_atom(tab)][:templ] do
@@ -52,6 +112,7 @@ defmodule UcxChat.FlexBarService do
     end
   end
   def handle_flex_callback(:open, _ch, tab, args, socket, _params) do
+    Logger.warn "flex callback open2 tab: #{inspect tab}"
     # require IEx
     # IEx.pry
     user_id = socket.assigns[:user_id]
@@ -212,6 +273,21 @@ defmodule UcxChat.FlexBarService do
     current_user = Helpers.get_user! user_id
     channel = Helpers.get_channel(channel_id)
     [channel: settings_form_fields(channel, user_id), current_user: current_user, channel_type: channel.type]
+  end
+
+  def get_render_args("Notifications", user_id, channel_id, _, _)  do
+    current_user = Helpers.get_user! user_id
+    notification =
+      current_user.account
+      |> Notification.get_notification(channel_id)
+      |> Repo.one
+      |> case do
+        nil -> AccountService.new_notification(current_user.account.id, channel_id)
+        notification -> notification
+      end
+
+    # Logger.warn "account: #{inspect account}"
+    [notification: notification, editing: nil]
   end
 
   def get_render_args("User Info", user_id, channel_id, _, _)  do
@@ -394,7 +470,7 @@ defmodule UcxChat.FlexBarService do
           ]
         }
        },
-      "Notifications": %{},
+      "Notifications": %{templ: "notifications.html", args: %{}},
       "Files List": %{},
       "Mentions": %{templ: "mentions.html", args: %{} },
       "Stared Messages": %{templ: "stared_messages.html", args: %{}},

@@ -25,6 +25,7 @@ defmodule UcxChat.Account do
     field :chat_mode, :boolean, default: false
 
     has_one :user, UcxChat.User, on_delete: :delete_all
+    many_to_many :notifications, UcxChat.Notification, join_through: UcxChat.AccountNotification
 
     timestamps()
   end
@@ -44,4 +45,5 @@ defmodule UcxChat.Account do
     |> cast(params, @fields)
     |> validate_required([])
   end
+
 end

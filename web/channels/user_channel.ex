@@ -308,6 +308,11 @@ defmodule UcxChat.UserChannel do
     end
   end
 
+  def handle_in(ev = "notifications_form:" <> _action, params, %{assigns: assigns} = socket) do
+    debug ev, params, inspect(assigns)
+    FlexBarService.handle_in(ev, params, socket)
+  end
+
   # default unknown handler
   def handle_in(event, params, socket) do
     Logger.warn "UserChannel.handle_in unknown event: #{inspect event}, params: #{inspect params}"
@@ -453,6 +458,19 @@ defmodule UcxChat.UserChannel do
     else
       {:noreply, socket}
     end
+  end
+
+  def handle_info({:flex, :open, ch, "Notifications" = tab, nil, params} = msg, socket) do
+    debug inspect(msg), "Notifications"
+    {resp, socket} =
+      case FlexBarService.handle_flex_callback(:open, ch, tab, nil, socket, params) do
+        %{notification: notify} = resp ->
+          {Map.delete(resp, :notification), assign(socket, :notification, notify)}
+        resp ->
+          {resp, socket}
+      end
+    push socket, "flex:open", Enum.into([title: tab], resp)
+    {:noreply, socket}
   end
 
   def handle_info({:flex, :open, ch, tab, nil, params} = msg, socket) do

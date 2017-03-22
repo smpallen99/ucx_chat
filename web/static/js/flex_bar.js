@@ -32,7 +32,7 @@ const default_settings = {
       ]
     }
    },
-  "Notifications": {},
+  "Notifications": { args: {templ: "notifications.html"}},
   "Files List": {},
   "Mentions": { args: {templ: "mentions.html"} },
   "Stared Messages": { args: {templ: "stared_messages.html"}},

@@ -20,6 +20,8 @@ defmodule UcxChat.Channel do
     has_many :users, through: [:subscriptions, :user], on_delete: :nilify_all
     has_many :stared_messages, UcxChat.StaredMessage
     has_many :messages, UcxChat.Message
+    has_many :notifications, UcxChat.Notification
+
     belongs_to :owner, UcxChat.User, foreign_key: :user_id
 
     timestamps(type: :utc_datetime)

@@ -1,0 +1,22 @@
+- settings = @notification.settings
+- import UcxChat.NotificationSetting, only: [options: 1, option_text: 2]
+.content.notifications
+  .list-view.push-notifications
+    .title
+      %h2= ~g"Notifications"
+    %form
+      %ul.list.clearfix
+        %li
+          %label= ~g"Audio"
+          %div
+            - if @editing == "audio" do
+              %label
+                %select.audio(name="notification[settings][audio]")
+                  - for {id, text} <- options(:audio) do
+                    = option_tag(settings, :audio, id, text)
+              %button.button.cancel(type="button")= ~g"Cancel"
+              %button.button.primary.save(type="button")= ~g"Save"
+            - else
+              %span.current-setting= option_text options(:audio), settings.audio
+                %i.icon-play-circled(data-play="audio")
+                %i.icon-pencil(data-edit="audio")

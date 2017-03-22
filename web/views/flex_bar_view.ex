@@ -91,6 +91,24 @@ defmodule UcxChat.FlexBarView do
     "user-view animated"
   end
 
+  def option_tag(schema, field, id, text) do
+    selected = if Map.get(schema, field) == id, do: [selected: :selected], else: []
+    content_tag :option, [value: id] ++ selected do
+      text
+    end
+  end
+
+  # def notification_radio_group(data, field, option) do
+  #   settings = data[:settings]
+  #   checked = if []
+  #   content_tag :label do
+  #     [
+  #       div(:input, [type: :radio, name: "settings[#{field}]", value: elem(option, 0)] ++ checked),
+  #       elem(option, 1)
+  #     ]
+  #   end
+  # end
+
   # %li.text
   #   %label Name
   #   .setting-block

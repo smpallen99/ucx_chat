@@ -23,3 +23,4 @@ import main from "./main"
 import flex_bar from "./flex_bar"
 import utils from './utils'
 import cc from './chat_channel'
+require('./notifications_form')
