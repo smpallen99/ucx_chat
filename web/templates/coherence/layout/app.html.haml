@@ -18,7 +18,9 @@
     %section.full-page.color-tertiary-font-color
       .wrapper
         %header
-          - # put logo image here
+          %a.logo(href="#")
+            %img(src="/images/full_logo.png")
+
         .container
           = render @view_module, @view_template, assigns
 

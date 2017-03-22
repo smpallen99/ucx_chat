@@ -14,6 +14,7 @@ import SideNav from "./side_nav"
 import Admin from "./admin"
 import AdminFlexBar from "./admin_flex_bar"
 import RoomHistoryManager from "./room_history_manager"
+import DesktopNotification from "./desktop_notification"
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
@@ -90,7 +91,7 @@ $(document).ready(function() {
 
   window.roomManager = new RoomManager()
   window.scroll_to = roomManager.scroll_to
-
+  window.desktop_notifier = new DesktopNotification()
   window.roomHistoryManager = new RoomHistoryManager()
 
   new SideNav()
@@ -225,6 +226,9 @@ function start_user_channel() {
   })
   chan.on("room:mention", resp => {
     roomManager.room_mention(resp)
+  })
+  chan.on("notification:new", resp => {
+    roomManager.notification(resp)
   })
   // chan.on('focus:change', resp => {
   //   console.log('focus:change 1', resp)

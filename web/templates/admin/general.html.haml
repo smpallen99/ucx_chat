@@ -20,4 +20,6 @@
         = render "slash_commands.html", f: f, item: item, field: :rooms_slash_commands, title: ~g"Slash Commands (Rooms Mode)"
         = render "slash_commands.html", f: f, item: item, field: :chat_slash_commands, title: ~g"Slash Commands (Chat Mode)"
 
-
+        - collapsable_section ~g"Notifications", fn _ ->
+          = radio_button_line f, item, :enable_desktop_notifications, ~g'Enable desktop notifications'
+          = text_input_line f, item, :desktop_notification_duration, ~g"AutoLinker URL Regular Expression", type: :number

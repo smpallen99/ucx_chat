@@ -9,7 +9,7 @@ defmodule UcxChat.UserChannel do
   alias Phoenix.Socket.Broadcast
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService}
   alias UcxChat.{AccountView, Account, AdminService, FlexBarView, UserSocket, User}
-  alias UcxChat.{ChannelService, SubscriptionService, InvitationService}
+  alias UcxChat.{ChannelService, SubscriptionService, InvitationService, Settings}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -24,8 +24,8 @@ defmodule UcxChat.UserChannel do
     UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "room:leave", %{room: room, user_id: user_id})
   end
 
-  def notify_mention(%{user_id: user_id, channel_id: channel_id}) do
-    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "room:mention", %{channel_id: channel_id, user_id: user_id})
+  def notify_mention(%{user_id: user_id, channel_id: channel_id}, body) do
+    UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "room:mention", %{channel_id: channel_id, user_id: user_id, body: body})
   end
   def user_state(user_id, state) do
     UcxChat.Endpoint.broadcast!(CC.chan_user() <> "#{user_id}", "user:state", %{state: state})
@@ -95,14 +95,15 @@ defmodule UcxChat.UserChannel do
   end
 
   def push_room_mention(msg, socket) do
-    %{channel_id: channel_id} = msg
-    Process.send_after self(), {:update_mention, channel_id, socket.assigns.user_id}, 250
+    # %{channel_id: channel_id} = msg
+    Process.send_after self(), {:update_mention, msg, socket.assigns.user_id}, 250
     socket
   end
 
   def push_update_direct_message(msg, socket) do
-    %{channel_id: channel_id} = msg
-    Process.send_after self(), {:update_direct_message, channel_id, socket.assigns.user_id}, 250
+    # %{channel_id: channel_id} = msg
+    # Process.send_after self(), {:update_direct_message, channel_id, socket.assigns.user_id}, 250
+    Process.send_after self(), {:update_direct_message, msg, socket.assigns.user_id}, 250
     socket
   end
 
@@ -337,12 +338,13 @@ defmodule UcxChat.UserChannel do
     user_id = assigns.user_id
     if room in assigns.subscribed do
       channel = Helpers.get_by(Channel, :name, room)
-      Logger.warn "in the room ... #{user_id}, room: #{inspect room}"
+      # Logger.warn "in the room ... #{user_id}, room: #{inspect room}"
       # unless channel.id == assigns.channel_id and assigns.user_state != "idle" do
       if channel.id != assigns.channel_id or assigns.user_state == "idle" do
         if channel.type == 2 do
-          Logger.warn "private channel ..."
-          push_update_direct_message(%{channel_id: channel.id}, socket)
+          # Logger.warn "private channel ..."
+          msg = if payload[:body], do: %{body: payload[:body], username: assigns.username}, else: nil
+          push_update_direct_message(%{channel_id: channel.id, msg: msg}, socket)
         end
         Logger.warn "updating unreads"
         update_has_unread(channel, socket)
@@ -471,26 +473,41 @@ defmodule UcxChat.UserChannel do
     {:noreply, socket}
   end
 
-  def handle_info({:update_mention, channel_id, user_id} = ev, socket) do
+  def handle_info({:update_mention, payload, user_id} = ev, socket) do
     debug "upate_mention", ev
+    %{channel_id: channel_id, body: body} = payload
     channel = Helpers.get!(Channel, channel_id)
     with [sub] <- Repo.all(Subscription.get(channel_id, user_id)),
          open  <- Map.get(sub, :open),
          false <- socket.assigns.user_state == "active" and open,
-         count <- ChannelService.get_unread(channel_id, user_id),
-      do: push(socket, "room:mention", %{room: channel.name, unread: count})
+         count <- ChannelService.get_unread(channel_id, user_id) do
+      push(socket, "room:mention", %{room: channel.name, unread: count})
+      if body do
+        body = Helpers.strip_tags body
+        user = Helpers.get_user user_id
+        handle_notifications socket, user, channel, %{body: body, username: socket.assigns.username}
+        # push socket, "notification:new", %{body: body, username: socket.assigns.username}
+      end
+    end
     {:noreply, socket}
   end
 
-  def handle_info({:update_direct_message, channel_id, user_id} = ev, socket) do
+  def handle_info({:update_direct_message, payload, user_id} = ev, socket) do
     debug "upate_direct_message", ev
+    %{channel_id: channel_id, msg: msg} = payload
     channel = Helpers.get!(Channel, channel_id)
     with [sub] <- Repo.all(Subscription.get(channel_id, user_id)),
          _ <- Logger.warn("update_direct_message unread: #{sub.unread}"),
          open  <- Map.get(sub, :open),
          false <- socket.assigns.user_state == "active" and open,
-         count <- ChannelService.get_unread(channel_id, user_id),
-      do: push(socket, "room:mention", %{room: channel.name, unread: count})
+         count <- ChannelService.get_unread(channel_id, user_id) do
+      push(socket, "room:mention", %{room: channel.name, unread: count})
+      if msg do
+        user = Helpers.get_user(user_id)
+        handle_notifications socket, user, channel, update_in(msg, [:body], &Helpers.strip_tags/1)
+        # push socket, "notification:new", update_in(msg, [:body], &Helpers.strip_tags/1)
+      end
+    end
     {:noreply, socket}
   end
 
@@ -501,6 +518,12 @@ defmodule UcxChat.UserChannel do
 
   ###############
   # Helpers
+
+  defp handle_notifications(socket, user, channel, payload) do
+    if Settings.enable_desktop_notifications() do
+       push socket, "notification:new", Map.put(payload, :duration, Settings.get_desktop_notification_duration(user, channel))
+    end
+  end
 
   defp subscribe(channels, socket) do
     # debug inspect(channels), ""

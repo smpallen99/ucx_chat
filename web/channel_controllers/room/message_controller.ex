@@ -30,10 +30,10 @@ defmodule UcxChat.MessageChannelController do
       {body, mentions} = encode_mentions(message, channel_id)
 
       message = create_message(body, user_id, channel_id, msg_params)
-      create_mentions(mentions, message.id, message.channel_id)
+      create_mentions(mentions, message.id, message.channel_id, body)
       update_direct_notices(channel, message)
       message_html = render_message(message)
-      broadcast_message(socket, message.id, message.user.id, message_html)
+      broadcast_message(socket, message.id, message.user.id, message_html, body: body)
     end
     stop_typing(socket, user_id, channel_id)
     {:noreply, socket}
@@ -153,7 +153,7 @@ defmodule UcxChat.MessageChannelController do
         message = Repo.preload(message, [:user, :edited_by])
         # TODO: Need to handle new mentions for edited message
         message_html = render_message(message)
-        broadcast_message(socket, message.id, message.user.id, message_html, "update")
+        broadcast_message(socket, message.id, message.user.id, message_html, event: "update")
 
         stop_typing(socket, user.id, channel_id)
     end

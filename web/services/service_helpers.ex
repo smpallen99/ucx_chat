@@ -233,6 +233,9 @@ defmodule UcxChat.ServiceHelpers do
     Phoenix.Channel.push socket, "sweet:open", %{html: html}
   end
 
+  def strip_tags(html) do
+    String.replace html, ~r/<.*?>/, ""
+  end
   # def hide_sweet_dialog(socket) do
 
   # end

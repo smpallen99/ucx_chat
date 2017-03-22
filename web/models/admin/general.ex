@@ -24,11 +24,16 @@ defmodule UcxChat.Config.General do
   #
   embedded_schema do
     field :enable_favorite_rooms, :boolean, default: true
+    field :enable_desktop_notifications, :boolean, default: true
+    field :desktop_notification_duration, :integer, default: 5
     field :rooms_slash_commands, {:array, :string}, default: @rooms_slash_commands
     field :chat_slash_commands, {:array, :string}, default: @chat_slash_commands
   end
 
-  @fields [:enable_favorite_rooms, :rooms_slash_commands, :chat_slash_commands]
+  @fields [
+    :enable_favorite_rooms, :rooms_slash_commands, :chat_slash_commands,
+    :enable_desktop_notifications, :desktop_notification_duration
+  ]
 
   def changeset(struct, params \\ %{}) do
     struct

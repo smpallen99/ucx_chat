@@ -23,4 +23,8 @@ defmodule UcxChat.Settings do
   def config do
     UcxChat.Repo.one(UcxChat.Config)
   end
+
+  def get_desktop_notification_duration(_user, _channel) do
+    desktop_notification_duration()
+  end
 end

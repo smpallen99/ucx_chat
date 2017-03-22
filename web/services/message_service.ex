@@ -22,25 +22,28 @@ defmodule UcxChat.MessageService do
     UcxChat.Endpoint.broadcast! CC.chan_room <> channel.name, "message:new", resp
   end
 
-  def broadcast_message(id, room, user_id, html, event \\ "new")
-  def broadcast_message(id, room, user_id, html, event) when is_binary(room) do
-    UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:" <> event, create_broadcast_message(id, user_id, html)
+  def broadcast_message(id, room, user_id, html, opts \\ []) #event \\ "new")
+  def broadcast_message(id, room, user_id, html, opts) when is_binary(room) do
+    event = opts[:event] || "new"
+    UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:" <> event, create_broadcast_message(id, user_id, html, opts)
   end
 
-  def broadcast_message(socket, id, user_id, html, event) do
-    Phoenix.Channel.broadcast! socket, "message:" <> event, create_broadcast_message(id, user_id, html)
+  def broadcast_message(socket, id, user_id, html, opts) do
+    event = opts[:event] || "new"
+    Phoenix.Channel.broadcast! socket, "message:" <> event, create_broadcast_message(id, user_id, html, opts)
   end
 
-  def push_message(socket, id, user_id, html) do
-    Phoenix.Channel.push socket, "message:new", create_broadcast_message(id, user_id, html)
+  def push_message(socket, id, user_id, html, opts \\ []) do
+    Phoenix.Channel.push socket, "message:new", create_broadcast_message(id, user_id, html, opts)
   end
 
-  defp create_broadcast_message(id, user_id, html) do
-    %{
-      html: html,
-      id: "message-#{id}",
-      user_id: user_id
-    }
+  defp create_broadcast_message(id, user_id, html, opts \\ []) do
+    Enum.into opts,
+      %{
+        html: html,
+        id: "message-#{id}",
+        user_id: user_id
+      }
   end
 
   def get_surrounding_messages(channel_id, "", user) do
@@ -292,19 +295,19 @@ defmodule UcxChat.MessageService do
     {body, [{user.id, name}|acc]}
   end
 
-  def create_mentions([], _, _), do: :ok
-  def create_mentions([mention|mentions], message_id, channel_id) do
-    create_mention(mention, message_id, channel_id)
-    create_mentions(mentions, message_id, channel_id)
+  def create_mentions([], _, _, _), do: :ok
+  def create_mentions([mention|mentions], message_id, channel_id, body) do
+    create_mention(mention, message_id, channel_id, body)
+    create_mentions(mentions, message_id, channel_id, body)
   end
 
-  def create_mention({nil, _}, _, _), do: nil
-  def create_mention({mention, name}, message_id, channel_id) do
+  def create_mention({nil, _}, _, _, _), do: nil
+  def create_mention({mention, name}, message_id, channel_id, body) do
     {all, nm} = if name in ~w(all here), do: {true, name}, else: {false, nil}
     %Mention{}
     |> Mention.changeset(%{user_id: mention, all: all, name: nm, message_id: message_id, channel_id: channel_id})
     |> Repo.insert!
-    |> UserChannel.notify_mention
+    |> UserChannel.notify_mention(body)
 
     subs =
       Subscription
