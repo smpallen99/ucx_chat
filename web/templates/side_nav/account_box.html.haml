@@ -2,9 +2,8 @@
   %div(class="info status-#{@chatd.status} primary-background-color" data-status-name="#{get_user_name @chatd.user}")
     - if @chatd.user.username do
       .thumb(data-status="#{@chatd.status}")
-        .avatar(style="background-image:#{raw UcxChat.AvatarService.avatar_initials(@chatd.user.username)};")
-          = # raw UcxChat.AvatarService.avatar_initials(@chatd.user.username)
-          = #get_avatar_img(@chatd.user.username)
+        .avatar
+          .avatar-image(style="background-image: url(/avatar/#{@chatd.user.username});")
       .data
         %h4
           - id = @chatd.user.id
