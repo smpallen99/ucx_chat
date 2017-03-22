@@ -13,8 +13,10 @@
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/app.css")}')
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/channel_settings.css")}')
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/toastr.css")}')
-    %audio#chatAudioNotification(preload)
-      %source(src="/sounds/notify.mp3" type="audio/mpeg")
+    - for {id, fname} <- audio_files() do
+      %audio(id="#{id}")
+        %source(src="#{fname}" type="audio/mpeg")
+      %a(data-audio="[#{id}]" href="#" onClick="$('audio##{id}')[0].play()" style="display:none;")
 
     - #%link(rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css")
     - #%link(rel="stylesheet" text="text/css" class="__meteor-css" href="https://cdn-demo.rocket.chat/d7aa140fff6402329af2f0b8a433f4159ab0bd7a.css?meteor_css_resource=true")

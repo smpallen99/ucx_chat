@@ -1,4 +1,5 @@
 defmodule UcxChat.Settings do
+  alias UcxChat.{Notification, Repo}
 
   [
     general: UcxChat.Config.General,
@@ -26,5 +27,15 @@ defmodule UcxChat.Settings do
 
   def get_desktop_notification_duration(_user, _channel) do
     desktop_notification_duration()
+  end
+
+  def get_new_message_sound(user, channel_id) do
+    default = "chime"
+    case Notification.get_notification(user.account_id, channel_id) |> Repo.one do
+      nil -> default
+      %{settings: %{audio: "system_default"}} -> default
+      %{settings: %{audio: "none"}} -> nil
+      %{settings: %{audio: sound}} -> sound
+    end
   end
 end

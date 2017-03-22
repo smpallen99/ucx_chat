@@ -538,6 +538,10 @@ defmodule UcxChat.UserChannel do
   # Helpers
 
   defp handle_notifications(socket, user, channel, payload) do
+    payload = case Settings.get_new_message_sound(user, channel.id) do
+      nil -> payload
+      sound -> Map.put(payload, :sound, sound)
+    end
     if Settings.enable_desktop_notifications() do
        push socket, "notification:new", Map.put(payload, :duration, Settings.get_desktop_notification_duration(user, channel))
     end

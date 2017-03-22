@@ -118,6 +118,9 @@ class RoomManager {
     if (resp.body) {
       desktop_notifier.notify(resp.username, resp.body, resp.duration)
     }
+    if (resp.sound) {
+      desktop_notifier.notify_audio(resp.sound)
+    }
   }
 
   message_box_focus() {
