@@ -299,7 +299,7 @@ defmodule UcxChat.UserChannel do
     SubscriptionService.update assigns, %{last_read: params["last_read"]}
     {:noreply, socket}
   end
-  def handle_in(ev = "invitation:resend", %{"email" => email, "id" => id} = params, socket) do
+  def handle_in("invitation:resend", %{"email" => _email, "id" => id}, socket) do
     case InvitationService.resend(id) do
       {:ok, message} ->
         {:reply, {:ok, %{success: message}}, socket}
@@ -340,7 +340,7 @@ defmodule UcxChat.UserChannel do
   def handle_info(%Broadcast{topic: "room:" <> room, event: "message:new" = event, payload: payload}, socket) do
     debug event, payload, inspect(socket.assigns)
     assigns = socket.assigns
-    user_id = assigns.user_id
+
     if room in assigns.subscribed do
       channel = Helpers.get_by(Channel, :name, room)
       # Logger.warn "in the room ... #{user_id}, room: #{inspect room}"

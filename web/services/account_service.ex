@@ -1,8 +1,8 @@
 defmodule UcxChat.AccountService do
-  alias UcxChat.{Repo, User, Notification, AccountNotification}
-  alias UcxChat.ServiceHelpers, as: Helpers
+  alias UcxChat.{Repo, Notification, AccountNotification}
+  # alias UcxChat.ServiceHelpers, as: Helpers
 
-  require Logger
+  # require Logger
 
   def new_notification(account_id, channel_id) do
     notif =

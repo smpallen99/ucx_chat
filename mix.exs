@@ -1,9 +1,11 @@
 defmodule UcxChat.Mixfile do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [app: :ucx_chat,
-     version: "0.0.1",
+     version: @version,
      elixir: "~> 1.2",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
