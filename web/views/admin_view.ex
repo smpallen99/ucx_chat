@@ -59,6 +59,24 @@ defmodule UcxChat.AdminView do
     end
   end
 
+  def textarea_input_line(f, _item, field, title, opts \\ []) do
+    type = opts[:type] || :text
+    description = opts[:description]
+
+    content_tag :div, class: "input-line double-col" do
+      [
+        content_tag :label, class: "setting-label" do
+          title
+        end,
+        content_tag :div, class: "setting-field" do
+          f
+          |> textarea(field, class: "input-monitor", type: type)
+          |> do_description(description)
+        end
+      ]
+    end
+  end
+
   defp do_description(tag, nil), do: tag
   defp do_description(tag, description) when is_list(tag) do
     tag ++ [

@@ -10,9 +10,6 @@ const new_message_unread_time = 5000;
 const container = '.messages-box .wrapper ul'
 const wrapper = '.messages-box .wrapper'
 
-// const animation = `<div class="loading-animation"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>`
-// const loadmore = `<li class="load-more"></li>`
-
 class RoomManager {
   constructor() {
     this.register_events()
@@ -71,21 +68,6 @@ class RoomManager {
     let username = elem.parent().attr('data-username')
     if (debug) { console.log('pvt-msg button clicked...', username) }
     window.location = '/direct/' + username
-    // cc.put("direct/" + username)
-    //   .receive("ok", resp => {
-    //     window.location = '/direct/' + username
-    //     // $('.messages-container .fixed-title h2').html(resp.messages_html)
-    //     // $('aside .rooms-list').html(resp.side_nav_html)
-    //     // ucxchat.channel_id = resp.channel_id
-    //     // ucxchat.room = resp.room
-    //     // ucxchat.display_name = resp.display_name
-    //     // ucxchat.room_route = resp.room_route
-    //     // if ($('section.flex-tab').parent().hasClass('opened')) {
-    //     //   $('section.flex-tab').html('').parent().removeClass('opened')
-    //     // }
-    //     // roomchan.leave()
-    //     // socket.restart_socket()
-    // })
   }
   update(msg) {
     if(debug) { console.log('update...', msg) }
@@ -648,6 +630,7 @@ class RoomManager {
       }, 1000)
     })
     .on('click', 'li.jump-to-message', e => {
+      console.log('jump-to-message')
       e.preventDefault()
       let ct = e.currentTarget
       let ts = $(ct).closest('li.message').data('timestamp')

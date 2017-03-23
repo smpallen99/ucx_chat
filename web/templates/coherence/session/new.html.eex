@@ -52,9 +52,9 @@
   <div class="submit">
     <button data-loading-text="<%= ~g(Please wait...) %>" class="button primary login"><span><%= ~g(Login) %></span></button>
   </div>
-  <div>
+  <!-- <div>
     <button type="button" class="register"><%= ~g(Register a new account) %></button>
-  </div>
+  </div> -->
   <div>
     <button type="button" class="forgot-password"><%= ~g(Forgot your password) %></button>
   </div>

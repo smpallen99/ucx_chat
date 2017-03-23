@@ -26,7 +26,6 @@ class Typing {
     if (!this.is_typing) {
       this.is_typing = true
       this.timer_ref = setTimeout(this.typing_timer_timeout, 15000, this, ucxchat.channel_id, ucxchat.user_id)
-      console.log("roomchan", roomchan)
       cc.post("/typing")
     }
   }

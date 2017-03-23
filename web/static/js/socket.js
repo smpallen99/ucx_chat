@@ -47,7 +47,7 @@ let formatTimestamp = (timestamp) => {
 }
 
 let listBy = (user, {metas: metas, username: username}) => {
-  console.log('listBy user', user, 'metas', metas)
+  // console.log('listBy user', user, 'metas', metas)
   return {
     user: user,
     username: metas[0].username,
@@ -104,7 +104,7 @@ $(document).ready(function() {
 
   $('textarea.message-form-text').focus()
 
-  console.log('socket...', socket)
+  // console.log('socket...', socket)
 
   start_system_channel()
   start_user_channel()
@@ -136,9 +136,9 @@ $(document).ready(function() {
       return true
     }
     if(e.keyCode == 13) {
-      console.log('return ', $('.message-form-text').hasClass('editing'))
+      // console.log('return ', $('.message-form-text').hasClass('editing'))
       if ($('.message-form-text').hasClass('editing')) {
-        console.log('editing submit...', $('li.message.editing').attr('id'))
+        // console.log('editing submit...', $('li.message.editing').attr('id'))
         Messages.send_message({update: $('li.message.editing').attr('id'), value: $('.message-form-text').val()})
       } else {
         Messages.send_message($('.message-form-text').val())
@@ -171,12 +171,12 @@ function start_system_channel() {
   let chan = systemchan
 
   chan.on('presence_state', state => {
-    console.log('presence_state', state)
+    // console.log('presence_state', state)
     presences = Presence.syncState(presences, state)
     render(presences)
   })
   chan.on('presence_diff', diff => {
-    console.log('presence_diff', diff)
+    // console.log('presence_diff', diff)
     presences = Presence.syncDiff(presences, diff)
     render(presences)
   })
@@ -230,14 +230,6 @@ function start_user_channel() {
   chan.on("notification:new", resp => {
     roomManager.notification(resp)
   })
-  // chan.on('focus:change', resp => {
-  //   console.log('focus:change 1', resp)
-  //   // if (resp.state) {
-  //   //   this.focus = true
-  //   // } else {
-  //   //   this.focus = false
-  //   // }
-  // })
 
   chan.join()
     .receive("ok", resp => { console.log('Joined user successfully', resp)})
@@ -252,7 +244,6 @@ export function restart_socket() {
 }
 
 function start_room_channel(typing) {
-  // socket.connect({user: ucxchat.username})
   let room = ucxchat.room
   // Now that you are connected, you can join channels with a topic:
   roomchan = socket.channel(chan_room + room, {user: ucxchat.username, user_id: ucxchat.user_id})
@@ -262,25 +253,23 @@ function start_room_channel(typing) {
   if (debug) { console.log('start socket', ucxchat) }
   chan.join()
     .receive("ok", resp => {
-      // history.pushState(history.state, ucxchat.display_name, '/' + ucxchat.room_route + '/' + ucxchat.display_name)
       utils.push_history()
       console.log("Joined successfully", resp)
     })
     .receive("error", resp => { console.log("Unable to join", resp) })
 
   chan.on("user:entered", msg => {
-    console.warn("user:entered", msg)
+    // console.warn("user:entered", msg)
 
   })
 
   chan.on("user:leave", msg => {
-    console.warn("user:leave", msg)
+    // console.warn("user:leave", msg)
 
   })
 
   chan.on("message:new", msg => {
     if (debug) { console.log('message:new current id, msg.user_id', msg, ucxchat.user_id, msg.user_id) }
-      // console.log('message:new', chan.params.user)
     Messages.new_message(msg)
   })
   chan.on("message:update", msg => {
@@ -311,8 +300,7 @@ function start_room_channel(typing) {
 
   chan.on('update:Members List', msg => {
     //console.log('update:Members List', msg)
-    console.log('update:Members List', msg, $('.tab-button[title="Members List"]').hasClass('active'))
-
+    // console.log('update:Members List', msg, $('.tab-button[title="Members List"]').hasClass('active'))
   })
   chan.on('code:update', resp => {
     utils.code_update(resp)
@@ -326,31 +314,20 @@ function start_room_channel(typing) {
   if (!window.flexbar) {
     flexbar.init_flexbar()
   }
-  main.run()
-  main.update_flexbar()
   roomManager.clear_unread()
   roomManager.new_room()
   roomHistoryManager.scroll_new_window()
 
+  main.run()
+  main.update_flexbar()
+  roomManager.updateMentionsMarksOfRoom()
 }
 
-// function checkVisible(elm, threshold, mode) {
-//   threshold = threshold || 0;
-//   mode = mode || 'visible';
-
-//   var rect = elm.getBoundingClientRect();
-//   var viewHeight = Math.max(document.documentElement.userHeight, window.innerHeight);
-//   var above = rect.bottom - threshold < 0;
-//   var below = rect.top - viewHeight + threshold >= 0;
-
-//   return mode === 'above' ? above : (mode === 'below' ? below : !above && !below);
-// }
 function checkVisible(elm, threshold, mode) {
   threshold = threshold || 0;
   mode = mode || 'visible';
   // elm = elm[0]
   var rect = elm.getBoundingClientRect();
-  // var viewHeight = Math.max(document.documentElement.userHeight, window.innerHeight);
   var wr = $('.wrapper.has-more-next')[0].getBoundingClientRect()
   var viewHeight = wr.top + wr.bottom
   var above = rect.bottom - threshold < 0;
@@ -366,49 +343,5 @@ function isOnScreen(element)
     return (curTop > screenHeight) ? false : true;
 }
 window.cv = checkVisible
-// When you connect, you'll often need to authenticate the user.
-// For example, imagine you have an authentication plug, `MyAuth`,
-// which authenticates the session and assigns a `:current_user`.
-// If the current user exists you can assign the user's token in
-// the connection for use in the layout.
-//
-// In your "web/router.ex":
-//
-//     pipeline :browser do
-//       ...
-//       plug MyAuth
-//       plug :put_user_token
-//     end
-//
-//     defp put_user_token(conn, _) do
-//       if current_user = conn.assigns[:current_user] do
-//         token = Phoenix.Token.sign(conn, "user socket", current_user.id)
-//         assign(conn, :user_token, token)
-//       else
-//         conn
-//       end
-//     end
-//
-// Now you need to pass this token to JavaScript. You can do so
-// inside a script tag in "web/templates/layout/app.html.eex":
-//
-//     <script>window.userToken = "<%= assigns[:user_token] %>";</script>
-//
-// You will need to verify the user token in the "connect/2" function
-// in "web/channels/user_socket.ex":
-//
-//     def connect(%{"token" => token}, socket) do
-//       # max_age: 1209600 is equivalent to two weeks in seconds
-//       case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
-//         {:ok, user_id} ->
-//           {:ok, assign(socket, :user, user_id)}
-//         {:error, reason} ->
-//           :error
-//       end
-//     end
-//
-// Finally, pass the token on connect as below. Or remove it
-// from connect if you don't care about authentication.
-
 
 export default socket

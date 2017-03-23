@@ -1,5 +1,6 @@
 import * as utils from "./utils"
 import * as cc from "./chat_channel"
+import * as main from "./main"
 
 const start_conversation = `<li class="start color-info-font-color">${gettext.start_of_conversation}</li>`
 const container = '.messages-box .wrapper ul'
@@ -123,6 +124,7 @@ class RoomHistoryManager {
         }
         this.is_loading = false
         this.has_more = resp.has_more
+        main.run()
       })
   }
   get getMoreNext() {
@@ -150,6 +152,7 @@ class RoomHistoryManager {
 
         this.is_loading = false
         this.has_more_next = resp.has_more_next
+        main.run()
       })
   }
 
@@ -229,6 +232,7 @@ class RoomHistoryManager {
         this.has_more_next = resp.has_more_next
         this.has_more = resp.has_more
         this.is_loading = false
+        main.run()
       })
   }
 
@@ -249,6 +253,7 @@ class RoomHistoryManager {
         this.has_more_next = false
         this.has_more = true
         this.is_loading = false
+        main.run()
       })
   }
   bottom_message_ts() {

@@ -3,7 +3,7 @@ import hljs from "highlight.js"
 import * as utils from "./utils"
 import * as main from "./main"
 
-const debug = false;
+const debug = true;
 
 class Messages {
 
@@ -11,7 +11,7 @@ class Messages {
     let html = msg.html
 
     let at_bottom = roomManager.at_bottom
-
+    console.log('new_message', msg)
     $('.messages-box .wrapper > ul').append(html)
 
     $('.messages-box').children('.wrapper').children('ul').children(':last-child').find('pre').each(function(i, block) {
@@ -23,6 +23,7 @@ class Messages {
       $('#' + msg.id).addClass("own")
       main.run()
     }
+    main.update_mentions(msg.id)
 
     if (at_bottom || msg.user_id == ucxchat.user_id) {
       utils.scroll_bottom()

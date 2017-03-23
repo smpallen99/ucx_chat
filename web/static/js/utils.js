@@ -132,8 +132,7 @@ export function remove_page_loading() {
 }
 
 export function code_update(resp) {
-  console.log('code:update', resp)
-  // let event = jQuery.Event( resp.selector + '-change' );
+  // console.log('code:update', resp)
 
   if (resp.html) {
     $(resp.selector)[resp.action](resp.html)
@@ -141,7 +140,6 @@ export function code_update(resp) {
     $(resp.selector)[resp.action]()
   }
   $('.input-message').focus()
-  // $('body').trigger(event)
 }
 
 export function push_history() {
