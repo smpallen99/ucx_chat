@@ -111,8 +111,8 @@ defmodule UcxChat.SharedView do
     "https://robohash.org/#{username}.png?set=any&bgset=any&size=350x310"
   end
 
-  def has_permission?(user, permission, scope \\ 0), do: Permission.has_permission?(user, permission, scope)
-  def has_role?(user, role, scope \\ 0), do: User.has_role?(user, role, scope)
+  def has_permission?(user, permission, scope \\ nil), do: Permission.has_permission?(user, permission, scope)
+  def has_role?(user, role, scope \\ nil), do: User.has_role?(user, role, scope)
 
   def user_muted?(%{} = user, channel_id), do: UcxChat.ChannelService.user_muted?(user.id, channel_id)
 

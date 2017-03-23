@@ -1,7 +1,6 @@
 defmodule UcxChat.FlexBarService do
   # import Ecto.Query
   use UcxChat.Web, :service
-  import UcxChat.UserChannel
   import Phoenix.Socket, only: [assign: 3]
 
   alias UcxChat.{Repo, FlexBarView, User, Mention, StaredMessage, PinnedMessage,
@@ -40,7 +39,7 @@ defmodule UcxChat.FlexBarService do
     {:reply, {:ok, %{html: html, selector: ".list-view ul.lines", action: "append"}}, socket}
   end
 
-  def handle_in(ev = "notifications_form:edit", params, socket) do
+  def handle_in("notifications_form:edit", params, socket) do
     args = [notification: socket.assigns.notification, editing: params["field"]]
     html =
       "notifications.html"
@@ -49,7 +48,7 @@ defmodule UcxChat.FlexBarService do
     {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, params["field"])}
   end
 
-  def handle_in(ev = "notifications_form:cancel", params, socket) do
+  def handle_in("notifications_form:cancel", _params, socket) do
     html =
       "notifications.html"
       |> FlexBarView.render([notification: socket.assigns.notification, editing: ""])
@@ -58,13 +57,13 @@ defmodule UcxChat.FlexBarService do
     {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, nil)}
   end
 
-  def handle_in(ev = "notifications_form:play", params, socket) do
+  def handle_in("notifications_form:play", _params, socket) do
     user = Helpers.get_user(socket.assigns.user_id)
     sound = UcxChat.Settings.get_new_message_sound(user, socket.assigns.channel_id)
     {:reply, {:ok, %{sound: sound}}, socket}
   end
 
-  def handle_in(ev = "notifications_form:save", params, socket) do
+  def handle_in("notifications_form:save", params, socket) do
     notify = socket.assigns.notification
     params =
       params
@@ -359,7 +358,7 @@ defmodule UcxChat.FlexBarService do
       StaredMessage
       |> where([m], m.channel_id == ^channel_id)
       |> preload([:user, :message])
-      |> order_by([m], desc: m.id)
+      |> order_by([m], desc: m.inserted_at)
       |> Repo.all
       |> Enum.reduce({nil, []}, fn m, {last_day, acc} ->
         day = DateTime.to_date(m.updated_at)
@@ -388,7 +387,7 @@ defmodule UcxChat.FlexBarService do
       PinnedMessage
       |> where([m], m.channel_id == ^channel_id)
       |> preload([message: :user])
-      |> order_by([p], desc: p.id)
+      |> order_by([p], desc: p.inserted_at)
       |> Repo.all
       |> Enum.reduce({nil, []}, fn p, {last_day, acc} ->
         day = DateTime.to_date(p.updated_at)

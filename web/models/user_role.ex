@@ -3,7 +3,7 @@ defmodule UcxChat.UserRole do
 
   schema "users_roles" do
     field :role, :string
-    field :scope, :integer, default: 0
+    field :scope, :binary_id, default: nil
     belongs_to :user, UcxChat.User
 
     timestamps()

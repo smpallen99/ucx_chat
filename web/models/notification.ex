@@ -1,6 +1,6 @@
 defmodule UcxChat.Notification do
   use UcxChat.Web, :model
-  alias UcxChat.{AccountNotification, User, Account, NotificationSetting}
+  alias UcxChat.{AccountNotification, NotificationSetting}
 
   @mod __MODULE__
 

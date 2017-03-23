@@ -1,6 +1,8 @@
 defmodule UcxChat.ServiceHelpers do
   use UcxChat.Web, :service
-  alias UcxChat.{Repo, Channel, User, Subscription, MessageService, User}
+  alias UcxChat.{
+    Repo, Channel, User, Subscription, MessageService, User, UserRole
+  }
 
   import Ecto.Query
 
@@ -167,11 +169,16 @@ defmodule UcxChat.ServiceHelpers do
     %{html: html, message: message.body}
   end
   def get_bot_id do
-    User
-    # |> where([m], m.type == "b")
-    |> select([m], m.id)
-    |> limit(1)
-    |> Repo.one
+    Repo.one from u in User,
+    join: r in UserRole, on: r.user_id == u.id,
+    where: r.role ==  "bot",
+    select: u.id,
+    limit: 1
+    # User
+    # # |> where([m], m.type == "b")
+    # |> select([m], m.id)
+    # |> limit(1)
+    # |> Repo.one
   end
 
   def render(view, templ, opts \\ []) do

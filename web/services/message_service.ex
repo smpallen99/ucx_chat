@@ -23,14 +23,13 @@ defmodule UcxChat.MessageService do
   end
 
   def broadcast_message(id, room, user_id, html, opts \\ []) #event \\ "new")
-  def broadcast_message(id, room, user_id, html, opts) when is_binary(room) do
-    event = opts[:event] || "new"
-    UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:" <> event, create_broadcast_message(id, user_id, html, opts)
-  end
-
-  def broadcast_message(socket, id, user_id, html, opts) do
+  def broadcast_message(%{} = socket, id, user_id, html, opts) do
     event = opts[:event] || "new"
     Phoenix.Channel.broadcast! socket, "message:" <> event, create_broadcast_message(id, user_id, html, opts)
+  end
+  def broadcast_message(id, room, user_id, html, opts) do
+    event = opts[:event] || "new"
+    UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:" <> event, create_broadcast_message(id, user_id, html, opts)
   end
 
   def push_message(socket, id, user_id, html, opts \\ []) do
@@ -41,7 +40,7 @@ defmodule UcxChat.MessageService do
     Enum.into opts,
       %{
         html: html,
-        id: "message-#{id}",
+        id: id,
         user_id: user_id
       }
   end
@@ -49,23 +48,26 @@ defmodule UcxChat.MessageService do
   def get_surrounding_messages(channel_id, "", user) do
     get_messages channel_id, user
   end
-  def get_surrounding_messages(channel_id, timestamp, %{tz_offset: tz}) do
+  def get_surrounding_messages(channel_id, timestamp, %{tz_offset: tz} = user) do
     message = Repo.one from m in Message,
       where: m.timestamp == ^timestamp and m.channel_id == ^channel_id,
       preload: [:user, :edited_by]
+    if message do
+      before_q = from m in Message,
+        where: m.inserted_at < ^(message.inserted_at) and m.channel_id == ^channel_id,
+        order_by: [desc: :inserted_at],
+        limit: 50,
+        preload: [:user, :edited_by]
+      after_q = from m in Message,
+        where: m.inserted_at > ^(message.inserted_at) and m.channel_id == ^channel_id,
+        limit: 50,
+        preload: [:user, :edited_by]
 
-    before_q = from m in Message,
-      where: m.inserted_at < ^(message.inserted_at) and m.channel_id == ^channel_id,
-      order_by: [desc: :inserted_at],
-      limit: 50,
-      preload: [:user, :edited_by]
-    after_q = from m in Message,
-      where: m.inserted_at > ^(message.inserted_at) and m.channel_id == ^channel_id,
-      limit: 50,
-      preload: [:user, :edited_by]
-
-    Enum.reverse(Repo.all(before_q)) ++ [message|Repo.all(after_q)]
-    |> new_days(tz || 0, [])
+      Enum.reverse(Repo.all(before_q)) ++ [message|Repo.all(after_q)]
+      |> new_days(tz || 0, [])
+    else
+      get_messages(channel_id, user)
+    end
   end
 
   def get_messages(channel_id, %{tz_offset: tz}) do
@@ -162,6 +164,7 @@ defmodule UcxChat.MessageService do
   def last_message(channel_id) do
     Message
     |> where([m], m.channel_id == ^channel_id)
+    |> order_by([m], asc: m.inserted_at)
     |> last
     |> Repo.one
   end
@@ -169,6 +172,7 @@ defmodule UcxChat.MessageService do
   def first_message(channel_id) do
     Message
     |> where([m], m.channel_id == ^channel_id)
+    |> order_by([m], asc: m.inserted_at)
     |> first
     |> Repo.one
   end

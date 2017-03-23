@@ -142,9 +142,9 @@ defmodule UcxChat.RoomChannel do
     end
     {:reply, resp, socket}
   end
-  def handle_in(ev = "message:get-body:message-" <> id, msg, socket) do
+  def handle_in(ev = "message:get-body:" <> id, msg, socket) do
     debug ev, msg
-    message = Helpers.get Message, String.to_integer(id)
+    message = Helpers.get Message, id
     {:reply, {:ok, %{body: message.body}}, socket}
   end
   # default case

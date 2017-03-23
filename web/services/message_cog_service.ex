@@ -84,7 +84,5 @@ defmodule UcxChat.MessageCogService do
   #   {nil, %{}}
   # end
 
-  defp get_message_id("message-" <> id) do
-    String.to_integer id
-  end
+  defp get_message_id(id), do: id
 end

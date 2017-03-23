@@ -2,7 +2,8 @@ defmodule UcxChat.Repo.Migrations.CreateAccount do
   use Ecto.Migration
 
   def change do
-    create table(:accounts) do
+    create table(:accounts, primary_key: false) do
+      add :id, :binary_id, primary_key: true
       add :language, :string, default: "en"
       add :desktop_notification_enabled, :boolean, default: true, null: false
       add :desktop_notification_duration, :integer

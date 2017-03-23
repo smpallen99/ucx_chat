@@ -186,12 +186,12 @@ defmodule UcxChat.AdminService do
         ["admin", "user", ~g(User is no longer an admin), ~g(Problem encountered. User is still an admin)]
       end
 
-    (from r in UserRole, where: r.user_id == ^(user.id) and r.role == ^role1 and r.scope == 0)
+    (from r in UserRole, where: r.user_id == ^(user.id) and r.role == ^role1 and is_nil(r.scope))
     |> Repo.one
     |> Repo.delete
 
     %UserRole{}
-    |> UserRole.changeset(%{user_id: user.id, role: role2, scope: 0})
+    |> UserRole.changeset(%{user_id: user.id, role: role2, scope: nil})
     |> Repo.insert
     |> case do
       {:ok, _} ->

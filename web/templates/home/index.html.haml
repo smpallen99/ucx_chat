@@ -21,6 +21,6 @@
 :javascript
   window.user_token = '<%= Coherence.user_token(@conn) %>'
   window.ucxchat = {room_route: '<%= @chatd.room_route %>', room: 'lobby', channel_id: undefined,
-    username: '<%= @chatd.user.username %>',user_id: <%= @chatd.user.id %>, display_name: ""};
+    username: '<%= @chatd.user.username %>',user_id: '<%= @chatd.user.id %>', display_name: ""};
 
   let myPanel = $('.page-container')

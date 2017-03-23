@@ -91,7 +91,7 @@ defmodule UcxChat.SlashCommandChannelController do
           {:ok, res} ->
             # Logger.warn "res: #{inspect res}, command: #{inspect command}, name: #{inspect name}"
             Phoenix.Channel.push socket, "message:new",
-              Enum.into([id: "message-" , action: "append"],
+              Enum.into([id: "" , action: "append"],
                 Helpers.response_message(channel_id, res))
             {:reply, {:ok, %{}}, socket}
           {:error, :no_permission}

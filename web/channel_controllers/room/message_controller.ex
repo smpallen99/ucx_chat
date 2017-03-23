@@ -13,6 +13,7 @@ defmodule UcxChat.MessageChannelController do
     message = params["message"]
     user_id = assigns[:user_id]
     channel_id = assigns[:channel_id]
+    Logger.warn "user_id: #{inspect user_id}, channel_id: #{inspect channel_id}, message: #{inspect message}"
     # room = assigns[:room]
     channel = Helpers.get!(Channel, channel_id)
     msg_params = if Channel.direct?(channel), do: %{type: "d"}, else: %{}
@@ -33,6 +34,7 @@ defmodule UcxChat.MessageChannelController do
       create_mentions(mentions, message.id, message.channel_id, body)
       update_direct_notices(channel, message)
       message_html = render_message(message)
+      Logger.warn "message_html: #{inspect message_html}"
       broadcast_message(socket, message.id, message.user.id, message_html, body: body)
     end
     stop_typing(socket, user_id, channel_id)
@@ -141,8 +143,7 @@ defmodule UcxChat.MessageChannelController do
   def update(%{assigns: assigns} = socket, params) do
     user = Helpers.get(User, assigns[:user_id])
     channel_id = assigns[:channel_id]
-    "message-" <> id = params["id"]
-    id = String.to_integer id
+    id = params["id"]
 
     value = params["message"]
     Helpers.get(Message, id)

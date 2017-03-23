@@ -94,11 +94,11 @@ defmodule UcxChat.Permission do
     |> Enum.sort
   end
 
-  def has_permission?(user, permission, scope \\ 0) do
+  def has_permission?(user, permission, scope \\ nil) do
     permissions = match({@perms_key, permission, :"$1"})
     |> List.flatten
     Map.get(user, :roles)
-    |> Enum.any?(fn %{role: name, scope: value} -> name in permissions and (value == 0 or value == scope) end)
+    |> Enum.any?(fn %{role: name, scope: value} -> name in permissions and (value == nil or value == scope) end)
   end
 
   def has_at_least_one_permission?(user, list) do

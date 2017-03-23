@@ -9,7 +9,7 @@ defmodule UcxChat.TestHelpers do
   def insert_channel(%User{} = user, attrs),
     do: insert_channel(user.id, attrs)
 
-  def insert_channel(user_id, attrs) when is_integer(user_id) do
+  def insert_channel(user_id, attrs) do
     changes = Map.merge(%{
       user_id: user_id,
       name: FakerElixir.Helper.cycle(:channel_names, @channel_names)
@@ -27,8 +27,7 @@ defmodule UcxChat.TestHelpers do
   def insert_subscription(%User{} = user, %Channel{} = channel) do
     insert_subscription(user.id, channel.id)
   end
-  def insert_subscription(user_id, channel_id)
-    when is_integer(user_id) and is_integer(channel_id) do
+  def insert_subscription(user_id, channel_id) do
     changes = %{
       open: true,
       user_id: user_id,

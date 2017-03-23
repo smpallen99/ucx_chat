@@ -2,7 +2,8 @@ defmodule UcxChat.Repo.Migrations.CreateChannel do
   use Ecto.Migration
 
   def change do
-    create table(:channels) do
+    create table(:channels, primary_key: false) do
+      add :id, :binary_id, primary_key: true
       add :name, :string
       add :topic, :string, default: ""
       add :type, :integer, default: 0, null: false
@@ -11,7 +12,7 @@ defmodule UcxChat.Repo.Migrations.CreateChannel do
       add :blocked, :boolean, default: false, null: false
       add :default, :boolean, default: false, null: false
       add :description, :text, defaut: ""
-      add :user_id, references(:users, on_delete: :nilify_all)
+      add :user_id, references(:users, on_delete: :nilify_all, type: :binary_id)
 
       timestamps(type: :utc_datetime)
     end

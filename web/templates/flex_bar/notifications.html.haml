@@ -72,10 +72,10 @@
               %span.current-setting= option_text options(:email), settings.email
                 %i.icon-pencil(data-edit="email")
 
-        - if :email_no_verified do
-          %li
-            .alert.alert-warning.pending-background.pending-border
-              = ~g"You wont receive email notifications because you have not verified your email"
+        -# if :email_no_verified do
+        %li
+          .alert.alert-warning.pending-background.pending-border
+            = ~g"You wont receive email notifications because you have not verified your email"
 
         %li
           %label= ~g"Unread Alert (unsupported)"

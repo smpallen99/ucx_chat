@@ -83,9 +83,21 @@ defmodule UcxChat.ChannelService do
   # def room_type(:direct), do: @direct_message
   # def room_type(:stared), do: @stared_room
 
-  def set_subscription_state(channel_or_name, user_id, state) when state in [true, false] do
-    channel_or_name
+  def set_subscription_state(channel, user_id, state) when state in [true, false] do
+    channel
     |> Subscription.get(user_id)
+    |> Repo.one
+    |> case do
+      nil -> nil
+      sub ->
+        sub
+        |> Subscription.changeset(%{open: state})
+        |> Repo.update
+    end
+  end
+  def set_subscription_state_room(name, user_id, state) when state in [true, false] do
+    name
+    |> Subscription.get_by_room(user_id)
     |> Repo.one
     |> case do
       nil -> nil
@@ -391,7 +403,7 @@ defmodule UcxChat.ChannelService do
     |> set_subscription_state(user_id, true)
 
     old_room
-    |> set_subscription_state(user_id, false)
+    |> set_subscription_state_room(user_id, false)
 
     user
     |> User.changeset(%{open_id: channel.id})

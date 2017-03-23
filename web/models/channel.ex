@@ -120,11 +120,6 @@ defmodule UcxChat.Channel do
     end
   end
 
-  def get_all_channels(user_id) when is_integer(user_id) do
-    user_id
-    |> UcxChat.ServiceHelpers.get_user!
-    |> get_all_channels
-  end
 
   # all puplic and
   # privates that I'm subscribed too
@@ -139,6 +134,12 @@ defmodule UcxChat.Channel do
           where: c.type == 0 or (c.type == 1 and s.user_id == ^user_id) or c.user_id == ^user_id
       true -> from c in @module, where: false
     end
+  end
+
+  def get_all_channels(user_id) do
+    user_id
+    |> UcxChat.ServiceHelpers.get_user!
+    |> get_all_channels
   end
 
   def room_route(channel) do

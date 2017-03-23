@@ -50,12 +50,12 @@ defmodule UcxChat.Subscription do
     from c in @module, where: c.channel_id == ^channel_id
   end
 
-  def get(room, user_id) when is_binary(room) do
+  def get_by_room(room, user_id) when is_binary(room) do
     from s in @module, join: c in Channel, on: c.id == s.channel_id,
       where: c.name == ^room and s.user_id == ^user_id
   end
 
-  def get(channel_id, user_id) when is_integer(channel_id) do
+  def get(channel_id, user_id) do
     from c in @module, where: c.channel_id == ^channel_id and c.user_id == ^user_id
   end
 

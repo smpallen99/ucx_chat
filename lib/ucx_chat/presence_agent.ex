@@ -58,7 +58,7 @@ defmodule UcxChat.PresenceAgent do
   Reads the User's status form the database. If set, uses that as
   an override. Otherwise, sets the status to "online"
   """
-  def load(user_id) when is_integer(user_id) do
+  def load(user_id) when is_binary(user_id) do
     query =
       from u in User,
         where: u.id == ^user_id,
@@ -78,15 +78,15 @@ defmodule UcxChat.PresenceAgent do
   @doc """
   Logs a user out by clearing their entry in the status list.
   """
-  def unload(user_id) when is_integer(user_id) do
-    user_id |> to_string |> unload
-  end
+  # def unload(user_id) when is_integer(user_id) do
+  #   user_id |> to_string |> unload
+  # end
   def unload(user) do
     Agent.update(@name, &Map.delete(&1, user))
   end
 
-  def update_presence(user_id, status) when is_integer(user_id),
-    do: user_id |> to_string |> update_presence(status)
+  # def update_presence(user_id, status) when is_integer(user_id),
+  #   do: user_id |> to_string |> update_presence(status)
 
   def update_presence(user, status) do
     Agent.update @name, fn state ->
@@ -97,8 +97,8 @@ defmodule UcxChat.PresenceAgent do
     end
   end
 
-  def get_and_update_presence(user_id, status) when is_integer(user_id),
-    do: user_id |> to_string |> get_and_update_presence(status)
+  # def get_and_update_presence(user_id, status) when is_integer(user_id),
+  #   do: user_id |> to_string |> get_and_update_presence(status)
 
   def get_and_update_presence(user, status) do
     Agent.get_and_update @name, fn state ->
@@ -117,10 +117,10 @@ defmodule UcxChat.PresenceAgent do
   stored in the database unless its "online", where its removed from
   the database.
   """
-  def put(user_id, status) when is_integer(user_id) do
-    user = to_string user_id
-    put(user_id, user, status)
-  end
+  # def put(user_id, status) when is_integer(user_id) do
+  #   user = to_string user_id
+  #   put(user_id, user, status)
+  # end
   def put(user, status) when is_binary(user) do
     user_id = String.to_integer user
     put(user_id, user, status)
@@ -138,8 +138,8 @@ defmodule UcxChat.PresenceAgent do
     Agent.update(@name, &Map.put(&1, user, {:override, status}))
   end
 
-  def get(user_id) when is_integer(user_id),
-    do: user_id |> to_string |> get
+  # def get(user_id) when is_integer(user_id),
+  #   do: user_id |> to_string |> get
 
   def get(user) do
     case Agent.get @name, &Map.get(&1, user) do
@@ -149,8 +149,8 @@ defmodule UcxChat.PresenceAgent do
     end
   end
 
-  def active?(user_id) when is_integer(user_id),
-    do: user_id |> to_string |> active?
+  # def active?(user_id) when is_integer(user_id),
+  #   do: user_id |> to_string |> active?
 
   def active?(user) do
     not is_nil(Agent.get(@name, &Map.get(&1, user)))

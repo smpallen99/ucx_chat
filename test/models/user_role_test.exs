@@ -3,7 +3,7 @@ defmodule UcxChat.UserRoleTest do
 
   alias UcxChat.UserRole
 
-  @valid_attrs %{role: "name", scope: 42}
+  @valid_attrs %{role: "name", scope: nil}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

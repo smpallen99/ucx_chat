@@ -23,7 +23,7 @@ defmodule UcxChat.MessageView do
         acc <> apply(__MODULE__, fun, [msg, user])
       end)
     attrs = [
-      id: "message-#{msg.id}",
+      id: msg.id,
       class: cls,
       "data-username": msg.user.username,
       "data-groupable": msg.is_groupable,
