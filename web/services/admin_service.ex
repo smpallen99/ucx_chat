@@ -80,7 +80,7 @@ defmodule UcxChat.AdminService do
     user = struct(user, status: UcxChat.PresenceAgent.get(user.id))
     html =
       "user_card.html"
-      |> FlexBarView.render(user: user, current_user: current_user, channel_id: 0, user_info: %{admin: true})
+      |> FlexBarView.render(user: user, current_user: current_user, channel_id: nil, user_info: %{admin: true})
       |> safe_to_string
 
     {:reply, {:ok, %{html: html, title: "User Info"}}, socket}
@@ -92,7 +92,7 @@ defmodule UcxChat.AdminService do
     current_user = Helpers.get_user!(assigns.user_id)
     html =
       "admin_invite_users.html"
-      |> AdminView.render(user: current_user, channel_id: 0, user_info: %{admin: true},
+      |> AdminView.render(user: current_user, channel_id: nil, user_info: %{admin: true},
          invite_emails: [], error_emails: [], pending_invitations: get_pending_invitations())
       |> safe_to_string
 
@@ -109,14 +109,14 @@ defmodule UcxChat.AdminService do
       {:ok, emails} ->
         html =
           "admin_invite_users.html"
-          |> AdminView.render(user: current_user, channel_id: 0, user_info: %{admin: true},
+          |> AdminView.render(user: current_user, channel_id: nil, user_info: %{admin: true},
              invite_emails: emails, error_emails: [], pending_invitations: get_pending_invitations())
           |> safe_to_string
         {:reply, {:ok, %{html: html, title: "Invite Users", success: ~g(Invitations sent successfully.)}}, socket}
       %{errors: errors, ok: emails} ->
         html =
           "admin_invite_users.html"
-          |> AdminView.render(user: current_user, channel_id: 0, user_info: %{admin: true},
+          |> AdminView.render(user: current_user, channel_id: nil, user_info: %{admin: true},
              invite_emails: emails, error_emails: errors, pending_invitations: get_pending_invitations())
           |> safe_to_string
         {:reply, {:ok, %{html: html, title: "Invite Users", warning: ~g(Some of the Invitations were not send.)}}, socket}
@@ -266,13 +266,13 @@ defmodule UcxChat.AdminService do
     [user: user, changeset: cs]
   end
   defp get_args("users", user) do
-    users = Repo.all(User)
+    users = Repo.all(from u in User, order_by: [asc: u.username])
     [user: user, users: users]
   end
   defp get_args("rooms", user) do
     # view_a = String.to_atom view
     # mod = Module.concat Config, String.capitalize(view)
-    rooms = Repo.all(from c in Channel, preload: [:subscriptions, :messages])
+    rooms = Repo.all(from c in Channel, order_by: [asc: c.name], preload: [:subscriptions, :messages])
     [user: user, rooms: rooms]
   end
   # defp get_args("message", user) do
