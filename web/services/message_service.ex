@@ -75,6 +75,7 @@ defmodule UcxChat.MessageService do
     |> where([m], m.channel_id == ^channel_id)
     |> Helpers.last_page
     |> preload([:user, :edited_by])
+    |> order_by([m], asc: m.inserted_at)
     |> Repo.all
     |> new_days(tz || 0, [])
   end
