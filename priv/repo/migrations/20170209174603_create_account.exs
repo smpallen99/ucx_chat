@@ -24,6 +24,7 @@ defmodule UcxChat.Repo.Migrations.CreateAccount do
       add :new_room_notification, :string, default: "door"
       add :new_message_notification, :string, default: "chime"
       add :chat_mode, :boolean, default: false, null: false
+      add :enable_desktop_notifications, :boolean, default: true, null: false
 
       timestamps()
     end

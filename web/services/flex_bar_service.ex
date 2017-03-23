@@ -58,6 +58,12 @@ defmodule UcxChat.FlexBarService do
     {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, nil)}
   end
 
+  def handle_in(ev = "notifications_form:play", params, socket) do
+    user = Helpers.get_user(socket.assigns.user_id)
+    sound = UcxChat.Settings.get_new_message_sound(user, socket.assigns.channel_id)
+    {:reply, {:ok, %{sound: sound}}, socket}
+  end
+
   def handle_in(ev = "notifications_form:save", params, socket) do
     notify = socket.assigns.notification
     params =

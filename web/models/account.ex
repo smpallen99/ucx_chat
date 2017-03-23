@@ -20,8 +20,9 @@ defmodule UcxChat.Account do
     field :view_mode, :integer, default: 1
     field :email_notification_mode, :string, default: "all"
     field :highlights, :string, default: ""
-    field :new_room_notification, :string, default: "door"
-    field :new_message_notification, :string, default: "chime"
+    field :enable_desktop_notifications, :boolean, default: true
+    field :new_room_notification, :string, default: "system_default"
+    field :new_message_notification, :string, default: "system_default"
     field :chat_mode, :boolean, default: false
 
     has_one :user, UcxChat.User, on_delete: :delete_all
@@ -35,7 +36,7 @@ defmodule UcxChat.Account do
           [:save_mobile_bandwidth, :collapse_media_by_default, :unread_rooms_mode] ++
           [:hide_user_names, :hide_flex_tab, :hide_avatars, :merge_channels, :view_mode] ++
           [:email_notification_mode, :highlights, :new_room_notification] ++
-          [:new_message_notification, :chat_mode]
+          [:new_message_notification, :chat_mode, :enable_desktop_notifications]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

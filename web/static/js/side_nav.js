@@ -75,6 +75,22 @@ class SideNav {
   register_events() {
     this.bind_scroll_event()
     $('body')
+    .on('click', 'button.test-notifications', e => {
+      e.preventDefault()
+      desktop_notifier.notify('Desktop Notification Test', 'This is a desktop notification.', 5)
+      // console.log('test notifications')
+      return false
+    })
+    .on('change', '#account_new_room_notification', e => {
+      let sound = $(e.currentTarget).val()
+      if (sound != 'none' && sound != "system_default")
+        $('#' + sound)[0].play()
+    })
+    .on('change', '#account_new_message_notification', e => {
+      let sound = $(e.currentTarget).val()
+      if (sound != 'none' && sound != "system_default")
+        $('#' + sound)[0].play()
+    })
     .on('click', 'span.arrow', (e) => {
       // console.log('span.arrow click', e.currentTarget)
       if ($(e.currentTarget).hasClass('close')) {

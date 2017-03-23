@@ -20,31 +20,31 @@
           .section
             %h1 Messages
             .section-content.border-component-color
-              - unless defer do
+              - if UxChat.Settings.enable_desktop_notifications() do
                 .input-line.double-col
-                  %label Desktop Notifications
+                  %label Enable Desktop Notifications
                   %div
-                    - if account.desktop_notification_enabled do
-                      %label Desktop Notifications Enabled
+                    %label
+                      = radio_button f, :enable_desktop_notifications, "1", checked: account.enable_desktop_notifications
+                      = ~g(True)
+                    %label
+                      = radio_button f, :enable_desktop_notifications, "0", checked: !account.enable_desktop_notifications
+                      = ~g(False)
+                    - unless account.enable_desktop_notifications do
                       %label
                         %button.button.test-notifications
                           %i.icon-comment-empty.secondary-font-color
                           %span Test Desktop Notifications
-                    -else
-                      -if !account.desktop_notification_enabled do
-                        %label Desktop Notifications Disabled
+
+                - unless account.enable_desktop_notifications do
+                  .input-line.double-col
+                    %label Notification Duration
+                    %div
+                      -if account.desktop_notification_duration do
+                        = text_input f, :desktop_notification_duration, type: :number, min: "0"
                       - else
-                        %label
-                          %button.button.enable-notifications
-                            %i.icon-comment-empty.secondary-font-color
-                            %span Enable Desktop Notifications
-                .input-line.double-col
-                  %label Notification Duration
-                  %div
-                    -if account.desktop_notification_duration do
-                      = text_input f, :desktop_notification_duration, type: :number, min: "0"
-                    - else
-                      = text_input f, :desktop_notification_duration, type: :number, min: "0", placeholder: "User Global Settings"
+                        = text_input f, :desktop_notification_duration, type: :number, min: "0", placeholder: "User Global Settings"
+              - unless defer do
                 .input-line.double-col#unreadAlert
                   %label Unread Alert
                   %div
@@ -168,17 +168,17 @@
                   %div
                     %label Highlights How To
                     = textarea f, :highlights, cols: "30", rows: "10", placeholder: "highlight"
-            .section
-              %h1 Sound
-              .section-content.border-component-color
-                .input-line.double-col
-                  %label New Room Notification
-                  %div
-                    = select f, :new_room_notification, get_room_notification_sounds(), class: "audio"
-                .input-line.double-col
-                  %label New Message Notification
-                  %div
-                    = select f, :new_message_notification, get_message_notification_sounds(), class: "audio"
+          .section
+            %h1 Sound
+            .section-content.border-component-color
+              .input-line.double-col
+                %label New Room Notification
+                %div
+                  = select f, :new_room_notification, get_room_notification_sounds(), class: "audio"
+              .input-line.double-col
+                %label New Message Notification
+                %div
+                  = select f, :new_message_notification, get_message_notification_sounds(), class: "audio"
         .submit
           %button.button.primary.save
             %i.icon-send

@@ -543,7 +543,7 @@ defmodule UcxChat.UserChannel do
       sound -> Map.put(payload, :sound, sound)
     end
     if Settings.enable_desktop_notifications() do
-       push socket, "notification:new", Map.put(payload, :duration, Settings.get_desktop_notification_duration(user, channel))
+      push socket, "notification:new", Map.put(payload, :duration, Settings.get_desktop_notification_duration(user, channel))
     end
   end
 

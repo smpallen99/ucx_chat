@@ -1,3 +1,4 @@
+const debug = true
 
 class DesktopNotification {
   constructor() {
@@ -7,17 +8,20 @@ class DesktopNotification {
   notify(name, body, duration) {
     // let icon_path = this.getAvatarAsPng(icon)
     // $('a[data-audio="chime"]').click()
-    Notification.requestPermission(() => {
-      let notify = new Notification('@' + name, {
-        body: body,
-        icon: '/images/logo_globe.png'
+    if (duration) {
+      Notification.requestPermission(() => {
+        let notify = new Notification(name, {
+          body: body,
+          icon: '/images/logo_globe.png'
+        })
+        setTimeout(() => {
+          notify.close()
+        }, duration * 1000)
       })
-      setTimeout(() => {
-        notify.close()
-      }, duration * 1000)
-    })
+    }
   }
   notify_audio(sound) {
+    if (debug) { console.log('notify_audio', sound) }
     $('audio#' + sound)[0].play()
   }
   // getAvatarAsPng(icon) {
