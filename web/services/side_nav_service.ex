@@ -17,7 +17,9 @@ defmodule UcxChat.SideNavService do
 
   def render_more_channels(user_id) do
     user = Helpers.get_user! user_id
-    channels = ChannelService.get_side_nav_rooms(user)
+    channels =
+      user
+      |> ChannelService.get_side_nav_rooms
 
     "list_combined_flex.html"
     |> UcxChat.SideNavView.render(channels: channels, current_user: user)
@@ -32,6 +34,7 @@ defmodule UcxChat.SideNavService do
         left_join: s in Subscription, on: s.user_id == ^user_id and s.channel_id == d.channel_id,
         # left_join: c in Channel, on: c.id == d.channel_id,
         where: u.id != ^user_id,
+        order_by: [asc: u.username],
         preload: [:roles],
         select: {u, s})
       |> Enum.reject(fn {user, _} -> User.has_role?(user, "bot") end)

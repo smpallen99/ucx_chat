@@ -248,7 +248,10 @@ defmodule UcxChat.ChannelService do
   #
 
   def get_side_nav_rooms(%User{} = user) do
-    user |> Channel.get_all_channels |> Repo.all
+    user
+    |> Channel.get_all_channels
+    |> order_by([c], [asc: c.name])
+    |> Repo.all
   end
 
   def build_active_room(%Channel{} = channel) do
@@ -305,6 +308,9 @@ defmodule UcxChat.ChannelService do
           type: type, display_name: display_name
         }
       end)
+      |> Enum.sort(fn a, b ->
+        String.downcase(a.display_name) < String.downcase(b.display_name)
+      end)
     rooms = Enum.reject rooms, fn %{channel_type: chan_type, hidden: hidden} ->
       chat_mode && (chan_type in [0,1]) or hidden
     end
@@ -313,6 +319,7 @@ defmodule UcxChat.ChannelService do
     room_map = Enum.reduce rooms, %{}, fn room, acc ->
       put_in acc, [room[:channel_id]], room
     end
+
     types = Enum.group_by(rooms, fn item ->
       case Map.get(item, :type) do
         :private -> :public
