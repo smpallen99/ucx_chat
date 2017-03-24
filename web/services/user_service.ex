@@ -34,6 +34,30 @@ defmodule UcxChat.UserService do
     |> Repo.delete
   end
 
+  def deactivate_user(user) do
+    (from s in Subscription,
+      join: c in Channel, on: s.channel_id == c.id,
+      where: c.type == 2 and s.user_id == ^(user.id),
+      select: c)
+    |> Repo.all
+    |> Enum.each(fn channel ->
+      Repo.update Channel.changeset_update(channel, %{active: false})
+    end)
+    user
+  end
+
+  def activate_user(user) do
+    (from s in Subscription,
+      join: c in Channel, on: s.channel_id == c.id,
+      where: c.type == 2 and s.user_id == ^(user.id),
+      select: c)
+    |> Repo.all
+    |> Enum.each(fn channel ->
+      Repo.update Channel.changeset_update(channel, %{active: true})
+    end)
+    user
+  end
+
   def insert_user(params, opts \\ []) do
     multi =
       Multi.new

@@ -221,35 +221,43 @@ defmodule UcxChat.AdminService do
         ["admin", "user", ~g(User is no longer an admin), ~g(Problem encountered. User is still an admin)]
       end
 
-    (from r in UserRole, where: r.user_id == ^(user.id) and r.role == ^role1 and is_nil(r.scope))
+    (from r in UserRole, where: r.user_id == ^(user.id) and r.role == ^role2 and is_nil(r.scope))
     |> Repo.one
-    |> Repo.delete
-
-    %UserRole{}
-    |> UserRole.changeset(%{user_id: user.id, role: role2, scope: nil})
-    |> Repo.insert
     |> case do
-      {:ok, _} ->
-        html =
-          user.id
-          |> Helpers.get_user
-          |> AdminView.render_user_action_button("admin")
-          |> safe_to_string
-        {:ok, %{success: success, code_update: %{selector: "button." <> action, action: "replaceWith", html: html}}}
-      {:error, _} ->
-        {:error, %{error: error}}
+      nil ->
+        (from r in UserRole, where: r.user_id == ^(user.id) and r.role == ^role1 and is_nil(r.scope))
+        |> Repo.one
+        |> Repo.delete
+
+        %UserRole{}
+        |> UserRole.changeset(%{user_id: user.id, role: role2, scope: nil})
+        |> Repo.insert
+        |> case do
+          {:ok, _} ->
+            html =
+              user.id
+              |> Helpers.get_user
+              |> AdminView.render_user_action_button("admin")
+              |> safe_to_string
+            {:ok, %{success: success, code_update: %{selector: "button." <> action, action: "replaceWith", html: html}}}
+          {:error, _} ->
+            {:error, %{error: error}}
+        end
+      _ ->
+        {:error, %{error: ~g(User already has that role)}}
     end
   end
 
   defp flex_action(action, user, _username, _params, _socket) when action in ~w(activate deactivate) do
-    [active, success, error] =
+    [active, success, error, svc] =
       if action == "activate" do
-        [true, ~g(User has been activated), ~g(Problem activating User)]
+        [true, ~g(User has been activated), ~g(Problem activating User), &UserService.activate_user/1]
       else
-        [false, ~g(User has been deactivated), ~g(Problem encountered. User is still activated)]
+        [false, ~g(User has been deactivated), ~g(Problem encountered. User is still activated), &UserService.deactivate_user/1]
       end
 
     user
+    |> svc.()
     |> User.changeset(%{active: active})
     |> Repo.update
     |> case do

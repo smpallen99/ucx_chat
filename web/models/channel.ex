@@ -14,6 +14,7 @@ defmodule UcxChat.Channel do
     field :read_only, :boolean, default: false
     field :archived, :boolean, default: false
     field :blocked, :boolean, default: false
+    field :active, :boolean, default: true
     field :default, :boolean, default: false
     field :description, :string
     has_many :subscriptions, UcxChat.Subscription, on_delete: :delete_all
@@ -27,7 +28,7 @@ defmodule UcxChat.Channel do
     timestamps(type: :utc_datetime)
   end
 
-  @fields ~w(archived name type topic read_only blocked default user_id description)a
+  @fields ~w(archived name type topic read_only blocked default user_id description active)a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -52,6 +53,17 @@ defmodule UcxChat.Channel do
   def changeset_delete(struct, params \\ %{}) do
     struct
     |> cast(params, @fields)
+    |> validate_required([:name, :user_id])
+    |> validate_format(:name, ~r/^[a-z0-9\.\-_]+$/i)
+    |> validate_length(:name, min: 2, max: 50)
+  end
+
+  def changeset_update(struct, params \\ %{}) do
+    struct
+    |> cast(params, @fields)
+    |> validate_required([:name, :user_id])
+    |> validate_format(:name, ~r/^[a-z0-9\.\-_]+$/i)
+    |> validate_length(:name, min: 2, max: 50)
   end
 
   def blocked_changeset(struct, blocked) when blocked in [true, false] do

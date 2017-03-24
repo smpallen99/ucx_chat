@@ -135,7 +135,7 @@ defmodule UcxChat.AdminView do
   end
 
   def render_user_action_button(user, "admin") do
-    if User.has_role? user, "admin", 0 do
+    if User.has_role? user, "admin", nil do
       render "user_action_buttons.html", opts: %{type: :danger, action: "remove-admin", icon: :shield, label: ~g(REMOVE ADMIN)}
     else
       render "user_action_buttons.html", opts: %{type: :secondary, action: "make-admin", icon: :shield, label: ~g(MAKE ADMIN)}

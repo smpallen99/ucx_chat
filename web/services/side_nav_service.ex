@@ -37,7 +37,7 @@ defmodule UcxChat.SideNavService do
         order_by: [asc: u.username],
         preload: [:roles],
         select: {u, s})
-      |> Enum.reject(fn {user, _} -> User.has_role?(user, "bot") end)
+      |> Enum.reject(fn {user, _} -> User.has_role?(user, "bot") || user.active != true end)
       |> Enum.map(fn
         {user, nil} -> struct(user, subscription_hidden: nil, status: UcxChat.PresenceAgent.get(user.id))
         {user, sub} -> struct(user, subscription_hidden: sub.hidden, status: UcxChat.PresenceAgent.get(user.id))
