@@ -43,6 +43,11 @@ export function scroll_bottom() {
   elem.scrollTop = elem.scrollHeight - elem.clientHeight
 }
 
+export function scroll_down(height) {
+  let elem = $('.messages-box .wrapper')
+  elem.scrollTop(getScrollBottom() + height)
+}
+
 export function getScrollBottom() {
   let elem = $('.messages-box .wrapper')[0]
   return elem.scrollHeight - $(elem).innerHeight

@@ -16,6 +16,7 @@ defmodule UcxChat do
       supervisor(UcxChat.Endpoint, []),
       supervisor(UcxChat.Presence, []),
       worker(UcxChat.TypingAgent, []),
+      worker(UcxChat.MessageAgent, []),
       worker(UcxChat.UserAgent, []),
       worker(UcxChat.PresenceAgent, []),
       worker(UcxChat.ChannelMonitor, [:chan_system]),

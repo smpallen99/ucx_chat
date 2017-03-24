@@ -34,7 +34,6 @@ defmodule UcxChat.MessageChannelController do
       create_mentions(mentions, message.id, message.channel_id, body)
       update_direct_notices(channel, message)
       message_html = render_message(message)
-      Logger.warn "message_html: #{inspect message_html}"
       broadcast_message(socket, message.id, message.user.id, message_html, body: body)
     end
     stop_typing(socket, user_id, channel_id)

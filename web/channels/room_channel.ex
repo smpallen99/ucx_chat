@@ -17,7 +17,7 @@ defmodule UcxChat.RoomChannel do
 
   ############
   # API
-  # intercept ["lobby:room:update:name"]
+
   intercept ["user:action", "room:state_change", "room:update:list", "room:delete"]
 
   def user_join(nil), do: Logger.warn "join for nil username"

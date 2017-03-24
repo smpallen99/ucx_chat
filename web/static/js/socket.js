@@ -310,6 +310,14 @@ function start_room_channel(typing) {
     if (!loc) { loc = "/" }
     window.location = loc
   })
+  chan.on('message:preview', msg => {
+    let bottom = utils.is_scroll_bottom()
+    if (msg.html)
+      $('#' + msg.message_id + ' div.body').append(msg.html)
+    if  (bottom) {
+      utils.scroll_bottom()
+    }
+  })
 
   if (!window.flexbar) {
     flexbar.init_flexbar()

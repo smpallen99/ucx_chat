@@ -1,0 +1,12 @@
+- url = @page.original_url
+%blockquote.background-transparent-darker-before
+  .div(style="min-height: 80px; padding: 10px 3px;")
+    %a(href="#{url}" target="_blank")
+      - img = @page.images
+      %img(src="#{img}" height="60" align="left" style="margin-right: 10px;")
+    .div(style="color: #AAA;")= @page.website_url
+    %div
+      %a(href="#{url}" target="_blank")
+        %strong= @page.title
+    %div(style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis")
+      = @page.description
