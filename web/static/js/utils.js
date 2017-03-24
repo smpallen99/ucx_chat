@@ -40,22 +40,39 @@ export function debounce(func, wait, immediate) {
 
 export function scroll_bottom() {
   let elem = $('.messages-box .wrapper')[0]
-  elem.scrollTop = elem.scrollHeight - elem.clientHeight
+  if (elem)
+    elem.scrollTop = elem.scrollHeight - elem.clientHeight
+  else
+    console.warn('invalid elem')
 }
 
 export function scroll_down(height) {
   let elem = $('.messages-box .wrapper')
-  elem.scrollTop(getScrollBottom() + height)
+  if (elem)
+    elem.scrollTop(getScrollBottom() + height)
+  else
+    console.warn('invalid elem')
 }
 
 export function getScrollBottom() {
   let elem = $('.messages-box .wrapper')[0]
-  return elem.scrollHeight - $(elem).innerHeight
+  if (elem) {
+    return elem.scrollHeight - $(elem).innerHeight
+  } else {
+    console.warn('invalid elem')
+    return 1000
+  }
 }
 
 export function is_scroll_bottom() {
   let elem = $('.messages-box .wrapper')[0]
-  return elem.scrollTop + $(elem).innerHeight() + 1 >= elem.scrollHeight
+  if (elem) {
+    return elem.scrollTop + $(elem).innerHeight() + 1 >= elem.scrollHeight
+  } else {
+    console.warn('invalid elem')
+    return true
+  }
+
 }
 
 export function empty_string(string) {

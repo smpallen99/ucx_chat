@@ -12,7 +12,7 @@ class Messages {
     console.log('autolink', $(selector + ' code.hljs'))
     if ($(selector + ' code.hljs').length == 0) {
       let elem = $(selector)
-      elem.html(Autolinker.link(elem.html()))
+      elem.html(autoLinker.link(elem.html()))
     }
   }
 

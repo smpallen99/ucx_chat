@@ -417,6 +417,7 @@ defmodule UcxChat.ChannelService do
     |> Repo.update!
 
     messages = MessageService.get_messages(channel.id, user)
+
     chatd =
       user
       |> ChatDat.new(channel, messages)

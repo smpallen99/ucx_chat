@@ -252,6 +252,7 @@ class RoomManager {
     // bind_scroller()
     roomHistoryManager.new_room(ucxchat.room)
     this.updateMentionsMarksOfRoom()
+    $('.messages-box .wrapper ul').html(autoLinker.link($('.messages-box .wrapper ul').html()))
     roomchan.on('room:open', resp => {
       utils.page_loading()
       $('.main-content').html(utils.loading_animation())
@@ -312,6 +313,7 @@ class RoomManager {
   scroll_to(elem, offset = 0) {
     let offst = offset
     let msgbox = $('.messages-box .wrapper')
+    console.log('msgbox', msgbox, 'elem', elem)
     let valof = msgbox.scrollTop().valueOf()
     let offtop = msgbox.offset().top
     let item_top = elem.offset().top

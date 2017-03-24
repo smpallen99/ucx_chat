@@ -106,6 +106,8 @@ class RoomHistoryManager {
 
         $(container)[0].innerHTML = resp.html + html
 
+        autoLinker.link($(container)[0].innerHTML)
+
         if (debug) { console.log('finished loading', first_id) }
 
         this.startGetMoreAnimation()
@@ -139,7 +141,7 @@ class RoomHistoryManager {
       .receive("ok", resp => {
         if (debug) { console.log('getMoreNext resp', resp)}
         $('.messages-box .wrapper ul li:last.load-more').addClass('load-more-next')
-        $('.messages-box .wrapper ul')[0].innerHTML = html + resp.html
+        $('.messages-box .wrapper ul')[0].innerHTML = autoLinker.link(html + resp.html)
 
         scroll_to($('#' + last_id), 400)
         $('.load-more-next').remove()
@@ -216,9 +218,14 @@ class RoomHistoryManager {
     $('.messages-box .wrapper ul li.load-more').html(utils.loading_animation())
     cc.get('/messages/surrounding', {timestamp: timestamp})
       .receive("ok", resp => {
-        $(container)[0].innerHTML = resp.html
+        $(container)[0].innerHTML = autoLinker.link(resp.html)
         let message_id = $(`.messages-box li[data-timestamp="${timestamp}"]`).attr('id')
-        scroll_to($('#' + message_id), -200)
+        console.log('message_id', message_id)
+        if (message_id) {
+          scroll_to($('#' + message_id), -200)
+        } else {
+          console.error('invalid timestamp', timestamp)
+        }
         if (resp.has_more_next) {
           this.setHasMoreNext = true
           $('.messages-box .wrapper ul:last').append(utils.loadmore())
@@ -244,7 +251,7 @@ class RoomHistoryManager {
 
     cc.get('/messages/last')
       .receive("ok", resp => {
-        $('.messages-box .wrapper ul')[0].innerHTML = resp.html
+        $('.messages-box .wrapper ul')[0].innerHTML = autoLinker.link(resp.html)
         $(container + ' li:first.load-more').remove()
         $('.messages-box .wrapper').animate({
           scrollTop: utils.getScrollBottom()

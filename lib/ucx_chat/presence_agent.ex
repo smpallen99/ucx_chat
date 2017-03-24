@@ -121,9 +121,8 @@ defmodule UcxChat.PresenceAgent do
   #   user = to_string user_id
   #   put(user_id, user, status)
   # end
-  def put(user, status) when is_binary(user) do
-    user_id = String.to_integer user
-    put(user_id, user, status)
+  def put(user_id, status) when is_binary(user_id) do
+    put(user_id, user_id, status)
   end
 
   def put(user_id, user, "online") do

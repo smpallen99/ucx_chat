@@ -23,7 +23,8 @@
         %li.start.color-info-font-color
           = ~g(Start of conversation)
     - for message <- @chatd.messages do
-      = render UcxChat.MessageView, "message.html", user: @chatd.user, message: message
+      - previews = List.keyfind(@chatd.previews, message.id, 0, {nil, []}) |> elem(1)
+      = render UcxChat.MessageView, "message.html", user: @chatd.user, message: message, previews: previews
     - #{{#each messagesHistory}}
     - #  {{#nrr nrrargs 'message' .}}{{/nrr}}
     - if has_more_next() do

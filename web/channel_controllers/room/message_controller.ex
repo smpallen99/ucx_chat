@@ -42,37 +42,40 @@ defmodule UcxChat.MessageChannelController do
 
   def index(%{assigns: assigns} = socket, params) do
     user = Helpers.get(User, assigns[:user_id])
-    # Logger.warn "MessageService.handle_in load msg: #{inspect msg}, user: #{inspect user}"
+
     channel_id = assigns[:channel_id]
     timestamp = params["timestamp"]
-    # Logger.warn "timestamp: #{inspect timestamp}"
+
     page_size = Application.get_env :ucx_chat, :page_size, 30
+
     list =
       Message
       |> where([m], m.timestamp < ^timestamp and m.channel_id == ^channel_id)
       |> Helpers.last_page(page_size)
       |> preload([:user, :edited_by])
       |> Repo.all
-    # Logger.warn "list size: #{inspect length list}"
-    # info = MessageService.get_messages_info list, channel_id
+
+    previews = MessageService.message_previews(user.id, list)
+
     messages_html =
       list
       |> Enum.map(fn message ->
-        UcxChat.MessageView.render("message.html", user: user, message: message)
+        UcxChat.MessageView.render("message.html", user: user, message: message, previews: previews)
         |> Phoenix.HTML.safe_to_string
       end)
       |> to_string
+
     messages_html = String.replace(messages_html, "\n", "")
-    # Logger.warn "html: #{messages_html}"
+
     {:reply, {:ok, MessageService.messages_info_into(list, channel_id, %{html: messages_html})}, socket}
   end
 
   def previous(%{assigns: assigns} = socket, params) do
     user = Helpers.get(User, assigns[:user_id])
-    # Logger.warn "MessageService.handle_in load msg: #{inspect msg}, user: #{inspect user}"
+
     channel_id = assigns[:channel_id]
     timestamp = params["timestamp"]
-    # Logger.warn "timestamp: #{inspect timestamp}"
+
     page_size = Application.get_env :ucx_chat, :page_size, 75
     list =
       Message
@@ -80,8 +83,7 @@ defmodule UcxChat.MessageChannelController do
       |> limit(^page_size)
       |> preload([:user, :edited_by])
       |> Repo.all
-    # Logger.warn "list size: #{inspect length list}"
-    # info = MessageService.get_messages_info list, channel_id
+
     messages_html =
       list
       |> Enum.map(fn message ->
@@ -89,44 +91,45 @@ defmodule UcxChat.MessageChannelController do
         |> Phoenix.HTML.safe_to_string
       end)
       |> to_string
+
     messages_html = String.replace(messages_html, "\n", "")
-    # Logger.warn "html: #{messages_html}"
+
     {:reply, {:ok, MessageService.messages_info_into(list, channel_id, %{html: messages_html})}, socket}
   end
 
   def surrounding(%{assigns: assigns} = socket, params) do
     user = Helpers.get(User, assigns[:user_id])
-    # Logger.warn "MessageService.handle_in load msg: #{inspect msg}, user: #{inspect user}"
     channel_id = assigns[:channel_id]
     timestamp = params["timestamp"]
-    # Logger.warn "timestamp: #{inspect timestamp}"
+
     list = MessageService.get_surrounding_messages(channel_id, timestamp, user)
-    # Logger.warn "list size: #{inspect length list}"
-    # for message <- list do
-    #   Logger.warn "id: #{message.id}, timestamp #{message.timestamp}"
-    # end
-    # info = MessageService.get_messages_info list, channel_id
+
+    previews = MessageService.message_previews(user.id, list)
+
+    for preview <- previews do
+      Logger.warn "previews: #{inspect preview}"
+    end
+
     messages_html =
       list
       |> Enum.map(fn message ->
-        UcxChat.MessageView.render("message.html", user: user, message: message)
+        previews = List.keyfind(previews, message.id, 0, {nil, []}) |> elem(1)
+        UcxChat.MessageView.render("message.html", user: user, message: message, previews: previews)
         |> Phoenix.HTML.safe_to_string
       end)
       |> to_string
+
     messages_html = String.replace(messages_html, "\n", "")
-    # Logger.warn "html: #{messages_html}"
+
     {:reply, {:ok, MessageService.messages_info_into(list, channel_id, %{html: messages_html})}, socket}
   end
 
   def last(%{assigns: assigns} = socket, _params) do
     user = Helpers.get(User, assigns[:user_id])
-    # Logger.warn "MessageService.handle_in load msg: #{inspect msg}, user: #{inspect user}"
     channel_id = assigns[:channel_id]
-    # timestamp = params["timestamp"]
-    # Logger.warn "timestamp: #{inspect timestamp}"
+
     list = MessageService.get_messages(channel_id, user)
-    Logger.warn "list size: #{inspect length list}"
-    # info = MessageService.get_messages_info list, channel_id
+
     messages_html =
       list
       |> Enum.map(fn message ->
@@ -134,8 +137,9 @@ defmodule UcxChat.MessageChannelController do
         |> Phoenix.HTML.safe_to_string
       end)
       |> to_string
+
     messages_html = String.replace(messages_html, "\n", "")
-    # Logger.warn "html: #{messages_html}"
+
     {:reply, {:ok, MessageService.messages_info_into(list, channel_id, %{html: messages_html})}, socket}
   end
 
@@ -158,7 +162,6 @@ defmodule UcxChat.MessageChannelController do
         stop_typing(socket, user.id, channel_id)
     end
 
-    Logger.warn "MessageController.update id: #{inspect id}, value: #{inspect value}"
     {:reply, {:ok, %{}}, socket}
   end
 end

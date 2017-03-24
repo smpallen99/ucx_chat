@@ -6,7 +6,8 @@ defmodule UcxChat.ChatDat do
 
   defstruct user: nil, room_types: [], settings: %{}, rooms: [],
             channel: nil, messages: nil, room_map: %{}, active_room: %{},
-            status: "offline", room_route: "channels", messages_info: %{}
+            status: "offline", room_route: "channels", messages_info: %{},
+            previews: []
 
   def new(user, channel, messages \\ [])
   def new(%User{roles: %Ecto.Association.NotLoaded{}} = user, %Channel{} = channel, messages) do
@@ -17,6 +18,10 @@ defmodule UcxChat.ChatDat do
   def new(%User{} = user, %Channel{} = channel, messages) do
     %{room_types: room_types, rooms: rooms, room_map: room_map, active_room: ar} =
       UcxChat.ChannelService.get_side_nav(user, channel.id)
+
+    previews = MessageService.message_previews(user.id, messages)
+    # Logger.warn "message previews: #{inspect previews}"
+
     status = UcxChat.PresenceAgent.get user.id
     %__MODULE__{
       status: status,
@@ -27,7 +32,8 @@ defmodule UcxChat.ChatDat do
       channel: channel,
       messages: messages,
       active_room: ar,
-      room_route: Channel.room_route(channel)
+      room_route: Channel.room_route(channel),
+      previews: previews
     }
   end
 
@@ -56,7 +62,7 @@ defmodule UcxChat.ChatDat do
     case chatd.channel do
       %Channel{id: id} ->
         value = MessageService.get_messages_info(chatd.messages, id)
-        Logger.warn "chatd value: value: #{inspect value}"
+        # Logger.warn "chatd value: value: #{inspect value}"
         set(chatd, :messages_info, value)
       _ ->
         chatd

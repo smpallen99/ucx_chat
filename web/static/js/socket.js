@@ -23,6 +23,7 @@ import hljs from "highlight.js"
 import toastr from 'toastr'
 import * as sweet from "./sweetalert.min"
 import * as utils from "./utils"
+import AutoLinker from 'autolinker'
 window.moment = require('moment');
 const chan_user = "user:"
 const chan_room = "room:"
@@ -37,6 +38,15 @@ window.roomchan = false
 window.systemchan = false
 
 hljs.initHighlightingOnLoad();
+
+window.autoLinker = new AutoLinker({
+  urls : {
+    schemeMatches : true,
+    wwwMatches    : true,
+    tldMatches    : true
+    },
+  className: 'auto',
+})
 
 // new presence stuff
 let presences = {}
@@ -230,6 +240,9 @@ function start_user_channel() {
   chan.on("notification:new", resp => {
     roomManager.notification(resp)
   })
+  chan.on('message:preview', msg => {
+    message_preview(msg)
+  })
 
   chan.join()
     .receive("ok", resp => { console.log('Joined user successfully', resp)})
@@ -238,6 +251,16 @@ function start_user_channel() {
   chan.push('subscribe', {})
 }
 
+function message_preview(msg) {
+  setTimeout(() => {
+    let bottom = utils.is_scroll_bottom()
+    if (msg.html)
+      $('#' + msg.message_id + ' div.body').append(msg.html)
+    if  (bottom) {
+      utils.scroll_bottom()
+    }
+  }, 100)
+}
 export function restart_socket() {
   let event = jQuery.Event( "restart-socket" );
   $("body").trigger(event)
@@ -311,12 +334,7 @@ function start_room_channel(typing) {
     window.location = loc
   })
   chan.on('message:preview', msg => {
-    let bottom = utils.is_scroll_bottom()
-    if (msg.html)
-      $('#' + msg.message_id + ' div.body').append(msg.html)
-    if  (bottom) {
-      utils.scroll_bottom()
-    }
+    message_preview(msg)
   })
 
   if (!window.flexbar) {

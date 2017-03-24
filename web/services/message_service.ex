@@ -11,9 +11,6 @@ defmodule UcxChat.MessageService do
   require UcxChat.ChatConstants, as: CC
   require Logger
 
-  # def broadcast_message(id, channel_id, user_id, html) do
-  #   channel = Helpers.get
-  # end
   def broadcast_system_message(channel_id, _user_id, body) do
     channel = Helpers.get(Channel, channel_id)
     message = create_system_message(channel_id, body)
@@ -77,7 +74,6 @@ defmodule UcxChat.MessageService do
     |> preload([:user, :edited_by])
     |> order_by([m], asc: m.inserted_at)
     |> Repo.all
-    # |> message_previews
     |> new_days(tz || 0, [])
   end
 
@@ -183,7 +179,7 @@ defmodule UcxChat.MessageService do
     user_id = message.user.id
     user = Repo.one(from u in User, where: u.id == ^user_id)
     "message.html"
-    |> UcxChat.MessageView.render(message: message, user: user)
+    |> UcxChat.MessageView.render(message: message, user: user, previews: [])
     |> Phoenix.HTML.safe_to_string
   end
 
@@ -198,7 +194,7 @@ defmodule UcxChat.MessageService do
   end
 
   def create_message(body, user_id, channel_id, params \\ %{}) do
-    # Logger.warn "create_msg body: #{inspect body}, params: #{inspect params}"
+
     sequential? = case last_message(channel_id) do
       nil -> false
       lm ->
@@ -229,15 +225,20 @@ defmodule UcxChat.MessageService do
 
   def embed_link_previews(body, channel_id, message_id) do
     if Settings.embed_link_previews() do
-      ~r/https?:\/\/[^\s]+/
-      |> Regex.scan(body)
-      |> List.flatten
+      body
+      |> get_preview_links
       |> case do
         [] -> :ok
         list ->
           do_embed_link_previews(list, channel_id, message_id)
       end
     end
+  end
+
+  def get_preview_links(body) do
+    ~r/https?:\/\/[^\s]+/
+    |> Regex.scan(body)
+    |> List.flatten
   end
 
   def do_embed_link_previews(list, channel_id, message_id) do
@@ -249,12 +250,9 @@ defmodule UcxChat.MessageService do
       spawn fn ->
         case MessageAgent.get_preview url do
           nil ->
-
-            html = MessageAgent.put_preview url, create_link_preview(url, room, message_id)
-            Logger.warn "created a preview: url: #{inspect url}, html: #{inspect html}"
+            html = MessageAgent.put_preview url, create_link_preview(url, message_id)
             broadcast_link_preview(html, room, message_id)
           html ->
-            Logger.warn "found a preview: url: #{inspect url}, html: #{inspect html}"
             spawn fn ->
               :timer.sleep(100)
               broadcast_link_preview(html, room, message_id)
@@ -264,16 +262,15 @@ defmodule UcxChat.MessageService do
     end)
   end
 
-  defp create_link_preview(url, room, message_id) do
+  defp create_link_preview(url, message_id) do
     case LinkPreview.create url do
       {:ok, page} ->
-        # Logger.warn "page: #{inspect page}"
         img =
           case Enum.find(page.images, &String.match?(&1[:url], ~r/https?:\/\//)) do
             %{url: url} -> url
             _ -> nil
           end
-        # Logger.warn "img: #{inspect img}"
+
         "link_preview.html"
         |> MessageView.render(page: struct(page, images: img))
         |> Phoenix.HTML.safe_to_string
@@ -283,18 +280,34 @@ defmodule UcxChat.MessageService do
   end
 
   defp broadcast_link_preview(nil, room, message_id) do
-    Logger.warn "no preview to broadcast: room: #{inspect room}, message_id: #{inspect message_id}"
     nil
   end
-
-
-  # defp message_previews(messages) do
-
-  # end
   defp broadcast_link_preview(html, room, message_id) do
-    Logger.warn "broadcasting a preview: room: #{inspect room}, message_id: #{inspect message_id}, html: #{inspect html}"
+    # Logger.warn "broadcasting a preview: room: #{inspect room}, message_id: #{inspect message_id}, html: #{inspect html}"
     UcxChat.Endpoint.broadcast! CC.chan_room <> room, "message:preview",
       %{html: html, message_id: message_id}
+  end
+
+  def message_previews(user_id, messages) when is_list(messages) do
+    Enum.reduce messages, [], fn message, acc ->
+      case get_preview_links(message.body) do
+        [] -> acc
+        list ->
+          html_list = get_preview_html(list)
+          for {url, html} <- html_list, is_nil(html) do
+            spawn fn ->
+              html = MessageAgent.put_preview url, create_link_preview(url, message.id)
+              UcxChat.Endpoint.broadcast!(CC.chan_user <> user_id, "message:preview",
+                %{html: html, message_id: message.id})
+            end
+          end
+          [{message.id, html_list} | acc]
+      end
+    end
+  end
+
+  defp get_preview_html(list) do
+    Enum.map list, &({&1, MessageAgent.get_preview(&1)})
   end
 
   def stop_typing(socket, user_id, channel_id) do
@@ -421,10 +434,6 @@ defmodule UcxChat.MessageService do
     message = create_message(body, user_id, channel_id, Enum.into(opts, %{}))
     {message, render_message(message)}
   end
-
-  # defp notify_mention(_mention) do
-  #   # have to figure out if we need to have another socket for this?
-  # end
 
   def render_message_box(channel_id, user_id) do
     user = Helpers.get_user! user_id
