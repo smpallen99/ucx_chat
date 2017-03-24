@@ -6,6 +6,7 @@
     "watch": "brunch watch --stdin"
   },
   "dependencies": {
+    "autolinker": "^1.4.2",
     "emojionearea": "^3.0.0",
     "highlight.js": "~9.9.0",
     "jquery": "~2.2.0",

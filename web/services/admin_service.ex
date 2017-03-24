@@ -133,7 +133,7 @@ defmodule UcxChat.AdminService do
     channel = Helpers.get_by!(Channel, :name, name)
     html =
       "room_info.html"
-      |> AdminView.render(channel: channel, current_user: current_user, can_edit: true, editing: %{})
+      |> AdminView.render(channel: channel, current_user: current_user, can_edit: true, editing: nil)
       |> safe_to_string
 
     {:reply, {:ok, %{html: html, title: "User Info"}}, socket}
@@ -148,6 +148,41 @@ defmodule UcxChat.AdminService do
     end
     {:reply, resp, socket}
   end
+  def handle_in(ev = "channel-settings:edit", %{"channel_id" => channel_id, "field" => field} = params, socket) do
+    debug ev, params
+    assigns = socket.assigns
+    current_user = Helpers.get_user!(assigns.user_id)
+    channel = Helpers.get!(Channel, channel_id)
+    html =
+      "room_info.html"
+      |> AdminView.render(channel: channel, current_user: current_user, can_edit: true, editing: field)
+      |> safe_to_string
+
+    {:reply, {:ok, %{html: html}}, socket}
+  end
+  def handle_in(ev = "channel-settings:cancel", %{"channel_id" => channel_id} = params, socket) do
+    debug ev, params
+    current_user = Helpers.get_user!(socket.assigns.user_id)
+    channel = Helpers.get!(Channel, channel_id)
+    html =
+      "room_info.html"
+      |> AdminView.render(channel: channel, current_user: current_user, can_edit: true, editing: nil)
+      |> safe_to_string
+
+    {:reply, {:ok, %{html: html}}, socket}
+  end
+  def handle_in(ev = "channel-settings:save", %{"channel_id" => channel_id} = params, socket) do
+    debug ev, params
+    current_user = Helpers.get_user!(socket.assigns.user_id)
+    channel = Helpers.get!(Channel, channel_id)
+    html =
+      "room_info.html"
+      |> AdminView.render(channel: channel, current_user: current_user, can_edit: true, editing: nil)
+      |> safe_to_string
+
+    {:reply, {:ok, %{html: html}}, socket}
+  end
+
 
   def handle_in(ev = "flex:row-info", params, socket) do
     debug ev, params

@@ -61,3 +61,9 @@ textarea.input-message::placeholder {
 .invite-users .outstanding li {
   padding-bottom: 5px;
 }
+.channel-settings span[data-edit] {
+  cursor: pointer;
+}
+.channel-settings input.editing {
+  margin-bottom: 5px;
+}
