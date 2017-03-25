@@ -5,7 +5,8 @@ $status-away: $pending-color;
 $status-busy: $error-color;
 $status-offline: $transparent-darker;
 $tertiary-background-color: $component-color;
-$tertiary-font-color: $transparent-lightest;
+// $tertiary-font-color: $transparent-darkest;
+$tertiary-font-color: #444444;
 $link-font-color: $primary-action-color;
 $info-font-color: $secondary-font-color;
 $custom-scrollbar-color: $transparent-darker;
@@ -14,7 +15,7 @@ $default-action-color: darken($secondary-background-color, 15%);
 $default-action-contrast: contrast($default-action-color, #444444);
 $primary-background-contrast: contrast($primary-background-color, #444444);
 // $primary-action-contrast: contrast($primary-action-color, #444444);
-$primary-action-contrast: contrast($primary-action-color, #ffffff);
+$primary-action-contrast: contrast($primary-action-color, #6c6c6c);
 $secondary-background-contrast: contrast($secondary-background-color, #444444);
 $secondary-action-contrast: contrast($secondary-action-color, #444444);
 $selection-background: lighten($selection-color, 30%);
@@ -32,9 +33,9 @@ $account-hover: #022840;
  * Transparency variables
  */
 
-$transparent-darkest: rgba(0, 0, 0, 0.5);
-$transparent-darker: rgba(0, 0, 0, 0.15);
-$transparent-dark: rgba(0, 0, 0, 0.05);
+$transparent-darkest: rgba(0, 0, 0, 0.8);
+$transparent-darker: rgba(0, 0, 0, 0.35);
+$transparent-dark: rgba(0, 0, 0, 0.10);
 $transparent-light: rgba(255, 255, 255, 0.1);
 $transparent-lighter: rgba(255, 255, 255, 0.3);
 $transparent-lightest: rgba(255, 255, 255, 0.6);
@@ -168,7 +169,9 @@ $transparent-lightest: rgba(255, 255, 255, 0.6);
 }
 
 .background-transparent-darker-hover:hover {
-  background-color: $transparent-darker;
+  background-color: #dfefc3;
+  // background-color: #a6d256;
+  // background-color: $transparent-darker;
 }
 
 .background-transparent-darker-before::before {
@@ -273,7 +276,24 @@ $transparent-lightest: rgba(255, 255, 255, 0.6);
 }
 
 .flex-nav {
-  @include input-shade($primary-background-contrast, $transparent-lighter);
+  // @include input-shade($primary-background-contrast, $transparent-lighter);
+  color: #eee;
+
+  .wrapper {
+    ul li a {
+      color: #eee;
+      span.opt i {
+        color: #aaa;
+        &:hover {
+          color: #eee imporant;
+        }
+      }
+    }
+    ul li:hover {
+      background-color: #808080;
+    }
+
+  }
 
   input {
     &:focus {
@@ -428,7 +448,18 @@ a:hover {
 /** ----------------------------------------------------------------------------
  * Room components
  */
-
+aside.side-nav {
+  header.header {
+    h4 {
+      color: #eee !important;
+    }
+  }
+  .rooms-list {
+    h3 i {
+      color: #1ec7f1 !important;
+    }
+  }
+}
 .toggle-favorite {
   color: $component-color;
 }
@@ -585,7 +616,8 @@ a:hover {
   }
 
   i.status-offline {
-    color: $transparent-lighter !important;
+    // color: $transparent-lighter !important;
+    color: #aaa !important
   }
 
   i {
@@ -593,7 +625,11 @@ a:hover {
   }
 
   .opt i:hover {
-    color: $transparent-lightest;
+    // color: $transparent-light;
+    color: #333 !important;
+  }
+  .opt i {
+    color: #777;
   }
 
   .has-alert .name {
@@ -609,17 +645,23 @@ a:hover {
   }
 
   .button {
-    @include buttonColors($tertiary-font-color, mix($primary-action-color, $primary-background-color));
+    // @include buttonColors($tertiary-font-color, mix($primary-action-color, $primary-background-color));
+    color: #eee;
   }
 
   .options button {
-    @include buttonColors($tertiary-font-color, $primary-background-color);
+    // @include buttonColors($tertiary-font-color, $primary-background-color);
+    color: #eee;
   }
   .options button:hover {
     background-color: $primary-background-color-hover;
     span {
-      color: rgba(255,255,255,0.7);
+      // color: rgba(255,255,255,0.7);
+      color: #eee;
     }
+  }
+  .options i {
+    color: #eee;
   }
 }
 

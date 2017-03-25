@@ -1,4 +1,4 @@
-.content-background-color {
+/*.content-background-color {
     background-color: #fff
 }
 
@@ -10,11 +10,11 @@
     background-color: #04436a
 }
 
-.global-font-family {
+*/.global-font-family {
     font-family: -apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif,'Apple Color Emoji','Segoe UI','Segoe UI Emoji','Segoe UI Symbol','Meiryo UI'
 }
 
-.color-primary-font-color {
+/*.color-primary-font-color {
     color: #444
 }
 
@@ -45,8 +45,8 @@
 .background-component-color {
     background-color: #eaeaea
 }
-
-.success-color {
+*/
+/*.success-color {
     color: #4dff4d
 }
 
@@ -74,7 +74,7 @@
     color: #a0a0a0
 }
 
-.background-info-font-color {
+*//*.background-info-font-color {
     background-color: #a0a0a0
 }
 
@@ -89,11 +89,10 @@
 .border-tertiary-background-color {
     border-color: #eaeaea
 }
-
 .color-tertiary-font-color {
     color: rgba(255,255,255,0.6)
 }
-
+*/
 .error-background {
     background-color: #f6cbd0
 }
@@ -105,7 +104,7 @@
 .color-error-contrast {
     color: #fff
 }
-
+/*
 .background-transparent-darkest {
     background-color: rgba(0,0,0,0.5)
 }
@@ -149,7 +148,7 @@
 .color-primary-action-contrast {
     color: #fff
 }
-
+*/
 * {
     -webkit-overflow-scrolling: touch
 }
@@ -547,11 +546,13 @@ a:active,a:hover {
 }
 
 .side-nav a,.side-nav .info {
-    color: rgba(255,255,255,0.6)
+    color: #444;
+    /*color: rgba(255,255,255,0.6)*/
 }
 
 .side-nav a:hover,.side-nav .info:hover {
-    color: rgba(255,255,255,0.6)
+    color: #333;
+    /*color: rgba(255,255,255,0.6)*/
 }
 
 .side-nav .arrow::before,.side-nav .arrow::after {
@@ -559,25 +560,26 @@ a:active,a:hover {
 }
 
 .side-nav .rooms-list {
-    background-color: #044b76
+    background-color: #f3f2f2;
 }
 
 .side-nav li.active {
-    background-color: rgba(255,255,255,0.1) !important
+    background-color: #a6d256 !important;
+    /*background-color: rgba(255,255,255,0.1) !important*/
 }
 
-.side-nav i.status-offline {
-    color: rgba(255,255,255,0.3) !important
+/*.side-nav i.status-offline {
+    color: #444 !important
 }
 
 .side-nav i {
-    color: rgba(255,255,255,0.3)
+    color: #444 !important;
 }
-
-.side-nav .opt i:hover {
+*/
+/*.side-nav .opt i:hover {
     color: rgba(255,255,255,0.6)
 }
-
+*/
 .side-nav .has-alert .name {
     color: #fff
 }
@@ -587,7 +589,7 @@ a:active,a:hover {
     color: #000
 }
 
-.side-nav .button {
+/*.side-nav .button {
     color: rgba(255,255,255,0.6);
     background-color: #0c5582
 }
@@ -606,7 +608,7 @@ a:active,a:hover {
     color: rgba(255,255,255,0.76);
     background-color: #022840
 }
-
+*/
 .message-popup.search-results-list {
     background-color: #044b76
 }

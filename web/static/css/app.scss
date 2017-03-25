@@ -67,3 +67,17 @@ textarea.input-message::placeholder {
 .channel-settings input.editing {
   margin-bottom: 5px;
 }
+
+blockquote,
+pre code {
+  a.auto-url {
+    text-decoration: none;
+    color: inherit;
+    cursor: text;
+    pointer-events: none;
+    &:hover {
+      color: inherit;
+    }
+  }
+
+}
