@@ -262,7 +262,7 @@ defmodule UcxChat.MessageService do
     end)
   end
 
-  defp create_link_preview(url, message_id) do
+  defp create_link_preview(url, _message_id) do
     case LinkPreview.create url do
       {:ok, page} ->
         img =
@@ -279,7 +279,7 @@ defmodule UcxChat.MessageService do
     end
   end
 
-  defp broadcast_link_preview(nil, room, message_id) do
+  defp broadcast_link_preview(nil, _room, _message_id) do
     nil
   end
   defp broadcast_link_preview(html, room, message_id) do

@@ -6,8 +6,8 @@ defmodule UcxChat.SystemChannel do
 
   # import Ecto.Query
 
-  # @blur_timer 5 * 60 * 1000
-  @blur_timer 15 * 1000
+  @blur_timer 3 * 60 * 1000
+  # @blur_timer 15 * 1000
 
   # import Ecto.Query
 

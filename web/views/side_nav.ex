@@ -4,7 +4,7 @@ defmodule UcxChat.SideNavView do
 
   def chat_room_item_li_class(item) do
     acc = "link-room-#{item[:name]} background-transparent-darker-hover"
-    with acc <- if(item[:active], do: acc <> " active", else: acc),
+    with acc <- if(item[:open], do: acc <> " active", else: acc),
          do: if(item[:alert], do: acc <> " has-alert", else: acc)
   end
 

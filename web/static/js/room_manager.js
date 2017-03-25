@@ -112,7 +112,7 @@ class RoomManager {
   }
 
   notification(resp) {
-    if (resp.badges_only) {
+    if (!resp.badges_only) {
       if (resp.body) {
         desktop_notifier.notify('@' + resp.username, resp.body, resp.duration)
       }

@@ -338,7 +338,7 @@ defmodule UcxChat.UserChannel do
     {:noreply, update_rooms_list(socket)}
   end
   def handle_info(%Broadcast{topic: "room:" <> room, event: "message:new" = event, payload: payload}, socket) do
-    debug event, payload, inspect(socket.assigns)
+    debug event, ""  #socket.assigns
     assigns = socket.assigns
 
     if room in assigns.subscribed do
@@ -510,12 +510,13 @@ defmodule UcxChat.UserChannel do
   end
 
   def handle_info({:update_direct_message, payload, user_id} = ev, socket) do
-    debug "upate_direct_message", ev
+    debug "upate_direct_message", ev, socket.assigns.user_state
     %{channel_id: channel_id, msg: msg} = payload
     channel = Helpers.get!(Channel, channel_id)
     with [sub] <- Repo.all(Subscription.get(channel_id, user_id)),
-         _ <- Logger.warn("update_direct_message unread: #{sub.unread}"),
+         # _ <- Logger.warn("update_direct_message unread: #{sub.unread}"),
          open  <- Map.get(sub, :open),
+         # _ <- Logger.warn("open: #{inspect open}"),
          false <- socket.assigns.user_state == "active" and open,
          count <- ChannelService.get_unread(channel_id, user_id) do
       push(socket, "room:mention", %{room: channel.name, unread: count})
@@ -541,8 +542,10 @@ defmodule UcxChat.UserChannel do
       sound -> Map.put(payload, :sound, sound)
     end
     if Settings.enable_desktop_notifications() do
+      # Logger.warn "doing desktop notification"
       push socket, "notification:new", Map.put(payload, :duration, Settings.get_desktop_notification_duration(user, channel))
     else
+      # Logger.warn "doing badges only notification"
       push socket, "notification:new", Map.put(payload, :badges_only, true)
     end
   end

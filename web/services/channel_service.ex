@@ -296,7 +296,7 @@ defmodule UcxChat.ChannelService do
       |> Repo.all
       |> Enum.map(fn cc ->
         chan = cc.channel
-        active = chan.id == channel_id
+        open = chan.id == channel_id
         type = get_chan_type(cc.type, chan.type)
         {display_name, user_status} = get_channel_display_name(type, chan, id)
         # if chan.type == 2 do
@@ -305,7 +305,7 @@ defmodule UcxChat.ChannelService do
         unread = if cc.unread == 0, do: false, else: cc.unread
         cc = unhide_current_channel(cc, channel_id)
         %{
-          active: active, unread: unread, alert: cc.alert, user_status: user_status,
+          open: open, unread: unread, alert: cc.alert, user_status: user_status,
           can_leave: chan.type != 2, archived: false, name: chan.name, hidden: cc.hidden,
           room_icon: get_icon(chan.type), channel_id: chan.id, channel_type: chan.type,
           type: type, display_name: display_name, active: chan.active
