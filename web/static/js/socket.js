@@ -104,6 +104,8 @@ $(document).ready(function() {
   window.desktop_notifier = new DesktopNotification()
   window.roomHistoryManager = new RoomHistoryManager()
 
+  // roomManager.set_title()
+
   new SideNav()
   new Admin()
   new AdminFlexBar()

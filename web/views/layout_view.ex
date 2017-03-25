@@ -6,4 +6,7 @@ defmodule UcxChat.LayoutView do
     |> Enum.map(&({&1, "/sounds/#{&1}.mp3"}))
   end
 
+  def site_title do
+    Settings.site_name()
+  end
 end

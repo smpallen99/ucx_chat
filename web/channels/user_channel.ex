@@ -504,7 +504,6 @@ defmodule UcxChat.UserChannel do
         body = Helpers.strip_tags body
         user = Helpers.get_user user_id
         handle_notifications socket, user, channel, %{body: body, username: socket.assigns.username}
-        # push socket, "notification:new", %{body: body, username: socket.assigns.username}
       end
     end
     {:noreply, socket}
@@ -523,7 +522,6 @@ defmodule UcxChat.UserChannel do
       if msg do
         user = Helpers.get_user(user_id)
         handle_notifications socket, user, channel, update_in(msg, [:body], &Helpers.strip_tags/1)
-        # push socket, "notification:new", update_in(msg, [:body], &Helpers.strip_tags/1)
       end
     end
     {:noreply, socket}
@@ -544,6 +542,8 @@ defmodule UcxChat.UserChannel do
     end
     if Settings.enable_desktop_notifications() do
       push socket, "notification:new", Map.put(payload, :duration, Settings.get_desktop_notification_duration(user, channel))
+    else
+      push socket, "notification:new", Map.put(payload, :badges_only, true)
     end
   end
 

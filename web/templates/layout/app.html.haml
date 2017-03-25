@@ -8,7 +8,9 @@
     %meta(name="description" content="")
     %meta(name="author" content="")
 
-    %title Hello UcxChat!
+    %title= site_title()
+    %link(href="/favicon1.ico" rel="shortcut icon" type="image/x-icon")
+    %link(href="/favicon1.ico" rel="icon" type="image/x-icon")
     %link(rel="stylesheet" href='#{static_path(@conn, "/fonts/fontello/css/fontello.css")}')
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/app.css")}')
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/channel_settings.css")}')

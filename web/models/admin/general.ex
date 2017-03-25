@@ -23,6 +23,8 @@ defmodule UcxChat.Config.General do
   #   schema "embedded Item" do
   #
   embedded_schema do
+    field :site_url, :string, default: "change-this"
+    field :site_name, :string, default: "UcxChat"
     field :enable_favorite_rooms, :boolean, default: true
     field :enable_desktop_notifications, :boolean, default: true
     field :desktop_notification_duration, :integer, default: 5
@@ -31,6 +33,7 @@ defmodule UcxChat.Config.General do
   end
 
   @fields [
+    :site_url, :site_name,
     :enable_favorite_rooms, :rooms_slash_commands, :chat_slash_commands,
     :enable_desktop_notifications, :desktop_notification_duration
   ]

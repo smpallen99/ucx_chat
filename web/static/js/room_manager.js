@@ -1,4 +1,5 @@
 import Messages from "./messages"
+import Favico from "./favico"
 import * as socket from './socket'
 import * as cc from "./chat_channel"
 import * as utils from './utils'
@@ -12,6 +13,7 @@ const wrapper = '.messages-box .wrapper'
 
 class RoomManager {
   constructor() {
+    this.badges = 0
     this.register_events()
     this.view_elem = $('.messages-box .wrapper')[0];
     if (this.view_elem) {
@@ -24,6 +26,19 @@ class RoomManager {
       this.new_message_button = false
       this.unread_timer_ref = undefined
     }
+    // setInterval(() => {
+    //   this.set_badges()
+    // }, 2000)
+
+    this.favico = new Favico({
+      position : 'up',
+      // bgColor : '#5CB85C',
+      // textColor : '#ff0',
+      animation : 'pop'
+      // animation : 'popFade'
+    })
+    this.title = document.title.replace(/\(.*?\)/, '')
+    this.set_badges()
   }
 
   get bounding() { return this.rect; }
@@ -97,12 +112,15 @@ class RoomManager {
   }
 
   notification(resp) {
-    if (resp.body) {
-      desktop_notifier.notify('@' + resp.username, resp.body, resp.duration)
+    if (resp.badges_only) {
+      if (resp.body) {
+        desktop_notifier.notify('@' + resp.username, resp.body, resp.duration)
+      }
+      if (resp.sound) {
+        desktop_notifier.notify_audio(resp.sound)
+      }
     }
-    if (resp.sound) {
-      desktop_notifier.notify_audio(resp.sound)
-    }
+    this.set_badges()
   }
 
   message_box_focus() {
@@ -330,6 +348,7 @@ class RoomManager {
         this.clear_navbar()
         this.clear_unread_state()
         $('.first-unread').addClass('first-unread-opaque')
+        this.set_badges()
       }, 2000)
     }
   }
@@ -345,6 +364,7 @@ class RoomManager {
   clear_unread_state() {
     this.unread = false;
     this.unread_list = [];
+
     if (this.unread_timer_ref) {
       clearTimeout(this.unread_timer_ref)
       this.unread_timer_ref = undefined
@@ -371,6 +391,28 @@ class RoomManager {
         if (callback) { callback() }
         utils.remove_page_loading()
       })
+  }
+
+  get_unreads() {
+    let unread = 0
+    $('span.unread').each(function(inx, unr) {
+      unread += parseInt($(unr).text())
+    })
+    return unread
+  }
+
+  set_badges() {
+    let cnt = this.get_unreads()
+    if (cnt != this.badges) {
+      this.badges = cnt
+      if (cnt == 0) {
+        // document.title = this.title
+        this.favico.reset()
+      } else {
+        // document.title = `(${cnt}) ${this.title}`
+        this.favico.badge(this.badges)
+      }
+    }
   }
 
   register_events() {
