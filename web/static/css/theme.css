@@ -385,8 +385,10 @@ a:active,a:hover {
 }
 
 .full-page,.page-loading {
-    background: -webkit-linear-gradient(bottom, #022235, #04436a);
+/*    background: -webkit-linear-gradient(bottom, #022235, #04436a);
     background: linear-gradient(to top, #022235, #04436a)
+*/
+  background: linear-gradient(to top, #404040, #6c6c6c);
 }
 
 .full-page a,.page-loading a {

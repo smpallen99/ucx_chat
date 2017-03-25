@@ -1,6 +1,9 @@
 <br \>
 <style>
-  body { background-color: #04436A; }
+  body {
+    /*background: linear-gradient(to top, #6c6c6c 0%, #aaaaaa 100%);*/
+    background-color: #666;
+  }
   .alert { width: 520px; margin: auto;}
   .alert.alert-danger {
     width: 520px;

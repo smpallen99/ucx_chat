@@ -100,7 +100,7 @@ export function page_loading() {
 
   let stylesheet = `<style>
     #initial-page-loading .loading-animation {
-      background: linear-gradient(to top, #022235, #04436A);
+      background: linear-gradient(to top, #6c6c6c 0%, #aaaaaa 100%);
       z-index: 1000;
     }
     .loading-animation {
