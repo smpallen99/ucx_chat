@@ -256,7 +256,7 @@ defmodule UcxChat.ServiceHelpers do
   def safe_to_string(safe) do
     safe
     |> Phoenix.HTML.safe_to_string
-    |> String.replace(~r/\n\s*/, "")
+    |> String.replace(~r/\n\s*/, " ")
   end
 
 end
