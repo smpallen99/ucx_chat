@@ -1,17 +1,23 @@
 defmodule UcxChat.ServiceHelpers do
-  use UcxChat.Web, :service
+  # use UcxChat.Web, :service
   alias UcxChat.{
     Repo, Channel, User, Subscription, MessageService, User, UserRole
   }
 
+  require UcxChat.SharedView
+  use UcxChat.Gettext
+
   import Ecto.Query
+  import Phoenix.HTML, except: [safe_to_string: 1]
+
+  @default_user_preload [:account, :roles]
 
   def get_user!(%Phoenix.Socket{assigns: assigns}) do
     get_user!(assigns[:user_id])
   end
 
   def get_user!(id) do
-    Repo.one!(from u in User, where: u.id == ^id, preload: [:account, :roles])
+    Repo.one!(from u in User, where: u.id == ^id, preload: ^@default_user_preload)
   end
 
   def get_user(%Phoenix.Socket{assigns: assigns}) do
@@ -19,7 +25,7 @@ defmodule UcxChat.ServiceHelpers do
   end
 
   def get_user(id, _opts \\ []) do
-    Repo.one(from u in User, where: u.id == ^id, preload: [:account, :roles])
+    Repo.one(from u in User, where: u.id == ^id, preload: ^@default_user_preload)
   end
 
   def get!(model, id, opts \\ []) do
@@ -79,9 +85,10 @@ defmodule UcxChat.ServiceHelpers do
     |> Repo.one!
   end
 
-  def get_user_by_name(username, preload \\ [])
+  def get_user_by_name(username, opts \\ [])
   def get_user_by_name(nil, _), do: nil
-  def get_user_by_name(username, preload) do
+  def get_user_by_name(username, opts) do
+    preload = if opts[:preload] == false, do: [], else: @default_user_preload
     User
     |> where([c], c.username == ^username)
     |> preload(^preload)
@@ -184,7 +191,7 @@ defmodule UcxChat.ServiceHelpers do
   def render(view, templ, opts \\ []) do
     templ
     |> view.render(opts)
-    |> Phoenix.HTML.safe_to_string
+    |> safe_to_string
   end
 
   @doc """
@@ -236,7 +243,7 @@ defmodule UcxChat.ServiceHelpers do
     opts = Map.put(opts, :header, header)
 
     html = UcxChat.MasterView.render("sweet.html", opts: Map.put(opts, :show, true))
-    |> Phoenix.HTML.safe_to_string
+    |> safe_to_string
     Phoenix.Channel.push socket, "sweet:open", %{html: html}
   end
 
@@ -246,5 +253,10 @@ defmodule UcxChat.ServiceHelpers do
   # def hide_sweet_dialog(socket) do
 
   # end
+  def safe_to_string(safe) do
+    safe
+    |> Phoenix.HTML.safe_to_string
+    |> String.replace(~r/\n\s*/, "")
+  end
 
 end

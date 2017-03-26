@@ -270,16 +270,20 @@ class RoomHistoryManager {
   }
 
   startGetMoreAnimation() {
+    if (debug) { console.log('startGetMoreAnimation') }
     $('.messages-box .wrapper ul li:first.load-more').html(utils.loading_animation())
   }
   startGetMoreNextAnimation() {
+    if (debug) { console.log('startGetMoreNextAnimation') }
     this.removeGetMoreNextAnimation()
     $(container).append(utils.loadmore_with_animation())
   }
-  removeGetMoreNextAnimation() {
+  removeGetMoreAnimation() {
+    if (debug) { console.log('removeGetMoreAnimation') }
     $('.messages-box .wrapper ul > li:first.load-more').remove()
   }
   removeGetMoreNextAnimation() {
+    if (debug) { console.log('removeGetMoreNextAnimation') }
     $('.messages-box .wrapper ul > li:last.load-more').remove()
   }
 }

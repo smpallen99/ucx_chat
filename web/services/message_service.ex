@@ -63,6 +63,7 @@ defmodule UcxChat.MessageService do
       Enum.reverse(Repo.all(before_q)) ++ [message|Repo.all(after_q)]
       |> new_days(tz || 0, [])
     else
+      Logger.warn "did not find a message"
       get_messages(channel_id, user)
     end
   end
@@ -180,7 +181,7 @@ defmodule UcxChat.MessageService do
     user = Repo.one(from u in User, where: u.id == ^user_id)
     "message.html"
     |> UcxChat.MessageView.render(message: message, user: user, previews: [])
-    |> Phoenix.HTML.safe_to_string
+    |> Helpers.safe_to_string
   end
 
   def create_system_message(channel_id, body) do
@@ -273,7 +274,7 @@ defmodule UcxChat.MessageService do
 
         "link_preview.html"
         |> MessageView.render(page: struct(page, images: img))
-        |> Phoenix.HTML.safe_to_string
+        |> Helpers.safe_to_string
 
       _ -> ""
     end
@@ -447,6 +448,6 @@ defmodule UcxChat.MessageService do
     end
     chatd = ChatDat.new(user, channel)
     MessageView.render("message_box.html", chatd: chatd, mb: MessageView.get_mb(chatd))
-    |> Phoenix.HTML.safe_to_string
+    |> Helpers.safe_to_string
   end
 end

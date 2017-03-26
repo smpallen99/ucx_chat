@@ -12,13 +12,19 @@ defmodule UcxChat.ChannelController do
   alias UcxChat.{MessageService, ChatDat, User}
 
   def index(conn, _params) do
+    Logger.warn "index load"
+
     user = Coherence.current_user(conn)
     channel = if user.open_id do
+      Logger.warn "index load open id"
       case Repo.get(Channel, user.open_id) do
-        nil -> Repo.all(Channel) |> hd
-        channel -> channel
+        nil ->
+          Repo.all(Channel) |> hd
+        channel ->
+          channel
       end
     else
+      Logger.warn "index load no open id"
       channel =
         UcxChat.Channel
         |> Ecto.Query.first
@@ -56,11 +62,17 @@ defmodule UcxChat.ChannelController do
   end
 
   def show(conn, %{"name" => name}) do
-    channel =
-      Channel
-      |> where([c], c.name == ^name)
-      |> Repo.one!
-    show(conn, channel)
+    Channel
+    |> where([c], c.name == ^name)
+    |> Repo.one
+    |> case do
+      nil ->
+        conn
+        |> put_flash(:error, "#{name} is an invalid channel name!")
+        |> redirect(to: "/")
+      channel ->
+        show(conn, channel)
+    end
   end
 
   def direct(conn, %{"name" => name}) do

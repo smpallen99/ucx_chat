@@ -488,7 +488,7 @@
 	}
 
 	@media all and(max-width: 1100px) {
-		#rocket-chat {
+		#ucx-chat {
 			.flex-opened {
 				left: 0;
 				right: $rooms-box-width;
@@ -501,7 +501,7 @@
 	}
 
 	@media all and(max-width: 780px) {
-		#rocket-chat {
+		#ucx-chat {
 			.main-content {
 				right: 0;
 			}

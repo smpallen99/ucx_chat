@@ -112,7 +112,11 @@ $(document).ready(function() {
   window.messageCog = new MessageCog()
 
   socket.connect()
+
   // $(".input-message-container .inner-left-toolbar").emoji.emojioneArea();
+
+  if (flash_error != "")
+    toastr.error(flash_error)
 
   $('textarea.message-form-text').focus()
 
@@ -121,6 +125,8 @@ $(document).ready(function() {
   start_system_channel()
   start_user_channel()
   start_room_channel(typing)
+
+  setup_burger()
 
   $('body').on('submit', '.message-form', e => {
     if (debug) { console.log('message-form submit', e) }
@@ -349,6 +355,8 @@ function start_room_channel(typing) {
   main.run()
   main.update_flexbar()
   roomManager.updateMentionsMarksOfRoom()
+
+  clear_burger()
 }
 
 function checkVisible(elm, threshold, mode) {
@@ -369,6 +377,40 @@ function isOnScreen(element)
     var curTop = curPos.top;
     var screenHeight = $(window).height();
     return (curTop > screenHeight) ? false : true;
+}
+
+function clear_burger() {
+  if ($('.burger').is(':visible')) {
+    $('.main-content').css('transform', `translateX(0px)`)
+    $('.burger').removeClass('menu-opened')
+  }
+}
+function setup_burger() {
+  if ($('.burger').is(':visible')) {
+    if ($('.burger').hasClass('menu-opened')) {
+      $('.main-content').css('transform', `translateX(260px)`)
+    } else {
+      $('.main-content').css('transform', `translateX(0px)`)
+    }
+  }
+  $('body').on('click', '.burger', e => {
+    let x = 260
+    if ($('.burger').hasClass('menu-opened')) {
+      // $('.main-content').animate({
+      //   'transform': 'translateX(0px)',
+      //   'transition': 'transform 500ms'
+      // })
+      x = 0
+    } else {
+      // $('.main-content').animate({
+      //   'transform': 'translateX(260px)',
+      //   'transition': 'transform 500ms'
+      // })
+    }
+    $('.main-content').css('transform', `translateX(${x}px)`)
+    $('.burger').toggleClass('menu-opened')
+  })
+
 }
 window.cv = checkVisible
 

@@ -13,11 +13,9 @@ defmodule UcxChat.MessageChannelController do
     message = params["message"]
     user_id = assigns[:user_id]
     channel_id = assigns[:channel_id]
-    Logger.warn "user_id: #{inspect user_id}, channel_id: #{inspect channel_id}, message: #{inspect message}"
-    # room = assigns[:room]
+
     channel = Helpers.get!(Channel, channel_id)
     msg_params = if Channel.direct?(channel), do: %{type: "d"}, else: %{}
-
 
     if ChannelService.user_muted? user_id, channel_id do
       sys_msg = create_system_message(channel_id, ~g"You have been muted and cannot speak in this room")
@@ -60,8 +58,10 @@ defmodule UcxChat.MessageChannelController do
     messages_html =
       list
       |> Enum.map(fn message ->
+        previews = List.keyfind(previews, message.id, 0, {nil, []}) |> elem(1)
         UcxChat.MessageView.render("message.html", user: user, message: message, previews: previews)
-        |> Phoenix.HTML.safe_to_string
+        # UcxChat.MessageView.render("message.html", user: user, message: message, previews: [])
+        |> Helpers.safe_to_string
       end)
       |> to_string
 
@@ -84,11 +84,14 @@ defmodule UcxChat.MessageChannelController do
       |> preload([:user, :edited_by])
       |> Repo.all
 
+    previews = MessageService.message_previews(user.id, list)
+
     messages_html =
       list
       |> Enum.map(fn message ->
-        UcxChat.MessageView.render("message.html", user: user, message: message)
-        |> Phoenix.HTML.safe_to_string
+        previews = List.keyfind(previews, message.id, 0, {nil, []}) |> elem(1)
+        UcxChat.MessageView.render("message.html", user: user, message: message, previews: previews)
+        |> Helpers.safe_to_string
       end)
       |> to_string
 
@@ -106,16 +109,12 @@ defmodule UcxChat.MessageChannelController do
 
     previews = MessageService.message_previews(user.id, list)
 
-    for preview <- previews do
-      Logger.warn "previews: #{inspect preview}"
-    end
-
     messages_html =
       list
       |> Enum.map(fn message ->
         previews = List.keyfind(previews, message.id, 0, {nil, []}) |> elem(1)
         UcxChat.MessageView.render("message.html", user: user, message: message, previews: previews)
-        |> Phoenix.HTML.safe_to_string
+        |> Helpers.safe_to_string
       end)
       |> to_string
 
@@ -130,11 +129,13 @@ defmodule UcxChat.MessageChannelController do
 
     list = MessageService.get_messages(channel_id, user)
 
+    previews = MessageService.message_previews(user.id, list)
+
     messages_html =
       list
       |> Enum.map(fn message ->
-        UcxChat.MessageView.render("message.html", user: user, message: message)
-        |> Phoenix.HTML.safe_to_string
+        UcxChat.MessageView.render("message.html", user: user, message: message, previews: previews)
+        |> Helpers.safe_to_string
       end)
       |> to_string
 

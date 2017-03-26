@@ -22,7 +22,7 @@ defmodule UcxChat.MessagePopupService do
       html =
         "popup.html"
         |> UcxChat.MessageView.render(chatd: chatd)
-        |> Phoenix.HTML.safe_to_string
+        |> Helpers.safe_to_string
 
       {:ok, %{html: html}}
     else
@@ -41,7 +41,7 @@ defmodule UcxChat.MessagePopupService do
       html =
         "popup.html"
         |> UcxChat.MessageView.render(chatd: chatd)
-        |> Phoenix.HTML.safe_to_string
+        |> Helpers.safe_to_string
 
       {:ok, %{html: html}}
     else
@@ -59,7 +59,7 @@ defmodule UcxChat.MessagePopupService do
       html =
         "popup_slash_commands.html"
         |> UcxChat.MessageView.render(chatd: chatd)
-        |> Phoenix.HTML.safe_to_string
+        |> Helpers.safe_to_string
 
       {:ok, %{html: html}}
     else

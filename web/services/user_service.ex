@@ -27,6 +27,19 @@ defmodule UcxChat.UserService do
     User.all() |> Repo.all
   end
 
+  def open_channel_count(user_id) when is_binary(user_id) do
+    Repo.one from s in Subscription,
+      where: s.open == true and s.user_id == ^user_id,
+      select: count(s.id)
+  end
+
+  def open_channels(user_id) when is_binary(user_id) do
+    Repo.all from s in Subscription,
+      join: c in Channel, on: s.channel_id == c.id,
+      where: s.open == true and s.user_id == ^user_id,
+      select: c
+  end
+
   def delete_user(user) do
     Account
     |> Repo.get(user.account_id)

@@ -459,6 +459,14 @@ aside.side-nav {
       color: #1ec7f1 !important;
     }
   }
+  .unread-rooms {
+    background-color: #aaa;
+    color: #333;
+
+    i {
+      color: #fff;
+    }
+  }
 }
 .toggle-favorite {
   color: $component-color;
@@ -475,6 +483,10 @@ aside.side-nav {
 
   .footer {
     background: $content-background-color;
+  }
+
+  .jump-recent {
+    color: $primary-action-color;
   }
 }
 
@@ -505,6 +517,10 @@ aside.side-nav {
   &.selectable .selected {
     background-color: $selection-background;
   }
+
+  // .unread-bar {
+  //   color: #5a7920
+  // }
 
   // .editing .body,
   // textarea.editing {
@@ -635,7 +651,7 @@ aside.side-nav {
   .has-alert .name {
     // color: $primary-background-contrast;
     // color: $tertiary-font-color;
-    color: #fff;
+    color: #333 !important;
     font-weight: bold;
   }
 

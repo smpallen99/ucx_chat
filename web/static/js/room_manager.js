@@ -58,6 +58,7 @@ class RoomManager {
     if (debug) { console.log('render_room', resp) }
     $('.room-link').removeClass("active")
     $('.main-content').html(resp.html)
+    console.log('messages', $('.messages-box .wrapper>ul li'))
     ucxchat.channel_id = resp.channel_id
     ucxchat.room = resp.room_title
     ucxchat.display_name = resp.display_name
@@ -422,12 +423,16 @@ class RoomManager {
       if (debug) { console.log('room_manager focus') }
       this.clear_unread()
       this.has_focus = true
-      systemchan.push('state:focus')
+      if (systemchan) {
+        systemchan.push('state:focus')
+      }
     })
     .on('blur', () => {
       this.has_focus = false;
-      systemchan.push('state:blur')
-      if (debug) { console.log('room_manager blur') }
+      if (systemchan) {
+        systemchan.push('state:blur')
+        if (debug) { console.log('room_manager blur') }
+      }
     })
 
     $('body').on('click', 'a.open-room', e => {
@@ -688,8 +693,10 @@ class RoomManager {
       this.message_box_focus()
     })
     .on('click', '.jump-recent', e => {
-      messageCog.close_cog($(e.currentTarget))
-      roomHistoryManager.getRecent()
+      console.log('jump-recent 1')
+      // messageCog.close_cog($(e.currentTarget))
+      // roomHistoryManager.getRecent()
+      utils.scroll_bottom()
       this.message_box_focus()
     })
     .on('click', 'button.new-message', e => {

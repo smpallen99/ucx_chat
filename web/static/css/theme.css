@@ -527,7 +527,7 @@ a:active,a:hover {
     color: #fff
 }
 
-.message a {
+/*.message a {
     color: #13679a
 }
 
@@ -535,6 +535,7 @@ a:active,a:hover {
     color: #0d496d
 }
 
+*/
 .message .mention-link.mention-link-me {
     color: #fff
 }
@@ -582,15 +583,15 @@ a:active,a:hover {
     color: rgba(255,255,255,0.6)
 }
 */
-.side-nav .has-alert .name {
+/*.side-nav .has-alert .name {
     color: #fff
 }
-
-.side-nav .unread {
+*/
+/*.side-nav .unread {
     background-color: #4dff4d;
     color: #000
 }
-
+*/
 /*.side-nav .button {
     color: rgba(255,255,255,0.6);
     background-color: #0c5582

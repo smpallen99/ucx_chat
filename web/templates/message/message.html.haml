@@ -51,16 +51,14 @@
       %span.private Only you can see this message
     %div(class="message-cog-container #{hide_cog(@message)}")
       %i.icon-cog.message-cog(aria-label="Actions")
-  - # %div{class: "body color-primary-font-color {{system true}}" dir="auto">
   - info = get_info_class(@message)
   %div{class: "body color-primary-font-color #{info}" dir: "auto"}
     = format_message_body(@message)
-    =# @message.body
     - if oembed = has_oembed(@message) do
-      - for _url <- oembed[:urls] do
-        = # {{injectIndex . @index}} {{> oembedBaseWidget}}
-    - for _attachment <- attachments(@message) do
-      - # {{injectIndex . @index}} {{> messageAttachment}}
+      -# for _url <- oembed[:urls] do
+      =# {{injectIndex . @index}} {{> oembedBaseWidget}}
+    -# for _attachment <- attachments(@message) do
+    - # {{injectIndex . @index}} {{> messageAttachment}}
     - previews = @previews
     - if previews != [] do
       - for {_, html} <- previews, html != nil and html != "" do

@@ -10,6 +10,7 @@
   = render UcxChat.SideNavView, "show.html", conn: @conn, chatd: @chatd
 .sweet-container
   =# render "sweet.html"
+- flash_error = @conn.private[:phoenix_flash]["error"]
 :javascript
   window.user_token = '<%= Coherence.user_token(@conn) %>'
   window.ucxchat = {
@@ -23,5 +24,6 @@
   };
   let myPanel = $('.messages-box .wrapper')
   myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
+  window.flash_error = '<%= flash_error %>'
 
 

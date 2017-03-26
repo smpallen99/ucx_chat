@@ -44,7 +44,7 @@ defmodule UcxChat.FlexBarService do
     html =
       "notifications.html"
       |> FlexBarView.render(args)
-      |> Phoenix.HTML.safe_to_string
+      |> safe_to_string
     {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, params["field"])}
   end
 
@@ -52,7 +52,7 @@ defmodule UcxChat.FlexBarService do
     html =
       "notifications.html"
       |> FlexBarView.render([notification: socket.assigns.notification, editing: ""])
-      |> Phoenix.HTML.safe_to_string
+      |> safe_to_string
 
     {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, nil)}
   end
@@ -77,7 +77,7 @@ defmodule UcxChat.FlexBarService do
         html =
           "notifications.html"
           |> FlexBarView.render([notification: notify, editing: ""])
-          |> Phoenix.HTML.safe_to_string
+          |> safe_to_string
         {:reply, {:ok, %{html: html}}, assign(socket, :notifications_edit, nil) |> assign(:notification, notify)}
       {:error, cs} ->
         Logger.warn "error cs: #{inspect cs}"
@@ -95,7 +95,7 @@ defmodule UcxChat.FlexBarService do
         html =
           templ
           |> FlexBarView.render(args)
-          |> Phoenix.HTML.safe_to_string
+          |> Helpers.safe_to_string
         %{html: html, notification: notify}
     end
   end
@@ -108,7 +108,7 @@ defmodule UcxChat.FlexBarService do
         html =
           templ
           |> FlexBarView.render(get_render_args(tab, user_id, channel_id, nil))
-          |> Phoenix.HTML.safe_to_string
+          |> Helpers.safe_to_string
         %{html: html}
     end
   end
@@ -121,7 +121,7 @@ defmodule UcxChat.FlexBarService do
         html =
           templ
           |> FlexBarView.render(get_render_args(tab, user_id, channel_id, nil, args))
-          |> Phoenix.HTML.safe_to_string
+          |> Helpers.safe_to_string
         %{html: html}
     end
   end
@@ -138,7 +138,7 @@ defmodule UcxChat.FlexBarService do
       args = get_render_args("Info", msg["user_id"], channel_id, nil, nil)
 
       html = FlexBarView.render(msg["templ"], args)
-      |> Phoenix.HTML.safe_to_string
+      |> Helpers.safe_to_string
 
       UserAgent.open_ftab(msg["user_id"], channel_id, event, nil)
 
@@ -153,7 +153,7 @@ defmodule UcxChat.FlexBarService do
       args = get_render_args("Members List", msg["user_id"], channel_id, nil, msg)
 
       html = FlexBarView.render(msg["templ"], args)
-      |> Phoenix.HTML.safe_to_string
+      |> Helpers.safe_to_string
 
       view = if msg["username"], do: {"username", msg["username"]}, else: nil
 
@@ -171,7 +171,7 @@ defmodule UcxChat.FlexBarService do
       args = get_render_args("Switch User", nil, nil, nil, nil)
 
       html = FlexBarView.render(msg["templ"], args)
-      |> Phoenix.HTML.safe_to_string
+      |> Helpers.safe_to_string
 
       UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
 
@@ -186,7 +186,7 @@ defmodule UcxChat.FlexBarService do
       args = get_render_args("Mentions", user_id, channel_id, nil)
 
       html = FlexBarView.render(msg["templ"], args)
-      |> Phoenix.HTML.safe_to_string
+      |> Helpers.safe_to_string
 
       UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
 
@@ -201,7 +201,7 @@ defmodule UcxChat.FlexBarService do
       args = get_render_args("Stared Messages", user_id,  channel_id, msg["message_id"])
 
       html = FlexBarView.render(msg["templ"], args)
-      |> Phoenix.HTML.safe_to_string
+      |> Helpers.safe_to_string
 
       UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
 
@@ -214,7 +214,7 @@ defmodule UcxChat.FlexBarService do
       args = get_render_args("Pinned Messages", user_id, channel_id, msg["message_id"])
 
       html = FlexBarView.render(msg["templ"], args)
-      |> Phoenix.HTML.safe_to_string
+      |> Helpers.safe_to_string
 
       UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
 
@@ -228,7 +228,7 @@ defmodule UcxChat.FlexBarService do
   #     args = get_render_args("Pinned Messages", user_id, channel_id, msg["message_id"])
 
   #     html = FlexBarView.render(msg["templ"], args)
-  #     |> Phoenix.HTML.safe_to_string
+  #     |> Helpers.safe_to_string
 
   #     UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
 
@@ -294,7 +294,7 @@ defmodule UcxChat.FlexBarService do
       where: d.user_id == ^user_id and d.channel_id == ^(channel.id))
     |> Repo.one
 
-    user = Helpers.get_user_by_name(direct.users, [:roles, :account])
+    user = Helpers.get_user_by_name(direct.users)
     user_info = user_info(channel, direct: true)
     [user: user, current_user: current_user, channel_id: channel_id, user_info: user_info]
   end

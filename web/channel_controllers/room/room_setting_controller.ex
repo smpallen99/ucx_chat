@@ -15,7 +15,7 @@ defmodule UcxChat.RoomSettingChannelController do
     field_name = String.to_atom(params["field_name"])
     value = Map.get channel, field_name
     html = FlexBarView.render("channel_form_text_input.html", field: %{name: field_name, value: value})
-    |> Phoenix.HTML.safe_to_string
+    |> Helpers.safe_to_string
     {:reply, {:ok, %{html: html}}, socket}
   end
 
@@ -23,7 +23,7 @@ defmodule UcxChat.RoomSettingChannelController do
     channel = Helpers.get(Channel, assigns[:channel_id])
     field = FlexBarService.get_setting_form_field(params["field_name"], channel, assigns[:user_id])
     html = FlexBarView.flex_form_input(field[:type], field)
-    |> Enum.map(&Phoenix.HTML.safe_to_string/1)
+    |> Enum.map(&Helpers.safe_to_string/1)
     |> Enum.join
     {:reply, {:ok, %{html: html}}, socket}
   end
@@ -47,10 +47,10 @@ defmodule UcxChat.RoomSettingChannelController do
           |> case do
             list when is_list(list) ->
               list
-              |> Enum.map(&Phoenix.HTML.safe_to_string/1)
+              |> Enum.map(&Helpers.safe_to_string/1)
               |> Enum.join
             tuple ->
-              Phoenix.HTML.safe_to_string(tuple)
+              Helpers.safe_to_string(tuple)
           end
 
         channel = Helpers.get!(Channel, assigns[:channel_id])

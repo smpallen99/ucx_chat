@@ -12,7 +12,7 @@ defmodule UcxChat.SideNavService do
 
     "rooms_list.html"
     |> UcxChat.SideNavView.render(chatd: chatd)
-    |> Phoenix.HTML.safe_to_string
+    |> Helpers.safe_to_string
   end
 
   def render_more_channels(user_id) do
@@ -23,7 +23,7 @@ defmodule UcxChat.SideNavService do
 
     "list_combined_flex.html"
     |> UcxChat.SideNavView.render(channels: channels, current_user: user)
-    |> Phoenix.HTML.safe_to_string
+    |> Helpers.safe_to_string
   end
 
   def render_more_users(user_id) do
@@ -45,7 +45,7 @@ defmodule UcxChat.SideNavService do
 
     "list_users_flex.html"
     |> UcxChat.SideNavView.render(users: users, current_user: user)
-    |> Phoenix.HTML.safe_to_string
+    |> Helpers.safe_to_string
   end
 
 end

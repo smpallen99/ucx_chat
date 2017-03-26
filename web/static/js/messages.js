@@ -8,11 +8,13 @@ const debug = true;
 class Messages {
 
   static auto_link_id(id) {
-    let selector = `#${id} div.body`
-    console.log('autolink', $(selector + ' code.hljs'))
-    if ($(selector + ' code.hljs').length == 0) {
-      let elem = $(selector)
-      elem.html(autoLinker.link(elem.html()))
+    if (id) {
+      let selector = `#${id} div.body`
+      console.log('autolink', $(selector + ' code.hljs'))
+      if ($(selector + ' code.hljs').length == 0) {
+        let elem = $(selector)
+        elem.html(autoLinker.link(elem.html()))
+      }
     }
   }
 

@@ -9,7 +9,7 @@ defmodule UcxChat.UserChannel do
   alias Phoenix.Socket.Broadcast
   alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService}
   alias UcxChat.{AccountView, Account, AdminService, FlexBarView, UserSocket, User}
-  alias UcxChat.{ChannelService, SubscriptionService, InvitationService, Settings}
+  alias UcxChat.{ChannelService, SubscriptionService, InvitationService, Settings, UserService}
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -351,7 +351,6 @@ defmodule UcxChat.UserChannel do
           msg = if payload[:body], do: %{body: payload[:body], username: assigns.username}, else: nil
           push_update_direct_message(%{channel_id: channel.id, msg: msg}, socket)
         end
-        Logger.warn "updating unreads"
         update_has_unread(channel, socket)
       end
     end
@@ -493,6 +492,10 @@ defmodule UcxChat.UserChannel do
 
   def handle_info({:update_mention, payload, user_id} = ev, socket) do
     debug "upate_mention", ev
+    if UserService.open_channel_count(socket.assigns.user_id) > 1 do
+      opens = UserService.open_channels(socket.assigns.user_id)
+      Logger.error "found more than one open, room: #{inspect socket.assigns.room}, opens: #{inspect opens}"
+    end
     %{channel_id: channel_id, body: body} = payload
     channel = Helpers.get!(Channel, channel_id)
     with [sub] <- Repo.all(Subscription.get(channel_id, user_id)),
@@ -511,6 +514,10 @@ defmodule UcxChat.UserChannel do
 
   def handle_info({:update_direct_message, payload, user_id} = ev, socket) do
     debug "upate_direct_message", ev, socket.assigns.user_state
+    if UserService.open_channel_count(socket.assigns.user_id) > 1 do
+      opens = UserService.open_channels(socket.assigns.user_id)
+      Logger.error "found more than one open, room: #{inspect socket.assigns.room}, opens: #{inspect opens}"
+    end
     %{channel_id: channel_id, msg: msg} = payload
     channel = Helpers.get!(Channel, channel_id)
     with [sub] <- Repo.all(Subscription.get(channel_id, user_id)),
@@ -599,7 +606,7 @@ defmodule UcxChat.UserChannel do
 
   defp update_has_unread(%{id: channel_id, name: room}, %{assigns: assigns} = socket) do
     has_unread = ChannelService.get_has_unread(channel_id, assigns.user_id)
-    # Logger.warn "has_unread: #{inspect has_unread}"
+    Logger.warn "has_unread: #{inspect has_unread}, channel_id: #{inspect channel_id}, assigns: #{inspect assigns}"
     unless has_unread do
       ChannelService.set_has_unread(channel_id, assigns.user_id, true)
       push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-unread", action: "addClass"}

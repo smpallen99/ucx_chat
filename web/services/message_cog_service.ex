@@ -8,7 +8,7 @@ defmodule UcxChat.MessageCogService do
 
   def handle_in("open", %{"flex_tab" => true}, _) do
     html = FlexBarView.render("flex_cog.html")
-    |> Phoenix.HTML.safe_to_string
+    |> Helpers.safe_to_string
     {nil, %{html: html}}
   end
 
@@ -27,7 +27,7 @@ defmodule UcxChat.MessageCogService do
     opts = [stared: star_count > 0, pinned: pin_count > 0]
     Logger.warn "MessageCogService: open, msg: #{inspect msg}, id: #{inspect id}"
     html = MessageView.render("message_cog.html", opts: opts)
-    |> Phoenix.HTML.safe_to_string
+    |> Helpers.safe_to_string
 
     {nil, %{html: html}}
   end
