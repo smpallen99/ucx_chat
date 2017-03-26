@@ -9,7 +9,7 @@
       %li(id="#{star[:id]}" class="#{get_li_class(star, :starned)}" data-username="#{star[:username]}" data-date="#{star[:date]}" data-timestamp="#{star[:timestamp]}")
         %button.thumb.user-card-message(data-username="#{star[:username]}" tabindex="1")
           .avatar
-            .avatar-image(style="background-image:url(#{get_avatar(star[:username])});")
+            .avatar-image(style="background-image:url(/avatar/#{star[:username]});")
         %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{star[:username]}" tabindex="1")
           = star[:username]
         %span.info.border-component-color.color-info-font-color

@@ -9,7 +9,7 @@
       %li(id="#{mention[:id]}" class="#{get_li_class(mention, :mention)}" data-username="#{mention[:username]}" data-date="#{mention[:date]}" data-timestamp="#{mention[:timestamp]}")
         %button.thumb.user-card-message(data-username="#{mention[:username]}" tabindex="1")
           .avatar
-            .avatar-image(style="background-image:url(#{get_avatar(mention[:username])});")
+            .avatar-image(style="background-image:url(/avatar/#{mention[:username]});")
         %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{mention[:username]}" tabindex="1")
           = mention[:username]
         %span.info.border-component-color.color-info-font-color
