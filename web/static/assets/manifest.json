@@ -1,0 +1,12 @@
+{
+  "short_name": "WebRTC Chat",
+  "icons": [
+    {
+      "src": "/images/logo_globe.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "fullscreen",
+}

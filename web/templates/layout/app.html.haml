@@ -7,6 +7,8 @@
     %meta(name="viewport" content="width=device-width, initial-scale=1")
     %meta(name="description" content="")
     %meta(name="author" content="")
+    %meta(name="apple-mobile-web-app-title" content="WebRTC Chat")
+    %meta(name="apple-mobile-web-app-capable" content="yes")
 
     %title= site_title()
     %link(href="/favicon1.ico" rel="shortcut icon" type="image/x-icon")
@@ -15,6 +17,8 @@
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/app.css")}')
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/channel_settings.css")}')
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/toastr.css")}')
+    %link(rel="apple-touch-icon" href="/images/logo_globe.png")
+
     - for {id, fname} <- audio_files() do
       %audio(id="#{id}")
         %source(src="#{fname}" type="audio/mpeg")
