@@ -34,18 +34,30 @@ class AdminFlexBar {
 
     if (this.current === undefined && title == 'User Info') {
       flex.toggle_tab_container()
+      if ($('.flex-tab-container.opened').length == 0)
+        $('.tab-button.active').removeClass('active')
+
     } else if (title == 'Invite Users') {
+      if ($('.invite-users').closest('.flex-tab-container.opened').length == 0) {
+        flex.toggle_tab_container()
+        userchan.push('admin:flex:Invite Users')
+          .receive("ok", resp => {
+            // console.log('flex action resp', resp)
+            $('section.flex-tab').html(resp.html).parent().addClass('opened')
+            flex.set_tab_buttons_inactive()
+            flex.set_tab_button_active(resp.title)
+          })
+          .receive("error", resp => {
+            if (resp.error) { toastr.error(resp.error) }
+          })
+      } else {
+        flex.toggle_tab_container()
+        $('.tab-button.active[title="Invite Users"').removeClass('active')
+      }
+    } else {
       flex.toggle_tab_container()
-      userchan.push('admin:flex:Invite Users')
-        .receive("ok", resp => {
-          // console.log('flex action resp', resp)
-          $('section.flex-tab').html(resp.html).parent().addClass('opened')
-          flex.set_tab_buttons_inactive()
-          flex.set_tab_button_active(resp.title)
-        })
-        .receive("error", resp => {
-          if (resp.error) { toastr.error(resp.error) }
-        })
+      if ($('.flex-tab-container.opened').length == 0)
+        $('.tab-button.active').removeClass('active')
     }
   }
 

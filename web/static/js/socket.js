@@ -15,6 +15,7 @@ import Admin from "./admin"
 import AdminFlexBar from "./admin_flex_bar"
 import RoomHistoryManager from "./room_history_manager"
 import DesktopNotification from "./desktop_notification"
+import Menu from './menu'
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
@@ -110,6 +111,7 @@ $(document).ready(function() {
   new Admin()
   new AdminFlexBar()
   window.messageCog = new MessageCog()
+  window.navMenu = new Menu()
 
   socket.connect()
 
@@ -126,7 +128,6 @@ $(document).ready(function() {
   start_user_channel()
   start_room_channel(typing)
 
-  setup_burger()
 
   $('body').on('submit', '.message-form', e => {
     if (debug) { console.log('message-form submit', e) }
@@ -179,6 +180,8 @@ $(document).ready(function() {
   $('body').on('restart-socket', () => {
     start_room_channel(typing)
   })
+
+  navMenu.setup()
 
   $('#initial-page-loading').remove()
   utils.remove_page_loading()
@@ -356,7 +359,7 @@ function start_room_channel(typing) {
   main.update_flexbar()
   roomManager.updateMentionsMarksOfRoom()
 
-  clear_burger()
+  navMenu.close()
 }
 
 function checkVisible(elm, threshold, mode) {
@@ -379,39 +382,6 @@ function isOnScreen(element)
     return (curTop > screenHeight) ? false : true;
 }
 
-function clear_burger() {
-  if ($('.burger').is(':visible')) {
-    $('.main-content').css('transform', `translateX(0px)`)
-    $('.burger').removeClass('menu-opened')
-  }
-}
-function setup_burger() {
-  if ($('.burger').is(':visible')) {
-    if ($('.burger').hasClass('menu-opened')) {
-      $('.main-content').css('transform', `translateX(260px)`)
-    } else {
-      $('.main-content').css('transform', `translateX(0px)`)
-    }
-  }
-  $('body').on('click', '.burger', e => {
-    let x = 260
-    if ($('.burger').hasClass('menu-opened')) {
-      // $('.main-content').animate({
-      //   'transform': 'translateX(0px)',
-      //   'transition': 'transform 500ms'
-      // })
-      x = 0
-    } else {
-      // $('.main-content').animate({
-      //   'transform': 'translateX(260px)',
-      //   'transition': 'transform 500ms'
-      // })
-    }
-    $('.main-content').css('transform', `translateX(${x}px)`)
-    $('.burger').toggleClass('menu-opened')
-  })
-
-}
 window.cv = checkVisible
 
 export default socket

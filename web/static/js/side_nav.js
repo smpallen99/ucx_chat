@@ -125,6 +125,8 @@ class SideNav {
       userchan.push('side_nav:open', {page: $(e.currentTarget).attr('id')})
         .receive("ok", resp => {
           $('.flex-nav section').html(resp.html)
+          console.log('resp from side_nav:open')
+          navMenu.open()
         })
       $('div.flex-nav').removeClass('animated-hidden')
       this.set_nav_top_icon('close')
@@ -147,12 +149,16 @@ class SideNav {
       SideNav.hide_account_box_menu()
     })
     .on('click', '.account-link', e => {
+      console.log('account link click')
       e.preventDefault()
       userchan.push('account_link:click:' + $(e.currentTarget).data('link'), {})
+      navMenu.close()
     })
     .on('click', '.admin-link', e => {
+      console.log('admin link click')
       e.preventDefault()
       userchan.push('admin_link:click:' + $(e.currentTarget).data('link'), {})
+      navMenu.close()
     })
     .on('submit', '#account-preferences-form', e => {
       e.preventDefault()
