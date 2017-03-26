@@ -37,7 +37,7 @@ defmodule UcxChat.Mixfile do
   def applications(:prod), do: [
     :phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
     :phoenix_ecto, :mariaex, :coherence, :phoenix_haml, :hound, :syslog,
-    :link_preview
+    :link_preview, :html_entities, :mogrify, :tempfile
   ]
   def applications(_), do: applications(:prod) ++ [:faker_elixir_octopus]
 
