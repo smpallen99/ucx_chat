@@ -24,10 +24,12 @@ exports.config = {
         "css/app.css": [
           /^(web\/static\/css)/,
           "node_modules/highlight.js/styles/default.css",
-          "node_modules/emojionearea/dist/emojionearea.min.css",
+          // "node_modules/emojionearea/dist/emojionearea.min.css",
+
         ],
         "css/channel_settings.css": ["web/static/scss/channel_settings.scss"],
-        "css/toastr.css": ["web/static/css/toastr.css"]
+        "css/toastr.css": ["web/static/css/toastr.css"],
+        "css/emojipicker.css": ["web/static/vendor/emojiPicker.css"]
         // "css/toastr.css": ["web/static/scss/toastr.scss"]
       },
       order: {
@@ -86,11 +88,13 @@ exports.config = {
 
   npm: {
     enabled: true,
-    whitelist: ["toastr", "highlight.js", "emojionearea"],
+    // whitelist: ["toastr", "highlight.js", "emojionearea"], //, "rm-emoji-picker"],
+    whitelist: ["highlight.js", "rm-emoji-picker"],
     styles: {
-      toastr: ["toastr.css"],
-      "highlight.js": ['styles/default.css'],
-      emojionearea: ['dist/emojionearea.min.css']
+      // toastr: ["toastr.css"],
+      "highlight.js": ['styles/default.css']
+      // emojionearea: ['dist/emojionearea.min.css']
+      // emojipicker: ['dist/emojipicker.css']
     },
     globals: {
       $: 'jquery',
