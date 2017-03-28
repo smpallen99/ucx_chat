@@ -8,7 +8,7 @@ const debug = true;
 class Messages {
 
   static auto_link_id(id) {
-    if (id) {
+    if (id && chat_settings.auto_link) {
       let selector = `#${id} div.body`
       console.log('autolink', $(selector + ' code.hljs'))
       if ($(selector + ' code.hljs').length == 0) {
@@ -23,6 +23,9 @@ class Messages {
 
     let at_bottom = roomManager.at_bottom
     console.log('new_message', msg)
+
+    html = utils.do_emojis(html)
+
     $('.messages-box .wrapper > ul').append(html)
 
     $('.messages-box').children('.wrapper').children('ul').children(':last-child').find('pre').each(function(i, block) {

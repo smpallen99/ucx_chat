@@ -22,6 +22,11 @@
     display_name: '<%= @chatd.active_room[:display_name] %>',
     env: '<%= UcxChat.env() %>'
   };
+  window.chat_settings = {
+    auto_link: false,
+    link_preview: false,
+    use_emojis: true
+  };
   let myPanel = $('.messages-box .wrapper')
   myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());
   window.flash_error = '<%= flash_error %>'

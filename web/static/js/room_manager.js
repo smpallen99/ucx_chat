@@ -271,7 +271,14 @@ class RoomManager {
     // bind_scroller()
     roomHistoryManager.new_room(ucxchat.room)
     this.updateMentionsMarksOfRoom()
-    $('.messages-box .wrapper ul').html(autoLinker.link($('.messages-box .wrapper ul').html()))
+
+    let html = utils.do_emojis($('.messages-box .wrapper ul').html())
+
+    if (chat_settings.auto_link) {
+      $('.messages-box .wrapper ul').html(autoLinker.link(html))
+    } else {
+      $('.messages-box .wrapper ul').html(html)
+    }
     roomchan.on('room:open', resp => {
       utils.page_loading()
       $('.main-content').html(utils.loading_animation())

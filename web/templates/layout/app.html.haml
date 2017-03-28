@@ -18,6 +18,7 @@
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/channel_settings.css")}')
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/toastr.css")}')
     %link(rel="apple-touch-icon" href="/images/logo_globe.png")
+    %link(rel="stylesheet" href="https://cdn.jsdelivr.net/emojione/2.2.7/assets/css/emojione.min.css")
 
     - for {id, fname} <- audio_files() do
       %audio(id="#{id}")
@@ -40,6 +41,7 @@
     = render @view_module, @view_template, assigns
   = render "translations.html"
   %script(src='#{static_path(@conn, "/js/app.js")}')
+  %script(src="https://cdn.jsdelivr.net/emojione/2.2.7/lib/js/emojione.min.js")
   - #%script(src='#{static_path(@conn, "/js/emojionearea.min.js")}')
   %script(src="//twemoji.maxcdn.com/2/twemoji.min.js?2.2.3")
   -# %script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js")

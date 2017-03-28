@@ -21,8 +21,19 @@
 - flash_error = @conn.private[:phoenix_flash]["error"]
 :javascript
   window.user_token = '<%= Coherence.user_token(@conn) %>'
-  window.ucxchat = {room_route: '<%= @chatd.room_route %>', room: 'lobby', channel_id: undefined,
-    username: '<%= @chatd.user.username %>',user_id: '<%= @chatd.user.id %>', display_name: ""};
+  window.ucxchat = {
+    room_route: '<%= @chatd.room_route %>',
+    room: 'lobby', channel_id: undefined,
+    username: '<%= @chatd.user.username %>',
+    user_id: '<%= @chatd.user.id %>',
+    display_name: ""
+  };
+
+  window.chat_settings = {
+    auto_link: false,
+    link_preview: false,
+    use_emojis: true
+  };
 
   let myPanel = $('.page-container')
   window.flash_error = '<%= flash_error %>'
