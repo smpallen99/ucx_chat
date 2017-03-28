@@ -106,6 +106,7 @@ $(document).ready(function() {
   window.roomHistoryManager = new RoomHistoryManager()
 
   // roomManager.set_title()
+  new Messages()
 
   new SideNav()
   new Admin()

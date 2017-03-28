@@ -9,7 +9,7 @@
           %textarea.message-form-text.input-message.autogrow-short{dir: "auto", name: "msg", maxlength: @mb[:max_message_length], placeholder: "Message #{sym}"}
 
           .inner-left-toolbar
-            - #%i.emoji-picker-icon.icon-people
+            %i.emoji-picker-icon.icon-people
 
         - unless @mb[:show_send] do
           - if @mb[:show_file_upload?] do

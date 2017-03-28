@@ -5,7 +5,72 @@ import * as main from "./main"
 
 const debug = true;
 
+import EmojiPicker from "rm-emoji-picker";
+
+window.Converters = require('Converters')
+
 class Messages {
+  constructor() {
+    $('body').on('click', '.select-category', e => {
+      setTimeout(() => {
+        $('.emoji-section.emoji-content').scrollTop($('.emoji-section.emoji-content').scrollTop() + 3)
+      },5)
+    })
+    this.picker = new EmojiPicker({
+      sheets: {
+        apple   : '/sheets/sheet_apple_64_indexed_128.png',
+        google  : '/sheets/sheet_google_64_indexed_128.png',
+        twitter : '/sheets/sheet_twitter_64_indexed_128.png',
+        emojione: '/sheets/sheet_emojione_64_indexed_128.png'
+      },
+      show_colon_preview: false,
+      callback   : (emoji, category, node) => {
+        console.log('callback, node')
+        // if(node instanceof HTMLELement){
+        //     node.classList.add('emoji-image')
+        // }
+      },
+      categories: [
+        {
+            title: "People",
+            icon : '<i class="fa fa-smile-o" aria-hidden="true"></i>'
+        },
+        {
+            title: "Nature",
+            icon : '<i class="fa fa-leaf" aria-hidden="true"></i>'
+        },
+        {
+            title: "Foods",
+            icon : '<i class="fa fa-cutlery" aria-hidden="true"></i>'
+        },
+        {
+            title: "Activity",
+            icon : '<i class="fa fa-futbol-o" aria-hidden="true"></i>'
+        },
+        {
+            title: "Places",
+            icon : '<i class="fa fa-globe" aria-hidden="true"></i>'
+        },
+        {
+            title: "Symbols",
+            icon : '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>'
+        },
+        {
+            title: "Flags",
+            icon : '<i class="fa fa-flag-checkered" aria-hidden="true"></i>'
+        }
+      ]
+    });
+    const icon      = $('i.emoji-picker-icon')[0]
+    const container = $('.message-popup-results')[0];
+    const editable  = $('.message-form-text')[0];
+
+    this.picker.listenOn(icon, container, editable);
+
+    setInterval(() => {
+        console.log(this.picker.getText());
+    }, 3000);
+  }
 
   static auto_link_id(id) {
     if (id && chat_settings.auto_link) {
