@@ -7,7 +7,7 @@ const debug = true;
 
 import EmojiPicker from "rm-emoji-picker";
 
-window.Converters = require('Converters')
+// window.Converters = require('Converters')
 
 class Messages {
   constructor() {

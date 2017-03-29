@@ -38,6 +38,7 @@ window.userchan = false
 window.roomchan = false
 window.systemchan = false
 
+
 hljs.initHighlightingOnLoad();
 
 window.autoLinker = new AutoLinker({
@@ -116,6 +117,7 @@ $(document).ready(function() {
 
   socket.connect()
 
+  emojione.ascii = true
   // $(".input-message-container .inner-left-toolbar").emoji.emojioneArea();
 
   if (flash_error != "")
