@@ -72,17 +72,6 @@ class Messages {
     }, 3000);
   }
 
-  static auto_link_id(id) {
-    if (id && chat_settings.auto_link) {
-      let selector = `#${id} div.body`
-      console.log('autolink', $(selector + ' code.hljs'))
-      if ($(selector + ' code.hljs').length == 0) {
-        let elem = $(selector)
-        elem.html(autoLinker.link(elem.html()))
-      }
-    }
-  }
-
   static new_message(msg) {
     let html = msg.html
 
@@ -96,8 +85,6 @@ class Messages {
     $('.messages-box').children('.wrapper').children('ul').children(':last-child').find('pre').each(function(i, block) {
       hljs.highlightBlock(block)
     })
-
-    this.auto_link_id(msg.id)
 
     if (ucxchat.user_id == msg.user_id) {
       if (debug) { console.log('adding own to', msg.id, $('#' + msg.id)) }

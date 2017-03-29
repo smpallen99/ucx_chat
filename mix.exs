@@ -37,7 +37,7 @@ defmodule UcxChat.Mixfile do
   def applications(:prod), do: [
     :phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
     :phoenix_ecto, :mariaex, :coherence, :phoenix_haml, :hound, :syslog,
-    :link_preview, :html_entities, :mogrify, :tempfile
+    :link_preview, :html_entities, :mogrify, :tempfile, :auto_linker,
   ]
   def applications(_), do: applications(:prod) ++ [:faker_elixir_octopus]
 
@@ -72,6 +72,8 @@ defmodule UcxChat.Mixfile do
      {:html_entities, "~> 0.2"},
      {:mogrify, "~> 0.4.0"},
      {:tempfile, "~> 0.1.0"},
+     {:auto_linker, "~> 0.1"},
+     # {:auto_linker, path: "../auto_linker"},
 
      {:cowboy, "~> 1.0", override: true}]
   end

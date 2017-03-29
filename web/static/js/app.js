@@ -25,4 +25,3 @@ import utils from './utils'
 import cc from './chat_channel'
 require('./notifications_form')
 require('./favico')
-//window.Autolinker = require( 'autolinker' );

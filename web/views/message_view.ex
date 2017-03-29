@@ -274,8 +274,9 @@ defmodule UcxChat.MessageView do
 
   def format_message_body(message) do
     # Logger.warn "type: #{inspect message.type}, system: #{inspect message.system}, body: #{inspect message.body}"
-    quoted? = String.contains?(message.body, "```")
-    message.body
+    body = AutoLinker.link message.body, exclude_pattern: "```"
+    quoted? = String.contains?(body, "```")
+    body
     |> String.replace("&lt;", "<")
     |> String.replace("&gt;", ">")
     |> format_newlines(quoted?, message.system)
@@ -295,6 +296,5 @@ defmodule UcxChat.MessageView do
         ""
       end
     end
-
   end
 end

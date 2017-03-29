@@ -274,11 +274,8 @@ class RoomManager {
 
     let html = utils.do_emojis($('.messages-box .wrapper ul').html())
 
-    if (chat_settings.auto_link) {
-      $('.messages-box .wrapper ul').html(autoLinker.link(html))
-    } else {
-      $('.messages-box .wrapper ul').html(html)
-    }
+    $('.messages-box .wrapper ul').html(html)
+
     roomchan.on('room:open', resp => {
       utils.page_loading()
       $('.main-content').html(utils.loading_animation())

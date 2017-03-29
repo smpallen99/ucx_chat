@@ -1,4 +1,5 @@
-%{"calliope": {:hex, :calliope, "0.4.1", "8b7034343d247199bcf267a6e07ea296dc99ac1e90413c197114c8df0fa0b436", [:mix], []},
+%{"auto_linker": {:hex, :auto_linker, "0.1.0", "4ae2c4fade6785a829dfb2c26653b8af9c26b9aca27ac709ac3c4c1bcb731598", [:mix], []},
+  "calliope": {:hex, :calliope, "0.4.1", "8b7034343d247199bcf267a6e07ea296dc99ac1e90413c197114c8df0fa0b436", [:mix], []},
   "certifi": {:hex, :certifi, "1.0.0", "1c787a85b1855ba354f0b8920392c19aa1d06b0ee1362f9141279620a5be2039", [:rebar3], []},
   "coherence": {:git, "https://github.com/smpallen99/coherence.git", "bef37e80e1669bb22f42055951b0715f5b68ce9a", []},
   "combine": {:hex, :combine, "0.9.6", "8d1034a127d4cbf6924c8a5010d3534d958085575fa4d9b878f200d79ac78335", [:mix], []},
