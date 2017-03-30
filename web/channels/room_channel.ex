@@ -51,7 +51,7 @@ defmodule UcxChat.RoomChannel do
     broadcast! socket, "user:entered", %{user: msg["user"], channel_id: channel.id}
     push socket, "join", %{status: "connected"}
     # UserSocket.push_message_box socket, socket.assigns.user_id, channel.id
-    ChannelService.clear_unread(channel.id, socket.assigns.user_id)
+    # ChannelService.clear_unread(channel.id, socket.assigns.user_id)
     # socket = Phoenix.Socket.assign(socket, :user_id, msg["user_id"])
     {:noreply, socket}
   end

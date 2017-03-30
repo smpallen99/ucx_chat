@@ -38,7 +38,6 @@ defmodule UcxChat.RoomChannelController do
   end
 
   def leave(%{assigns: assigns} = socket, params) do
-    Logger.warn "params: #{inspect params}"
     resp = case ChannelService.channel_command(socket, :leave, params["room"], assigns[:user_id], nil) do
       {:ok, _} ->
         {:ok, %{}}
@@ -51,6 +50,16 @@ defmodule UcxChat.RoomChannelController do
   def delete(%{assigns: assigns} = socket, params) do
     resp = ChannelService.delete_channel(socket, params["room"], assigns.user_id)
     {:reply, resp, socket}
+  end
+
+  def clear_has_unread(%{assigns: assigns} = socket, params) do
+    ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, false)
+    {:noreply, socket}
+  end
+
+  def set_has_unread(%{assigns: assigns} = socket, params) do
+    ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, true)
+    {:noreply, socket}
   end
 
   # def command(socket, %{"command" => "set-owner", "username" => username}) do

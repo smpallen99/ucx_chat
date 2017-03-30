@@ -55,10 +55,25 @@ class RoomManager {
   set is_unread(val) { this.unread = val; }
 
   render_room(resp) {
-    if (debug) { console.log('render_room', resp) }
+    if (debug) { console.log('render_room resp', resp) }
     $('.room-link').removeClass("active")
     $('.main-content').html(resp.html)
-    console.log('messages', $('.messages-box .wrapper>ul li'))
+    let last_read = resp.messages_info.last_read
+    if (last_read && last_read != "") {
+      setTimeout(() => {
+        let lr_elem = $(`li.message[data-timestamp="${last_read}"]`)
+        let next = lr_elem.next('li.message')
+        if (next.length > 0) {
+          this.unread = true
+          lr_elem.nextAll('li.message').each((i, elem) => {
+            this.unread_list.push($(elem).attr('id'))
+          })
+          utils.scroll_bottom()
+          next.addClass('first-unread')
+        }
+      }, 2000)
+    }
+    // console.log('messages', $('.messages-box .wrapper>ul li'))
     ucxchat.channel_id = resp.channel_id
     ucxchat.room = resp.room_title
     ucxchat.display_name = resp.display_name
@@ -198,6 +213,10 @@ class RoomManager {
   }
 
   set_unread(id) {
+    console.log('set_unread value', this.is_unread)
+    if (!this.is_unread) {
+      cc.put("/room/has_unread")
+    }
     $('.first-unread').removeClass('first-unread').removeClass('first-unread-opaque')
     $('#' + id).addClass('first-unread')
     $('li.link-room-'+ucxchat.room).addClass('has-unread').addClass('has-alert')
@@ -277,6 +296,7 @@ class RoomManager {
     $('.messages-box .wrapper ul').html(html)
 
     roomchan.on('room:open', resp => {
+      console.log('room:open resp', resp)
       utils.page_loading()
       $('.main-content').html(utils.loading_animation())
       this.open_room(resp.room, resp.room)
@@ -304,6 +324,7 @@ class RoomManager {
         else if (roomHistoryManager.hasMoreNext && at_bottom)
           roomHistoryManager.getMoreNext
       }
+      console.log('scrolling.... unread', this.unread)
       if (this.unread) {
         if (debug) { console.log('scrolling unread') }
 
@@ -350,6 +371,7 @@ class RoomManager {
   clear_unread() {
     if (!this.unread_timer_ref) {
       this.unread_timer_ref = setTimeout(() => {
+        cc.delete_('/room/has_unread')
         this.clear_navbar()
         this.clear_unread_state()
         $('.first-unread').addClass('first-unread-opaque')

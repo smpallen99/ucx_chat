@@ -112,7 +112,8 @@ defmodule UcxChat.MessageService do
     |> new_days(tz || 0, [])
   end
 
-  def get_messages_info(messages, channel_id) do
+  def get_messages_info(messages, channel_id, user) do
+    subscription = SubscriptionService.get(channel_id, user.id)
     has_more =
       with [first|_] <- messages,
            _ <- Logger.warn("get_messages_info 2"),
@@ -129,12 +130,12 @@ defmodule UcxChat.MessageService do
           _res -> true
         end
     %{
-      has_more: has_more, has_more_next: has_more_next, can_preview: true
+      has_more: has_more, has_more_next: has_more_next, can_preview: true, last_read: Map.get(subscription || %{}, :last_read, "")
     }
   end
 
-  def messages_info_into(messages, channel_id, params) do
-    messages |> get_messages_info(channel_id) |> Enum.into(params)
+  def messages_info_into(messages, channel_id, user, params) do
+    messages |> get_messages_info(channel_id, user) |> Enum.into(params)
   end
 
   defp new_days([h|t], tz, []), do: new_days(t, tz, [Map.put(h, :new_day, true)])

@@ -54,6 +54,8 @@
   - info = get_info_class(@message)
   %div{class: "body color-primary-font-color #{info}" dir: "auto"}
     = format_message_body(@message)
+    - if Application.get_env(:ucx_chat, :debug) do
+      %span(style="float: right;")= @message.timestamp
     - if oembed = has_oembed(@message) do
       -# for _url <- oembed[:urls] do
       =# {{injectIndex . @index}} {{> oembedBaseWidget}}

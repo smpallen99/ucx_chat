@@ -59,9 +59,12 @@ defmodule UcxChat.ChatDat do
   end
 
   def get_messages_info(chatd) do
+    get_messages_info(chatd, chatd.user)
+  end
+  def get_messages_info(chatd, user) do
     case chatd.channel do
       %Channel{id: id} ->
-        value = MessageService.get_messages_info(chatd.messages, id)
+        value = MessageService.get_messages_info(chatd.messages, id, user)
         # Logger.warn "chatd value: value: #{inspect value}"
         set(chatd, :messages_info, value)
       _ ->

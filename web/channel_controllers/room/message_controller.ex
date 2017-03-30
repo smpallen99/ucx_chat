@@ -67,7 +67,7 @@ defmodule UcxChat.MessageChannelController do
 
     messages_html = String.replace(messages_html, "\n", "")
 
-    {:reply, {:ok, MessageService.messages_info_into(list, channel_id, %{html: messages_html})}, socket}
+    {:reply, {:ok, MessageService.messages_info_into(list, channel_id, user, %{html: messages_html})}, socket}
   end
 
   def previous(%{assigns: assigns} = socket, params) do
@@ -97,7 +97,7 @@ defmodule UcxChat.MessageChannelController do
 
     messages_html = String.replace(messages_html, "\n", "")
 
-    {:reply, {:ok, MessageService.messages_info_into(list, channel_id, %{html: messages_html})}, socket}
+    {:reply, {:ok, MessageService.messages_info_into(list, channel_id, user, %{html: messages_html})}, socket}
   end
 
   def surrounding(%{assigns: assigns} = socket, params) do
@@ -120,7 +120,7 @@ defmodule UcxChat.MessageChannelController do
 
     messages_html = String.replace(messages_html, "\n", "")
 
-    {:reply, {:ok, MessageService.messages_info_into(list, channel_id, %{html: messages_html})}, socket}
+    {:reply, {:ok, MessageService.messages_info_into(list, channel_id, user, %{html: messages_html})}, socket}
   end
 
   def last(%{assigns: assigns} = socket, _params) do
@@ -141,7 +141,7 @@ defmodule UcxChat.MessageChannelController do
 
     messages_html = String.replace(messages_html, "\n", "")
 
-    {:reply, {:ok, MessageService.messages_info_into(list, channel_id, %{html: messages_html})}, socket}
+    {:reply, {:ok, MessageService.messages_info_into(list, channel_id, user, %{html: messages_html})}, socket}
   end
 
   def update(%{assigns: assigns} = socket, params) do

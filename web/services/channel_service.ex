@@ -118,6 +118,19 @@ defmodule UcxChat.ChannelService do
     end
   end
 
+  def set_has_unread(channel_id, user_id, value) do
+    channel_id
+    |> Subscription.get(user_id)
+    |> Repo.one
+    |> case do
+      nil -> nil
+      sub ->
+        sub
+        |> Subscription.changeset(%{has_unread: value})
+        |> Repo.update
+    end
+  end
+
   def clear_unread(channel_id, user_id) do
     channel_id
     |> Subscription.get(user_id)
@@ -126,7 +139,7 @@ defmodule UcxChat.ChannelService do
       nil -> nil
       sub ->
         sub
-        |> Subscription.changeset(%{unread: 0})
+        |> Subscription.changeset(%{unread: 0, has_unread: false})
         |> Repo.update
     end
   end
@@ -309,7 +322,7 @@ defmodule UcxChat.ChannelService do
           open: open, has_unread: cc.has_unread, unread: unread, alert: cc.alert, user_status: user_status,
           can_leave: chan.type != 2, archived: false, name: chan.name, hidden: cc.hidden,
           room_icon: get_icon(chan.type), channel_id: chan.id, channel_type: chan.type,
-          type: type, display_name: display_name, active: chan.active
+          type: type, display_name: display_name, active: chan.active, last_read: cc.last_read
         }
       end)
       |> Enum.filter(&(&1.active))
@@ -402,7 +415,7 @@ defmodule UcxChat.ChannelService do
   end
 
   def open_room(user_id, room, old_room, display_name) do
-    # Logger.warn "open_room room: #{inspect room}, old_room: #{inspect old_room}"
+    Logger.warn "open_room room: #{inspect room}, old_room: #{inspect old_room}"
     # Logger.warn "ChannelService.open_room room: #{inspect room}, display_name: #{inspect display_name}"
     user = Helpers.get_user!(user_id)
 
@@ -438,7 +451,8 @@ defmodule UcxChat.ChannelService do
     chatd =
       user
       |> ChatDat.new(channel, messages)
-      |> ChatDat.get_messages_info
+      |> ChatDat.get_messages_info(user)
+    Logger.warn "messages_info: #{inspect chatd.messages_info}"
 
     # box_html =
     #   "messages_box.html"
@@ -461,6 +475,7 @@ defmodule UcxChat.ChannelService do
       room_title: room,
       channel_id: channel.id,
       html: html,
+      messages_info: chatd.messages_info,
       # box_html: box_html,
       # header_html: header_html,
       side_nav_html: side_nav_html,

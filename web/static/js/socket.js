@@ -359,7 +359,6 @@ function start_room_channel(typing) {
   roomHistoryManager.scroll_new_window()
 
   main.run()
-  main.update_flexbar()
   roomManager.updateMentionsMarksOfRoom()
 
   navMenu.close()

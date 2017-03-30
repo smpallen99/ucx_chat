@@ -25,7 +25,7 @@ class Messages {
       },
       show_colon_preview: false,
       callback   : (emoji, category, node) => {
-        console.log('callback, node')
+        // console.log('callback, node')
         // if(node instanceof HTMLELement){
         //     node.classList.add('emoji-image')
         // }
@@ -68,7 +68,7 @@ class Messages {
     this.picker.listenOn(icon, container, editable);
 
     setInterval(() => {
-        console.log(this.picker.getText());
+        this.picker.getText();
     }, 3000);
   }
 
@@ -129,7 +129,7 @@ class Messages {
               hljs.highlightBlock(block)
             })
             utils.scroll_bottom()
-            console.log('got response from send message')
+            // console.log('got response from send message')
           }
         })
 

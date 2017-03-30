@@ -278,6 +278,13 @@ defmodule UcxChat.UserChannel do
 
   def handle_in(ev = "update:currentMessage", %{"value" => value } = params, %{assigns: assigns} = socket) do
     debug ev, params
+    last_read = SubscriptionService.get(assigns.channel_id, assigns.user_id, :last_read)
+    cond do
+      last_read == "" or String.to_integer(last_read) < String.to_integer(value) ->
+        SubscriptionService.update(assigns.channel_id, assigns.user_id, %{last_read: value})
+      true ->
+        nil
+    end
     SubscriptionService.update(assigns.channel_id, assigns.user_id, %{current_message: value})
     {:noreply, socket}
   end
@@ -343,7 +350,7 @@ defmodule UcxChat.UserChannel do
 
     if room in assigns.subscribed do
       channel = Helpers.get_by(Channel, :name, room)
-      # Logger.warn "in the room ... #{user_id}, room: #{inspect room}"
+      Logger.warn "in the room ... #{assigns.user_id}, room: #{inspect room}"
       # unless channel.id == assigns.channel_id and assigns.user_state != "idle" do
       if channel.id != assigns.channel_id or assigns.user_state == "idle" do
         if channel.type == 2 do
@@ -589,16 +596,21 @@ defmodule UcxChat.UserChannel do
   end
 
   defp clear_unreads(%{assigns: %{channel_id: channel_id}} = socket) do
+    Logger.warn "clear_unreads/1: channel_id: #{inspect channel_id}, socket.assigns.user_id: #{inspect socket.assigns.user_id}"
     Channel
     |> Helpers.get(channel_id)
     |> Map.get(:name)
     |> clear_unreads(socket)
   end
-  defp clear_unreads(socket), do: socket
+  defp clear_unreads(socket) do
+    Logger.warn "clear_unreads/1: default"
+    socket
+  end
+
 
 
   defp clear_unreads(room, %{assigns: assigns} = socket) do
-    # Logger.warn "room: #{inspect room}, assigns: #{inspect assigns}"
+    Logger.warn "room: #{inspect room}, assigns: #{inspect assigns}"
     ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, false)
     push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-unread", action: "removeClass"}
     push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-alert", action: "removeClass"}

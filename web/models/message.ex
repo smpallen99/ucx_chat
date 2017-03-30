@@ -26,7 +26,8 @@ defmodule UcxChat.Message do
     field :chat_opts, :boolean, virtual: true
     field :custom_class, :string, virtual: true
     field :avatar, :string, virtual: true
-    field :new_day, :boolean, default: false, virtual: true  # new_day
+    field :new_day, :boolean, default: false, virtual: true
+    field :first_unread, :boolean, default: false, virtual: true
 
     timestamps(type: :utc_datetime)
   end
