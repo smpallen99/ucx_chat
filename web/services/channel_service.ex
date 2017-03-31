@@ -118,6 +118,9 @@ defmodule UcxChat.ChannelService do
     end
   end
 
+  def set_has_unread(channel_id, user_id, false) do
+    clear_unread(channel_id, user_id)
+  end
   def set_has_unread(channel_id, user_id, value) do
     channel_id
     |> Subscription.get(user_id)
