@@ -2,6 +2,7 @@ let debug = true
 class ChatEmoji {
   constructor() {
     this.open = false
+
     this.cursor_position_plugin()
     this.register_events()
     this.init_picker()
@@ -46,6 +47,8 @@ class ChatEmoji {
     // userchan.push('emoji:close_picker')
   }
   init_picker() {
+    emojione.ascii = true
+
     $('.emoji-picker').css('bottom', '80px').css('left', '300px')
     let html = emojione.shortnameToImage($('.emojis').html())
     $('.emojis').html(html)

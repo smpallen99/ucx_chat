@@ -13,9 +13,14 @@ class Messages {
     let html = msg.html
 
     let at_bottom = roomManager.at_bottom
-    console.log('new_message', msg)
+    if (debug) console.log('new_message', msg)
 
-    $('.messages-box .wrapper > ul').append(html)
+    $('.messages-box .wrapper > ul').append(utils.do_emojis(html))
+
+    let last = $(`#${msg.id} .body`)
+    if (last.text().trim() == "") {
+      last.find('img.emojione').addClass('big')
+    }
 
     $('.messages-box').children('.wrapper').children('ul').children(':last-child').find('pre').each(function(i, block) {
       hljs.highlightBlock(block)

@@ -11,6 +11,13 @@ export function remove(arr, item) {
   }
 }
 
+export function do_emojis(html) {
+  if (chat_settings.use_emojis) {
+    return emojione.shortnameToImage(html)
+  }
+  return html
+}
+
 // Taken from: https://davidwalsh.name/javascript-debounce-function
 //
 // Returns a function, that, as long as it continues to be invoked, will not
