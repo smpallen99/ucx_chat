@@ -291,10 +291,6 @@ class RoomManager {
     roomHistoryManager.new_room(ucxchat.room)
     this.updateMentionsMarksOfRoom()
 
-    let html = utils.do_emojis($('.messages-box .wrapper ul').html())
-
-    $('.messages-box .wrapper ul').html(html)
-
     roomchan.on('room:open', resp => {
       console.log('room:open resp', resp)
       utils.page_loading()

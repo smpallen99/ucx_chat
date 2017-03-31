@@ -19,12 +19,10 @@ import Menu from './menu'
 import * as main from "./main"
 import * as flexbar from "./flex_bar"
 import * as cc from "./chat_channel"
-// import * as emoji from "./emojionearea"
 import hljs from "highlight.js"
 import toastr from 'toastr'
 import * as sweet from "./sweetalert.min"
 import * as utils from "./utils"
-import AutoLinker from 'autolinker'
 window.moment = require('moment');
 const chan_user = "user:"
 const chan_room = "room:"
@@ -40,15 +38,6 @@ window.systemchan = false
 
 
 hljs.initHighlightingOnLoad();
-
-window.autoLinker = new AutoLinker({
-  urls : {
-    schemeMatches : true,
-    wwwMatches    : true,
-    tldMatches    : true
-    },
-  className: 'auto',
-})
 
 // new presence stuff
 let presences = {}
@@ -117,25 +106,19 @@ $(document).ready(function() {
 
   socket.connect()
 
-  emojione.ascii = true
-  // $(".input-message-container .inner-left-toolbar").emoji.emojioneArea();
-
   if (flash_error != "")
     toastr.error(flash_error)
 
   $('textarea.message-form-text').focus()
 
-  // console.log('socket...', socket)
-
   start_system_channel()
   start_user_channel()
   start_room_channel(typing)
 
-
   $('body').on('submit', '.message-form', e => {
     if (debug) { console.log('message-form submit', e) }
   })
-  $('body').on('keydown', '.message-form-text', e => {
+  .on('keydown', '.message-form-text', e => {
     let event = new jQuery.Event('user:input')
     switch(e.keyCode) {
       case 38: // up arrow
@@ -151,8 +134,7 @@ $(document).ready(function() {
         return true
     }
   })
-
-  $('body').on('keypress', '.message-form-text', e => {
+  .on('keypress', '.message-form-text', e => {
     if (debug) { console.log('message-form-text keypress', e) }
     if (e.keyCode == 13 && e.shiftKey) {
       return true
@@ -179,8 +161,7 @@ $(document).ready(function() {
     typing.start_typing()
     return true
   })
-
-  $('body').on('restart-socket', () => {
+  .on('restart-socket', () => {
     start_room_channel(typing)
   })
 

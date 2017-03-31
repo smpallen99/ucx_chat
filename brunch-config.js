@@ -89,7 +89,7 @@ exports.config = {
   npm: {
     enabled: true,
     // whitelist: ["toastr", "highlight.js", "emojionearea"], //, "rm-emoji-picker"],
-    whitelist: ["highlight.js", "rm-emoji-picker"],
+    whitelist: ["highlight.js"],
     styles: {
       // toastr: ["toastr.css"],
       "highlight.js": ['styles/default.css']
