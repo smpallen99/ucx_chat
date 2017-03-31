@@ -1,5 +1,5 @@
-- current_tone = "tone-0"
-- active_category = :people
+- current_tone = "tone-#{@account.emoji_tone}"
+- active_category = @account.emoji_category
 .emoji-picker.secondary-background-color
   .emoji-top
     %form.emoji-filter.input-line.search.search-form
@@ -16,12 +16,12 @@
   .filter
     %ul.filter-list
       - for {name, title} <- emoji_categories() do
-        %li.filter-item.border-secondary-background-color(data-name="#{name}" class="#{active_filter(name)}" title="#{title}")
+        %li.filter-item.border-secondary-background-color(data-name="#{name}" class="#{active_filter(to_string(name) == active_category)}" title="#{title}")
           %a.category-link.color-info-font-color(href="#")
             %i.category-icon(class="icon-#{name}")
   .emojis
     - for {name, _title} <- emoji_categories() do
-      %ul(class="#{name} emoji-list#{active_category(name)}")
+      %ul(class="#{name} emoji-list#{active_category(to_string(name) == active_category)}")
         - for emoji <- emojis_by_category()[name] do
           %li(class="emoji-#{emoji}" data-emoji="#{emoji}" title="#{emoji}")
             = ":#{emoji}:"

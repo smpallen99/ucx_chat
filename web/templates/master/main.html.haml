@@ -8,7 +8,7 @@
 
   %div.main-content-cache.hidden
   = render UcxChat.SideNavView, "show.html", conn: @conn, chatd: @chatd
-= UcxChat.EmojiView.render("emoji_picker.html")
+= UcxChat.EmojiView.render("emoji_picker.html", account: @chatd.user.account)
 .sweet-container
   =# render "sweet.html"
 - flash_error = @conn.private[:phoenix_flash]["error"]

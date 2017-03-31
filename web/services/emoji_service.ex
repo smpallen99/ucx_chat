@@ -2,7 +2,7 @@ defmodule UcxChat.EmojiService do
   use UcxChat.Web, :service
   use UcxChat.ChannelApi
 
-  alias UcxChat.{Emoji}
+  alias UcxChat.{Emoji, Account}
 
   require Logger
 
@@ -16,10 +16,12 @@ defmodule UcxChat.EmojiService do
   end
   def handle_in(ev = "tone_list", params, socket) do
     debug ev, params
+    set_emoji_tone socket.assigns.user_id, params["tone"]
     {:reply, {:ok, %{tone_list: Emoji.tone_list()}}, socket}
   end
   def handle_in(ev = "filter-item", params, socket) do
     debug ev, params
+    set_emoji_category socket.assigns.user_id, params["name"]
     {:noreply, socket}
   end
 
@@ -28,26 +30,23 @@ defmodule UcxChat.EmojiService do
     {:noreply, socket}
   end
 
-  defp get_emojis do
-    %{
-      categories: [
-        %{ name: :recent, title: "Frequently Used" },
-        %{ name: :people, title: "Smileys & People" },
-        %{ name: :nature, title: "Animals & Nature" },
-        %{ name: :food, title: "Food & Drink" },
-        %{ name: :activity, title: "Activity" },
-        %{ name: :travel, title: "Travel & Places" },
-        %{ name: :objects, title: "Objects" },
-        %{ name: :symbols, title: "Symbols" },
-        %{ name: :flags, title: "Flags" }
-      ],
-      emoji_list: %{
-        recent: [],
-        people: [
-        ]
-      }
-
-    }
+  defp set_emoji_category(user_id, name) do
+    user_id
+    |> get_account
+    |> Account.changeset(%{emoji_category: name})
+    |> Repo.update
   end
 
+  defp set_emoji_tone(user_id, tone) do
+    user_id
+    |> get_account
+    |> Account.changeset(%{emoji_tone: tone})
+    |> Repo.update
+  end
+
+  def get_account(user_id) do
+    user_id
+    |> Account.get
+    |> Repo.one
+  end
 end
