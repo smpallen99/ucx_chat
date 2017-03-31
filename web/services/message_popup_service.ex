@@ -1,7 +1,7 @@
 defmodule UcxChat.MessagePopupService do
   use UcxChat.Web, :service
   require Logger
-  alias UcxChat.{Repo, User, Channel, Message, SlashCommands, PresenceAgent}
+  alias UcxChat.{Repo, User, Channel, Message, SlashCommands, PresenceAgent, Emoji}
   # alias UcxChat.ServiceHelpers, as: Helpers
   import Ecto.Query
 
@@ -58,6 +58,25 @@ defmodule UcxChat.MessagePopupService do
 
       html =
         "popup_slash_commands.html"
+        |> UcxChat.MessageView.render(chatd: chatd)
+        |> Helpers.safe_to_string
+
+      {:ok, %{html: html}}
+    else
+      {:ok, %{close: true}}
+    end
+  end
+
+  def handle_in(ev = "get:emojis", msg) do
+    pattern = msg["pattern"] |> to_string
+    Logger.warn "#{ev}, pattern: #{pattern} msg: #{inspect msg}"
+
+    commands = Emoji.commands(pattern)
+    if commands != [] do
+      chatd = %{open: true, title: "Emoji", data: commands, templ: "popup_emoji.html"}
+
+      html =
+        "popup_emoji.html"
         |> UcxChat.MessageView.render(chatd: chatd)
         |> Helpers.safe_to_string
 

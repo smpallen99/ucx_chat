@@ -103,7 +103,7 @@ defmodule UcxChat.Emoji do
     "juggling": 1
   ]
 
-  def emojis_by_category, do: %{
+  @emojis_by_category  %{
     people: [
       "grinning",
       "grimacing",
@@ -1528,5 +1528,17 @@ defmodule UcxChat.Emoji do
     ]
   }
 
+  def emojis_by_category, do: @emojis_by_category
+
+  @all_emojis Map.values(@emojis_by_category) |> List.flatten
+
+  def all_emojis, do: @all_emojis
+
+  def commands(pattern) do
+    @all_emojis
+    |> Enum.filter(&(String.starts_with? &1, pattern))
+    |> Enum.take(11)
+    |> Enum.map(&(":#{&1}:"))
+  end
   # /* exported emojisByCategory, emojiCategories, toneList */
 end

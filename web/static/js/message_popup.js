@@ -19,6 +19,7 @@ class MessagePopup {
     this.match = undefined
     this.command_char = undefined;
     this.pattern = [];
+    this.buffer = [];
   }
 
   close_popup() {
@@ -29,6 +30,7 @@ class MessagePopup {
     this.match = undefined
     this.command_char = undefined;
     this.pattern = []
+    this.buffer = []
   }
 
   handle_enter() {
@@ -38,6 +40,7 @@ class MessagePopup {
         this.select_item(selected)
       }
       this.close_popup()
+      this.buffer = []
     }
   }
 
@@ -151,7 +154,16 @@ class MessagePopup {
   }
 
   handle_channel_resp(resp) {
-    $(popup_window).html(resp.html)
+    let html = resp.html
+    if (this.application == "emojis")
+      html = utils.do_emojis(html)
+    $(popup_window).html(html)
+    if (this.application == "emojis") {
+      $(popup_window).find('.popup-item').each((i, elem) => {
+        $(elem).append($(elem).data('id'))
+      })
+
+    }
     $('.popup-item').hover(
       function() {
         $('.popup-item.selected').removeClass('selected')
@@ -202,7 +214,15 @@ class MessagePopup {
           console.log('opening slashcommands')
           this.open_application("slashcommands")
         } else if (msg.keyCode == 8) { // BS
+          this.buffer.pop()
           return this.handle_bs_key_not_open()
+        } else {
+          this.buffer.push(msg.keyCode)
+          if (this.buffer[0] == 58 && this.buffer.length > 2) {
+            console.log('open the emojis mode')
+            this.pattern = this.buffer.slice(1)
+            this.open_application("emojis")
+          }
         }
       }
     })
