@@ -2,6 +2,8 @@ defmodule UcxChat.EmojiService do
   use UcxChat.Web, :service
   use UcxChat.ChannelApi
 
+  alias UcxChat.{Emoji}
+
   require Logger
 
   def handle_in(ev = "click:open_picker", params, socket) do
@@ -12,6 +14,15 @@ defmodule UcxChat.EmojiService do
     debug ev, params
     {:noreply, socket}
   end
+  def handle_in(ev = "tone_list", params, socket) do
+    debug ev, params
+    {:reply, {:ok, %{tone_list: Emoji.tone_list()}}, socket}
+  end
+  def handle_in(ev = "filter-item", params, socket) do
+    debug ev, params
+    {:noreply, socket}
+  end
+
   def handle_in(ev, params, socket) do
     Logger.warn "Unknown event #{ev}, params: #{inspect params}"
     {:noreply, socket}

@@ -1,4 +1,4 @@
-- current_tone = "normal"
+- current_tone = "tone-0"
 - active_category = :people
 .emoji-picker.secondary-background-color
   .emoji-top
@@ -12,7 +12,7 @@
         - for tone <- 0..5 do
           %li
             %a.tone(href="#tone" data-tone="#{tone}")
-              %span(class="tone-#{tone}")"
+              %span(class="tone-#{tone}")
   .filter
     %ul.filter-list
       - for {name, title} <- emoji_categories() do

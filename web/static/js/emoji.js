@@ -1,4 +1,7 @@
+import * as utils from './utils'
+
 let debug = true
+
 class ChatEmoji {
   constructor() {
     this.open = false
@@ -22,9 +25,11 @@ class ChatEmoji {
       $(e.currentTarget).addClass('active')
       $('.emoji-list').removeClass('visible')
       $(`.emoji-list.${name}`).addClass('visible')
+      userchan.push('emoji:filter-item', {name: name})
     })
     .on('click', '.emojis li', e => {
-      let emoji = ':' + $(e.currentTarget).data('emoji') + ':'
+      // let emoji = ':' + $(e.currentTarget).data('emoji') + ':'
+      let emoji = $(e.currentTarget).find('img.emojione').attr('title')
       let pos = $('.input-message').getCursorPosition()
       console.log('pos', pos)
       $('.input-message').val((i, text) => {
@@ -32,6 +37,30 @@ class ChatEmoji {
       })
       this.close_picker()
       $('.input-message').focus()
+    })
+    .on('click', '.change-tone', e => {
+      // console.log('change tone clicked')
+      $('ul.tone-selector').toggleClass('show')
+    })
+    .on('click', 'a.tone', e => {
+      e.preventDefault()
+      let tone = $(e.currentTarget).data('tone')
+      // console.log('a.tone clicked', tone)
+      userchan.push("emoji:tone_list", {tone: tone})
+        .receive("ok", resp => {
+          resp.tone_list.forEach((name, i) => {
+            let html = ""
+            if (tone == "0") {
+              html = utils.do_emojis(`:${name}:`)
+            } else {
+              html = utils.do_emojis(`:${name}_tone${tone}:`)
+            }
+            $(`li.emoji-${name}`).html(html)
+          })
+          $('ul.tone-selector').removeClass('show')
+          $('span.current-tone').attr('class', 'current-tone tone-' + tone)
+        })
+      return false
     })
   }
   open_picker() {
