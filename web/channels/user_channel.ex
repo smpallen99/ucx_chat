@@ -7,9 +7,12 @@ defmodule UcxChat.UserChannel do
   import Ecto.Query
 
   alias Phoenix.Socket.Broadcast
-  alias UcxChat.{Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService}
-  alias UcxChat.{AccountView, Account, AdminService, FlexBarView, UserSocket, User}
-  alias UcxChat.{ChannelService, SubscriptionService, InvitationService, Settings, UserService}
+  alias UcxChat.{
+    Subscription, Repo, Flex, FlexBarService, ChannelService, Channel, SideNavService,
+    AccountView, Account, AdminService, FlexBarView, UserSocket, User,
+    ChannelService, SubscriptionService, InvitationService, Settings, UserService,
+    EmojiService
+  }
   alias UcxChat.ServiceHelpers, as: Helpers
   require UcxChat.ChatConstants, as: CC
 
@@ -109,6 +112,10 @@ defmodule UcxChat.UserChannel do
 
   ###############
   # Incoming Messages
+
+  def handle_in("emoji:" <> emoji, params, socket) do
+    EmojiService.handle_in(emoji, params, socket)
+  end
 
   def handle_in("subscribe" = ev, params, socket) do
     debug ev, params, "assigns: #{inspect socket.assigns}"

@@ -1,0 +1,27 @@
+- current_tone = "normal"
+- active_category = :people
+.emoji-picker.secondary-background-color
+  .emoji-top
+    %form.emoji-filter.input-line.search.search-form
+      %input.search.content-background-color(type="text" autocomplete="off")
+      %i.icon-search.secondary-font-color
+    .change-tone
+      %a(href="#change-tone")
+        %span(class="current-tone #{current_tone}")
+      %ul.tone-selector.secondary-background-color
+        - for tone <- 0..5 do
+          %li
+            %a.tone(href="#tone" data-tone="#{tone}")
+              %span(class="tone-#{tone}")"
+  .filter
+    %ul.filter-list
+      - for {name, title} <- emoji_categories() do
+        %li.filter-item.border-secondary-background-color(data-name="#{name}" class="#{active_filter(name)}" title="#{title}")
+          %a.category-link.color-info-font-color(href="#")
+            %i.category-icon(class="icon-#{name}")
+  .emojis
+    - for {name, _title} <- emoji_categories() do
+      %ul(class="#{name} emoji-list#{active_category(name)}")
+        - for emoji <- emojis_by_category()[name] do
+          %li(class="emoji-#{emoji}" data-emoji="#{emoji}" title="#{emoji}")
+            = ":#{emoji}:"
