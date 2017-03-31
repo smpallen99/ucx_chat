@@ -28,6 +28,7 @@ class ChatEmoji {
       $(e.currentTarget).addClass('active')
       $('.emoji-list').removeClass('visible')
       $(`.emoji-list.${name}`).addClass('visible')
+      $('.emoji-filter input.search').val('')
       userchan.push('emoji:filter-item', {name: name})
       return false
     })
@@ -72,6 +73,22 @@ class ChatEmoji {
         e.preventDefault()
         return false
       }
+    })
+    .on('click', '.emoji-filter input.search', e => {
+      e.preventDefault()
+      console.log('search')
+      return false
+    })
+    .on('keyup', '.emoji-filter input.search', e => {
+      let text = $('.emoji-filter input.search').val()
+      let category = $('.filter-item.active').data('name')
+      userchan.push('emoji:search', {pattern: text, category: category})
+        .receive("ok", resp => {
+          if (resp.html) {
+            let html = utils.do_emojis(resp.html)
+            $('.emojis ul.' + category).html(html)
+          }
+        })
     })
   }
   open_picker() {

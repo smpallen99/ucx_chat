@@ -22,6 +22,4 @@
   .emojis
     - for {name, _title} <- emoji_categories() do
       %ul(class="#{name} emoji-list#{active_category(to_string(name) == active_category)}")
-        - for emoji <- emojis_by_category()[name] do
-          %li(class="emoji-#{emoji}" data-emoji="#{emoji}" title="#{emoji}")
-            = ":#{emoji}:"
+        = render "emoji_category.html", emojis: emojis_by_category()[name]

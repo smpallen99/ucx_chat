@@ -2,7 +2,7 @@ defmodule UcxChat.EmojiService do
   use UcxChat.Web, :service
   use UcxChat.ChannelApi
 
-  alias UcxChat.{Emoji, Account}
+  alias UcxChat.{Emoji, Account, EmojiView}
 
   require Logger
 
@@ -23,6 +23,16 @@ defmodule UcxChat.EmojiService do
     debug ev, params
     set_emoji_category socket.assigns.user_id, params["name"]
     {:noreply, socket}
+  end
+  def handle_in(ev = "search", params, socket) do
+    debug ev, params
+    emojis = Emoji.search(params["pattern"], params["category"])
+    html =
+      "emoji_category.html"
+      |> EmojiView.render(emojis: emojis)
+      |> safe_to_string
+
+    {:reply, {:ok, %{html: html}}, socket}
   end
 
   def handle_in(ev, params, socket) do

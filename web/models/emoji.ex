@@ -1541,5 +1541,12 @@ defmodule UcxChat.Emoji do
     |> Enum.sort
     |> Enum.map(&(":#{&1}:"))
   end
+
+  def search(pattern, category) do
+    category = String.to_existing_atom category
+    @emojis_by_category
+    |> Map.get(category)
+    |> Enum.filter(&(String.starts_with?(&1, pattern)))
+  end
   # /* exported emojisByCategory, emojiCategories, toneList */
 end
