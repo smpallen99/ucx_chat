@@ -2,7 +2,7 @@ defmodule UcxChat.EmojiService do
   use UcxChat.Web, :service
   use UcxChat.ChannelApi
 
-  alias UcxChat.{Emoji, Account, EmojiView}
+  alias UcxChat.{Emoji, Account, EmojiView, AccountService}
 
   require Logger
 
@@ -34,10 +34,32 @@ defmodule UcxChat.EmojiService do
 
     {:reply, {:ok, %{html: html}}, socket}
   end
+  def handle_in(ev = "recent", params, socket) do
+    debug ev, params
+    emoji = String.replace(params["recent"], ":", "")
+    case update_emoji_recent(socket.assigns.user_id, emoji) do
+      {:ok, account} ->
+        html =
+          "emoji_category.html"
+          |> EmojiView.render(emojis: AccountService.emoji_recents(account))
+          |> safe_to_string
+        {:reply, {:ok, %{html: html}}, socket}
+      {:error, _} ->
+        {:reply, {:error, %{error: ~g(Problem updating emoji recent)}}, socket}
+      _ ->
+        {:noreply, socket}
+    end
+  end
 
   def handle_in(ev, params, socket) do
     Logger.warn "Unknown event #{ev}, params: #{inspect params}"
     {:noreply, socket}
+  end
+
+  defp update_emoji_recent(user_id, emoji) do
+    user_id
+    |> get_account
+    |> AccountService.update_emoji_recent(emoji)
   end
 
   defp set_emoji_category(user_id, name) do

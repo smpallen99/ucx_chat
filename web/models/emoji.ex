@@ -6,6 +6,7 @@ defmodule UcxChat.Emoji do
   #  * Mapping category hashes into human readable and translated names
   #  */
   def emoji_categories, do: [
+    recent: ~g'Recent',
     people: ~g'Smileys and People',
     nature: ~g'Animals and Nature',
     food: ~g'Food and Drink',
@@ -104,6 +105,8 @@ defmodule UcxChat.Emoji do
   ]
 
   @emojis_by_category  %{
+    recent: [
+    ],
     people: [
       "grinning",
       "grimacing",
@@ -1528,7 +1531,10 @@ defmodule UcxChat.Emoji do
     ]
   }
 
-  def emojis_by_category, do: @emojis_by_category
+  def emojis_by_category(account) do
+    @emojis_by_category
+    |> Map.put(:recent, UcxChat.AccountService.emoji_recents(account))
+  end
 
   @all_emojis Map.values(@emojis_by_category) |> List.flatten
 

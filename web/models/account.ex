@@ -30,6 +30,7 @@ defmodule UcxChat.Account do
     field :chat_mode, :boolean, default: false
     field :emoji_category, :string, default: "people"
     field :emoji_tone, :integer, default: 0
+    field :emoji_recent, :string, default: ""
 
     has_one :user, UcxChat.User, on_delete: :delete_all
     many_to_many :notifications, UcxChat.Notification, join_through: UcxChat.AccountNotification
@@ -43,7 +44,7 @@ defmodule UcxChat.Account do
           [:hide_user_names, :hide_flex_tab, :hide_avatars, :merge_channels, :view_mode] ++
           [:email_notification_mode, :highlights, :new_room_notification] ++
           [:new_message_notification, :chat_mode, :enable_desktop_notifications] ++
-          [:emoji_category, :emoji_tone]
+          [:emoji_category, :emoji_tone, :emoji_recent]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

@@ -41,6 +41,13 @@ class ChatEmoji {
       })
       this.close_picker()
       $('.input-message').focus()
+      userchan.push('emoji:recent', {recent: emoji})
+        .receive("ok", resp => {
+          if (resp.html) {
+            let html = utils.do_emojis(resp.html)
+            $('.emojis ul.recent').html(html)
+          }
+        })
       return false
     })
     .on('click', '.change-tone', e => {
