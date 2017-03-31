@@ -1538,6 +1538,7 @@ defmodule UcxChat.Emoji do
     @all_emojis
     |> Enum.filter(&(String.starts_with? &1, pattern))
     |> Enum.take(11)
+    |> Enum.sort
     |> Enum.map(&(":#{&1}:"))
   end
   # /* exported emojisByCategory, emojiCategories, toneList */

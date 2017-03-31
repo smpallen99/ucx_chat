@@ -8,8 +8,13 @@ const item = '.popup-item';
 const selected = item + '.selected';
 const form_text = 'textarea.message-form-text';
 
-const application_matches = {users: /(^|\s)@([^\s]*)$/, slashcommands: /^\/[^\s]*$/, channels: /(^|\s)#([^\s]*)$/}
-const application_command_chars   = {users: "@", slashcommands: "/", channels: "#"}
+const application_matches = {
+  users: /(^|\s)@([^\s]*)$/,
+  slashcommands: /^\/[^\s]*$/,
+  channels: /(^|\s)#([^\s]*)$/,
+  emojis: /(^|\s):([^\s]*)$/
+}
+const application_command_chars   = {users: "@", slashcommands: "/", channels: "#", emojis: ":"}
 
 class MessagePopup {
 
@@ -35,13 +40,16 @@ class MessagePopup {
 
   handle_enter() {
     if (this.application) {
+      console.log('handle enter')
       let selected = $('.popup-item.selected')
       if (selected.length == 1) {
         this.select_item(selected)
       }
       this.close_popup()
       this.buffer = []
+      return false
     }
+    return true
   }
 
   handle_key(keyCode) {
@@ -111,12 +119,13 @@ class MessagePopup {
       this.set_application("slashcommands")
     } else if (match = $(form_text).val().match(application_matches.channels)) {
       this.set_application("channels")
+    } else if (match = $(form_text).val().match(application_matches.emojis)) {
+      this.set_application("emojis")
     }
 
     if (match) {
       let string = match[match.length - 1].slice(0, -1)
       let pattern = []
-      console.log('...... inside match', match, string)
       for(var i = 1; i < string.length; i++) { pattern.push(string.charCodeAt(i)) }
       cc.push('message_popup:get:' + this.application, {pattern: pattern})
         .receive("ok", resp => {
@@ -160,9 +169,8 @@ class MessagePopup {
     $(popup_window).html(html)
     if (this.application == "emojis") {
       $(popup_window).find('.popup-item').each((i, elem) => {
-        $(elem).append($(elem).data('id'))
+        $(elem).append($(elem).data('name'))
       })
-
     }
     $('.popup-item').hover(
       function() {
@@ -216,13 +224,9 @@ class MessagePopup {
         } else if (msg.keyCode == 8) { // BS
           this.buffer.pop()
           return this.handle_bs_key_not_open()
+        } else if (msg.keyCode == 58) {
+          this.open_application("emojis")
         } else {
-          this.buffer.push(msg.keyCode)
-          if (this.buffer[0] == 58 && this.buffer.length > 2) {
-            console.log('open the emojis mode')
-            this.pattern = this.buffer.slice(1)
-            this.open_application("emojis")
-          }
         }
       }
     })
@@ -232,8 +236,10 @@ class MessagePopup {
     let text = $('.message-form-text').val()
     let expression = "(.*)" + this.command_char + "(.*$)"
     let re = new RegExp(expression)
-    console.log('select_item text', text)
-    let new_text = text.replace(re, "$1" + this.command_char + elem.attr('data-name') + ' ')
+    let prefix = this.command_char
+    if (this.application == "emojis") prefix = ''
+
+    let new_text = text.replace(re, "$1" + prefix + elem.attr('data-name') + ' ')
     $('.message-form-text').val(new_text)
   }
 

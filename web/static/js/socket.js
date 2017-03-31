@@ -140,14 +140,15 @@ $(document).ready(function() {
       return true
     }
     if(e.keyCode == 13) {
-      // console.log('return ', $('.message-form-text').hasClass('editing'))
-      if ($('.message-form-text').hasClass('editing')) {
-        // console.log('editing submit...', $('li.message.editing').attr('id'))
-        Messages.send_message({update: $('li.message.editing').attr('id'), value: $('.message-form-text').val()})
-      } else {
-        Messages.send_message($('.message-form-text').val())
+      if (message_popup.handle_enter()) {
+        // console.log('return ', $('.message-form-text').hasClass('editing'))
+        if ($('.message-form-text').hasClass('editing')) {
+          // console.log('editing submit...', $('li.message.editing').attr('id'))
+          Messages.send_message({update: $('li.message.editing').attr('id'), value: $('.message-form-text').val()})
+        } else {
+          Messages.send_message($('.message-form-text').val())
+        }
       }
-      message_popup.handle_enter()
       typing.clear()
       return false
     } //else if (e.keyCode == 64) {

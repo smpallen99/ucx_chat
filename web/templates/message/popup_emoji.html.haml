@@ -7,10 +7,10 @@
       .message-popup-items
         - if data = get_popup_data(@chatd) do
           - [item|tail] = data
-          %div(class="popup-item selected" data-id="#{item}")
+          %div(class="popup-item selected" data-name="#{item}")
             = item
           - for item <- tail do
-            .popup-item(data-id="#{item}")
+            .popup-item(data-name="#{item}")
               = item
         - else
           - # {{#unless isLoading.get}}
