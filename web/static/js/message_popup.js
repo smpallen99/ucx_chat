@@ -10,7 +10,7 @@ const form_text = 'textarea.message-form-text';
 
 const application_matches = {
   users: /(^|\s)@([^\s]*)$/,
-  slashcommands: /^\/[^\s]*$/,
+  slashcommands: /^\/([^\s]*)$/,
   channels: /(^|\s)#([^\s]*)$/,
   emojis: /(^|\s):([^\s]*)$/
 }
@@ -40,7 +40,7 @@ class MessagePopup {
 
   handle_enter() {
     if (this.application) {
-      console.log('handle enter')
+      if (debug) { console.log('handle enter') }
       let selected = $('.popup-item.selected')
       if (selected.length == 1) {
         this.select_item(selected)
@@ -89,7 +89,7 @@ class MessagePopup {
   }
 
   handle_bs_key() {
-    if (debug) { console.log('BS') }
+    if (debug) { console.log('BS val', $(form_text).val().slice(-1), 'this', this) }
     if ($(form_text).val().slice(-1) != this.application_char) {
       if (this.pattern.length == 0) {
         this.close_popup()
@@ -112,6 +112,7 @@ class MessagePopup {
 
   handle_bs_key_not_open() {
     let match = undefined
+    if (debug) { console.log('BS not open', this) }
 
     if (match = $(form_text).val().match(application_matches.users)) {
       this.set_application("users")
@@ -126,7 +127,8 @@ class MessagePopup {
     if (match) {
       let string = match[match.length - 1].slice(0, -1)
       let pattern = []
-      for(var i = 1; i < string.length; i++) { pattern.push(string.charCodeAt(i)) }
+      if (debug) { console.log('string', string) }
+      for(var i = 0; i < string.length; i++) { pattern.push(string.charCodeAt(i)) }
       cc.push('message_popup:get:' + this.application, {pattern: pattern})
         .receive("ok", resp => {
           if (debug) { console.log('bs not open resp', pattern, resp) }
@@ -192,7 +194,7 @@ class MessagePopup {
 
   register_user_input() {
     $('body').on('user:input', msg => {
-      console.log('register input', this.application)
+      if (debug) { console.log('register input', this.application) }
       if (this.application) {
         switch(msg.keyCode) {
           case 38: // up arrow
@@ -213,13 +215,13 @@ class MessagePopup {
             this.open_application("users")
           }
         } else if (msg.keyCode == 35) {
-          console.log('opening channels')
+          if (debug) { console.log('opening channels') }
           let prev = $(form_text).val().slice(-1);
           if (prev == "" || prev == " ") {
             this.open_application("channels")
           }
         } else if (msg.keyCode == 47 && $(form_text).val() == "") {
-          console.log('opening slashcommands')
+          if (debug) { console.log('opening slashcommands') }
           this.open_application("slashcommands")
         } else if (msg.keyCode == 8) { // BS
           this.buffer.pop()
