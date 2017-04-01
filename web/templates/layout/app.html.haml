@@ -43,8 +43,8 @@
         .bounce3
     = render @view_module, @view_template, assigns
   = render "translations.html"
+  -# %script(src='#{static_path(@conn, "/js/dropzone.js")}')
   %script(src='#{static_path(@conn, "/js/app.js")}')
   %script(src="https://cdn.jsdelivr.net/emojione/2.2.7/lib/js/emojione.min.js")
-  - #%script(src='#{static_path(@conn, "/js/emojionearea.min.js")}')
   %script(src="//twemoji.maxcdn.com/2/twemoji.min.js?2.2.3")
   -# %script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js")

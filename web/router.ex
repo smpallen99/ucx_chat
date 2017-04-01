@@ -3,7 +3,7 @@ defmodule UcxChat.Router do
   use Coherence.Router
 
   pipeline :browser do
-    plug :accepts, ["html"]
+    plug :accepts, ["html", "json"]
     plug :fetch_session
     plug :fetch_flash
     plug :protect_from_forgery
@@ -55,6 +55,10 @@ defmodule UcxChat.Router do
     # resources "/channel", ChannelController
   end
 
+  scope "/", UcxChat do
+    pipe_through :api
+    post "/channels/upload", ChannelController, :upload
+  end
 
   # Other scopes may use custom stacks.
   # scope "/api", UcxChat do

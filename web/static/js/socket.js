@@ -24,6 +24,7 @@ import toastr from 'toastr'
 import * as sweet from "./sweetalert.min"
 import * as utils from "./utils"
 window.moment = require('moment');
+require('./chat_dropzone')
 const chan_user = "user:"
 const chan_room = "room:"
 const chan_system = "system:"
@@ -38,7 +39,6 @@ window.systemchan = false
 
 
 hljs.initHighlightingOnLoad();
-
 // new presence stuff
 let presences = {}
 
@@ -80,7 +80,24 @@ let render = (presences) => {
 // $('body').prepend(`<div id="initial-page-loading" style="background-color: #04436A;" class="page-loading">${utils.loading_animation()}</div>`)
 // utils.page_loading()
 
+// Dropzone.autoDiscover = false;
 $(document).ready(function() {
+
+  // let dropzone = new Dropzone(".dropzone", {
+  //   url: "/channels/upload"
+  // })
+  // dropzone.on('dragenter', e => {
+  //   // e.currentTarget.classList.add('over')
+  // })
+  // dropzone.on('dragleave .dropzone-overlay', e => {
+  // // dropzone.on('dragleave', e => {
+  //   console.log("drag leave")
+  //   // e.currentTarget.classList.remove('over')
+  // })
+
+  // dropzone.on('drop', file => {
+  //   console.log('drop', file)
+  // })
 
   setTimeout(() => {
     $('#initial-page-loading').remove()

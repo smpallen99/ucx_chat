@@ -77,6 +77,12 @@ exports.config = {
       options: {
         includePaths: [ 'node_modules' ]
       }
+    },
+    modernizr: {
+      destination: 'js/modernizr.js',
+      options: [
+        'setClasses'
+      ]
     }
   },
 
