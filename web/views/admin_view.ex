@@ -123,6 +123,43 @@ defmodule UcxChat.AdminView do
     end
   end
 
+  def select_line(f, item, field, options, title, opts \\ []) do
+    checked = Map.get(item, field)
+    description = opts[:description]
+    content_tag :div, class: "input-line double-col" do
+      [
+        content_tag :label, class: "setting-label" do
+          title
+        end,
+        content_tag :div, class: "setting-field" do
+          [
+            content_tag :div, class: "select-arrow" do
+              content_tag :i, class: "icon-down-open secondary-font-color" do
+              end
+            end,
+            select(f, field, options)
+          ]
+          |> do_description(description)
+        end
+      ]
+    end
+  end
+  # <div class="input-line double-col">
+  #   <label class="setting-label">Storage Type</label>
+  #   <div class="setting-field">
+  #       <div class="select-arrow">
+  #         <i class="icon-down-open secondary-font-color"></i>
+  #       </div>
+  #       <select class="input-monitor" name="FileUpload_Storage_Type">
+  #           <option value="GridFS">GridFS</option>
+  #           <option value="AmazonS3">AmazonS3</option>
+  #           <option value="FileSystem">FileSystem</option>
+  #       </select>
+  #   </div>
+  #       <button text="Reset" data-setting="FileUpload_Storage_Type" class="reset-setting button danger">
+  #         <i class="icon-ccw secondary-font-color color-error-contrast"></i>
+  #       </button>
+  # </div>
   def room_type(0), do: ~g"Channel"
   def room_type(1), do: ~g"Private Group"
   def room_type(2), do: ~g"Direct Message"

@@ -39,4 +39,12 @@ defmodule UcxChat.Utils do
     right
   end
 
+  def to_camel_case(atom) when is_atom(atom), do: atom |> to_string |> to_camel_case
+  def to_camel_case(string) do
+    string
+    |> String.split("_")
+    |> Enum.map(&String.capitalize/1)
+    |> Enum.join("")
+  end
+
 end

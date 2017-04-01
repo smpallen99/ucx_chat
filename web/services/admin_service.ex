@@ -72,6 +72,27 @@ defmodule UcxChat.AdminService do
     {:reply, resp, socket}
   end
 
+  def handle_in("save:file_upload", params, socket) do
+    params =
+      params
+      |> Helpers.normalize_form_params
+      |> Map.get("file_upload")
+
+    resp =
+      Config
+      |> Repo.one
+      |> Config.changeset(%{file_upload: params})
+      |> Repo.update
+      |> case do
+        {:ok, _} ->
+          {:ok, %{success: ~g"FileUpload settings updated successfully"}}
+        {:error, cs} ->
+          Logger.error "problem updating FileUpload settings: #{inspect cs}"
+          {:ok, %{error: ~g"There a problem updating your settings."}}
+      end
+    {:reply, resp, socket}
+  end
+
   def handle_in(ev = "flex:user-info", %{"name" => name} = params, socket) do
     debug ev, params
     assigns = socket.assigns
@@ -298,9 +319,9 @@ defmodule UcxChat.AdminService do
 
     [user: user, roles: roles, permissions: permissions]
   end
-  defp get_args(view, user) when view in ~w(general message layout) do
+  defp get_args(view, user) when view in ~w(general message layout file_upload) do
     view_a = String.to_atom view
-    mod = Module.concat Config, String.capitalize(view)
+    mod = Module.concat Config, UcxChat.Utils.to_camel_case(view)
     cs =
       Config
       |> Repo.one

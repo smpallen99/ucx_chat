@@ -4,7 +4,8 @@ defmodule UcxChat.Settings do
   [
     general: UcxChat.Config.General,
     message: UcxChat.Config.Message,
-    layout: UcxChat.Config.Layout
+    layout: UcxChat.Config.Layout,
+    file_upload: UcxChat.Config.FileUpload
   ]
   |> Enum.map(fn {field, mod} ->
     Enum.map mod.__schema__(:fields) -- [:id], fn name ->

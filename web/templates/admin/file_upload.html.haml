@@ -1,0 +1,28 @@
+- item = @changeset.data
+- defer = Application.get_env :ucx_chat, :defer, true
+%section.page-container.page-home.page-static.page-settings.admin-settings
+  %header.fixed-title.border-component-color
+    = render UcxChat.MasterView, "burger.html"
+    %h2
+      %span.room-title= ~g"File Upload"
+    .submit
+      %button.button.primary.save(disabled="true")
+        %i.icon-send
+        %span= ~g"Save changes"
+  .content.background-transparent-dark
+    - form_for @changeset, "#", [id: "admin-message-form", "data-id": "file_upload"], fn f ->
+      = hidden_input f, :id, value: item.id
+      .rocket-form
+        .section
+          .section-content.border-component-color
+            = radio_button_line f, item, :file_uploads_enabled, ~g"File Uploads Enabled"
+            = text_input_line f, item, :maximum_file_upload_size_kb, ~g"Maximum File Upload Size (in KB)"
+            = text_input_line f, item, :accepted_media_types, ~g"Accepted Media Types", description: ~g"Comma-separated list of media types. Leave it blank for accepting all media types."
+            = radio_button_line f, item, :protect_upload_files, ~g"Protect uploaded files", description: ~g"Only authenticated users will have access"
+            = select_line f, item, :storage_system, [FileSystem: :file_system], ~g"Storage Type"
+            = radio_button_line f, item, :dm_file_uploads, ~g"File Uploads Enabled in Direct Messages"
+            =# reset_section_settings()
+
+        - collapsable_section ~g"File System", fn _ ->
+          = text_input_line f, item, :system_path, ~g"System Path"
+          =# reset_section_settings()

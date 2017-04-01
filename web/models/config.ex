@@ -8,6 +8,7 @@ defmodule UcxChat.Config do
     embeds_one :general, UcxChat.Config.General
     embeds_one :message, UcxChat.Config.Message
     embeds_one :layout, UcxChat.Config.Layout
+    embeds_one :file_upload, UcxChat.Config.FileUpload
 
     timestamps()
   end
@@ -21,7 +22,8 @@ defmodule UcxChat.Config do
     |> cast_embed(:general)
     |> cast_embed(:message)
     |> cast_embed(:layout)
-    |> validate_required([:general, :message, :layout])
+    |> cast_embed(:file_upload)
+    |> validate_required([:general, :message, :layout, :file_upload])
   end
 
   def new_changeset do
