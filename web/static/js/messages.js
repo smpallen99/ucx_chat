@@ -14,7 +14,6 @@ class Messages {
 
     let at_bottom = roomManager.at_bottom
     if (debug) console.log('new_message', msg)
-
     $('.messages-box .wrapper > ul').append(utils.do_emojis(html))
 
     let last = $(`#${msg.id} .body`)
@@ -23,6 +22,7 @@ class Messages {
     }
 
     $('.messages-box').children('.wrapper').children('ul').children(':last-child').find('pre').each(function(i, block) {
+      console.log('block', block)
       hljs.highlightBlock(block)
     })
 
@@ -40,7 +40,7 @@ class Messages {
     roomManager.new_message(msg.id, msg.user_id)
   }
   static update_message(msg) {
-    $('#' + msg.id).replaceWith(msg.html)
+    $('#' + msg.id).replaceWith(utils.do_emojis(msg.html))
       .find('pre').each(function(i, block) {
         hljs.highlightBlock(block)
       })

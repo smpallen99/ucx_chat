@@ -97,8 +97,8 @@ exports.config = {
       // emojipicker: ['dist/emojipicker.css']
     },
     globals: {
-      $: 'jquery',
-      JQuery: 'jquery',
+      // $: 'jquery',
+      // JQuery: 'jquery',
       _: 'underscore'
     }
   }

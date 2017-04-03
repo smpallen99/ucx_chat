@@ -5,6 +5,7 @@
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket, Presence} from "phoenix"
 
+require('./autogrow')
 import Messages from "./messages"
 import Typing from "./typing"
 import RoomManager from "./room_manager"

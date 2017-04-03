@@ -1,49 +1,75 @@
 import * as cc from "./chat_channel"
 import * as utils from "./utils"
+import Messages from "./messages"
 
 class MessageCog {
   constructor() {
     this.register_events()
-    this.has_more = false
-    this.has_more_next = false
+    this.original_text
   }
   close_cog(selector) {
     $(selector).closest('.message-dropdown').remove()
   }
-  update_state(resp) {
-    this.has_more = resp.has_more
-    this.has_more_next = resp.has_more_next
+
+  cancel_editing() {
+    let input = $('.input-message')
+    input.val(this.original_text)
+    input.removeClass('editing')
+    $('.input-message').val('')
+    $('form.editing').removeClass('editing')
   }
   register_events() {
     $(document).ready(() => {
       $('body').on('click','.messages-box i.message-cog', e => {
         let id = $(e.currentTarget).closest('li.message').attr('id')
-        console.log('message cog clicked...', id)
+        // console.log('message cog clicked...', id)
         cc.push('message_cog:open', {message_id: id})
           .receive("ok", resp => {
-            $(e.currentTarget).parent().append(resp.html)
+            $(`#${id} .message-cog-container`).append(resp.html)
           })
       })
-      .on('click','.flex-tab-container i.message-cog', e =>  {
+      $('body').on('click','.flex-tab-container i.message-cog', e =>  {
         let id = $(e.currentTarget).closest('li').attr('id')
-        // let ts = $(this).closest('li').data('timestamp')
-        console.log('flex cog clicked...', id)
+        let target = $(e.currentTarget)
+
         cc.push('message_cog:open', {message_id: id, flex_tab: true})
           .receive("ok", resp => {
-            $(e.currentTarget).parent().append(resp.html)
+            target.closest('.message-cog-container').append(resp.html)
           })
       })
       .on('click', '.message-dropdown-close', e => {
         this.close_cog($(e.currentTarget))
       })
+      .on('keydown', '.input-message.editing', e => {
+        if (e.keyCode === 13 && !e.shiftKey) {
+          $('form.editing').removeClass('editing')
+        }
+      })
+      .on('keyup', '.input-message.editing', e => {
+        if (e.keyCode == 27)
+          this.cancel_editing()
+      })
+      .on('click', '.editing-commands-cancel', e => {
+        this.cancel_editing()
+      })
+      .on('click', '.editing-commands-save', e => {
+        $('.input-message').removeClass('editing')
+        $('form.editing').removeClass('editing')
+        Messages.send_message($('.message-form-text').val())
+      })
       .on('click', '.messages-box .message-action', e => {
         let ct = e.currentTarget
         let data_id = $(ct).attr('data-id')
         let message_id = $(ct).closest('li.message').attr('id')
+        let input = $('.input-message')
         if (data_id == "edit-message") {
           cc.push('message:get-body:' + message_id)
             .receive("ok", resp => {
-              $('textarea.input-message').text(resp.body).addClass('editing')
+              console.log('body', resp.body)
+              input.addClass('editing').val(resp.body)
+              input.closest('form').addClass('editing')
+              input.autogrow()
+              this.original_text = resp.body
               $('#' + message_id).addClass('editing')
               this.close_cog($(ct))
             })
@@ -76,8 +102,12 @@ class MessageCog {
         } else {
           cc.push('message_cog:' + data_id, {message_id: message_id})
             .receive("ok", resp => {
+              console.log('html', resp.html)
               if (resp.selector &&  resp.html) {
-                $(resp.selector).html(resp.html)
+                $(resp.selector).html(utils.do_emojis(resp.html))
+                $(resp.selector).find('pre code').each(function(i, block) {
+                  hljs.highlightBlock(block);
+                });
               }
               this.close_cog($(ct))
             })

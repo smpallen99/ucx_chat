@@ -50,11 +50,11 @@
       = show_formatting_tips(@mb)
     .editing-commands(aria-hidden="true" dir="auto")
       .editing-commands-cancel
-        Esc to
-        %button(type="button") Cancel message input
+        = ~g(Esc to)
+        %button(type="button")= ~g(Cancel)
       .editing-commands-save
-        Enter to
-        %button(type="button") Save changes
+        = ~g(Enter to)
+        %button(type="button")= ~g(Save changes)
 - else
   - nst = get_not_subscribed_templ(@mb)
   - if nst[:template] do
