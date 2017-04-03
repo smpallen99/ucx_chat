@@ -8,6 +8,14 @@ defmodule UcxChat.MessageView do
 
   require Logger
 
+  def get_attachment(message) do
+    %{
+      file_name: message.file[:file_name],
+      url: UcxChat.File.url({message.file, message}),
+      description: message.body
+    }
+  end
+
   def file_upload_allowed_media_types do
     ""
   end
@@ -170,7 +178,8 @@ defmodule UcxChat.MessageView do
       |> Enum.into(settings)
 
     if Application.get_env :ucx_chat, :defer, true do
-      [:katex_syntax?, :show_mark_down?, :show_markdown_code?, :show_markdown?]
+      [:show_file_upload?, :katex_syntax?, :show_mark_down?, :show_markdown_code?, :show_markdown?]
+      # [:katex_syntax?, :show_mark_down?, :show_markdown_code?, :show_markdown?]
     else
       [:show_file_upload?, :katex_syntax?,
        :show_sandstorm?, :show_location?, :show_mic?, :show_v_rec?,

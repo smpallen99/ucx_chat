@@ -5,6 +5,8 @@
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket, Presence} from "phoenix"
 
+window.root = global || window
+
 import Messages from "./messages"
 import Typing from "./typing"
 import RoomManager from "./room_manager"
@@ -23,6 +25,7 @@ import hljs from "highlight.js"
 import toastr from 'toastr'
 import * as sweet from "./sweetalert.min"
 import * as utils from "./utils"
+import FileUpload from "./file_upload"
 window.moment = require('moment');
 require('./chat_dropzone')
 const chan_user = "user:"
@@ -111,6 +114,7 @@ $(document).ready(function() {
   window.scroll_to = roomManager.scroll_to
   window.desktop_notifier = new DesktopNotification()
   window.roomHistoryManager = new RoomHistoryManager()
+  window.fileUpload = new FileUpload()
 
   // roomManager.set_title()
   new Messages()
@@ -120,6 +124,8 @@ $(document).ready(function() {
   new AdminFlexBar()
   window.messageCog = new MessageCog()
   window.navMenu = new Menu()
+
+  // var myDropzone = new Dropzone('.dropzone', {url: '/file/update'})
 
   socket.connect()
 
@@ -255,6 +261,9 @@ function start_user_channel() {
   })
   chan.on('message:preview', msg => {
     message_preview(msg)
+  })
+  chan.on('update:alerts', msg => {
+    roomManager.update_burger_alert()
   })
 
   chan.join()

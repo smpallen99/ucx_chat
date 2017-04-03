@@ -1,0 +1,14 @@
+.attachment
+  .attachment-block
+    .attachment-block-border.background-info-font-color(style="background-color: ")
+    .attachment-title
+      %a(href="#" target="_blank")= "File Upload: " <> @attachment.file_name
+      %a.icon-download.attachment-download-icon(href="#" target="_blank" download)
+      %span.collapse-switch.icon-down-dir(data-index="0")
+    .attachment-flex
+    .attachment-image
+      %figure
+        - url = @attachment.url
+        .inline-image(style="background-image: url('#{url}');")
+          %img.gallery-item(src="#{url}" height="200" )
+        %figcaption.attachment-description= @attachment.description

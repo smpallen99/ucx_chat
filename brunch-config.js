@@ -78,6 +78,9 @@ exports.config = {
         includePaths: [ 'node_modules' ]
       }
     },
+    coffeescript: {
+      // bare: true
+    },
     modernizr: {
       destination: 'js/modernizr.js',
       options: [

@@ -61,6 +61,8 @@
       =# {{injectIndex . @index}} {{> oembedBaseWidget}}
     -# for _attachment <- attachments(@message) do
     - # {{injectIndex . @index}} {{> messageAttachment}}
+    - if @message.file do
+      = render "attachment.html", attachment: get_attachment(@message)
     - previews = @previews
     - if previews != [] do
       - for {_, html} <- previews, html != nil and html != "" do

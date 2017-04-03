@@ -10,7 +10,7 @@ class Menu {
 
   setup() {
     if ($('.burger').is(':visible')) {
-      if (is_open()) {
+      if (this.is_open()) {
         this.open()
       } else {
         this.close()

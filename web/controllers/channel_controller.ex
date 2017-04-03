@@ -11,11 +11,6 @@ defmodule UcxChat.ChannelController do
   alias UcxChat.Channel, as: Channel
   alias UcxChat.{MessageService, ChatDat, User}
 
-  def upload(conn, params) do
-    Logger.warn "update params: #{inspect params}"
-    text conn, "ok"
-  end
-
   def index(conn, _params) do
     Logger.warn "index load"
 

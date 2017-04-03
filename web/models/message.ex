@@ -1,5 +1,6 @@
 defmodule UcxChat.Message do
   use UcxChat.Web, :model
+  use Arc.Ecto.Schema
   use UcxChat.Utils
   require Logger
 
@@ -12,6 +13,7 @@ defmodule UcxChat.Message do
     field :type, :string, default: ""
     field :expire_at, :utc_datetime
     field :system, :boolean, default: false
+    field :file, UcxChat.File.Type
 
     belongs_to :user, UcxChat.User
     belongs_to :channel, UcxChat.Channel
@@ -33,7 +35,7 @@ defmodule UcxChat.Message do
   end
 
   @fields [:body, :user_id, :channel_id, :sequential, :timestamp, :edited_id, :type, :expire_at, :type, :system]
-  @required [:body, :user_id]
+  @required [:user_id]
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -41,6 +43,7 @@ defmodule UcxChat.Message do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @fields)
+    |> cast_attachments(params, [:file])
     |> validate_required(@required)
     |> add_timestamp
   end

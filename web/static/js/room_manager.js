@@ -126,6 +126,30 @@ class RoomManager {
       elem.text(resp.unread)
     }
   }
+  update_burger_alert() {
+    if($('.rooms-list li.has-alert').length > 0) {
+      let count = 0
+      for (const has_unread of $('li.room-link span.unread')) {
+        count += parseInt($(has_unread).text())
+      }
+      this.set_burger_unreads(count)
+    } else {
+      this.clear_burger_unreads()
+    }
+  }
+  set_burger_unreads(count) {
+    let value = '•'
+    if (count > 0) { value = count }
+    let alert = `<div class="unread-burger-alert color-error-contrast background-error-color">${value}</div>`
+    if ($('.burger .unread-burger-alert').length > 0) {
+      $('.burger .unread-burger-alert').text(value)
+    } else {
+      $('.burger').append(alert)
+    }
+  }
+  clear_burger_unreads() {
+    $('.burger .unread-burger-alert').remove()
+  }
 
   notification(resp) {
     if (!resp.badges_only) {
@@ -221,6 +245,7 @@ class RoomManager {
     $('#' + id).addClass('first-unread')
     $('li.link-room-'+ucxchat.room).addClass('has-unread').addClass('has-alert')
     this.is_unread = true;
+    this.update_burger_alert()
   }
 
   new_message(id, user_id) {
@@ -244,6 +269,7 @@ class RoomManager {
         this.clear_all_unreads()
       this.send_last_read()
     }
+    this.update_burger_alert()
   }
 
   add_new_message_button() {
@@ -446,6 +472,7 @@ class RoomManager {
         this.favico.badge(this.badges)
       }
     }
+    this.update_burger_alert()
   }
 
   register_events() {

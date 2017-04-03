@@ -621,6 +621,7 @@ defmodule UcxChat.UserChannel do
     ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, false)
     push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-unread", action: "removeClass"}
     push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-alert", action: "removeClass"}
+    push socket, "update:alerts", %{}
   end
 
   defp update_has_unread(%{id: channel_id, name: room}, %{assigns: assigns} = socket) do
@@ -630,6 +631,7 @@ defmodule UcxChat.UserChannel do
       ChannelService.set_has_unread(channel_id, assigns.user_id, true)
       push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-unread", action: "addClass"}
       push socket, "code:update", %{selector: ".link-room-" <> room, html: "has-alert", action: "addClass"}
+      push socket, "update:alerts", %{}
     end
   end
 end

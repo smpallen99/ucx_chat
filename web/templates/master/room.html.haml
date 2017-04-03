@@ -39,6 +39,12 @@
                   %button cancel
         %div(class="messages-box #{message_box_selectable()} #{view_mode(@chatd.user)}" style="height: calc(100% - 131px);")
           = render "messages_box.html", chatd: @chatd
+        .hidden
+          -# %form.file_upload(action="/channels/upload" method="post" enctype="multipart/form-data")
+          -#   %input(type="hidden" name="upload[channel_id]" value="#{@chatd.channel.id}")
+          -#   %input(type="hidden" name="upload[user_id]" value="#{@chatd.user.id}")
+          -#   %input(type="file" name="upload[file]")
+          -#   %button(type="submit")
         %footer.footer.border-component-color
           = render UcxChat.MessageView, "message_box.html", chatd: @chatd, mb: get_mb(@chatd)
       = render "flex_tab_bar.html", chatd: @chatd

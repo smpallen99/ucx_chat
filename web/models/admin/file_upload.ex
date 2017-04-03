@@ -18,7 +18,7 @@ defmodule UcxChat.Config.FileUpload do
     field :s3_bucket_url, :string, default: ""
     field :urls_expiration_timespan, :integer, default: 120
 
-    field :system_path, :string, default: ""
+    field :system_path, :string, default: "/var/ucx_chat/uploads"
   end
 
   @fields [
