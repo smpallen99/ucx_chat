@@ -1,0 +1,18 @@
+.content
+  .list-view.uploaded-files-list
+    .title
+      %h2= ~g(Files List)
+    - if @attachments == [] do
+      %h2= ~g(No files available.)
+    %ul.list.clearfix.lines
+      - for attachment <- @attachments do
+        - attachment = UcxChat.AttachmentView.get_attachment attachment
+        %li(data-id="#{attachment.id}")
+          %i.icon-trash.file-delete
+          %a.file-download(title="#{attachment.file_name}" href="#{attachment.url}" target="_blank" download)
+            %i.icon-download.file-download
+          %a.room-file-item.file-name.room-files-image(title="#{attachment.file_name}" href="#{attachment.url}" target="_blank")
+            %i(class="#{file_icon attachment.media_type}")
+            %p= attachment.file_name
+
+

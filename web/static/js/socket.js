@@ -27,6 +27,7 @@ import toastr from 'toastr'
 import * as sweet from "./sweetalert.min"
 import * as utils from "./utils"
 import FileUpload from "./file_upload"
+import MessageInput from './message_input'
 window.moment = require('moment');
 require('./chat_dropzone')
 const chan_user = "user:"
@@ -123,6 +124,7 @@ $(document).ready(function() {
   new SideNav()
   new Admin()
   new AdminFlexBar()
+  new MessageInput()
   window.messageCog = new MessageCog()
   window.navMenu = new Menu()
 
