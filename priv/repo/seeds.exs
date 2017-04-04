@@ -13,11 +13,12 @@
 alias UcxChat.{
   Repo, User, Channel, Subscription, Message, Account, Mention,
   Direct, PinnedMessage, StaredMessage, Config, Role, UserRole,
-  ChannelService
+  ChannelService, Attachment
 }
 
 Repo.delete_all UserRole
 Repo.delete_all User
+Repo.delete_all Attachment
 Repo.delete_all Account
 Repo.delete_all Channel
 Repo.delete_all Subscription
@@ -28,6 +29,7 @@ Repo.delete_all PinnedMessage
 Repo.delete_all StaredMessage
 Repo.delete_all Config
 Repo.delete_all Role
+
 
 Repo.insert! Config.new_changeset
 

@@ -19,9 +19,10 @@ defmodule UcxChat.Channel do
     field :description, :string
     has_many :subscriptions, UcxChat.Subscription, on_delete: :delete_all
     has_many :users, through: [:subscriptions, :user], on_delete: :nilify_all
-    has_many :stared_messages, UcxChat.StaredMessage
-    has_many :messages, UcxChat.Message
-    has_many :notifications, UcxChat.Notification
+    has_many :stared_messages, UcxChat.StaredMessage, on_delete: :delete_all
+    has_many :messages, UcxChat.Message, on_delete: :delete_all
+    has_many :notifications, UcxChat.Notification, on_delete: :delete_all
+    has_many :attachments, UcxChat.Attachment, on_delete: :delete_all
 
     belongs_to :owner, UcxChat.User, foreign_key: :user_id
 

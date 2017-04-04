@@ -104,7 +104,7 @@ class FileUpload {
         }
         let fd = new FormData()
         fd.append('file', file)
-        fd.append('body', document.getElementById('file-description').value)
+        fd.append('description', document.getElementById('file-description').value)
         fd.append('channel_id', ucxchat.channel_id)
         fd.append('user_id', ucxchat.user_id)
         let status = new UploadStatusBar(file.name, 10000);
@@ -144,7 +144,7 @@ class FileUpload {
   //   }
   // }
   sendFileToServer(formData,status) {
-    var uploadURL ="/uploads/create"; //Upload URL
+    var uploadURL ="/attachments/create"; //Upload URL
     var extraData ={}; //Extra Data.
     var jqXHR=$.ajax({
       xhr: function() {
@@ -157,6 +157,7 @@ class FileUpload {
             if (event.lengthComputable) {
               percent = Math.ceil(position / total * 100);
             }
+            console.log('updating progress', percent)
             //Set progress
             status.updateProgress(percent);
           }, false);
@@ -170,6 +171,7 @@ class FileUpload {
       cache: false,
       data: formData,
       success: function(data){
+        console.log('ajax success', data)
         status.updateProgress(100);
         //$("#status1").append("File upload Done<br>");
       }

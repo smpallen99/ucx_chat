@@ -1,6 +1,8 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
 
+  @preloads [:user, :edited_by, :attachments]
+
   alias UcxChat.{
     Message, Repo, TypingAgent, User, Mention, Subscription, AppConfig,
     Settings, MessageView, ChatDat, Channel, ChannelService, UserChannel,
@@ -48,17 +50,17 @@ defmodule UcxChat.MessageService do
   def get_surrounding_messages(channel_id, timestamp, %{tz_offset: tz} = user) do
     message = Repo.one from m in Message,
       where: m.timestamp == ^timestamp and m.channel_id == ^channel_id,
-      preload: [:user, :edited_by]
+      preload: ^@preloads
     if message do
       before_q = from m in Message,
         where: m.inserted_at < ^(message.inserted_at) and m.channel_id == ^channel_id,
         order_by: [desc: :inserted_at],
         limit: 50,
-        preload: [:user, :edited_by]
+        preload: ^@preloads
       after_q = from m in Message,
         where: m.inserted_at > ^(message.inserted_at) and m.channel_id == ^channel_id,
         limit: 50,
-        preload: [:user, :edited_by]
+        preload: ^@preloads
 
       Enum.reverse(Repo.all(before_q)) ++ [message|Repo.all(after_q)]
       |> new_days(tz || 0, [])
@@ -72,7 +74,7 @@ defmodule UcxChat.MessageService do
     Message
     |> where([m], m.channel_id == ^channel_id)
     |> Helpers.last_page
-    |> preload([:user, :edited_by])
+    |> preload(^@preloads)
     |> order_by([m], asc: m.inserted_at)
     |> Repo.all
     |> new_days(tz || 0, [])
@@ -102,11 +104,11 @@ defmodule UcxChat.MessageService do
       where: m.timestamp < ^ts,
       order_by: [desc: :inserted_at],
       limit: 25,
-      preload: [:user, :edited_by]
+      preload: ^@preloads
 
     after_q = from m in Message,
       where: m.channel_id == ^channel_id and m.timestamp >= ^ts,
-      preload: [:user, :edited_by]
+      preload: ^@preloads
 
     Enum.reverse(Repo.all before_q) ++ Repo.all(after_q)
     |> new_days(tz || 0, [])
@@ -215,7 +217,7 @@ defmodule UcxChat.MessageService do
           body: body
         }, params))
       |> Repo.insert!
-      |> Repo.preload([:user])
+      |> Repo.preload(@preloads)
 
     if params[:type] == "p" do
       Repo.delete(message)
@@ -237,6 +239,7 @@ defmodule UcxChat.MessageService do
     end
   end
 
+  def get_preview_links(nil), do: []
   def get_preview_links(body) do
     ~r/https?:\/\/[^\s]+/
     |> Regex.scan(body)

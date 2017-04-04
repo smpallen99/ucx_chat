@@ -98,6 +98,7 @@ class RoomManager {
   add_private(elem) {
     let username = elem.parent().attr('data-username')
     if (debug) { console.log('pvt-msg button clicked...', username) }
+    console.log('location')
     window.location = '/direct/' + username
   }
   update(msg) {
@@ -442,6 +443,7 @@ class RoomManager {
     cc.get("/room/" + room, {display_name: display_name, room: ucxchat.room})
       .receive("ok", resp => {
         if (resp.redirect) {
+          console.log('location')
           window.location = resp.redirect
         } else {
           this.render_room(resp)
@@ -537,6 +539,7 @@ class RoomManager {
       cc.put("/room/set-moderator/" + username)
         .receive("ok", resp => {
           if (resp.redirect) {
+            console.log('location')
             window.location = resp.redirect
           }
         })
@@ -665,6 +668,7 @@ class RoomManager {
         cc.put("/room/hide/" + room)
           .receive("ok", resp => {
             if (resp.redirect) {
+              console.log('location')
               window.location = resp.redirect
             }
           })

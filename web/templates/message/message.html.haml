@@ -61,8 +61,8 @@
       =# {{injectIndex . @index}} {{> oembedBaseWidget}}
     -# for _attachment <- attachments(@message) do
     - # {{injectIndex . @index}} {{> messageAttachment}}
-    - if @message.file do
-      = render "attachment.html", attachment: get_attachment(@message)
+    - for attachment <- @message.attachments  do
+      = render UcxChat.AttachmentView, "attachment.html", attachment: UcxChat.AttachmentView.get_attachment(attachment)
     - previews = @previews
     - if previews != [] do
       - for {_, html} <- previews, html != nil and html != "" do

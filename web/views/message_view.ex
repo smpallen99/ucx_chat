@@ -8,13 +8,6 @@ defmodule UcxChat.MessageView do
 
   require Logger
 
-  def get_attachment(message) do
-    %{
-      file_name: message.file[:file_name],
-      url: UcxChat.File.url({message.file, message}),
-      description: message.body
-    }
-  end
 
   def file_upload_allowed_media_types do
     ""
@@ -283,7 +276,7 @@ defmodule UcxChat.MessageView do
 
   def format_message_body(message) do
     # Logger.warn "type: #{inspect message.type}, system: #{inspect message.system}, body: #{inspect message.body}"
-    body = AutoLinker.link message.body, exclude_pattern: "```"
+    body = AutoLinker.link message.body || "", exclude_pattern: "```"
     quoted? = String.contains?(body, "```")
     body
     |> String.replace("&lt;", "<")

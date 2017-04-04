@@ -240,6 +240,7 @@ function start_user_channel() {
     utils.code_update(resp)
   })
   chan.on('window:reload', resp => {
+    console.log('location')
     if (resp.mode == undefined || resp.mode == false)
       window.location.reload()
     else
@@ -353,6 +354,7 @@ function start_room_channel(typing) {
   chan.on('reload', msg => {
     let loc = msg.location
     if (!loc) { loc = "/" }
+    console.log('location', loc)
     window.location = loc
   })
   chan.on('message:preview', msg => {

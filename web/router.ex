@@ -57,7 +57,7 @@ defmodule UcxChat.Router do
 
   scope "/", UcxChat do
     pipe_through :api
-    post "/uploads/create", UploadController, :create
+    post "/attachments/create", AttachmentController, :create
   end
 
   # Other scopes may use custom stacks.

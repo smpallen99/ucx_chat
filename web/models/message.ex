@@ -1,6 +1,5 @@
 defmodule UcxChat.Message do
   use UcxChat.Web, :model
-  use Arc.Ecto.Schema
   use UcxChat.Utils
   require Logger
 
@@ -13,13 +12,13 @@ defmodule UcxChat.Message do
     field :type, :string, default: ""
     field :expire_at, :utc_datetime
     field :system, :boolean, default: false
-    field :file, UcxChat.File.Type
 
     belongs_to :user, UcxChat.User
     belongs_to :channel, UcxChat.Channel
     belongs_to :edited_by, UcxChat.User, foreign_key: :edited_id
 
     has_many :stars, UcxChat.StaredMessage, on_delete: :delete_all
+    has_many :attachments, UcxChat.Attachment, on_delete: :delete_all
 
     field :is_groupable, :boolean, virtual: true
     field :t, :string, virtual: true
@@ -34,7 +33,7 @@ defmodule UcxChat.Message do
     timestamps(type: :utc_datetime)
   end
 
-  @fields [:body, :user_id, :channel_id, :sequential, :timestamp, :edited_id, :type, :expire_at, :type, :system]
+  @fields [:body, :user_id, :channel_id, :sequential, :timestamp, :edited_id, :type, :expire_at, :system]
   @required [:user_id]
 
   @doc """
@@ -43,7 +42,6 @@ defmodule UcxChat.Message do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @fields)
-    |> cast_attachments(params, [:file])
     |> validate_required(@required)
     |> add_timestamp
   end
