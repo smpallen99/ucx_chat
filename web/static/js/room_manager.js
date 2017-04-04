@@ -39,6 +39,9 @@ class RoomManager {
     })
     this.title = document.title.replace(/\(.*?\)/, '')
     this.set_badges()
+    $('textarea.input-message').autogrow({
+      postGrowCallback: function() { this.resize }
+    })
   }
 
   get bounding() { return this.rect; }

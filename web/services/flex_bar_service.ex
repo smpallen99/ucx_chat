@@ -384,7 +384,7 @@ defmodule UcxChat.FlexBarService do
     stars =
       StaredMessage
       |> where([m], m.channel_id == ^channel_id)
-      |> preload([:user, :message])
+      |> preload([:user, message: [:user]])
       |> order_by([m], desc: m.inserted_at)
       |> Repo.all
       |> Enum.reduce({nil, []}, fn m, {last_day, acc} ->
@@ -393,8 +393,8 @@ defmodule UcxChat.FlexBarService do
           %{
             channel_id: channel_id,
             message: m.message,
-            username: m.user.username,
-            user: m.user,
+            username: m.message.user.username,
+            user: m.message.user,
             own: m.message.user_id == user_id,
             id: m.id,
             new_day: day != last_day,

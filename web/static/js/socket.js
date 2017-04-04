@@ -7,6 +7,7 @@ import {Socket, Presence} from "phoenix"
 
 window.root = global || window
 
+require('./autogrow')
 import Messages from "./messages"
 import Typing from "./typing"
 import RoomManager from "./room_manager"
