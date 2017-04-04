@@ -1,14 +1,38 @@
 .attachment
+  - url = @attachment.url
   .attachment-block
     .attachment-block-border.background-info-font-color(style="background-color: ")
     .attachment-title
-      %a(href="#" target="_blank")= "File Upload: " <> @attachment.file_name
-      %a.icon-download.attachment-download-icon(href="#" target="_blank" download)
+      %a(href="#{url}" target="_blank")= "File Upload: " <> @attachment.file_name
+      %a.icon-download.attachment-download-icon(href="#{url}" target="_blank" download)
       %span.collapse-switch.icon-down-dir(data-index="0")
     .attachment-flex
-    .attachment-image
-      %figure
-        - url = @attachment.url
-        .inline-image(style="background-image: url('#{url}');")
-          %img.gallery-item(src="#{url}" height="200" )
-        %figcaption.attachment-description= @attachment.description
+
+    - if @attachment.media_type == :image do
+      .media-container.attachment-image
+        - if @attachment.loaded do
+          %figure
+            - url = @attachment.url
+            .inline-image(style="background-image: url('#{url}');")
+              %img.gallery-item(src="#{url}" height="200" )
+            %figcaption.attachment-description= @attachment.description
+        - else
+          .image-to-download(data-url="#{url}")
+            %i.icon-picture
+            %div= ~g(click to load)
+
+
+    - if @attachment.media_type == :audio do
+      .media-container.attachment-audio
+        %audio(controls)
+          - audio_type = @attachment.audio_type
+          %source(src="#{url}" type="#{audio_type}")
+          = ~g(Your browser does not support the audio element.)
+
+    - if @attachment.media_type == :video do
+      .media-container.attachment-video
+        %video.inline-video(controls)
+          - video_type = @attachment.video_type
+          %source(src="#{url}" type="#{video_type}")
+          = ~g(Your browser does not support the video element.)
+

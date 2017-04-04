@@ -1,7 +1,7 @@
 defmodule UcxChat.AttachmentService do
   use UcxChat.Web, :service
 
-  alias UcxChat.{Attachment, Message}
+  alias UcxChat.{Attachment, Message, MessageService, Channel}
   alias Ecto.Multi
 
   require Logger
@@ -14,16 +14,29 @@ defmodule UcxChat.AttachmentService do
       |> Multi.insert(:message, Message.changeset(%Message{}, message_params))
       |> Multi.run(:attachment, &do_insert_attachment(&1, params))
 
-    Repo.transaction(multi)
+    case Repo.transaction(multi) do
+      {:ok, %{message: message}} = ok ->
+        broadcast_message(message)
+        ok
+      error ->
+        error
+    end
   end
 
-  defp do_insert_attachment(%{message: %{id: id}}, params) do
+  defp do_insert_attachment(%{message: %{id: id} = message}, params) do
     changeset = Attachment.changeset(%Attachment{}, Map.put(params, "message_id", id))
-    Repo.insert changeset
-    # case Repo.insert changeset do
-    #   {:ok, attachment} ->
-    #   {:error, changeset} ->
-    # end
+    case Repo.insert changeset do
+      {:ok, attachment} -> {:ok, %{attachment: attachment, message: message}}
+      error -> error
+    end
   end
 
+  defp broadcast_message(message) do
+    channel = Helpers.get Channel, message.channel_id
+    html =
+      message
+      |> Repo.preload(MessageService.preloads())
+      |> MessageService.render_message
+    MessageService.broadcast_message(message.id, channel.name, message.user_id, html)
+  end
 end

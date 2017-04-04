@@ -1,25 +1,11 @@
 import UploadStatusBar from './upload_status_bar'
+import toastr from 'toastr'
 const debug = true
 
 class FileUpload {
   constructor() {
     this.register_events()
   }
-  // readURL(input) {
-  //   console.log('input', input)
-  //   if (input.files && input.files[0]) {
-  //     var reader = new FileReader();
-  //     console.log('the file', input.files[0])
-
-  //     reader.onload = function (e) {
-  //       // $('#upload-preview').attr('src', e.target.result);
-  //       $('.upload-preview-file').css('background-image', 'url(' + e.target.result + ')');
-  //     }
-
-  //     reader.readAsDataURL(input.files[0]);
-  //     this.upload_file(input.files[0])
-  //   }
-  // }
   readAsDataURL(file, callback) {
     let reader = new FileReader()
     reader.onload = (ev) => {
@@ -43,7 +29,6 @@ class FileUpload {
   }
 
   upload_files(files) {
-    console.log('files', files)
     files.forEach((file, i) => {
       this.upload_file(file)
     })
@@ -77,17 +62,44 @@ class FileUpload {
         })
         return
       }
+      let text = ''
 
-      let text = `
-        <div class='upload-preview'>
-          <div class='upload-preview-file'></div>
-        </div>
-        <div class='upload-preview-title'>
-          <input id='file-name' style='display: inherit;' value='${file.name}' placeholder='Filename'>
-          <input id='file-description' style='display: inherit;' value="" placeholder="File description">
-        </div>
-      `
-      console.log('file', file)
+      if (file.type.startsWith('video')) {
+        text = `
+          <div class='upload-preview'>
+            <video  style="width: 100%;" controls="controls">
+              <source src="${fileContent}" type="video/webm">
+              Your browser does not support the video element.
+            </video>
+          </div>
+          <div class='upload-preview-title'>
+            <input id='file-name' style='display: inherit;' value='${_.escape(file.name)}' placeholder='Filename'>
+            <input id='file-description' style='display: inherit;' value="" placeholder="File description">
+          </div>`
+      } else if (file.type.startsWith('audio')) {
+        text = `
+          <div class='upload-preview'>
+            <audio  style="width: 100%;" controls="controls">
+              <source src="${fileContent}" type="audio/wav">
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+          <div class='upload-preview-title'>
+            <input id='file-name' style='display: inherit;' value='${_.escape(file.name)}' placeholder='Filename'>
+            <input id='file-description' style='display: inherit;' value="" placeholder="File description">
+          </div>`
+      } else {
+        text = `
+          <div class='upload-preview'>
+            <div class='upload-preview-file' style='background-image: url(${fileContent})'></div>
+          </div>
+          <div class='upload-preview-title'>
+            <input id='file-name' style='display: inherit;' value='${_.escape(file.name)}' placeholder='Filename'>
+            <input id='file-description' style='display: inherit;' value="" placeholder="File description">
+          </div>`
+      }
+
+      // console.log('file', file, Object.keys(file))
       sweetAlert({
         title: 'Upload file?',
         text: text,
@@ -97,20 +109,21 @@ class FileUpload {
         html: true
       },
       isConfirm =>  {
-        console.log('isConfirm', isConfirm, document.getElementById('file-name').value)
+        // console.log('isConfirm', isConfirm, document.getElementById('file-name').value)
         this.consume()
         if (!isConfirm) {
           return
         }
         let fd = new FormData()
         fd.append('file', file)
+        fd.append('type', file.type)
+        fd.append('file_name', document.getElementById('file-name').value)
         fd.append('description', document.getElementById('file-description').value)
         fd.append('channel_id', ucxchat.channel_id)
         fd.append('user_id', ucxchat.user_id)
         let status = new UploadStatusBar(file.name, 10000);
         this.sendFileToServer(fd, status)
       })
-      $('.upload-preview-file').css('background-image', 'url(' + fileContent + ')');
     })
   }
   register_events() {
@@ -118,14 +131,12 @@ class FileUpload {
       fileUpload.readURL(this)
     })
     $('body').on('click', '.attachment .collapse-switch.icon-right-dir', e => {
-      console.log('click right')
       $(e.currentTarget).removeData('collapsed').removeClass('icon-right-dir').addClass('icon-down-dir')
-      $(e.currentTarget).closest('.attachment-block').find('.attachment-image').show()
+      $(e.currentTarget).closest('.attachment-block').find('.media-container').show()
     })
     $('body').on('click', '.attachment .collapse-switch.icon-down-dir', e => {
-      console.log('click down')
       $(e.currentTarget).data('collapsed', 'true').addClass('icon-right-dir').removeClass('icon-down-dir')
-      $(e.currentTarget).closest('.attachment-block').find('.attachment-image').hide()
+      $(e.currentTarget).closest('.attachment-block').find('.media-container').hide()
     })
   }
   // readURL(input) {
@@ -157,7 +168,6 @@ class FileUpload {
             if (event.lengthComputable) {
               percent = Math.ceil(position / total * 100);
             }
-            console.log('updating progress', percent)
             //Set progress
             status.updateProgress(percent);
           }, false);
@@ -171,9 +181,14 @@ class FileUpload {
       cache: false,
       data: formData,
       success: function(data){
-        console.log('ajax success', data)
         status.updateProgress(100);
-        //$("#status1").append("File upload Done<br>");
+        setTimeout(() => {
+          status.close()
+        }, 2000)
+      },
+      error: function (xhr, textStatus, error) {
+        status.close()
+        toastr.error('There was a problem uploading your file')
       }
     });
     status.setCancel(jqXHR);
@@ -181,23 +196,13 @@ class FileUpload {
 
   handleFileUpload(fileList,obj)
   {
-    console.log('input files', fileList)
     this.obj = obj
     let files = []
     for (var i = 0; i < fileList.length; i++)
     {
-      console.log('pushing', i, fileList[i])
       files.push(fileList[i])
     }
 
-    //   // let file = files[i]
-    //   // var fd = new FormData();
-    //   // fd.append('file', files[i]);
-
-    //   // // this.sendFileToServer(fd,status);
-    //   // this.upload_file(file, fd)
-    // }
-    console.log('files', files, files[0])
     this.files = files
     this.consume()
   }

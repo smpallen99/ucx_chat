@@ -17,6 +17,11 @@ class UploadStatusBar {
     this.elem = $('.container-bars .upload-progress').last()
   }
 
+  close() {
+    this.elem.hide()
+    this.elem.remove()
+  }
+
   setCancel(jqxhr) {
     this.elem.find('button').click(e => {
       // jqxhr.abort()

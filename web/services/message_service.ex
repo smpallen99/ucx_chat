@@ -1,8 +1,6 @@
 defmodule UcxChat.MessageService do
   import Ecto.Query
 
-  @preloads [:user, :edited_by, :attachments]
-
   alias UcxChat.{
     Message, Repo, TypingAgent, User, Mention, Subscription, AppConfig,
     Settings, MessageView, ChatDat, Channel, ChannelService, UserChannel,
@@ -12,6 +10,10 @@ defmodule UcxChat.MessageService do
 
   require UcxChat.ChatConstants, as: CC
   require Logger
+
+  @preloads [:user, :edited_by, :attachments]
+
+  def preloads, do: @preloads
 
   def broadcast_system_message(channel_id, _user_id, body) do
     channel = Helpers.get(Channel, channel_id)

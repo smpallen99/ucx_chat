@@ -9,19 +9,13 @@ defmodule UcxChat.AttachmentController do
   require Logger
 
   def create(conn, params) do
-    Logger.warn "attachment params: #{inspect params}"
-    # Logger.warn "conn: #{inspect conn}"
-    # changeset = Attachment.changeset(%Attachment{}, params)
+    # Logger.warn "attachment params: #{inspect params}"
     case AttachmentService.insert_attachment params do
-      {:ok, attachment} ->
-        # Logger.warn "Repo.insert ok, #{inspect attachment}"
-        # text conn, "ok"
+      {:ok, attachment, message} ->
         render conn, "success.json", %{}
       {:error, changeset} ->
-        # Logger.error "error changeset: #{inspect changeset}"
         render conn, "error.json", %{}
       other ->
-        # Logger.warn "create result other: #{inspect other}"
         render conn, "success.json", %{}
     end
   end

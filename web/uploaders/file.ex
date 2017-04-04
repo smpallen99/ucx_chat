@@ -14,7 +14,7 @@ defmodule UcxChat.File do
 
   # Whitelist file extensions:
   def validate({file, _}) do
-    ~w(.jpg .jpeg .gif .png .txt .text .doc .pdf .wav .mp3 .mp4 .xls) |> Enum.member?(Path.extname(file.file_name))
+    ~w(.jpg .jpeg .gif .png .txt .text .doc .pdf .wav .mp3 .mp4 .mov .m4a .xls) |> Enum.member?(Path.extname(file.file_name))
   end
 
   # Define a thumbnail transformation:
