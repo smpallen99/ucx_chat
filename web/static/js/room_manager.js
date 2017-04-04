@@ -81,6 +81,7 @@ class RoomManager {
     ucxchat.room = resp.room_title
     ucxchat.display_name = resp.display_name
     ucxchat.room_route = resp.room_route
+    chat_settings.allow_upload = resp.allow_upload
     if (resp.side_nav_html) {
       $('aside .rooms-list').html(resp.side_nav_html)
     }

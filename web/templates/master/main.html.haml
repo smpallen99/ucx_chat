@@ -25,7 +25,8 @@
   };
   window.chat_settings = {
     link_preview: false,
-    use_emojis: true
+    use_emojis: true,
+    allow_upload: <%= UcxChat.AttachmentService.allowed?(@chatd.channel) %>,
   };
   let myPanel = $('.messages-box .wrapper')
   myPanel.scrollTop(myPanel[0].scrollHeight - myPanel.height());

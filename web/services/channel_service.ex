@@ -479,6 +479,7 @@ defmodule UcxChat.ChannelService do
       channel_id: channel.id,
       html: html,
       messages_info: chatd.messages_info,
+      allow_upload: UcxChat.AttachmentService.allowed?(channel),
       # box_html: box_html,
       # header_html: header_html,
       side_nav_html: side_nav_html,

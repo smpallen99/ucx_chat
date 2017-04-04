@@ -3,7 +3,7 @@ defmodule UcxChat.MessageView do
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3, tag: 1]
   import Ecto.Query, except: [select: 3]
 
-  alias UcxChat.{Message, Subscription, Repo}
+  alias UcxChat.{Message, Subscription, Repo, AttachmentService}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -166,15 +166,15 @@ defmodule UcxChat.MessageView do
       [
         max_message_length: Settings.max_allowed_message_size(config),
         show_formatting_tips?: Settings.show_formatting_tips(config),
-
+        show_file_upload?: AttachmentService.allowed?(channel),
       ]
       |> Enum.into(settings)
 
     if Application.get_env :ucx_chat, :defer, true do
-      [:show_file_upload?, :katex_syntax?, :show_mark_down?, :show_markdown_code?, :show_markdown?]
+      [:katex_syntax?, :show_mark_down?, :show_markdown_code?, :show_markdown?]
       # [:katex_syntax?, :show_mark_down?, :show_markdown_code?, :show_markdown?]
     else
-      [:show_file_upload?, :katex_syntax?,
+      [:katex_syntax?,
        :show_sandstorm?, :show_location?, :show_mic?, :show_v_rec?,
        :show_mark_down?, :show_markdown_code?, :show_markdown?]
     end

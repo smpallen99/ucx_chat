@@ -8,33 +8,27 @@ $(document).ready(() => {
     let enterTarget = null;
     let obj = $('.dropzone')
 
-    obj.on('drag dragstart dragend dragover dragenter dragleave drop', e => {
+    $('body').on('drag dragstart dragend dragover dragenter dragleave drop', '.dropzone', e => {
       e.preventDefault()
       e.stopPropagation()
     })
-    .on('dragover dragenter', (e) => {
-      enterTarget = e.target
-      $('.dropzone').addClass('over')
+    .on('dragover dragenter', '.dropzone', (e) => {
+      if (chat_settings.allow_upload) {
+        enterTarget = e.target
+        $('.dropzone').addClass('over')
+      }
     })
-    .on('dragleave dragend drop', (e) => {
+    .on('dragleave dragend drop', '.dropzone', (e) => {
       if (enterTarget == e.target) {
         $('.dropzone').removeClass('over')
       }
     })
-    .on('drop', event => {
-      // droppedFiles = e.originalEvent.dataTransfer.files
-      // console.log('drop', droppedFiles)
-      let e = event.originalEvent || event
-      let files = e.dataTransfer.files || []
-      // console.log('drop event', event, 'e', e, 'files', files)
-
-      // let filesToUpload = []
-      // for(var i = 0; i < files.length; i++) {
-      //   // Object.defineProperty(file, 'type', { value: mime.lookup(file.name) })
-      //   filesToUpload.push(files[i])
-      // }
-      // fileUpload.readURL({files: filesToUpload})
-      fileUpload.handleFileUpload(files, obj)
+    .on('drop', '.dropzone', event => {
+      if (chat_settings.allow_upload) {
+        let e = event.originalEvent || event
+        let files = e.dataTransfer.files || []
+        fileUpload.handleFileUpload(files, obj)
+      }
     })
 
   }

@@ -1,7 +1,7 @@
 defmodule UcxChat.AttachmentService do
   use UcxChat.Web, :service
 
-  alias UcxChat.{Attachment, Message, MessageService, Channel}
+  alias UcxChat.{Attachment, Message, MessageService, Channel, Settings}
   alias Ecto.Multi
 
   require Logger
@@ -44,5 +44,9 @@ defmodule UcxChat.AttachmentService do
     Repo.one from a in Attachment,
       where: a.message_id == ^message_id,
       select: count(a.id)
+  end
+
+  def allowed?(channel) do
+    Settings.file_uploads_enabled() && ((channel.type != 2) || Settings.dm_file_uploads())
   end
 end
