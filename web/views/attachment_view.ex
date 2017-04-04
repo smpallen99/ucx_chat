@@ -12,6 +12,7 @@ defmodule UcxChat.AttachmentView do
     attachment.type
     |> media_types
     |> Enum.into(%{
+      id: attachment.id,
       file_name: attachment.file[:file_name],
       url: UcxChat.File.url({attachment.file, attachment}) |> String.replace("/priv/static", ""),
       description: attachment.description,

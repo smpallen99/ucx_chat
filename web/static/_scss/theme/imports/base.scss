@@ -3368,14 +3368,14 @@ body:not(.is-cordova) {
 	&.uploaded-files-list {
 		a {
 			&.file-name {
-				color: #008ce3;
+				color: #78a12b;
 				padding: 10px 5px;
 				border-bottom: 1px solid #eaeaea;
 				display: block;
 				border-width: 0 0 1px;
 
 				&:hover {
-					color: #006db0;
+					color: #5a7920;
 					text-decoration: underline;
 				}
 
@@ -3394,6 +3394,7 @@ body:not(.is-cordova) {
 			&.file-delete {
 				float: right;
 				padding-top: 10px;
+				cursor: pointer;
 			}
 
 			&.file-download {

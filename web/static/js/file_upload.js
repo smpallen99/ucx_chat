@@ -11,7 +11,7 @@ class FileUpload {
     reader.onload = (ev) => {
       callback(ev.target.result, file)
     }
-    console.log('file...', file)
+    // console.log('file...', file)
 
     reader.readAsDataURL(file)
   }
@@ -127,8 +127,13 @@ class FileUpload {
     })
   }
   register_events() {
-    $('body').on('change', '.message-form input[type=file]', function() {
-      fileUpload.readURL(this)
+    $('body').on('change', '.message-form input[type=file]', function(event) {
+      let e = event.originalEvent || event
+      let files = e.target.files
+      if (!files || files.length == 0) {
+        files = e.dataTransfer.files || []
+      }
+      fileUpload.handleFileUpload(files)
     })
     $('body').on('click', '.attachment .collapse-switch.icon-right-dir', e => {
       $(e.currentTarget).removeData('collapsed').removeClass('icon-right-dir').addClass('icon-down-dir')
@@ -139,21 +144,6 @@ class FileUpload {
       $(e.currentTarget).closest('.attachment-block').find('.media-container').hide()
     })
   }
-  // readURL(input) {
-  //   console.log('input', input)
-  //   if (input.files && input.files[0]) {
-  //     var reader = new FileReader();
-  //     console.log('the file', input.files[0])
-
-  //     reader.onload = function (e) {
-  //       // $('#upload-preview').attr('src', e.target.result);
-  //       $('.upload-preview-file').css('background-image', 'url(' + e.target.result + ')');
-  //     }
-
-  //     reader.readAsDataURL(input.files[0]);
-  //     this.upload_file(input.files[0])
-  //   }
-  // }
   sendFileToServer(formData,status) {
     var uploadURL ="/attachments/create"; //Upload URL
     var extraData ={}; //Extra Data.

@@ -1,10 +1,13 @@
 defmodule UcxChat.MessageChannelController do
   use UcxChat.Web, :channel_controller
 
-  alias UcxChat.{User, Message, ChannelService, Channel, MessageService}
-  alias UcxChat.ServiceHelpers, as: Helpers
   import UcxChat.MessageService
-  # import Phoenix.Channel
+
+  alias UcxChat.{
+    User, Message, ChannelService, Channel, MessageService, Attachment,
+    AttachmentService
+  }
+  alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
 
@@ -163,6 +166,23 @@ defmodule UcxChat.MessageChannelController do
         stop_typing(socket, user.id, channel_id)
     end
 
+    {:reply, {:ok, %{}}, socket}
+  end
+
+  def delete_attachment(%{assigns: assigns} = socket, params) do
+    user = Helpers.get(User, assigns[:user_id])
+    attachment = Helpers.get Attachment, params["id"], preload: [:message]
+
+    result = Repo.delete attachment
+    Logger.warn "delete attachment result: #{inspect result}"
+
+    if AttachmentService.count(attachment.message_id) == 0 do
+      Repo.delete attachment.message
+      Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li.message#" <> attachment.message.id, action: "remove"}
+    else
+      # broadcast edited message update
+    end
+    Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li[data-id='" <> attachment.id <> "']", action: "remove"}
     {:reply, {:ok, %{}}, socket}
   end
 end

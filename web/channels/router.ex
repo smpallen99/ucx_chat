@@ -22,6 +22,10 @@ defmodule UcxChat.ChannelRouter do
   # get "/room/:room_id", RoomChannelController, :show
   # put "/room/favorite", RoomChannelController, :favorite
 
+  def match(:delete, socket, ["attachment", id], params) do
+    params = Map.put(params, "id", id)
+    apply(UcxChat.MessageChannelController, :delete_attachment, [socket, params])
+  end
   def match(:delete, socket, ["room", "has_unread"], params) do
     apply(UcxChat.RoomChannelController, :clear_has_unread, [socket, params])
   end

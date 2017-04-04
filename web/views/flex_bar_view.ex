@@ -108,6 +108,12 @@ defmodule UcxChat.FlexBarView do
       ]
     end
   end
+
+  def file_icon(:image), do: "icon-picture"
+  def file_icon(:video), do: "icon-video"
+  def file_icon(:audio), do: "icon-play"
+  def file_icon(_), do: "icon-docs"
+
               #   = radio_tag(settings, :desktop, id, text)
               # %label
               #   %input(type="radio" name="desktopNotifications" value="all" checked="{{$eq desktopNotifications 'all'}}")= ~g"All_messages"

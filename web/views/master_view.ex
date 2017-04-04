@@ -106,7 +106,7 @@ defmodule UcxChat.MasterView do
       {"User Info", "user", uu(user_mode, "User Info")},
       {"Members List", "users", uu(user_mode, "Members List")},
       {"Notifications", "bell-alt", ""},
-      {"Files List", "attach", " hidden"},
+      {"Files List", "attach", ""},
       {"Mentions", "at", ""},
       {"Stared Messages", "star", cc(config, :allow_message_staring)},
       {"Knowledge Base", "lightbulb", " hidden"},

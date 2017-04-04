@@ -33,7 +33,7 @@ const default_settings = {
     }
    },
   "Notifications": { args: {templ: "notifications.html"}},
-  "Files List": {},
+  "Files List": {args: {templ: "files_list.html"}},
   "Mentions": { args: {templ: "mentions.html"} },
   "Stared Messages": { args: {templ: "stared_messages.html"}},
   "Knowledge Base": {hidden: true},
@@ -157,6 +157,33 @@ export function init_flexbar() {
     $('button.see-all').removeClass('show-online').addClass('show-all').text("Show all")
     update_showing_count()
     return false
+  })
+  .on('click', '.uploaded-files-list .file-delete', e => {
+    let id = $(e.currentTarget).parent().data('id')
+    sweetAlert({
+      title: gettext.are_you_sure,
+      text: gettext.you_will_not_be_able_to_recover_this_message,
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#DD6B55",
+      confirmButtonText: gettext.yes_delete_it,
+      closeOnConfirm: false
+    },
+    function(){
+      cc.delete_("/attachment/" + id)
+        .receive("ok", resp => {
+          swal({
+            title: gettext.deleted,
+            text: gettext.your_entry_has_been_deleted,
+            type: 'success',
+            timer: 1500,
+            showConfirmButton: false,
+          })
+        })
+        .receive("error", resp => {
+          toastr.error(resp.error)
+        })
+    });
   })
 
   userchan.on('flex:open', msg => {

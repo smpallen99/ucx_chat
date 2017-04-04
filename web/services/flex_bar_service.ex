@@ -4,7 +4,9 @@ defmodule UcxChat.FlexBarService do
   import Phoenix.Socket, only: [assign: 3]
 
   alias UcxChat.{Repo, FlexBarView, User, Mention, StaredMessage, PinnedMessage,
-    UserAgent, Permission, Direct, Channel, Notification, AccountService}
+    UserAgent, Permission, Direct, Channel, Notification, AccountService, Attachment,
+    Message
+  }
   # alias UcxChat.ServiceHelpers, as: Helpers
 
   require Logger
@@ -222,6 +224,19 @@ defmodule UcxChat.FlexBarService do
     end
   end
 
+  def handle_click("Files List" = event, %{"user_id" => user_id, "channel_id" => channel_id} = msg) do
+    log_click event, msg
+    handle_open_close event, msg, fn msg ->
+      args = get_render_args("Files List", user_id, channel_id, nil)
+
+      html = FlexBarView.render(msg["templ"], args)
+      |> Helpers.safe_to_string
+
+      UserAgent.open_ftab(msg["user_id"], msg["channel_id"], event, nil)
+
+      %{html: html}
+    end
+  end
   # def handle_click("User Info" = event, %{"user_id" => user_id, "channel_id" => channel_id} = msg) do
   #   log_click event, msg
   #   handle_open_close event, msg, fn  msg ->
@@ -285,6 +300,18 @@ defmodule UcxChat.FlexBarService do
       end
 
     [notification: notification, editing: nil]
+  end
+
+  def get_render_args("Files List", user_id, channel_id, _, _)  do
+    current_user = Helpers.get_user! user_id
+    channel = Helpers.get_channel(channel_id)
+    attachments = (from a in Attachment,
+      join: m in Message, on: a.message_id == m.id,
+      order_by: [desc: m.timestamp],
+      where: a.channel_id == ^(channel.id))
+
+    |> Repo.all
+    [current_user: current_user, attachments: attachments]
   end
 
   def get_render_args("User Info", user_id, channel_id, _, _)  do
@@ -468,7 +495,7 @@ defmodule UcxChat.FlexBarService do
         }
        },
       "Notifications": %{templ: "notifications.html", args: %{}},
-      "Files List": %{},
+      "Files List": %{templ: "files_list.html", args: %{}},
       "Mentions": %{templ: "mentions.html", args: %{} },
       "Stared Messages": %{templ: "stared_messages.html", args: %{}},
       "Knowledge Base": %{hidden: true},

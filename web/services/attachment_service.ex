@@ -39,4 +39,10 @@ defmodule UcxChat.AttachmentService do
       |> MessageService.render_message
     MessageService.broadcast_message(message.id, channel.name, message.user_id, html)
   end
+
+  def count(message_id) do
+    Repo.one from a in Attachment,
+      where: a.message_id == ^message_id,
+      select: count(a.id)
+  end
 end

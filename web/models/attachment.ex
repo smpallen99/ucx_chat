@@ -1,6 +1,7 @@
 defmodule UcxChat.Attachment do
   use UcxChat.Web, :model
   use Arc.Ecto.Schema
+  alias __MODULE__
 
   schema "attachments" do
     field :file, UcxChat.File.Type
@@ -23,4 +24,5 @@ defmodule UcxChat.Attachment do
     |> cast_attachments(params, [:file])
     |> validate_required([:file, :channel_id, :message_id])
   end
+
 end
