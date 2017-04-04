@@ -20,6 +20,7 @@
   =# render "sweet.html"
 - flash_error = @conn.private[:phoenix_flash]["error"]
 :javascript
+  window.UcxChat = {}
   window.user_token = '<%= Coherence.user_token(@conn) %>'
   window.ucxchat = {
     room_route: '<%= @chatd.room_route %>',

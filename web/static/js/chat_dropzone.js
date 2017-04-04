@@ -30,6 +30,5 @@ $(document).ready(() => {
         fileUpload.handleFileUpload(files, obj)
       }
     })
-
   }
 })

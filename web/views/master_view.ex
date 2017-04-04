@@ -1,6 +1,6 @@
 defmodule UcxChat.MasterView do
   use UcxChat.Web, :view
-  alias UcxChat.{ChannelService, User, Channel, ChatDat}
+  alias UcxChat.{ChannelService, User, Channel, ChatDat, Settings}
   require IEx
 
   def get_admin_class(_user), do: ""
@@ -159,5 +159,19 @@ defmodule UcxChat.MasterView do
 
   def direct?(chatd) do
     chatd.channel.type == 2
+  end
+
+  def get_chat_settings(channel) do
+    """
+    window.chat_settings = {
+      link_preview: false,
+      use_emojis: true,
+      allow_upload: #{UcxChat.AttachmentService.allowed?(channel)},
+      accepted_media_types: '#{Settings.accepted_media_types()}',
+      maximum_file_upload_size_kb: #{Settings.maximum_file_upload_size_kb()},
+      protect_upload_files: #{Settings.protect_upload_files()},
+    };
+    UcxChat.settings = chat_settings;
+    """
   end
 end
