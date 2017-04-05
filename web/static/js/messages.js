@@ -70,6 +70,14 @@ class Messages {
             // console.log('got response from send message')
           }
         })
+        .receive("error", resp => {
+          let error = resp.error
+          if (!error) {
+            error = "Problem editing message"
+          }
+          toastr.error(error)
+          $('.message-form-text').removeClass('editing')
+        })
 
     } else if (msg.startsWith('/')) {
       let match = msg.match(/^\/([^\s]+)(.*)/)

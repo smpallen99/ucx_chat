@@ -144,8 +144,12 @@ defmodule UcxChat.RoomChannel do
   end
   def handle_in(ev = "message:get-body:" <> id, msg, socket) do
     debug ev, msg
-    message = Helpers.get Message, id
-    {:reply, {:ok, %{body: message.body}}, socket}
+    message = Helpers.get Message, id, preload: [:attachments]
+    body = case message.attachments do
+      [] -> message.body
+      [att|_] -> att.description
+    end
+    {:reply, {:ok, %{body: body}}, socket}
   end
   # default case
   def handle_in(event, msg, socket) do

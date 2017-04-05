@@ -154,21 +154,54 @@ defmodule UcxChat.MessageChannelController do
     id = params["id"]
 
     value = params["message"]
-    Helpers.get(Message, id)
+    message = Helpers.get(Message, id, preload: [:attachments])
+    resp =
+      case message.attachments do
+        [] -> update_message_body(message, value, user)
+        [att|_] -> update_attachment_description(att, message, value, user)
+      end
+      |> case do
+        {:ok, message} ->
+          message = Repo.preload(message, MessageService.preloads())
+          MessageService.broadcast_updated_message message
+          {:ok, %{}}
+        error ->
+          {:error, %{error: ~g(Problem updating your message)}}
+      end
+
+    stop_typing(socket, user.id, channel_id)
+    {:reply, resp, socket}
+  end
+  defp update_attachment_description(attachment, message, value, user) do
+    Repo.transaction(fn ->
+      message
+      |> Message.changeset(%{edited_id: user.id})
+      |> Repo.update
+      |> case do
+        {:ok, message} ->
+          attachment
+          |> Attachment.changeset(%{description: value})
+          |> Repo.update
+          |> case do
+            {:ok, _attachment} ->
+              {:ok, message}
+            error ->
+              Repo.rollback(:attachment_error)
+              error
+          end
+        error -> error
+      end
+    end)
+    |> case do
+      {:ok, res} -> res
+      {:error, _} -> {:error, nil}
+    end
+  end
+
+  defp update_message_body(message, value, user) do
+    message
     |> Message.changeset(%{body: value, edited_id: user.id})
     |> Repo.update
-    |> case do
-      {:ok, message} ->
-        message = Repo.preload(message, MessageService.preloads())
-        # TODO: Need to handle new mentions for edited message
-        MessageService.broadcast_updated_message message
-        # message_html = render_message(message)
-        # broadcast_message(socket, message.id, message.user.id, message_html, event: "update")
-
-        stop_typing(socket, user.id, channel_id)
-    end
-
-    {:reply, {:ok, %{}}, socket}
   end
 
   def delete_attachment(%{assigns: assigns} = socket, params) do
