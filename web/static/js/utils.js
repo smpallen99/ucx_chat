@@ -11,15 +11,6 @@ export function remove(arr, item) {
   }
 }
 
-export function do_emojis(html) {
-  if (chat_settings.use_emojis) {
-    return emojione.shortnameToImage(html)
-  } else {
-    console.warn('use_emojis disabled')
-  }
-  return html
-}
-
 // Taken from: https://davidwalsh.name/javascript-debounce-function
 //
 // Returns a function, that, as long as it continues to be invoked, will not
@@ -61,7 +52,7 @@ export function scroll_down(height) {
   if (elem)
     elem.scrollTop(getScrollBottom() + height)
   else
-    console.warn('invalid elem')
+    if (debug) { console.warn('invalid elem') }
 }
 
 export function getScrollBottom() {
@@ -69,7 +60,7 @@ export function getScrollBottom() {
   if (elem) {
     return elem.scrollHeight - $(elem).innerHeight
   } else {
-    console.warn('invalid elem')
+    if (debug) { console.warn('invalid elem') }
     return 1000
   }
 }
@@ -79,7 +70,7 @@ export function is_scroll_bottom() {
   if (elem) {
     return elem.scrollTop + $(elem).innerHeight() + 1 >= elem.scrollHeight
   } else {
-    console.warn('invalid elem')
+    if (debug) { console.warn('invalid elem') }
     return true
   }
 
@@ -179,8 +170,6 @@ export function push_history() {
 export function replace_history() {
   history.replaceState(history.state, ucxchat.display_name, '/' + ucxchat.room_route + '/' + ucxchat.display_name)
 }
-
-window.utils = {code_update: code_update, do_emojis: do_emojis}
 
 window.pl = page_loading
 window.rpl = remove_page_loading

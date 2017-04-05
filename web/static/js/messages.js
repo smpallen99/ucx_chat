@@ -14,7 +14,7 @@ class Messages {
 
     let at_bottom = roomManager.at_bottom
     if (debug) console.log('new_message', msg)
-    $('.messages-box .wrapper > ul').append(utils.do_emojis(html))
+    $('.messages-box .wrapper > ul').append(html)
 
     let last = $(`#${msg.id} .body`)
     if (last.text().trim() == "") {
@@ -40,20 +40,14 @@ class Messages {
     roomManager.new_message(msg.id, msg.user_id)
   }
   static update_message(msg) {
-    $('#' + msg.id).replaceWith(utils.do_emojis(msg.html))
+    $('#' + msg.id).replaceWith(msg.html)
       .find('pre').each(function(i, block) {
         hljs.highlightBlock(block)
       })
 
-    let list = $(`#${msg.id} .reaction-emoji`)
-    for (var i = 0; i < list.length; i++) {
-      $(list[i]).html(utils.do_emojis($(list[i]).text()))
-    }
     if (ucxchat.user_id == msg.user_id) {
-      // if (debug) { console.log('adding own to', msg.id, $('#' + msg.id)) }
       $('#' + msg.id).addClass("own")
     }
-    // roomManager.new_message(msg.id)
   }
   static scroll_bottom() {
     let mypanel = $('.messages-box .wrapper')
@@ -64,7 +58,7 @@ class Messages {
     let user = window.ucxchat.user_id
     let ucxchat = window.ucxchat
     if (msg.update) {
-      cc.put("/messages/" + msg.update, {message: msg.value, user_id: user})
+      cc.put("/messages/" + msg.update, {message: msg.value.trim(), user_id: user})
         .receive("ok", resp => {
           $('.message-form-text').removeClass('editing')
           if (resp.html) {
@@ -91,11 +85,8 @@ class Messages {
 
       roomManager.remove_unread()
 
-    } else if (!utils.empty_string(msg)) {
-      // roomchan.push("message", {message: msg, user_id: user, room: ucxchat.room, username: ucxchat.username,
-      //   user_id: ucxchat.user_id, channel_id: ucxchat.channel_id})
-      // cc.push("message", {message: msg, user_id: user})
-      cc.post("/messages", {message: msg, user_id: user})
+    } else if (!utils.empty_string(msg.trim())) {
+      cc.post("/messages", {message: msg.trim(), user_id: user})
         .receive("ok", resp => {
           if (resp.html) {
             $('.messages-box .wrapper > ul').append(resp.html)

@@ -106,9 +106,8 @@ class MessageCog {
         } else {
           cc.push('message_cog:' + data_id, {message_id: message_id})
             .receive("ok", resp => {
-              console.log('html', resp.html)
               if (resp.selector &&  resp.html) {
-                $(resp.selector).html(utils.do_emojis(resp.html))
+                $(resp.selector).html(resp.html)
                 $(resp.selector).find('pre code').each(function(i, block) {
                   hljs.highlightBlock(block);
                 });

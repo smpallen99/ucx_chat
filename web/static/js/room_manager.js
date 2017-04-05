@@ -26,14 +26,9 @@ class RoomManager {
       this.new_message_button = false
       this.unread_timer_ref = undefined
     }
-    // setInterval(() => {
-    //   this.set_badges()
-    // }, 2000)
 
     this.favico = new Favico({
       position : 'up',
-      // bgColor : '#5CB85C',
-      // textColor : '#ff0',
       animation : 'pop'
       // animation : 'popFade'
     })
@@ -76,7 +71,6 @@ class RoomManager {
         }
       }, 2000)
     }
-    // console.log('messages', $('.messages-box .wrapper>ul li'))
     ucxchat.channel_id = resp.channel_id
     ucxchat.room = resp.room_title
     ucxchat.display_name = resp.display_name
@@ -242,7 +236,7 @@ class RoomManager {
   }
 
   set_unread(id) {
-    console.log('set_unread value', this.is_unread)
+    if (debug) { console.log('set_unread value', this.is_unread) }
     if (!this.is_unread) {
       cc.put("/room/has_unread")
     }
@@ -289,7 +283,6 @@ class RoomManager {
 
   send_last_read() {
     let ts = $(container + ' li[id]:last').data('timestamp')
-    console.warn("send_last_read ts", ts)
     userchan.push('last_read', {last_read: ts})
   }
 
@@ -318,27 +311,19 @@ class RoomManager {
   new_room() {
     if (debug) { console.log('new_room', this)}
     this.has_more = $('.messages-box li.load-more').length > 0
-    // bind_scroller()
     roomHistoryManager.new_room(ucxchat.room)
     this.updateMentionsMarksOfRoom()
 
-    let html = utils.do_emojis($('.messages-box .wrapper ul').html())
+    let html = $('.messages-box .wrapper ul').html()
     $('.messages-box .wrapper ul').html(html)
 
-    let list = $(`.messages-box .wrapper ul .reaction-emoji`)
-    for (var i = 0; i < list.length; i++) {
-      $(list[i]).html(utils.do_emojis($(list[i]).text()))
-    }
-
     $('.messages-box .wrapper ul .body img.emojione').each((i, elem) => {
-      console.log('found one', elem)
       if ($(elem).closest('.body').text().trim() == "") {
         $(elem).addClass('big')
       }
     })
 
     roomchan.on('room:open', resp => {
-      console.log('room:open resp', resp)
       utils.page_loading()
       $('.main-content').html(utils.loading_animation())
       this.open_room(resp.room, resp.room)
@@ -548,7 +533,7 @@ class RoomManager {
       cc.put("/room/set-moderator/" + username)
         .receive("ok", resp => {
           if (resp.redirect) {
-            console.log('location')
+            if (debug) { console.log('location') }
             window.location = resp.redirect
           }
         })
@@ -751,7 +736,7 @@ class RoomManager {
       }, 1000)
     })
     .on('click', 'li.jump-to-message', e => {
-      console.log('jump-to-message')
+      if (debug) { console.log('jump-to-message') }
       e.preventDefault()
       let ct = e.currentTarget
       let ts = $(ct).closest('li.message').data('timestamp')

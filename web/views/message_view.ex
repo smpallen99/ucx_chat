@@ -284,8 +284,9 @@ defmodule UcxChat.MessageView do
     body = AutoLinker.link message.body || "", exclude_pattern: "```"
     quoted? = String.contains?(body, "```")
     body
-    |> String.replace("&lt;", "<")
-    |> String.replace("&gt;", ">")
+    |> EmojiOne.shortname_to_image
+    # |> String.replace("&lt;", "<")
+    # |> String.replace("&gt;", ">")
     |> format_newlines(quoted?, message.system)
     |> UcxChat.SharedView.format_quoted_code(quoted?, message.system)
     |> raw

@@ -2,7 +2,7 @@
 - name = reaction.emoji |> String.replace(":", "")
 %li.selected(data-emoji="#{name}")
   %span.reaction-emoji
-    = @reaction.emoji
+    = @reaction.emoji |> EmojiOne.shortname_to_image |> Phoenix.HTML.raw
   %span.reaction-count= reaction.count
   %ul.people
     %span(style="font-weight: bold;")

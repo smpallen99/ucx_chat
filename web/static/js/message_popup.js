@@ -166,8 +166,6 @@ class MessagePopup {
 
   handle_channel_resp(resp) {
     let html = resp.html
-    if (this.application == "emojis")
-      html = utils.do_emojis(html)
     $(popup_window).html(html)
     if (this.application == "emojis") {
       $(popup_window).find('.popup-item').each((i, elem) => {

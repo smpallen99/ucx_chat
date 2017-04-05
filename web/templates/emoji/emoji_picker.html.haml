@@ -1,4 +1,5 @@
 - current_tone = "tone-#{@account.emoji_tone}"
+- tone_append = tone_append(@account.emoji_tone)
 - active_category = @account.emoji_category
 .emoji-picker.secondary-background-color
   .emoji-top
@@ -20,6 +21,7 @@
           %a.category-link.color-info-font-color(href="#")
             %i.category-icon(class="icon-#{name}")
   .emojis
+    - tone_list = get_tones()
     - for {name, _title} <- emoji_categories() do
       %ul(class="#{name} emoji-list#{active_category(to_string(name) == active_category)}")
-        = render "emoji_category.html", emojis: emojis_by_category(@account)[name]
+        = render "emoji_category.html", emojis: emojis_by_category(@account)[name], tone: tone_append, tone_list: tone_list

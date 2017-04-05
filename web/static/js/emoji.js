@@ -12,7 +12,6 @@ class ChatEmoji {
     this.reactions = false
   }
   open_reactions(elem, message_id) {
-    console.log('open_reactions....', message_id)
     this.reactions = message_id
     let offset = $(elem).offset()
 
@@ -21,13 +20,11 @@ class ChatEmoji {
     }, 50)
   }
   update_recent(emoji) {
-    console.log('recent emoji', emoji)
     $('.input-message').focus()
     userchan.push('emoji:recent', {recent: emoji})
       .receive("ok", resp => {
         if (resp.html) {
-          let html = utils.do_emojis(resp.html)
-          $('.emojis ul.recent').html(html)
+          $('.emojis ul.recent').html(resp.html)
         }
       })
   }
@@ -70,7 +67,7 @@ class ChatEmoji {
     })
     .on('click', '.emojis li', e => {
       e.preventDefault()
-      let emoji = $(e.currentTarget).find('img.emojione').attr('title')
+      let emoji = $(e.currentTarget).find('span.emojione').attr('title')
       if (this.reactions) {
         this.select_reactions(e, emoji)
 
@@ -89,14 +86,9 @@ class ChatEmoji {
       let tone = $(e.currentTarget).data('tone')
       userchan.push("emoji:tone_list", {tone: tone})
         .receive("ok", resp => {
-          resp.tone_list.forEach((name, i) => {
-            let html = ""
-            if (tone == "0") {
-              html = utils.do_emojis(`:${name}:`)
-            } else {
-              html = utils.do_emojis(`:${name}_tone${tone}:`)
-            }
-            $(`li.emoji-${name}`).html(html)
+          let obj = resp.tone_list
+          Object.keys(obj).forEach((key, index) => {
+            $(`li.emoji-${key}`).html(obj[key])
           })
           $('ul.tone-selector').removeClass('show')
           $('span.current-tone').attr('class', 'current-tone tone-' + tone)
@@ -112,7 +104,6 @@ class ChatEmoji {
     })
     .on('click', '.emoji-filter input.search', e => {
       e.preventDefault()
-      console.log('search')
       return false
     })
     .on('keyup', '.emoji-filter input.search', e => {
@@ -121,8 +112,7 @@ class ChatEmoji {
       userchan.push('emoji:search', {pattern: text, category: category})
         .receive("ok", resp => {
           if (resp.html) {
-            let html = utils.do_emojis(resp.html)
-            $('.emojis ul.' + category).html(html)
+            $('.emojis ul.' + category).html(resp.html)
           }
         })
     })

@@ -17,7 +17,7 @@ defmodule UcxChat.Emoji do
     flags: ~g'Flags'
   ]
 
-  def tone_list, do: [
+  @tone_list [
     "raised_hands",
     "clap",
     "wave",
@@ -103,6 +103,17 @@ defmodule UcxChat.Emoji do
     "handball",
     "juggling"
   ]
+
+  def tone_list(tone) do
+    tone = if tone == 0, do: "", else: "_tone#{tone}"
+    @tone_list
+    |> Enum.map(fn emoji ->
+      {emoji, EmojiOne.shortname_to_image(":" <> emoji <> tone <> ":")}
+    end)
+    |> Enum.into(%{})
+  end
+
+  def tone_list, do: @tone_list
 
   @emojis_by_category  %{
     recent: [

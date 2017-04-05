@@ -17,7 +17,7 @@ defmodule UcxChat.EmojiService do
   def handle_in(ev = "tone_list", params, socket) do
     debug ev, params
     set_emoji_tone socket.assigns.user_id, params["tone"]
-    {:reply, {:ok, %{tone_list: Emoji.tone_list()}}, socket}
+    {:reply, {:ok, %{tone_list: Emoji.tone_list(params["tone"])}}, socket}
   end
   def handle_in(ev = "filter-item", params, socket) do
     debug ev, params
@@ -26,10 +26,15 @@ defmodule UcxChat.EmojiService do
   end
   def handle_in(ev = "search", params, socket) do
     debug ev, params
-    emojis = Emoji.search(params["pattern"], params["category"])
+    user = Helpers.get_user socket.assigns.user_id
+    pattern = case params["pattern"] do
+      ":" <> pattern -> pattern
+      pattern -> pattern
+    end
+    emojis = Emoji.search(pattern, params["category"])
     html =
       "emoji_category.html"
-      |> EmojiView.render(emojis: emojis)
+      |> EmojiView.render(emojis: emojis, tone_list: Emoji.tone_list(), tone: EmojiView.tone_append(user.account.emoji_tone))
       |> safe_to_string
 
     {:reply, {:ok, %{html: html}}, socket}
@@ -41,7 +46,7 @@ defmodule UcxChat.EmojiService do
       {:ok, account} ->
         html =
           "emoji_category.html"
-          |> EmojiView.render(emojis: AccountService.emoji_recents(account))
+          |> EmojiView.render(emojis: AccountService.emoji_recents(account), tone_list: Emoji.tone_list(), tone: EmojiView.tone_append(account.emoji_tone))
           |> safe_to_string
         {:reply, {:ok, %{html: html}}, socket}
       {:error, _} ->

@@ -1,3 +1,6 @@
 - for emoji <- @emojis do
   %li(class="emoji-#{emoji}" data-emoji="#{emoji}" title="#{emoji}")
-    = ":#{emoji}:"
+    - if emoji in @tone_list do
+      = ":#{emoji <> @tone}:" |> EmojiOne.shortname_to_image |> Phoenix.HTML.raw
+    - else
+      = ":#{emoji}:" |> EmojiOne.shortname_to_image |> Phoenix.HTML.raw
