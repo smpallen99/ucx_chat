@@ -14,6 +14,8 @@ export function remove(arr, item) {
 export function do_emojis(html) {
   if (chat_settings.use_emojis) {
     return emojione.shortnameToImage(html)
+  } else {
+    console.warn('use_emojis disabled')
   }
   return html
 }
@@ -162,8 +164,6 @@ export function remove_page_loading() {
 }
 
 export function code_update(resp) {
-  // console.log('code:update', resp)
-
   if (resp.html) {
     $(resp.selector)[resp.action](resp.html)
   } else {
@@ -180,6 +180,7 @@ export function replace_history() {
   history.replaceState(history.state, ucxchat.display_name, '/' + ucxchat.room_route + '/' + ucxchat.display_name)
 }
 
+window.utils = {code_update: code_update, do_emojis: do_emojis}
 
 window.pl = page_loading
 window.rpl = remove_page_loading

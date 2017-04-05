@@ -113,6 +113,14 @@ defmodule UcxChat.UserChannel do
   ###############
   # Incoming Messages
 
+  def handle_in(ev = "reaction:" <> action, params, socket) do
+    debug ev, params
+    case UcxChat.ReactionService.select(action, params, socket) do
+      nil -> {:noreply, socket}
+      res -> {:reply, res, socket}
+    end
+  end
+
   def handle_in("emoji:" <> emoji, params, socket) do
     EmojiService.handle_in(emoji, params, socket)
   end

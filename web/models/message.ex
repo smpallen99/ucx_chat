@@ -19,6 +19,7 @@ defmodule UcxChat.Message do
 
     has_many :stars, UcxChat.StaredMessage, on_delete: :delete_all
     has_many :attachments, UcxChat.Attachment, on_delete: :delete_all
+    has_many :reactions, UcxChat.Reaction, on_delete: :delete_all
 
     field :is_groupable, :boolean, virtual: true
     field :t, :string, virtual: true

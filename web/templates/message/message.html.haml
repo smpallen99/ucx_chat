@@ -1,4 +1,5 @@
 - username = get_username @message
+- reactions = Enum.sort @message.reactions, &(&1.inserted_at < &2.inserted_at)
 = get_message_wrapper_opts(@message, @user)
   - if @message.avatar do
     - if avatar = avatar_from_username(@message) do
@@ -8,9 +9,9 @@
       %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
         .avatar
           - if @user.avatar_url do
-            .avatar-image(style='background-image:url(#{@user.avatar_url});')
+            .avatar-image(style="background-image:url(#{@user.avatar_url});")
           - else
-            .avatar-image(style='background-image:url(/avatar/#{username});')
+            .avatar-image(style="background-image:url(/avatar/#{username});")
   - else
     - if emoji = emoji(@message) do
       %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
@@ -20,9 +21,9 @@
       %button.thumb.user-card-message(data-username="#{username}" tabindex="1")
         .avatar
           - if @user.avatar_url do
-            .avatar-image(style='background-image:url(#{@user.avatar_url});')
+            .avatar-image(style="background-image:url(#{@user.avatar_url});")
           - else
-            .avatar-image(style='background-image:url(/avatar/#{username});')
+            .avatar-image(style="background-image:url(/avatar/#{username});")
   - if alias? = alias?(@message) do
     %button.user.user-card-message.color-primary-font-color(type="button" data-username="#{username}" tabindex="1")
       = alias?
@@ -44,9 +45,9 @@
         %button.thumb.thumb-small.user-card-message(data-username="#{edited[:edited_by]}" tabindex="1")
           .avatar
             - if @user.avatar_url do
-              .avatar-image(style='background-image:url(#{@user.avatar_url});')
+              .avatar-image(style="background-image:url(#{@user.avatar_url});")
             - else
-              .avatar-image(style='background-image:url(/avatar/#{username});')
+              .avatar-image(style="background-image:url(/avatar/#{username});")
     - if is_private(@message) do
       %span.private Only you can see this message
     %div(class="message-cog-container #{hide_cog(@message)}")
@@ -79,15 +80,8 @@
           - else
             = action_link.label
   %ul{class: "reactions#{hide_reactions(@message)}"}
-    - for reaction <- reactions(@message) do
-      %li(data-emoji="#{reaction.emoji}")= mark_user_reaction(reaction)
-        %span.reaction-emoji= render_emoji(reaction.emoji)
-        %span.reaction-count= length reaction
-        %ul.people
-          %span(style="font-weight: bold;")
-            = reaction.usernames
-            %span(style="color: #aaa;")
-              = reaction.reaction
+    - for reaction <- reactions do
+      = render "reaction.html", reaction: reaction, user: @user
     %li.add-reaction
       %span.icon-people-plus
 </li>

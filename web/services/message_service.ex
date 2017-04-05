@@ -1,4 +1,6 @@
 defmodule UcxChat.MessageService do
+  use UcxChat.Web, :service
+
   import Ecto.Query
 
   alias UcxChat.{
@@ -11,9 +13,22 @@ defmodule UcxChat.MessageService do
   require UcxChat.ChatConstants, as: CC
   require Logger
 
-  @preloads [:user, :edited_by, :attachments]
+  @preloads [:user, :edited_by, :attachments, :reactions]
 
   def preloads, do: @preloads
+
+  def broadcast_updated_message(message, opts) do
+    message = Helpers.get Message, message.id, preload: @preloads
+    channel = Helpers.get Channel, message.channel_id
+    html =
+      message
+      |> Repo.preload(@preloads)
+      |> render_message
+    event = if opts[:reaction], do: "code:update:reaction", else: "code:update"
+    UcxChat.Endpoint.broadcast! CC.chan_room <> channel.name, event,
+      %{selector: "##{message.id}", html: html, action: "replaceWith"}
+
+  end
 
   def broadcast_system_message(channel_id, _user_id, body) do
     channel = Helpers.get(Channel, channel_id)

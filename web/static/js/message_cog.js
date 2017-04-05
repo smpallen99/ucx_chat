@@ -73,6 +73,10 @@ class MessageCog {
               $('#' + message_id).addClass('editing')
               this.close_cog($(ct))
             })
+        } else if (data_id == "reaction-message") {
+          console.log('clicked reaction-message', $(ct))
+          chat_emoji.open_reactions(ct, message_id)
+
         } else if (data_id == "delete-message") {
           sweetAlert({
             title: gettext.are_you_sure,

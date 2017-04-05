@@ -8,6 +8,9 @@ defmodule UcxChat.MessageView do
 
   require Logger
 
+  def get_reaction_people(reaction, user) do
+    UcxChat.ReactionService.get_reaction_people_names(reaction, user)
+  end
 
   def file_upload_allowed_media_types do
     ""
@@ -94,7 +97,9 @@ defmodule UcxChat.MessageView do
   def attachments(_msg), do: []
   def hide_action_links(_msg), do: " hidden"
   def action_links(_msg), do: []
-  def hide_reactions(_msg), do: " hidden"
+  def hide_reactions(msg) do
+    if msg.reactions == [], do: " hidden", else: ""
+  end
   def reactions(_msg), do: []
   def mark_user_reaction(_reaction), do: ""
   def render_emoji(_emoji), do: ""

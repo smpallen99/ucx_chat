@@ -1,4 +1,5 @@
 import * as utils from './utils'
+import * as reaction from './reaction'
 
 let debug = true
 
@@ -8,11 +9,41 @@ class ChatEmoji {
     this.cursor_position_plugin()
     this.register_events()
     this.init_picker()
+    this.reactions = false
+  }
+  open_reactions(elem, message_id) {
+    console.log('open_reactions....', message_id)
+    this.reactions = message_id
+    let offset = $(elem).offset()
+
+    setTimeout(() => {
+      this.open_picker(offset)
+    }, 50)
+  }
+  select_input(e, emoji) {
+    let pos = $('.input-message').getCursorPosition()
+    $('.input-message').val((i, text) => {
+      return text.slice(0,pos) + emoji + text.slice(pos)
+    })
+    this.close_picker()
+    $('.input-message').focus()
+    userchan.push('emoji:recent', {recent: emoji})
+      .receive("ok", resp => {
+        if (resp.html) {
+          let html = utils.do_emojis(resp.html)
+          $('.emojis ul.recent').html(html)
+        }
+      })
+  }
+  select_reactions(e, emoji) {
+    reaction.select(emoji, this.reactions)
+    this.close_picker()
   }
   register_events() {
     $('body')
     .on('click', '.emoji-picker-icon', e => {
       e.preventDefault()
+      this.reactions = false
       if (this.open) {
         this.close_picker()
       }
@@ -35,19 +66,12 @@ class ChatEmoji {
     .on('click', '.emojis li', e => {
       e.preventDefault()
       let emoji = $(e.currentTarget).find('img.emojione').attr('title')
-      let pos = $('.input-message').getCursorPosition()
-      $('.input-message').val((i, text) => {
-        return text.slice(0,pos) + emoji + text.slice(pos)
-      })
-      this.close_picker()
-      $('.input-message').focus()
-      userchan.push('emoji:recent', {recent: emoji})
-        .receive("ok", resp => {
-          if (resp.html) {
-            let html = utils.do_emojis(resp.html)
-            $('.emojis ul.recent').html(html)
-          }
-        })
+      if (this.reactions) {
+        this.select_reactions(e, emoji)
+
+      } else {
+        this.select_input(e, emoji)
+      }
       return false
     })
     .on('click', '.change-tone', e => {
@@ -98,11 +122,31 @@ class ChatEmoji {
         })
     })
   }
-  open_picker() {
-    $('.emoji-picker').toggleClass('show')
+  open_picker(offset) {
+    $('.emoji-picker').addClass('show')
+    if (offset) {
+      let height = window.innerHeight
+      let body_width = $('body').width()
+      let picker = $('.emoji-picker')
+      let picker_offset = picker.offset()
+      let left = offset.left
+      let bottom = height - offset.top + 10
+
+      if ((left + picker.width()) > body_width) {
+        left = body_width - picker.width() - 20
+      }
+
+      let top = height - (bottom + picker.height())
+      if (top < 0) {
+        bottom = bottom - picker.height() - 50
+      }
+
+      $('.emoji-picker').css('bottom', bottom + 'px').css('left', left + 'px')
+    }
   }
   close_picker() {
-    $('.emoji-picker').toggleClass('show')
+    this.reactions = false
+    $('.emoji-picker').removeClass('show')
   }
   init_picker() {
     emojione.ascii = true

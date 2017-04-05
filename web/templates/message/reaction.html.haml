@@ -1,0 +1,10 @@
+- reaction = @reaction
+- name = reaction.emoji |> String.replace(":", "")
+%li.selected(data-emoji="#{name}")
+  %span.reaction-emoji
+    = @reaction.emoji
+  %span.reaction-count= reaction.count
+  %ul.people
+    %span(style="font-weight: bold;")
+      = get_reaction_people reaction, @user
+      %span(style="color: #aaa;")= ~g(reacted with) <> " #{reaction.emoji}"
