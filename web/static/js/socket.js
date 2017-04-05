@@ -42,8 +42,8 @@ window.userchan = false
 window.roomchan = false
 window.systemchan = false
 
-
 hljs.initHighlightingOnLoad();
+
 // new presence stuff
 let presences = {}
 
@@ -82,27 +82,8 @@ let render = (presences) => {
 }
 // end of presence stuff
 
-// $('body').prepend(`<div id="initial-page-loading" style="background-color: #04436A;" class="page-loading">${utils.loading_animation()}</div>`)
-// utils.page_loading()
-
-// Dropzone.autoDiscover = false;
 $(document).ready(function() {
 
-  // let dropzone = new Dropzone(".dropzone", {
-  //   url: "/channels/upload"
-  // })
-  // dropzone.on('dragenter', e => {
-  //   // e.currentTarget.classList.add('over')
-  // })
-  // dropzone.on('dragleave .dropzone-overlay', e => {
-  // // dropzone.on('dragleave', e => {
-  //   console.log("drag leave")
-  //   // e.currentTarget.classList.remove('over')
-  // })
-
-  // dropzone.on('drop', file => {
-  //   console.log('drop', file)
-  // })
 
   setTimeout(() => {
     $('#initial-page-loading').remove()
@@ -118,7 +99,6 @@ $(document).ready(function() {
   window.roomHistoryManager = new RoomHistoryManager()
   window.fileUpload = new FileUpload()
 
-  // roomManager.set_title()
   new Messages()
 
   new SideNav()
@@ -128,9 +108,19 @@ $(document).ready(function() {
   window.messageCog = new MessageCog()
   window.navMenu = new Menu()
 
-  // var myDropzone = new Dropzone('.dropzone', {url: '/file/update'})
-
   socket.connect()
+  socket.onError( () => {
+    console.log("!! there was an error with the connection!")
+    handleOffLine()
+    UcxChat.onLine = false
+  })
+  socket.onClose( () => {
+    console.log("!! the connection dropped")
+    handleOffLine()
+    UcxChat.onLine = false
+  })
+
+  UcxChat.onLine = true
 
   if (flash_error != "")
     toastr.error(flash_error)
@@ -201,6 +191,8 @@ $(document).ready(function() {
 function start_system_channel() {
   systemchan = socket.channel(chan_system, {user: ucxchat.username, channel_id: ucxchat.channel_id})
   let chan = systemchan
+  chan.onError( () => true )
+  chan.onClose( () => true )
 
   chan.on('presence_state', state => {
     // console.log('presence_state', state)
@@ -214,13 +206,22 @@ function start_system_channel() {
   })
 
   chan.join()
-    .receive("ok", resp => { console.log('Joined system channel successfully', resp)})
-    .receive("error", resp => { console.error('Unable to join system channel', resp)})
+    .receive("ok", resp => {
+      console.log('Joined system channel successfully', resp)
+      handleOnLine()
+    })
+    .receive("error", resp => {
+      console.error('Unable to join system channel', resp)
+      handleOffLine()
+    })
 }
 
 function start_user_channel() {
   userchan = socket.channel(chan_user + ucxchat.user_id, {user: ucxchat.username, channel_id: ucxchat.channel_id})
   let chan = userchan
+
+  chan.onError( () => true )
+  chan.onClose( () => true )
 
   chan.on('room:update:name', resp => {
     if (debug) { console.log('room:update', resp) }
@@ -301,6 +302,10 @@ function start_room_channel(typing) {
   let chan = roomchan
 
   if (debug) { console.log('start socket', ucxchat) }
+
+  chan.onError( () => true )
+  chan.onClose( () => true )
+
   chan.join()
     .receive("ok", resp => {
       utils.push_history()
@@ -402,6 +407,30 @@ function isOnScreen(element)
     return (curTop > screenHeight) ? false : true;
 }
 
+const offlineContent = `
+  <div class="alert alert-warning text-center" role="alert">
+    <strong>
+      <span class="glyphicon glyphicon-warning-sign"></span>
+      Waiting for server connection,
+    </stong>
+    <a href="/" class="alert-link">Try now</a>
+  </div>`
+
+function handleOffLine() {
+  if (UcxChat.onLine) {
+    $('.connection-status').html('').append(offlineContent).removeClass('status-online')
+
+    UcxChat.onLine = false
+  }
+}
+function handleOnLine() {
+  if (!UcxChat.onLine) {
+    UcxChat.onLine = true
+    window.location.reload()
+    $('.connection-status').html('').addClass('status-online')
+  }
+
+}
 window.cv = checkVisible
 
 export default socket
