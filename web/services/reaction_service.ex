@@ -82,8 +82,8 @@ defmodule UcxChat.ReactionService do
     |> Enum.reject(&(is_nil &1))
     |> Enum.map(fn user ->
       case user.username do
-        ^username -> "You"
-        username -> username
+        ^username -> "you"
+        username -> "@" <> username
       end
     end)
     |> case do

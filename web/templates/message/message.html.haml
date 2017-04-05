@@ -82,6 +82,6 @@
   %ul{class: "reactions#{hide_reactions(@message)}"}
     - for reaction <- reactions do
       = render "reaction.html", reaction: reaction, user: @user
-    %li.add-reaction
+    %li.add-reaction(title="#{~g(Add a reaction)}")
       %span.icon-people-plus
 </li>

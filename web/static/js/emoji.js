@@ -20,12 +20,8 @@ class ChatEmoji {
       this.open_picker(offset)
     }, 50)
   }
-  select_input(e, emoji) {
-    let pos = $('.input-message').getCursorPosition()
-    $('.input-message').val((i, text) => {
-      return text.slice(0,pos) + emoji + text.slice(pos)
-    })
-    this.close_picker()
+  update_recent(emoji) {
+    console.log('recent emoji', emoji)
     $('.input-message').focus()
     userchan.push('emoji:recent', {recent: emoji})
       .receive("ok", resp => {
@@ -34,6 +30,15 @@ class ChatEmoji {
           $('.emojis ul.recent').html(html)
         }
       })
+  }
+
+  select_input(e, emoji) {
+    let pos = $('.input-message').getCursorPosition()
+    $('.input-message').val((i, text) => {
+      return text.slice(0,pos) + emoji + text.slice(pos)
+    })
+    this.close_picker()
+    this.update_recent(emoji)
   }
   select_reactions(e, emoji) {
     reaction.select(emoji, this.reactions)
