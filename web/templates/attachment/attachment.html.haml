@@ -28,6 +28,7 @@
           - audio_type = @attachment.audio_type
           %source(src="#{url}" type="#{audio_type}")
           = ~g(Your browser does not support the audio element.)
+        .attachment-description= @attachment.description
 
     - if @attachment.media_type == :video do
       .media-container.attachment-video
@@ -35,4 +36,5 @@
           - video_type = @attachment.video_type
           %source(src="#{url}" type="#{video_type}")
           = ~g(Your browser does not support the video element.)
+        .attachment-description= @attachment.description
 

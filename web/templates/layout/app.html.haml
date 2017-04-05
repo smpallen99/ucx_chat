@@ -17,23 +17,15 @@
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/app.css")}')
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/channel_settings.css")}')
     %link(rel="stylesheet" href='#{static_path(@conn, "/css/toastr.css")}')
-    %link(rel="stylesheet" href='#{static_path(@conn, "/css/emojipicker.css")}')
 
     %link(rel="apple-touch-icon" href="/images/logo_globe.png")
-    %link(rel="stylesheet" href="https://cdn.jsdelivr.net/emojione/2.2.7/assets/css/emojione.min.css")
 
     - for {id, fname} <- audio_files() do
       %audio(id="#{id}")
         %source(src="#{fname}" type="audio/mpeg")
       %a(data-audio="[#{id}]" href="#" onClick="$('audio##{id}')[0].play()" style="display:none;")
 
-    - #%link(rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css")
-    - #%link(rel="stylesheet" text="text/css" class="__meteor-css" href="https://cdn-demo.rocket.chat/d7aa140fff6402329af2f0b8a433f4159ab0bd7a.css?meteor_css_resource=true")
-    - #%link(rel="stylesheet" text="text/css" class="__meteor-css" href="https://cdn-demo.rocket.chat/adf063c8332fe4b6085c2128229d09a55098f1a2.css?meteor_css_resource=true")
-    - #%link(rel="stylesheet" text="text/css" class="__meteor-css" href="https://cdn-demo.rocket.chat/theme.css?263177fe48fc50f8f3a293f71d82a13449ab1e69")
-    -# %script(src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous")
     %script(src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous")
-    %script(src="https://use.fontawesome.com/36a7953412.js")
     %style body { background-color: #04436A; }
   %body.global-font-family.color-primary-font-color
     #initial-page-loading.page-loading
@@ -43,8 +35,4 @@
         .bounce3
     = render @view_module, @view_template, assigns
   = render "translations.html"
-  -# %script(src='#{static_path(@conn, "/js/dropzone.js")}')
   %script(src='#{static_path(@conn, "/js/app.js")}')
-  %script(src="https://cdn.jsdelivr.net/emojione/2.2.7/lib/js/emojione.min.js")
-  %script(src="//twemoji.maxcdn.com/2/twemoji.min.js?2.2.3")
-  -# %script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js")

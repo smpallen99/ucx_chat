@@ -351,7 +351,7 @@ class RoomManager {
         else if (roomHistoryManager.hasMoreNext && at_bottom)
           roomHistoryManager.getMoreNext
       }
-      console.log('scrolling.... unread', this.unread)
+      // console.log('scrolling.... unread', this.unread)
       if (this.unread) {
         if (debug) { console.log('scrolling unread') }
 

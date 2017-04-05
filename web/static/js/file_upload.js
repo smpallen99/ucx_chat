@@ -11,7 +11,6 @@ class FileUpload {
     reader.onload = (ev) => {
       callback(ev.target.result, file)
     }
-    // console.log('file...', file)
 
     reader.readAsDataURL(file)
   }
@@ -43,6 +42,7 @@ class FileUpload {
       swal.close()
       return
     }
+
     this.readAsDataURL(file, (fileContent) => {
       if (!this.fileUploadIsValidContentType(file.type)) {
         swal({
@@ -99,7 +99,6 @@ class FileUpload {
           </div>`
       }
 
-      // console.log('file', file, Object.keys(file))
       sweetAlert({
         title: 'Upload file?',
         text: text,
@@ -110,7 +109,9 @@ class FileUpload {
       },
       isConfirm =>  {
         // console.log('isConfirm', isConfirm, document.getElementById('file-name').value)
-        this.consume()
+        setTimeout(() => {
+          this.consume()
+        }, 400)
         if (!isConfirm) {
           return
         }
@@ -145,6 +146,7 @@ class FileUpload {
     })
   }
   sendFileToServer(formData,status) {
+    console.warn('formData', formData)
     var uploadURL ="/attachments/create"; //Upload URL
     var extraData ={}; //Extra Data.
     var jqXHR=$.ajax({

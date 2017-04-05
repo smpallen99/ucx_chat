@@ -144,11 +144,11 @@ class ChatEmoji {
     $('.emoji-picker').removeClass('show')
   }
   init_picker() {
-    emojione.ascii = true
+    // emojione.ascii = true
 
     $('.emoji-picker').css('bottom', '80px').css('left', '300px')
-    let html = emojione.shortnameToImage($('.emojis').html())
-    $('.emojis').html(html)
+    // let html = emojione.shortnameToImage($('.emojis').html())
+    // $('.emojis').html(html)
   }
   cursor_position_plugin() {
     $.fn.getCursorPosition = function() {

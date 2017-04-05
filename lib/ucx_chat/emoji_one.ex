@@ -2,8 +2,10 @@ defmodule EmojiOne do
 
   import EmojiOne.Data
 
+  require Logger
+
   @shortname Enum.to_list(?a..?z) ++ Enum.to_list(?A..?Z) ++ Enum.to_list(?0..?9) ++ '-_'
-  @shortname_regex ~r/^:[a-zA-Z0-9_-]:$/
+  @shortname_regex ~r/^:[a-zA-Z0-9_-]+:$/
 
   @default_src_path "/images"
 
