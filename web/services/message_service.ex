@@ -17,16 +17,17 @@ defmodule UcxChat.MessageService do
 
   def preloads, do: @preloads
 
-  def broadcast_updated_message(message, opts) do
+  def broadcast_updated_message(message, opts \\ []) do
     message = Helpers.get Message, message.id, preload: @preloads
     channel = Helpers.get Channel, message.channel_id
     html =
       message
       |> Repo.preload(@preloads)
       |> render_message
-    event = if opts[:reaction], do: "code:update:reaction", else: "code:update"
-    UcxChat.Endpoint.broadcast! CC.chan_room <> channel.name, event,
-      %{selector: "##{message.id}", html: html, action: "replaceWith"}
+    broadcast_message message.id, channel.name, message.user_id, html, event: "update"
+    # event = if opts[:reaction], do: "code:update:reaction", else: "code:update"
+    # UcxChat.Endpoint.broadcast! CC.chan_room <> channel.name, "code:update:reaction",
+    #   %{selector: "##{message.id}", html: html, action: "replaceWith"}
 
   end
 

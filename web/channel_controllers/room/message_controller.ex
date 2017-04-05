@@ -48,12 +48,13 @@ defmodule UcxChat.MessageChannelController do
     timestamp = params["timestamp"]
 
     page_size = Application.get_env :ucx_chat, :page_size, 30
+    preloads = MessageService.preloads()
 
     list =
       Message
       |> where([m], m.timestamp < ^timestamp and m.channel_id == ^channel_id)
       |> Helpers.last_page(page_size)
-      |> preload([:user, :edited_by])
+      |> preload(^preloads)
       |> Repo.all
 
     previews = MessageService.message_previews(user.id, list)
@@ -63,7 +64,6 @@ defmodule UcxChat.MessageChannelController do
       |> Enum.map(fn message ->
         previews = List.keyfind(previews, message.id, 0, {nil, []}) |> elem(1)
         UcxChat.MessageView.render("message.html", user: user, message: message, previews: previews)
-        # UcxChat.MessageView.render("message.html", user: user, message: message, previews: [])
         |> Helpers.safe_to_string
       end)
       |> to_string
@@ -80,11 +80,12 @@ defmodule UcxChat.MessageChannelController do
     timestamp = params["timestamp"]
 
     page_size = Application.get_env :ucx_chat, :page_size, 75
+    preloads = MessageService.preloads()
     list =
       Message
       |> where([m], m.timestamp > ^timestamp and m.channel_id == ^channel_id)
       |> limit(^page_size)
-      |> preload([:user, :edited_by])
+      |> preload(^preloads)
       |> Repo.all
 
     previews = MessageService.message_previews(user.id, list)
@@ -158,10 +159,11 @@ defmodule UcxChat.MessageChannelController do
     |> Repo.update
     |> case do
       {:ok, message} ->
-        message = Repo.preload(message, [:user, :edited_by])
+        message = Repo.preload(message, MessageService.preloads())
         # TODO: Need to handle new mentions for edited message
-        message_html = render_message(message)
-        broadcast_message(socket, message.id, message.user.id, message_html, event: "update")
+        MessageService.broadcast_updated_message message
+        # message_html = render_message(message)
+        # broadcast_message(socket, message.id, message.user.id, message_html, event: "update")
 
         stop_typing(socket, user.id, channel_id)
     end

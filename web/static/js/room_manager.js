@@ -325,6 +325,11 @@ class RoomManager {
     let html = utils.do_emojis($('.messages-box .wrapper ul').html())
     $('.messages-box .wrapper ul').html(html)
 
+    let list = $(`.messages-box .wrapper ul .reaction-emoji`)
+    for (var i = 0; i < list.length; i++) {
+      $(list[i]).html(utils.do_emojis($(list[i]).text()))
+    }
+
     $('.messages-box .wrapper ul .body img.emojione').each((i, elem) => {
       console.log('found one', elem)
       if ($(elem).closest('.body').text().trim() == "") {

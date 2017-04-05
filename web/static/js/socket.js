@@ -358,10 +358,10 @@ function start_room_channel(typing) {
   })
   chan.on('code:update:reaction', resp => {
     utils.code_update(resp)
-    let list = $(`${resp.selector} .reaction-emoji`)
-    for (var i = 0; i < list.length; i++) {
-      $(list[i]).html(utils.do_emojis($(list[i]).text()))
-    }
+    // let list = $(`${resp.selector} .reaction-emoji`)
+    // for (var i = 0; i < list.length; i++) {
+    //   $(list[i]).html(utils.do_emojis($(list[i]).text()))
+    // }
   })
   chan.on('reload', msg => {
     let loc = msg.location

@@ -45,11 +45,15 @@ class Messages {
         hljs.highlightBlock(block)
       })
 
+    let list = $(`#${msg.id} .reaction-emoji`)
+    for (var i = 0; i < list.length; i++) {
+      $(list[i]).html(utils.do_emojis($(list[i]).text()))
+    }
     if (ucxchat.user_id == msg.user_id) {
       // if (debug) { console.log('adding own to', msg.id, $('#' + msg.id)) }
       $('#' + msg.id).addClass("own")
     }
-    roomManager.new_message(msg.id)
+    // roomManager.new_message(msg.id)
   }
   static scroll_bottom() {
     let mypanel = $('.messages-box .wrapper')
