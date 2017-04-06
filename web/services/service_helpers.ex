@@ -11,6 +11,8 @@ defmodule UcxChat.ServiceHelpers do
 
   @default_user_preload [:account, :roles]
 
+  def default_user_preloads, do: @default_user_preload
+
   def get_user!(%Phoenix.Socket{assigns: assigns}) do
     get_user!(assigns[:user_id])
   end

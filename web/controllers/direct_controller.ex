@@ -2,30 +2,13 @@ defmodule UcxChat.DirectController do
   use UcxChat.Web, :controller
 
   alias UcxChat.Channel
+  alias UcxChat.ServiceHelpers, as: Helpers
 
-  # def index(conn, _params) do
-  #   channels = Repo.all(Channel)
-  #   render(conn, "index.html", channels: channels)
-  # end
-
-  # def new(conn, _params) do
-  #   changeset = Channel.do_changeset(%Channel{})
-  #   render(conn, "new.html", changeset: changeset)
-  # end
-
-  # def create(conn, %{"channel" => channel_params}) do
-
-  #   case ChannelService.insert_channel(channel_params) do
-  #     {:ok, _channel} ->
-  #       conn
-  #       |> put_flash(:info, "Channel created successfully.")
-  #       |> redirect(to: channel_path(conn, :index))
-  #     {:error, changeset} ->
-  #       render(conn, "new.html", changeset: changeset)
-  #   end
-  # end
+  require Logger
 
   def show(conn, %{"id" => id}) do
+    Logger.warn "direct show id: #{inspect id}"
+
     channel =
       Channel
       |> where([c], c.name == ^id)
@@ -34,7 +17,7 @@ defmodule UcxChat.DirectController do
     user =
       conn
       |> Coherence.current_user
-      |> Repo.preload([:user])
+      |> Repo.preload(Helpers.default_user_preloads())
 
     conn
     |> put_view(UcxChat.PageView)

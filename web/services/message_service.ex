@@ -147,7 +147,7 @@ defmodule UcxChat.MessageService do
              last_msg when not is_nil(last_msg) <- last_message(channel_id) do
           last.id != last_msg.id
         else
-          _res -> true
+          _res -> false
         end
     %{
       has_more: has_more, has_more_next: has_more_next, can_preview: true, last_read: Map.get(subscription || %{}, :last_read, "")

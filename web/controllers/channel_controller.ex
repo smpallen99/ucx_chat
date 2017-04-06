@@ -40,29 +40,25 @@ defmodule UcxChat.ChannelController do
   end
 
   def show(conn, %Channel{} = channel) do
-    if channel.type in [0,1] do
-      user =
-        conn
-        |> Coherence.current_user
-        |> Repo.preload([:account])
-
-      UcxChat.PresenceAgent.load user.id
-
-      messages = MessageService.get_room_messages(channel.id, user)
-      # Logger.warn "message count #{length messages}"
-
-      chatd =
-        user
-        |> ChatDat.new(channel, messages)
-        |> ChatDat.get_messages_info
-
-      # Logger.warn "controller messages_info: #{inspect chatd.messages_info}"
+    user =
       conn
-      |> put_view(UcxChat.MasterView)
-      |> render("main.html", chatd: chatd)
-    else
-      redirect conn, to: "/"
-    end
+      |> Coherence.current_user
+      |> Repo.preload([:account])
+
+    UcxChat.PresenceAgent.load user.id
+
+    messages = MessageService.get_room_messages(channel.id, user)
+    # Logger.warn "message count #{length messages}"
+
+    chatd =
+      user
+      |> ChatDat.new(channel, messages)
+      |> ChatDat.get_messages_info
+
+    # Logger.warn "controller messages_info: #{inspect chatd.messages_info}"
+    conn
+    |> put_view(UcxChat.MasterView)
+    |> render("main.html", chatd: chatd)
   end
 
   def show(conn, %{"name" => name}) do
@@ -75,7 +71,11 @@ defmodule UcxChat.ChannelController do
         |> put_flash(:error, "#{name} is an invalid channel name!")
         |> redirect(to: "/")
       channel ->
-        show(conn, channel)
+        if channel.type in [0,1] do
+          show(conn, channel)
+        else
+          redirect(conn, do: "/")
+        end
     end
   end
 
