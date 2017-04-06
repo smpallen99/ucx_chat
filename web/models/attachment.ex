@@ -1,7 +1,6 @@
 defmodule UcxChat.Attachment do
   use UcxChat.Web, :model
   use Arc.Ecto.Schema
-  alias __MODULE__
 
   schema "attachments" do
     field :file, UcxChat.File.Type

@@ -57,11 +57,6 @@
     = format_message_body(@message)
     - if Application.get_env(:ucx_chat, :debug) do
       %span(style="float: right;")= @message.timestamp
-    - if oembed = has_oembed(@message) do
-      -# for _url <- oembed[:urls] do
-      =# {{injectIndex . @index}} {{> oembedBaseWidget}}
-    -# for _attachment <- attachments(@message) do
-    - # {{injectIndex . @index}} {{> messageAttachment}}
     - for attachment <- @message.attachments  do
       = render UcxChat.AttachmentView, "attachment.html", attachment: UcxChat.AttachmentView.get_attachment(attachment)
     - previews = @previews

@@ -40,25 +40,29 @@ defmodule UcxChat.ChannelController do
   end
 
   def show(conn, %Channel{} = channel) do
-    user =
+    if channel.type in [0,1] do
+      user =
+        conn
+        |> Coherence.current_user
+        |> Repo.preload([:account])
+
+      UcxChat.PresenceAgent.load user.id
+
+      messages = MessageService.get_room_messages(channel.id, user)
+      # Logger.warn "message count #{length messages}"
+
+      chatd =
+        user
+        |> ChatDat.new(channel, messages)
+        |> ChatDat.get_messages_info
+
+      # Logger.warn "controller messages_info: #{inspect chatd.messages_info}"
       conn
-      |> Coherence.current_user
-      |> Repo.preload([:account])
-
-    UcxChat.PresenceAgent.load user.id
-
-    messages = MessageService.get_room_messages(channel.id, user)
-    # Logger.warn "message count #{length messages}"
-
-    chatd =
-      user
-      |> ChatDat.new(channel, messages)
-      |> ChatDat.get_messages_info
-
-    # Logger.warn "controller messages_info: #{inspect chatd.messages_info}"
-    conn
-    |> put_view(UcxChat.MasterView)
-    |> render("main.html", chatd: chatd)
+      |> put_view(UcxChat.MasterView)
+      |> render("main.html", chatd: chatd)
+    else
+      redirect conn, to: "/"
+    end
   end
 
   def show(conn, %{"name" => name}) do

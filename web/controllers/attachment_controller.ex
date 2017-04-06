@@ -2,20 +2,18 @@ defmodule UcxChat.AttachmentController do
   use UcxChat.Web, :controller
 
   # alias UcxChat.{Channel, User, Direct, ChannelService}
-  alias UcxChat.{Attachment, AttachmentService}
-
-  import Ecto.Query
+  alias UcxChat.{AttachmentService}
 
   require Logger
 
   def create(conn, params) do
     # Logger.warn "attachment params: #{inspect params}"
     case AttachmentService.insert_attachment params do
-      {:ok, attachment, message} ->
+      {:ok, _attachment, _message} ->
         render conn, "success.json", %{}
-      {:error, changeset} ->
+      {:error, _changeset} ->
         render conn, "error.json", %{}
-      other ->
+      _other ->
         render conn, "success.json", %{}
     end
   end

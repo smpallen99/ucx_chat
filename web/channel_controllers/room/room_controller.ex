@@ -52,12 +52,12 @@ defmodule UcxChat.RoomChannelController do
     {:reply, resp, socket}
   end
 
-  def clear_has_unread(%{assigns: assigns} = socket, params) do
+  def clear_has_unread(%{assigns: assigns} = socket, _params) do
     ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, false)
     {:noreply, socket}
   end
 
-  def set_has_unread(%{assigns: assigns} = socket, params) do
+  def set_has_unread(%{assigns: assigns} = socket, _params) do
     ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, true)
     {:noreply, socket}
   end

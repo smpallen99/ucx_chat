@@ -7,6 +7,11 @@ defmodule UcxChat.Endpoint do
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
+
+  plug Plug.Static,
+    at: "/assets", from: "/Users/spallen/tmp/ucx_chat", gzip: false,
+    only: ~w(uploads)
+
   plug Plug.Static,
     at: "/", from: :ucx_chat, gzip: false,
     only: ~w(sprites uploads css fonts fontello images js favicon.ico robots.txt sounds favicon1.ico favicon-alert.ico manifest.json)
@@ -25,7 +30,8 @@ defmodule UcxChat.Endpoint do
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
-    json_decoder: Poison
+    json_decoder: Poison,
+    length: 100_000_000
 
   plug Plug.MethodOverride
   plug Plug.Head

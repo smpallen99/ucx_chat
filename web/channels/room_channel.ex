@@ -9,7 +9,7 @@ defmodule UcxChat.RoomChannel do
   import Ecto.Query
 
   alias UcxChat.{Subscription, Repo, Channel, Message}
-  alias UcxChat.{ServiceHelpers, Permission, UserSocket, ChannelService}
+  alias UcxChat.{ServiceHelpers, Permission, UserSocket}
   alias UcxChat.ServiceHelpers, as: Helpers
 
   require UcxChat.ChatConstants, as: CC

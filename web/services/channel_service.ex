@@ -24,6 +24,11 @@ defmodule UcxChat.ChannelService do
   # @direct_message  2
   # @stared_room     3
 
+  # def can_view_room?(channel, user) do
+  #   cond do
+  #     channel.type == 0 and Permission.has_permission?(user, "post-readonly", assigns.channel_id) ->
+  #   end
+  # end
   def create_subscription(%Channel{} = channel, user_id) do
     %Subscription{}
     |> Subscription.changeset(%{user_id: user_id, channel_id: channel.id})
@@ -133,6 +138,17 @@ defmodule UcxChat.ChannelService do
         |> Repo.update
     end
   end
+  # def set_has_unread(channel_id, user_id, value \\ true) do
+  #   case Subscription.get(channel_id, user_id) |> Repo.one do
+  #     nil ->
+  #       {:error, :not_found}
+  #     subs ->
+  #       subs
+  #       |> Subscription.changeset(%{has_unread: value})
+  #       |> Repo.update
+  #   end
+  # end
+
 
   def clear_unread(channel_id, user_id) do
     channel_id
@@ -165,17 +181,6 @@ defmodule UcxChat.ChannelService do
         raise "Subscription for channel: #{channel_id}, user: #{user_id} not found"
       %{has_unread: unread} ->
         unread
-    end
-  end
-
-  def set_has_unread(channel_id, user_id, value \\ true) do
-    case Subscription.get(channel_id, user_id) |> Repo.one do
-      nil ->
-        {:error, :not_found}
-      subs ->
-        subs
-        |> Subscription.changeset(%{has_unread: value})
-        |> Repo.update
     end
   end
 
@@ -706,7 +711,7 @@ defmodule UcxChat.ChannelService do
     Helpers.response_message(channel_id, "Channel with name `#{channel.name}` is already archived.")
   end
 
-  def channel_command(socket, :archive, %Channel{id: id} = channel, user_id, channel_id) do
+  def channel_command(socket, :archive, %Channel{id: id} = channel, user_id, _channel_id) do
     user = Helpers.get_user! user_id
     channel
     |> Channel.do_changeset(user, %{archived: true})

@@ -17,7 +17,7 @@ defmodule UcxChat.MessageService do
 
   def preloads, do: @preloads
 
-  def broadcast_updated_message(message, opts \\ []) do
+  def broadcast_updated_message(message, _opts \\ []) do
     message = Helpers.get Message, message.id, preload: @preloads
     channel = Helpers.get Channel, message.channel_id
     html =

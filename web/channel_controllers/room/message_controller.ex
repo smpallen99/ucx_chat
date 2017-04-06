@@ -5,7 +5,7 @@ defmodule UcxChat.MessageChannelController do
 
   alias UcxChat.{
     User, Message, ChannelService, Channel, MessageService, Attachment,
-    AttachmentService
+    AttachmentService, Permission
   }
   alias UcxChat.ServiceHelpers, as: Helpers
 
@@ -15,27 +15,36 @@ defmodule UcxChat.MessageChannelController do
     # Logger.warn "++++ socket: #{inspect socket}"
     message = params["message"]
     user_id = assigns[:user_id]
+    user = Helpers.get_user user_id
     channel_id = assigns[:channel_id]
 
     channel = Helpers.get!(Channel, channel_id)
     msg_params = if Channel.direct?(channel), do: %{type: "d"}, else: %{}
 
-    if ChannelService.user_muted? user_id, channel_id do
-      sys_msg = create_system_message(channel_id, ~g"You have been muted and cannot speak in this room")
-      html = render_message(sys_msg)
-      push_message(socket, sys_msg.id, user_id, html)
+    cond do
+      ChannelService.user_muted? user_id, channel_id ->
+        sys_msg = create_system_message(channel_id, ~g"You have been muted and cannot speak in this room")
+        html = render_message(sys_msg)
+        push_message(socket, sys_msg.id, user_id, html)
 
-      msg = create_message(message, user_id, channel_id, %{ type: "p", })
-      html = render_message(msg)
-      push_message(socket, msg.id, user_id, html)
-    else
-      {body, mentions} = encode_mentions(message, channel_id)
+        msg = create_message(message, user_id, channel_id, %{ type: "p", })
+        html = render_message(msg)
+        push_message(socket, msg.id, user_id, html)
 
-      message = create_message(body, user_id, channel_id, msg_params)
-      create_mentions(mentions, message.id, message.channel_id, body)
-      update_direct_notices(channel, message)
-      message_html = render_message(message)
-      broadcast_message(socket, message.id, message.user.id, message_html, body: body)
+      channel.read_only and not Permission.has_permission?(user, "post-readonly", assigns.channel_id) ->
+        push_error socket, ~g(You are not authorized to create a message)
+
+      channel.archived ->
+        push_error socket, ~g(You are not authorized to create a message)
+
+      true ->
+        {body, mentions} = encode_mentions(message, channel_id)
+
+        message = create_message(body, user_id, channel_id, msg_params)
+        create_mentions(mentions, message.id, message.channel_id, body)
+        update_direct_notices(channel, message)
+        message_html = render_message(message)
+        broadcast_message(socket, message.id, message.user.id, message_html, body: body)
     end
     stop_typing(socket, user_id, channel_id)
     {:noreply, socket}
@@ -165,13 +174,34 @@ defmodule UcxChat.MessageChannelController do
           message = Repo.preload(message, MessageService.preloads())
           MessageService.broadcast_updated_message message
           {:ok, %{}}
-        error ->
+        _error ->
           {:error, %{error: ~g(Problem updating your message)}}
       end
 
     stop_typing(socket, user.id, channel_id)
     {:reply, resp, socket}
   end
+
+  def delete(%{assigns: assigns} = socket, params) do
+    user = Helpers.get_user assigns.user_id
+    if user.id == params["message_id"] || Permission.has_permission?(user, "delete-message", assigns.channel_id) do
+      message = Helpers.get Message, params["message_id"]
+      case Repo.delete message do
+        {:ok, _} ->
+          Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li.message#" <> params["message_id"], action: "remove"}
+        _ ->
+          Phoenix.Channel.push socket, "toastr:error", %{error: ~g(There was an error deleting that message)}
+      end
+    else
+      push_error socket, ~g(You are not authorized to delete that message)
+    end
+    {nil, %{}}
+  end
+
+  defp push_error(socket, error) do
+    Phoenix.Channel.push socket, "toastr:error", %{error: error}
+  end
+
   defp update_attachment_description(attachment, message, value, user) do
     Repo.transaction(fn ->
       message
@@ -208,16 +238,21 @@ defmodule UcxChat.MessageChannelController do
     user = Helpers.get(User, assigns[:user_id])
     attachment = Helpers.get Attachment, params["id"], preload: [:message]
 
-    result = Repo.delete attachment
-    Logger.warn "delete attachment result: #{inspect result}"
+    if user.id == attachment.message.user_id || Permission.has_permission?(user, "delete-message", assigns.channel_id) do
+      result = Repo.delete attachment
+      Logger.warn "delete attachment result: #{inspect result}"
 
-    if AttachmentService.count(attachment.message_id) == 0 do
-      Repo.delete attachment.message
-      Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li.message#" <> attachment.message.id, action: "remove"}
+      if AttachmentService.count(attachment.message_id) == 0 do
+        Repo.delete attachment.message
+        Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li.message#" <> attachment.message.id, action: "remove"}
+      else
+        # broadcast edited message update
+      end
+      Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li[data-id='" <> attachment.id <> "']", action: "remove"}
     else
-      # broadcast edited message update
+      push_error socket, ~g(You are not authorized to delete that attachment)
     end
-    Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li[data-id='" <> attachment.id <> "']", action: "remove"}
     {:reply, {:ok, %{}}, socket}
   end
+
 end

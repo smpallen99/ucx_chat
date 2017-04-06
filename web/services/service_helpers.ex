@@ -8,7 +8,6 @@ defmodule UcxChat.ServiceHelpers do
   use UcxChat.Gettext
 
   import Ecto.Query
-  import Phoenix.HTML, except: [safe_to_string: 1]
 
   @default_user_preload [:account, :roles]
 
@@ -69,7 +68,7 @@ defmodule UcxChat.ServiceHelpers do
     |> Repo.all
   end
 
-  defp get_by_q(model, field, value, opts \\ []) do
+  defp get_by_q(model, field, value, opts) do
     preload = opts[:preload] || []
     model
     |> where([c], field(c, ^field) == ^value)

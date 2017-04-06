@@ -1,5 +1,7 @@
 import UploadStatusBar from './upload_status_bar'
 import toastr from 'toastr'
+require('./file_upload_restrictions.js')
+
 const debug = true
 
 class FileUpload {
@@ -39,6 +41,11 @@ class FileUpload {
     let file = this.files.pop()
 
     if (!file) {
+      swal.close()
+      return
+    }
+
+    if (!this.validate_upload(file)) {
       swal.close()
       return
     }
@@ -127,6 +134,21 @@ class FileUpload {
       })
     })
   }
+  validate_upload(file) {
+    let size = UcxChat.settings.maximum_file_upload_size_kb * 1024
+    if (file.size > size) {
+      console.log('file sizes', file.size, size)
+      toastr.error('File size exceeds the ' + UcxChat.settings.maximum_file_upload_size_kb + 'KB maximum!')
+      return false
+    }
+    if (!UcxChat.fileUploadIsValidContentType(file.type)) {
+      console.log('file.type', file.type)
+      toastr.error('Restricted file type')
+      return false
+    }
+    return true
+  }
+
   register_events() {
     $('body').on('change', '.message-form input[type=file]', function(event) {
       let e = event.originalEvent || event

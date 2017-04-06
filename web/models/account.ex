@@ -3,8 +3,6 @@ defmodule UcxChat.Account do
 
   alias UcxChat.User
 
-  @mod __MODULE__
-
   schema "accounts" do
     field :language, :string, default: "on"
     field :desktop_notification_enabled, :boolean, default: true

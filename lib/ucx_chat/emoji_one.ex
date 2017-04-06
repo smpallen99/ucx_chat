@@ -66,7 +66,7 @@ defmodule EmojiOne do
     do_ascii_to_image text, options(opts)
   end
 
-  defp do_ascii_to_image(text, opts \\ []) do
+  defp do_ascii_to_image(text, opts) do
     keys = ascii_keys()
     tokens = String.split(text, " ")
     opts = options opts, fn opts ->

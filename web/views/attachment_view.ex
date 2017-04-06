@@ -1,10 +1,10 @@
 defmodule UcxChat.AttachmentView do
   use UcxChat.Web, :view
 
-  def render("success.json", opts) do
+  def render("success.json", _opts) do
     %{success: true}
   end
-  def render("error.json", opts) do
+  def render("error.json", _opts) do
     %{error: true}
   end
 

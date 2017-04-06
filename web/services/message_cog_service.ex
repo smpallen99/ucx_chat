@@ -73,11 +73,8 @@ defmodule UcxChat.MessageCogService do
   # def handle_in("edit-message", %{"user_id" => _user_id, "channel_id" => _channel_id}, _socket) do
 
   # end
-  def handle_in("delete-message", %{"user_id" => _user_id, "channel_id" => _channel_id} = msg, socket) do
-    message = Helpers.get Message, get_message_id(msg["message_id"])
-    Repo.delete message
-    Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li.message#" <> msg["message_id"], action: "remove"}
-    {nil, %{}}
+  def handle_in("delete-message", msg, socket) do
+    UcxChat.MessageChannelController.delete socket, msg
   end
 
   # def handle_in("jump-to-message", msg, _) do

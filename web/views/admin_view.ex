@@ -123,8 +123,7 @@ defmodule UcxChat.AdminView do
     end
   end
 
-  def select_line(f, item, field, options, title, opts \\ []) do
-    checked = Map.get(item, field)
+  def select_line(f, _item, field, options, title, opts \\ []) do
     description = opts[:description]
     content_tag :div, class: "input-line double-col" do
       [
