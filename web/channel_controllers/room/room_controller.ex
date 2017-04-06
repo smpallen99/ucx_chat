@@ -53,7 +53,9 @@ defmodule UcxChat.RoomChannelController do
   end
 
   def clear_has_unread(%{assigns: assigns} = socket, _params) do
-    ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, false)
+    if assigns[:channel_id] do
+      ChannelService.set_has_unread(assigns.channel_id, assigns.user_id, false)
+    end
     {:noreply, socket}
   end
 
