@@ -13,8 +13,8 @@
       .media-container.attachment-image
         - if attachment.loaded do
           %figure
-            .inline-image(style="background-image: url('#{url}');")
-              %img.gallery-item(src="#{url}" height="200" )
+            .inline-image(style="background-image: url('#{attachment.poster_url}');")
+              %img.gallery-item(src="#{attachment.poster_url}" height="200" )
             %figcaption.attachment-description= attachment.description
         - else
           .image-to-download(data-url="#{url}")
@@ -24,15 +24,17 @@
 
     - if @attachment.media_type == :audio do
       .media-container.attachment-audio
-        %audio(controls)
+        <audio controls preload="none">
           %source(src="#{url}" type="#{attachment.audio_type}")
           = ~g(Your browser does not support the audio element.)
+        </audio>
         .attachment-description= attachment.description
 
     - if attachment.media_type == :video do
       .media-container.attachment-video
-        %video.inline-video(controls)
+        <video class="inline-video" controls preload="none" poster="#{attachment.poster_url}">
           %source(src="#{url}" type="#{attachment.video_type}")
           = ~g(Your browser does not support the video element.)
+        </video>
         .attachment-description= attachment.description
 

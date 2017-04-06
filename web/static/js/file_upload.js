@@ -71,6 +71,9 @@ class FileUpload {
       }
       let text = ''
 
+      // let filename = file.name.replace(/\.[^/.]+$/, "")
+      let filename = file.name
+
       if (file.type.startsWith('video')) {
         text = `
           <div class='upload-preview'>
@@ -80,7 +83,7 @@ class FileUpload {
             </video>
           </div>
           <div class='upload-preview-title'>
-            <input id='file-name' style='display: inherit;' value='${_.escape(file.name)}' placeholder='Filename'>
+            <input id='file-name' style='display: inherit;' value='${_.escape(filename)}' placeholder='Filename'>
             <input id='file-description' style='display: inherit;' value="" placeholder="File description">
           </div>`
       } else if (file.type.startsWith('audio')) {
@@ -92,7 +95,7 @@ class FileUpload {
             </audio>
           </div>
           <div class='upload-preview-title'>
-            <input id='file-name' style='display: inherit;' value='${_.escape(file.name)}' placeholder='Filename'>
+            <input id='file-name' style='display: inherit;' value='${_.escape(filename)}' placeholder='Filename'>
             <input id='file-description' style='display: inherit;' value="" placeholder="File description">
           </div>`
       } else {
@@ -101,7 +104,7 @@ class FileUpload {
             <div class='upload-preview-file' style='background-image: url(${fileContent})'></div>
           </div>
           <div class='upload-preview-title'>
-            <input id='file-name' style='display: inherit;' value='${_.escape(file.name)}' placeholder='Filename'>
+            <input id='file-name' style='display: inherit;' value='${_.escape(filename)}' placeholder='Filename'>
             <input id='file-description' style='display: inherit;' value="" placeholder="File description">
           </div>`
       }

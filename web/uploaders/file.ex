@@ -7,7 +7,7 @@ defmodule UcxChat.File do
 
   def __storage, do: Arc.Storage.Local
 
-  @versions [:original]
+  @versions [:original, :poster]
 
   # To add a thumbnail version:
   # @versions [:original, :thumb]
@@ -17,10 +17,25 @@ defmodule UcxChat.File do
     ~w(.jpg .jpeg .gif .png .txt .text .doc .pdf .wav .mp3 .mp4 .mov .m4a .xls) |> Enum.member?(Path.extname(file.file_name))
   end
 
-  # Define a thumbnail transformation:
-  # def transform(:thumb, _) do
-  #   {:convert, "-strip -thumbnail 250x250^ -gravity center -extent 250x250 -format png", :png}
-  # end
+  def transform(:poster, {_, %{type: "video" <> _}} = item) do
+    {:ffmpeg, fn(input, output) ->
+      "-i #{input} -f image2 -ss 00:00:01.00 -vframes 1 -vf scale=-1:200 #{output}" end, :jpg}
+  end
+  def transform(:poster, {_, %{type: "image" <> _}}) do
+    {:convert, "-strip -resize @80000 -format png", :png}
+  end
+
+  def filename(:poster, _params) do
+    :poster
+  end
+  def filename(version, {_, %{file_name: file_name}}) do
+    Logger.warn "version: #{inspect version}"
+    String.replace(file_name, ~r(\.[^/.]+$), "")
+  end
+  def filename(version, %{file_name: file_name} = params) do
+    Logger.warn "params: #{inspect params}"
+    file_name
+  end
 
   # Override the persisted filenames:
   # def filename(version, params) do
@@ -31,12 +46,20 @@ defmodule UcxChat.File do
   def acl(_, _), do: :public_read
 
   # Override the storage directory:
-  def storage_dir(version, {file, scope}) do
-    Logger.warn "storage dir file: #{inspect file}, scope: #{inspect scope}, version: #{inspect version}"
-    "priv/static/uploads/#{scope.message_id}"
+  # def storage_dir(:preview, {_file, %{type: "image" <> _} = scope}) do
+  #   "priv/static/uploads/#{scope.message_id}/thumb-"
+  # end
+  def storage_dir(_version, {_file, scope}) do
+    storage_dir(scope)
+    # Logger.warn "storage dir file: #{inspect file}, scope: #{inspect scope}"
+    # Logger.warn "version: #{inspect version}"
+    # "priv/static/uploads/#{scope.message_id}"
 
-    # "priv/uploads/#{scope.channel_id}"
-    # "/priv/uploads"
+    # # "priv/uploads/#{scope.channel_id}"
+    # # "/priv/uploads"
+  end
+  def storage_dir(scope) do
+    "priv/static/uploads/#{scope.message_id}"
   end
 
   # Provide a default URL if there hasn't been a file uploaded
