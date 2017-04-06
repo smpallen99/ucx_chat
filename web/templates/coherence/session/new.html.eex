@@ -28,7 +28,7 @@
   <% login_field = Coherence.Config.login_field %>
   <div class="fields">
     <div class="input-line">
-      <%= required_label f, login_field %>
+      <%= required_label f, login_field, label: ~g(Email or username) %>
       <div>
         <%= text_input f, login_field, required: "", dir: "auto" %>
         <%= error_tag f, login_field %>

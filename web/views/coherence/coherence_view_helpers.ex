@@ -161,9 +161,10 @@ defmodule UcxChat.Coherence.ViewHelpers do
   end
 
   def required_label(f, name, opts \\ []) do
+    label = opts[:label] || humanize(name)
     label f, name, opts do
       [
-        "#{humanize(name)}\n",
+        "#{label}\n",
         content_tag(:abbr, "*", class: "required", title: "required")
       ]
     end
