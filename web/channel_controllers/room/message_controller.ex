@@ -185,8 +185,8 @@ defmodule UcxChat.MessageChannelController do
   def delete(%{assigns: assigns} = socket, params) do
     user = Helpers.get_user assigns.user_id
     if user.id == params["message_id"] || Permission.has_permission?(user, "delete-message", assigns.channel_id) do
-      message = Helpers.get Message, params["message_id"]
-      case Repo.delete message do
+      message = Helpers.get Message, params["message_id"], preload: [:attachments]
+      case MessageService.delete_message message do
         {:ok, _} ->
           Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li.message#" <> params["message_id"], action: "remove"}
         _ ->
@@ -237,13 +237,17 @@ defmodule UcxChat.MessageChannelController do
   def delete_attachment(%{assigns: assigns} = socket, params) do
     user = Helpers.get(User, assigns[:user_id])
     attachment = Helpers.get Attachment, params["id"], preload: [:message]
+    message = attachment.message
+    if user.id == message.user_id || Permission.has_permission?(user, "delete-message", assigns.channel_id) do
 
-    if user.id == attachment.message.user_id || Permission.has_permission?(user, "delete-message", assigns.channel_id) do
-      result = Repo.delete attachment
-      Logger.warn "delete attachment result: #{inspect result}"
-
-      if AttachmentService.count(attachment.message_id) == 0 do
-        Repo.delete attachment.message
+      case AttachmentService.delete_attachment(attachment) do
+        {:error, _} ->
+          push_error socket, ~g(There was a problem deleting that file)
+        _ -> nil
+      end
+      message = Repo.preload(message, [:attachments])
+      if length(message.attachments) == 0 do
+        Repo.delete message
         Phoenix.Channel.broadcast! socket, "code:update", %{selector: "li.message#" <> attachment.message.id, action: "remove"}
       else
         # broadcast edited message update

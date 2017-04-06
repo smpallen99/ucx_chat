@@ -2,11 +2,12 @@ defmodule UcxChat.MessageService do
   use UcxChat.Web, :service
 
   import Ecto.Query
+  alias Ecto.Multi
 
   alias UcxChat.{
     Message, Repo, TypingAgent, User, Mention, Subscription, AppConfig,
     Settings, MessageView, ChatDat, Channel, ChannelService, UserChannel,
-    SubscriptionService, MessageAgent
+    SubscriptionService, MessageAgent, AttachmentService
   }
   alias UcxChat.ServiceHelpers, as: Helpers
 
@@ -16,6 +17,35 @@ defmodule UcxChat.MessageService do
   @preloads [:user, :edited_by, :attachments, :reactions]
 
   def preloads, do: @preloads
+
+  def delete_message(%{attachments: attachments} = message) when is_list(attachments) do
+    multi =
+      Multi.new
+      |> Multi.delete(:message, message)
+      |> Multi.run(:attachments, &delete_attachments(&1, message.attachments))
+    Repo.transaction(multi)
+    |> case do
+      {:ok, _} -> {:ok, message}
+      error -> error
+    end
+  end
+
+  def delete_message(message) do
+    message
+    |> Repo.preload([:attachments])
+    |> delete_message
+  end
+
+  defp delete_attachments(_, attachments) do
+    Enum.map(attachments, fn attachment ->
+      AttachmentService.delete_attachment attachment
+    end)
+    |> Enum.any?(&(elem(&1, 0) == :error))
+    |> case do
+      true -> {:error, :attachment}
+      _ -> {:ok, :attachment}
+    end
+  end
 
   def broadcast_updated_message(message, _opts \\ []) do
     message = Helpers.get Message, message.id, preload: @preloads

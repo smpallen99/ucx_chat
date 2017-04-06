@@ -36,6 +36,16 @@ defmodule UcxChat.AttachmentService do
     end
   end
 
+  def delete_attachment(%Attachment{} = attachment) do
+    case Repo.delete attachment do
+      {:ok, _} = res ->
+        path = UcxChat.File.storage_dir(attachment)
+        File.rm_rf path
+        res
+      error -> error
+    end
+  end
+
   defp broadcast_message(message) do
     channel = Helpers.get Channel, message.channel_id
     html =

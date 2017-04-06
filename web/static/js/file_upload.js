@@ -135,6 +135,7 @@ class FileUpload {
         let status = new UploadStatusBar(file.name, 10000);
         this.sendFileToServer(fd, status)
       })
+      $('#file-description').focus()
     })
   }
   validate_upload(file) {
