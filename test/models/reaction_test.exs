@@ -3,7 +3,7 @@ defmodule UcxChat.ReactionTest do
 
   alias UcxChat.Reaction
 
-  @valid_attrs %{count: 42, emoji: "some content"}
+  @valid_attrs %{count: 42, emoji: "somecontent", users_ids: "adf", message_id: "sdf"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

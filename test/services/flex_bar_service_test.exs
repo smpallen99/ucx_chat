@@ -16,8 +16,8 @@ defmodule UcxChat.FlexBarServiceTest do
 
   @title1 "Stared Messages"
   @title2 "Pinned Messages"
-  @title3 "Members List"
-  @title4 "Mentions"
+  # @title3 "Members List"
+  # @title4 "Mentions"
 
   setup do
     {:ok, subs: insert_subscription()}

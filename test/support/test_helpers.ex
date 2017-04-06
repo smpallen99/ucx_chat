@@ -1,5 +1,5 @@
 defmodule UcxChat.TestHelpers do
-  alias UcxChat.{Repo, User, Channel, Account, User, Subscription, ChannelService}
+  alias UcxChat.{Repo, User, Channel, Account, User, Subscription, ChannelService, UserRole}
   alias FakerElixir, as: Faker
   use Hound.Helpers
 
@@ -15,7 +15,7 @@ defmodule UcxChat.TestHelpers do
       name: FakerElixir.Helper.cycle(:channel_names, @channel_names)
     }, to_map(attrs))
 
-    ChannelService.insert_channel(changes)
+    ChannelService.insert_channel(changes) |> elem(1)
   end
 
 
@@ -50,8 +50,13 @@ defmodule UcxChat.TestHelpers do
       password: "secret",
       password_confirmation: "secret",
       }, to_map(attrs))
-    User.changeset(%User{}, changes)
-    |> Repo.insert!()
+    user =
+      User.changeset(%User{}, changes)
+      |> Repo.insert!()
+    %UserRole{}
+    |> UserRole.changeset(%{user_id: user.id, role: "user"})
+    |> Repo.insert!
+    Repo.preload user, [:account, :roles]
   end
 
   def site_url, do: "http://localhost:4099"

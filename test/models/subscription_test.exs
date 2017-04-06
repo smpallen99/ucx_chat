@@ -3,7 +3,11 @@ defmodule UcxChat.SubscriptionTest do
 
   alias UcxChat.Subscription
 
-  @valid_attrs %{user_id: 1, channel_id: 1}
+  @valid_attrs %{
+    user_id: "sdf", channel_id: "sdfdf", last_read: "sdf", type: 0,
+    open: true, alert: true, hidden: false, has_unread: false, f: false,
+    current_message: "sdf", unread: 0
+  }
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

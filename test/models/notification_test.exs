@@ -3,7 +3,7 @@ defmodule UcxChat.NotificationTest do
 
   alias UcxChat.Notification
 
-  @valid_attrs %{settings: %{}}
+  @valid_attrs %{settings: %{}, channel_id: "sdf"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

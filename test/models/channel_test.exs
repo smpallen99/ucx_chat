@@ -1,10 +1,10 @@
 defmodule UcxChat.ChannelTest do
   use UcxChat.ModelCase
 
-  alias UcxChat.Channel
+  # alias UcxChat.Channel
 
-  @valid_attrs %{name: "somecontent", user_id: 1}
-  @invalid_attrs %{}
+  # @valid_attrs %{name: "somecontent", user_id: 1}
+  # @invalid_attrs %{}
 
   # setup do
   #   {:ok, user: insert_user()}

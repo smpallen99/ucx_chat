@@ -238,6 +238,7 @@ defmodule UcxChat.ChannelService do
     |> case do
       %{channel: channel} -> {:ok, channel}
       {:ok, %{channel: channel}} -> {:ok, channel}
+      error -> error
     end
   end
 

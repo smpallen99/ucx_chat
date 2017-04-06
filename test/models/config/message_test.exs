@@ -3,7 +3,7 @@ defmodule UcxChat.ConfigMessageTest do
   alias UcxChat.{Config.Message}
 
   @valid_attrs %{allow_message_editing: true, allow_message_deleting: false}
-  @invalid_attrs %{}
+  # @invalid_attrs %{}
 
   test "valid attributes" do
     changeset = Message.changeset(%Message{}, @valid_attrs)

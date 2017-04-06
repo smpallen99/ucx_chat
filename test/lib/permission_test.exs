@@ -4,7 +4,7 @@ defmodule UcxChat.PermissionTest do
 
   setup do
     user1 = %{roles: [%{role: "admin", scope: nil}, %{role: "moderator", scope: "1"}, %{role: "owner", scope: "2"}]}
-    user2 = %{roles: [%{role: "user", scope: nil %{role: "moderator", scope: "2"}, %{role: "owner", scope: "4"}]}
+    user2 = %{roles: [%{role: "user", scope: nil}, %{role: "moderator", scope: "2"}, %{role: "owner", scope: "4"}]}
     {:ok, u1: user1, u2: user2}
   end
 

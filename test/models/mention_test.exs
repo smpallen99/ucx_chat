@@ -3,7 +3,7 @@ defmodule UcxChat.MentionTest do
 
   alias UcxChat.Mention
 
-  @valid_attrs %{channel_id: 1, user_id: 1, message_id: 1}
+  @valid_attrs %{channel_id: "adf", user_id: "sdf", message_id: "dfd"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

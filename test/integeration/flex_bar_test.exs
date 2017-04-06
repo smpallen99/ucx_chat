@@ -3,7 +3,7 @@ defmodule UcxChat.FlexBarIntegrationTest do
   use UcxChat.ConnCase
   use Hound.Helpers
 
-  alias UcxChat.{FlexBarService}
+  # alias UcxChat.{FlexBarService}
   require Logger
 
 
