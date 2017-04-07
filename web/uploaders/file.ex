@@ -59,7 +59,7 @@ defmodule UcxChat.File do
     # # "/priv/uploads"
   end
   def storage_dir(scope) do
-    "priv/static/uploads/#{scope.message_id}"
+    "/priv/static/uploads/#{scope.message_id}"
   end
 
   # Provide a default URL if there hasn't been a file uploaded
