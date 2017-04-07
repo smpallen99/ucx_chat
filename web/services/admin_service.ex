@@ -93,6 +93,26 @@ defmodule UcxChat.AdminService do
     {:reply, resp, socket}
   end
 
+  def handle_in("save:user", params, socket) do
+    params =
+      params
+      |> Helpers.normalize_form_params
+
+    if id = params["id"] do
+      user = Helpers.get_user id
+      changeset = User.changeset user, params["user"]
+      case Repo.update changeset do
+        {:ok, _user} ->
+          {:reply, {:ok, %{success: ~g(User updated successfully)}}, socket}
+        {:error, changeset} ->
+          Logger.error "errors: #{inspect changeset.errors}"
+          errors = Helpers.format_javascript_errors changeset.errors
+          {:reply, {:error, %{error: ~g(Please fix the following errors), errors: errors}}, socket}
+      end
+    else
+    end
+  end
+
   def handle_in(ev = "flex:user-info", %{"name" => name} = params, socket) do
     debug ev, params
     assigns = socket.assigns

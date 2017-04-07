@@ -1,4 +1,5 @@
 import toastr from 'toastr'
+import * as flex from './flex_bar'
 
 const reset_i = '<i class="icon-ccw secondary-font-color color-error-contrast"></i>'
 
@@ -100,15 +101,72 @@ class Admin {
         let channel_id = $(e.currentTarget).closest('[data-id]').data('id')
         this.userchan_push('cancel', {channel_id: channel_id})
       })
+      .on('click', '#randomPassword', e => {
+        let new_password = UcxChat.randomString(12)
+        e.preventDefault()
+        e.stopPropagation()
+        if ($(e.currentTarget).hasClass('hide')) {
+          $(e.currentTarget).removeClass('hide').text('Random')
+          $('#password').attr('type','password')
+          $('#password_confirmation').attr('type','password')
+        } else {
+          $('#password').attr('type','text').val(new_password)
+          $('#password_confirmation').attr('type','text').val(new_password)
+          $(e.currentTarget).text('Hide Pswd').addClass('hide')
+        }
+      })
+      .on('click', 'form.user button.save', e => {
+        userchan.push('admin:save:user', $('form.user').serializeArray())
+          .receive("ok", resp => {
+            if (resp.success) {
+              toastr.success(resp.success)
+              this.close_edit_form($('form.user').data('username'))
+            } else if (resp.error) {
+              toastr.error(resp.error)
+            }
+          })
+          .receive("error", resp => {
+            console.log('error resp', resp)
+            if (resp.error) {
+              toastr.error(resp.error)
+            }
+            if (resp.errors) {
+              this.show_form_errors(resp.errors)
+            }
+          })
+      })
+      .on('click', 'form.user button.cancel', e => {
+        this.close_edit_form($('form.user').data('username'))
+      })
   }
 
+  close_edit_form(name) {
+    userchan.push('admin:flex:user-info', {name: name})
+      .receive("ok", resp => {
+        $('section.flex-tab').html(resp.html).parent().addClass('opened')
+        flex.set_tab_buttons_inactive()
+        flex.set_tab_button_active(resp.title)
+        // console.log('admin flex receive', resp)
+      })
+
+  }
+
+  show_form_errors(errors) {
+    console.log('error keys', Object.keys(errors))
+    $('.has-error').removeClass('has-error')
+    $('.help-block').remove()
+    for (var error in errors) {
+      console.log('error', error, errors[error])
+      let span = `<span class="help-block">${errors[error]}</span>`
+      $('#' + error).parent().addClass('has-error').append(span)
+    }
+  }
   userchan_push(action, params) {
     userchan.push('admin:channel-settings:' + action, params)
       .receive("ok", resp => {
         if (resp.html) {
           $('.content.channel-settings').replaceWith(resp.html)
         }
-
       })
       .receive("error", resp => {
         this.do_toastr(resp)
@@ -122,7 +180,6 @@ class Admin {
     } else if (resp.warning) {
       toastr.warning(resp.warning)
     }
-
   }
 }
 

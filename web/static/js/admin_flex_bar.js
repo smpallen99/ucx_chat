@@ -15,7 +15,7 @@ class AdminFlexBar {
   click_row_link(elem) {
     let type = elem.attr('class').replace(' row-link', '')
     let name = elem.data('name')
-    // console.log('clicked link-row', type, name, this.current)
+    console.log('clicked link-row', type, name, this.current)
 
     userchan.push('admin:flex:' + type, {name: name})
       .receive("ok", resp => {

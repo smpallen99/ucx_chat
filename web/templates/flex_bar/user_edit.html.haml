@@ -4,33 +4,37 @@
   %p.secondary-font-color= ~g(You are not authorized to view this page)
 - else
   .about.clearfix
-    %form.edit-form(autocomplete="off")
+    %form.edit-form.user(autocomplete="off" data-username="#{user.username}")
       - if user do
         %h3= user.name
+        %input(type="hidden" name="id" value="#{user.id}")
       - else
         %h3= ~g(Add User)
       .input-line
         %label(for="name")= ~g(Name)
-        %input#name(type="text" autocomplete="off" value="#{user.name}")
+        %input#name(type="text" name="user[name]" autocomplete="off" value="#{user.name}")
       .input-line
         %label(for="username")= ~g(Username)
-        %input#username(type="text" autocomplete="off" value="#{user.username}")
+        %input#username(type="text" name="user[username]" autocomplete="off" value="#{user.username}")
       .input-line
         %label(for="email")= ~g(Email)
-        %input#email(type="email" autocomplete="off" value="#{user.email}")
-      .input-line
-        %label(for="verified")
-          %input#verified(type="checkbox" value="1" checked="")
-          = ~g(Verified)
+        %input#email(type="email" name="user[email]" autocomplete="off" value="#{user.email}")
+      -# .input-line
+      -#  %label(for="verified")
+      -#    %input#verified(type="checkbox" name="verified" value="1" checked="")
+      -#    = ~g(Verified)
       - if has_permission? @current_user, "edit-other-user-password" do
         .input-line
           %label(for="password")= ~g(Password)
-          %input#password(type="password" autocomplete="off" value="")
+          %input#password(type="password" name="user[password]" autocomplete="off" value="")
           %button#randomPassword.button= ~g(Random)
         .input-line
-          %label(for="changePassword")
-            %input#changePassword(type="checkbox" value="1" checked="{{requirePasswordChange}}")
-            = ~g(Require password change)
+          %label(for="password_confirmation")= ~g(Password confirmation)
+          %input#password_confirmation(type="password" name="user[password_confirmation]" autocomplete="off" value="")
+        -# .input-line
+        -#  %label(for="changePassword")
+        -#    %input#changePassword(type="checkbox" value="1" checked="{{requirePasswordChange}}")
+        -#    = ~g(Require password change)
       - unless user do
         .input-line
           %label(for="role")= ~g(Role)

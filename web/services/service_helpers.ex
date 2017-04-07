@@ -143,6 +143,20 @@ defmodule UcxChat.ServiceHelpers do
   end
   def format_date_time(%DateTime{} = dt), do: dt |> DateTime.to_naive |> format_date_time
 
+  def format_javascript_errors([]), do: %{}
+  def format_javascript_errors(errors) do
+    errors
+    |> Enum.map(fn {k, {msg, opts}} ->
+      error = if count = opts[:count] do
+        Gettext.dngettext(UcxChat.Gettext, "errors", msg, msg, count, opts)
+      else
+        Gettext.dgettext(UcxChat.Gettext, "errors", msg, opts)
+      end
+      {k, error}
+    end)
+    |> Enum.into(%{})
+  end
+
   def month(1), do: ~g"January"
   def month(2), do: ~g"February"
   def month(3), do: ~g"March"

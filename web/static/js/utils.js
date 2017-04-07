@@ -1,6 +1,15 @@
 
 const debug = false;
 
+UcxChat.randomString = (length, charList) => {
+  let chars = charList
+  if (!chars)
+    chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$%#@!'
+  var result = '';
+  for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+  return result;
+}
+
 export function remove(arr, item) {
   if (debug) { console.log('remove', arr, item) }
 

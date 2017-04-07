@@ -25,9 +25,17 @@
   color: #fff;
 }
 .help-block {
-  color: red;
+  color: #ff3333;
   padding-top: 2px;
 
+}
+.input-line.has-error {
+  input, select, textarea {
+    border-color: #ff6666;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: #e60000;
+  }
 }
 #login-card .alert-danger {
   color: red;
