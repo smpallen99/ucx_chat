@@ -9,6 +9,8 @@ defmodule UcxChat.File do
 
   @versions [:original, :poster]
 
+  @acl :public_read
+
   # To add a thumbnail version:
   # @versions [:original, :thumb]
 
@@ -17,7 +19,7 @@ defmodule UcxChat.File do
     ~w(.jpg .jpeg .gif .png .txt .text .doc .pdf .wav .mp3 .mp4 .mov .m4a .xls) |> Enum.member?(Path.extname(file.file_name))
   end
 
-  def transform(:poster, {_, %{type: "video" <> _}} = item) do
+  def transform(:poster, {_, %{type: "video" <> _}}) do
     {:ffmpeg, fn(input, output) ->
       "-i #{input} -f image2 -ss 00:00:01.00 -vframes 1 -vf scale=-1:200 #{output}" end, :jpg}
   end
@@ -28,12 +30,10 @@ defmodule UcxChat.File do
   def filename(:poster, _params) do
     :poster
   end
-  def filename(version, {_, %{file_name: file_name}}) do
-    Logger.warn "version: #{inspect version}"
+  def filename(_version, {_, %{file_name: file_name}}) do
     String.replace(file_name, ~r(\.[^/.]+$), "")
   end
-  def filename(version, %{file_name: file_name} = params) do
-    Logger.warn "params: #{inspect params}"
+  def filename(_version, %{file_name: file_name}) do
     file_name
   end
 
@@ -43,12 +43,6 @@ defmodule UcxChat.File do
   #   version
   # end
 
-  def acl(_, _), do: :public_read
-
-  # Override the storage directory:
-  # def storage_dir(:preview, {_file, %{type: "image" <> _} = scope}) do
-  #   "priv/static/uploads/#{scope.message_id}/thumb-"
-  # end
   def storage_dir(_version, {_file, scope}) do
     storage_dir(scope)
     # Logger.warn "storage dir file: #{inspect file}, scope: #{inspect scope}"
@@ -59,7 +53,12 @@ defmodule UcxChat.File do
     # # "/priv/uploads"
   end
   def storage_dir(scope) do
-    "/priv/static/uploads/#{scope.message_id}"
+    path = "priv/static/uploads/#{scope.message_id}"
+    if UcxChat.env == :prod do
+      Path.join(Application.app_dir(:ucx_chat), path)
+    else
+      path
+    end
   end
 
   # Provide a default URL if there hasn't been a file uploaded
