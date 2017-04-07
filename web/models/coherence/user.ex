@@ -47,6 +47,7 @@ defmodule UcxChat.User do
     |> validate_format(:username, ~r/^[\.a-zA-Z0-9-_]+$/)
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:username)
+    |> unique_constraint(:email)
     |> validate_coherence(params)
     |> cast_assoc(:roles)
   end

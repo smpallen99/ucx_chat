@@ -29,7 +29,7 @@ defmodule UcxChat.TypingAgent do
   end
 
   def get_typing(channel_id) do
-    Agent.get(@name, &(get_in &1, [channel_id]))
+    Agent.get(@name, &(get_in &1, [channel_id])) || []
   end
 
   def stop_typing(channel_id, %{} = user),

@@ -68,11 +68,11 @@ defmodule UcxChat.Mixfile do
      {:distillery, "~> 1.2"},
      {:hackney, "~> 1.7.1", override: true},
      {:syslog, github: "smpallen99/syslog"},
-
      {:link_preview, "~> 1.0.0"},
      {:html_entities, "~> 0.2"},
      {:mogrify, "~> 0.4.0"},
      {:tempfile, "~> 0.1.0"},
+     # {:auto_linker, path: "../auto_linker"},
      {:auto_linker, "~> 0.1"},
      {:arc_ecto, "~> 0.6.0"},
      # {:auto_linker, path: "../auto_linker"},
