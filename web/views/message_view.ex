@@ -285,11 +285,19 @@ defmodule UcxChat.MessageView do
     quoted? = String.contains?(body, "```")
     body
     |> EmojiOne.shortname_to_image(single_class: "big")
+    |> message_formats
     # |> String.replace("&lt;", "<")
     # |> String.replace("&gt;", ">")
     |> format_newlines(quoted?, message.system)
     |> UcxChat.SharedView.format_quoted_code(quoted?, message.system)
     |> raw
+  end
+
+  defp message_formats(body) do
+    body
+    |> String.replace(~r/_(.+?)_/, "<i>\\1</i>")
+    |> String.replace(~r/\*(.+?)\*/, "<strong>\\1</strong>")
+    |> String.replace(~r/\~(.+?)\~/, "<strike>\\1</strike>")
   end
 
   defp format_newlines(string, true, _), do: string

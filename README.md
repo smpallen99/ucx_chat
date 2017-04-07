@@ -37,7 +37,8 @@ iex> Ecto.Migrator.run UcxChat.Repo, Path.join([Application.app_dir(:ucx_chat) |
 ## Updating Config When there are new entires
 
 ```elixir
-iex> config = Repo.all(Config) |> hd
-iex> Config.changeset(config, %{file_upload: %FileUpload{} |> Map.from_struct}) |> Repo.update
+alias UcxChat.{Repo, Config.FileUpload, Config}
+config = Repo.all(Config) |> hd
+Config.changeset(config, %{file_upload: %FileUpload{} |> Map.from_struct}) |> Repo.update
 ```
 
