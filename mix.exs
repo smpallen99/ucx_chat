@@ -6,7 +6,7 @@ defmodule UcxChat.Mixfile do
   def project do
     [app: :ucx_chat,
      version: @version,
-     elixir: "~> 1.2",
+     elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
@@ -38,7 +38,7 @@ defmodule UcxChat.Mixfile do
     :phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
     :phoenix_ecto, :mariaex, :coherence, :phoenix_haml, :hound, :syslog,
     :link_preview, :html_entities, :mogrify, :tempfile, :auto_linker,
-    :arc_ecto
+    :arc_ecto, :arc
   ]
   def applications(_), do: applications(:prod) ++ [:faker_elixir_octopus]
 
