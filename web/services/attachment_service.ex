@@ -27,10 +27,6 @@ defmodule UcxChat.AttachmentService do
     changeset = Attachment.changeset(%Attachment{}, Map.put(params, "message_id", id))
     case Repo.insert changeset do
       {:ok, attachment} ->
-        Logger.warn ".     . . .attachment: #{inspect attachment}"
-        scope = %{id: attachment.message_id}
-        res = UcxChat.File.store({attachment.file_name, scope})
-        Logger.warn ".............. res: #{inspect res}"
         {:ok, %{attachment: attachment, message: message}}
       error -> error
     end
