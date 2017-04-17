@@ -61,12 +61,30 @@ defmodule UcxChat.MessageService do
 
   end
 
-  def broadcast_system_message(channel_id, _user_id, body) do
-    channel = Helpers.get(Channel, channel_id)
-    message = create_system_message(channel_id, body)
+  def broadcast_bot_message(%{} = channel, _user_id, body) do
+    Logger.warn "broadcast_bot_message body: #{inspect body}"
+    bot_id = Helpers.get_bot_id()
+    message = create_message(String.replace(body, "\n", "<br>"), bot_id, channel.id,
+      %{
+        # type: "p",
+        system: true,
+        sequential: false,
+      })
     html = render_message message
     resp = create_broadcast_message(message.id, channel.name, html)
     UcxChat.Endpoint.broadcast! CC.chan_room <> channel.name, "message:new", resp
+  end
+
+  def broadcast_system_message(%{} = channel, _user_id, body) do
+    message = create_system_message(channel.id, body)
+    html = render_message message
+    resp = create_broadcast_message(message.id, channel.name, html)
+    UcxChat.Endpoint.broadcast! CC.chan_room <> channel.name, "message:new", resp
+  end
+  def broadcast_system_message(channel_id, user_id, body) do
+    Channel
+    |> Helpers.get(channel_id)
+    |> broadcast_system_message(user_id, body)
   end
 
   def broadcast_message(id, room, user_id, html, opts \\ []) #event \\ "new")

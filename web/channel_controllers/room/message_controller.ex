@@ -39,6 +39,7 @@ defmodule UcxChat.MessageChannelController do
 
       true ->
         {body, mentions} = encode_mentions(message, channel_id)
+        UcxChat.RobotService.new_message body, channel, user
 
         message = create_message(body, user_id, channel_id, msg_params)
         create_mentions(mentions, message.id, message.channel_id, body)

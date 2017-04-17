@@ -1,0 +1,30 @@
+
+class Menu
+  constructor: ->
+    register_events()
+
+  is_open: ->
+    $('.main-content').offset().left != 0
+
+  setup: ->
+    if $('.burger').is(':visible')
+      if is_open()
+        open()
+      else
+        close()
+
+  open: ->
+    $('.main-content').css('transform', 'translateX(260px)')
+    $('.burger').addClass('menu-opened')
+
+  close: ->
+    $('.main-content').css('transform', 'translateX(0px)')
+    $('.burger').removeClass('menu-opened')
+
+  register_events: ->
+    $('body').on 'click', '.burger', (e) ->
+      if is_open()
+        close()
+      else
+        open
+root.Menu = @menu

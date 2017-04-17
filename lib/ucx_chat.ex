@@ -19,6 +19,8 @@ defmodule UcxChat do
       worker(UcxChat.MessageAgent, []),
       worker(UcxChat.UserAgent, []),
       worker(UcxChat.PresenceAgent, []),
+      # worker(UcxChat.Robot.Adapters.UcxChat, []),
+      worker(UcxChat.Robot, []),
       worker(UcxChat.ChannelMonitor, [:chan_system]),
     ]
     UcxChat.Permission.startup
