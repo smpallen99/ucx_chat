@@ -22,8 +22,14 @@ defmodule UcxChat.Coherence.RegistrationController do
   plug Coherence.ValidateOption, :registerable
   plug :scrub_params, "registration" when action in [:create, :update]
 
-  plug :layout_view
+  plug :set_layout_view
   plug :redirect_logged_in when action in [:new, :create]
+
+  def set_layout_view(conn, _ \\ []) do
+    conn
+    |> put_view(Coherence.RegistrationView)
+    |> put_layout({Coherence.LayoutView, "app.html"})
+  end
 
   @type schema :: Ecto.Schema.t
   @type conn :: Plug.Conn.t
@@ -48,16 +54,14 @@ defmodule UcxChat.Coherence.RegistrationController do
   """
   @spec create(conn, params) :: conn
   def create(conn, %{"registration" => registration_params} = params) do
-    user_schema = Config.user_schema
-    cs = Helpers.changeset(:registration, user_schema, user_schema.__struct__, registration_params)
-    case Config.repo.insert(cs) do
+    case UcxChat.UserService.insert_user(params["registration"]) do
       {:ok, user} ->
+        Logger.warn "user: #{inspect user}"
         conn
-        |> send_confirmation(user, user_schema)
-        |> redirect_or_login(user, params, Config.allow_unconfirmed_access_for)
-      {:error, changeset} ->
-        conn
-        |> render("new.html", changeset: changeset)
+        # |> send_confirmation(user, user_schema)
+        |> redirect(to: logged_out_url(conn))
+      {:error, :user, error, _} ->
+        render conn, "new.html", changeset: error 
     end
   end
 

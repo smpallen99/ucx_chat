@@ -73,7 +73,7 @@ config :coherence,
   require_current_password: false,
   email_from_name: {:system, "COH_NAME"},
   email_from_email: {:system, "COH_EMAIL"},
-  opts: [:invitable, :unlockable_with_token, :recoverable, :lockable, :authenticatable, :trackable]
+  opts: [:registerable, :invitable, :unlockable_with_token, :recoverable, :lockable, :authenticatable, :trackable]
 
 config :coherence, UcxChat.Coherence.Mailer,
   adapter: Swoosh.Adapters.Sendgrid,

@@ -1,0 +1,80 @@
+<br \>
+<style>
+  body {
+    background-color: #666;
+  }
+  .alert { width: 520px; margin: auto;}
+  .alert.alert-danger {
+    width: 520px;
+    margin: auto;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+  }
+</style>
+<% require Logger %>
+<% flash = @conn.private[:phoenix_flash] %>
+<%= unless flash == %{} do %>
+  <%= if error = flash["error"] do %>
+    <div class="alert alert-danger" role="alert">
+      <%= error %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= form_for @changeset, @action, [id: "login-card", as: :registration, class: "content-background-color color-primary-font-color"], fn f  -> %>
+
+  <div class="fields">
+    <div class="input-line">
+      <%= required_label f, :name, class: "control-label" %>
+      <%= text_input f, :name, class: "form-control", required: "" %>
+      <%= error_tag f, :name %>
+    </div>
+
+    <%= unless (login_field = Coherence.Config.login_field) == :email do %>
+      <div class="input-line">
+        <%= required_label f, login_field, class: "control-label" %>
+        <%= text_input f, login_field, class: "form-control", required: "" %>
+        <%= error_tag f, login_field %>
+      </div>
+    <% end %>
+
+    <div class="input-line">
+      <%= required_label f, :email, class: "control-label" %>
+      <%= text_input f, :email, class: "form-control", required: "" %>
+      <%= error_tag f, :email %>
+    </div>
+
+    <%= if Coherence.Config.require_current_password and not is_nil(@changeset.data.id) do %>
+      <div class="input-line">
+        <%= required_label f, :current_password, class: "control-label" %>
+        <%= password_input f, :current_password, [class: "form-control"] ++ @required %>
+        <%= error_tag f, :current_password %>
+      </div>
+    <% end %>
+
+    <div class="input-line">
+      <%= required_label f, :password, class: "control-label" %>
+      <%= password_input f, :password, [class: "form-control"] ++ @required %>
+      <%= error_tag f, :password %>
+    </div>
+    <div class="input-line">
+      <%= required_label f, :password_confirmation, class: "control-label" %>
+      <%= password_input f, :password_confirmation, [class: "form-control"] ++ @required %>
+      <%= error_tag f, :password_confirmation %>
+    </div>
+  </div>
+  <div class="submit">
+    <button data-loading-text="<%= ~g(Please wait...) %>" class="button primary login"><span><%= ~g(Create account) %></span></button>
+  </div>
+  <div>
+    <button type="button" class="back-to-login"><%= ~g(Back to login) %></button>
+  </div>
+<% end %>
+<script>
+  $(document).ready(function() {
+    $('body').on('click', 'button.back-to-login', function(e) {
+      window.location = '/'
+    })
+  })
+</script>

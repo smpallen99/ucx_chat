@@ -55,9 +55,9 @@
   <div class="submit">
     <button data-loading-text="<%= ~g(Please wait...) %>" class="button primary login"><span><%= ~g(Login) %></span></button>
   </div>
-  <!-- <div>
+  <div>
     <button type="button" class="register"><%= ~g(Register a new account) %></button>
-  </div> -->
+  </div> 
   <div>
     <button type="button" class="forgot-password"><%= ~g(Forgot your password) %></button>
   </div>
@@ -75,7 +75,7 @@
   $(document).ready(function() {
     $('#tz-offset').val(`${new Date().getTimezoneOffset() / -60}`)
     $('body').on('click', 'button.register', function(e) {
-      window.location = "/register/new"
+      window.location = "/registrations/new"
     })
     $('body').on('click', 'button.forgot-password', function(e) {
       window.location = '/passwords/new'
