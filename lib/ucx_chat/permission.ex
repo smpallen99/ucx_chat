@@ -7,6 +7,8 @@ defmodule UcxChat.Permission do
   low since that is only done through the admin GUI.
 
   TODO: Still need to implement the disk persistence part!!
+
+  NOTE: This has been redesigned in the vew version
   """
 
   @default_permissions  [
