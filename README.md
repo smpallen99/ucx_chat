@@ -8,6 +8,8 @@
 
 UcxUcc is a simple but powerful team collaboration suite of applications designed to improve communications, information sharing and productivity for the businesses small and large.
 
+Checkout the [Live Demo](http://chat.spallen.com). Click on the [Register a new account](http://chat.spallen.com/registrations/new) link on the sign in page to create an account.
+
 ![Screen Shoot](priv/images/screen_shot_1.png)
 
 This innovative suite of tools enhances business productivity with:
