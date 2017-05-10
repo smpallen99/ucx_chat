@@ -69,7 +69,11 @@ defmodule UcxChat.Coherence.SessionController do
   """
   @spec create(conn, params) :: conn
   def create(conn, params) do
-    tz_offset = params["tz-offset"] |> String.to_integer
+    tz_offset = 
+      case Integer.parse(params["tz-offset"] || "") do 
+        :error -> 0
+        {num, _} -> num
+      end
     remember = if Config.user_schema.rememberable?, do: params["remember"], else: false
     user_schema = Config.user_schema
     login_field = Config.login_field
