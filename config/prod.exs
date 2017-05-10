@@ -84,8 +84,8 @@ config :ucx_chat, UcxChat.Endpoint,
 # Configure your database
 config :ucx_chat, UcxChat.Repo,
   adapter: Ecto.Adapters.MySQL,
-  username: "CHANGE_ME",
-  password: "CHANGE_ME",
+  username: System.get_env("DB_USER") || "${DB_USER}",
+  password: System.get_env("DB_PASS") || "${DB_PASS}",
   database: "ucx_chat_prod",
   pool_size: 20
 

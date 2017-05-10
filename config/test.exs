@@ -12,8 +12,8 @@ config :logger, level: :error
 # Configure your database
 config :ucx_chat, UcxChat.Repo,
   adapter: Ecto.Adapters.MySQL,
-  username: "CHANGE_ME",
-  password: "CHANGE_ME",
+  username: System.get_env("DB_USER"),
+  password: System.get_env("DB_PASS"),
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 

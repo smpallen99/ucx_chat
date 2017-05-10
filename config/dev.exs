@@ -47,7 +47,7 @@ config :phoenix, :stacktrace_depth, 20
 config :ucx_chat, UcxChat.Repo,
   adapter: Ecto.Adapters.MySQL,
   username: System.get_env("DB_USER"),
-  password: System.get_env("DB_PASSWORD"),
+  password: System.get_env("DB_PASS"),
   database: "ucx_chat_dev",
   hostname: "localhost",
   pool_size: 10
