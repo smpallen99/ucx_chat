@@ -80,7 +80,6 @@ defmodule UcxChat.Coherence.SessionController do
     login_field_str = to_string login_field
     login = params["session"][login_field_str]
     password = params["session"]["password"]
-    # user = Config.repo.one(from u in user_schema, where: field(u, ^login_field) == ^login)
     user = Config.repo.one(from u in user_schema, where: u.username == ^login or u.email == ^login)
     lockable? = user_schema.lockable?
     if user != nil and user.active and user_schema.checkpw(password, Map.get(user, Config.password_hash)) do
