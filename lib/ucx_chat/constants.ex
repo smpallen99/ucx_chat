@@ -1,8 +1,3 @@
-# Copyright (C) E-MetroTel, 2015 - All Rights Reserved
-# This software contains material which is proprietary and confidential
-# to E-MetroTel and is made available solely pursuant to the terms of
-# a written license agreement with E-MetroTel.
-
 defmodule Constants do
   @moduledoc """
   An alternative to use @constant_name value approach to defined reusable
